@@ -14,5 +14,10 @@
     ],
     "idf.portWin": "COM6",
     "idf.pythonBinPathWin": "C:\\Users\\catli\\.espressif\\python_env\\idf5.1_py3.11_env\\Scripts\\python.exe",
-    "idf.toolsPathWin": "C:\\Users\\catli\\.espressif"
+    "idf.toolsPathWin": "C:\\Users\\catli\\.espressif",
+    "cSpell.words": [
+        "Catlin",
+        "GPIO",
+        "GPIOs"
+    ]
 }

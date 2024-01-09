@@ -14,6 +14,12 @@
 # EXTERNAL cache entries
 ########################
 
+//No help, variable specified on the command line.
+CCACHE_ENABLE:UNINITIALIZED=1
+
+//Path to a program.
+CCACHE_FOUND:FILEPATH=C:/Users/catli/.espressif/tools/ccache/4.8/ccache-4.8-windows-x86_64/ccache.exe
+
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=C:/Users/catli/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-addr2line.exe
 
@@ -210,7 +216,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=project-name
+CMAKE_PROJECT_NAME:STATIC=udemy_esp32_app
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=C:/Users/catli/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin/xtensa-esp32-elf-ranlib.exe
@@ -329,6 +335,9 @@ Mbed TLS_IS_TOP_LEVEL:STATIC=OFF
 Mbed TLS_SOURCE_DIR:STATIC=C:/Users/catli/esp/esp-idf/components/mbedtls/mbedtls
 
 //No help, variable specified on the command line.
+PYTHON:UNINITIALIZED=C:\Users\catli\.espressif\python_env\idf5.1_py3.11_env\Scripts\python.exe
+
+//No help, variable specified on the command line.
 PYTHON_DEPS_CHECKED:UNINITIALIZED=1
 
 //Allow unsafe builds. These builds ARE NOT SECURE.
@@ -372,6 +381,15 @@ project-name_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 project-name_SOURCE_DIR:STATIC=C:/Users/catli/esp/projects/udemy/project-name
+
+//Value Computed by CMake
+udemy_esp32_app_BINARY_DIR:STATIC=C:/Users/catli/esp/projects/udemy/project-name/build
+
+//Value Computed by CMake
+udemy_esp32_app_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+udemy_esp32_app_SOURCE_DIR:STATIC=C:/Users/catli/esp/projects/udemy/project-name
 
 
 ########################
