@@ -14,3 +14,4 @@ which shouldnt be an issue,
 the sdkconfig will remain shared incase of other development related changes
 
 status lights done -jan 10/24
+wifi implementation - started jan 10/24
