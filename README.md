@@ -18,6 +18,7 @@ status lights done -jan 10/24
     rgb_led.h added
 wifi implementation - started jan 10/24
     added:
-        -tasks_common.h
-        -wifi_app.h
-        -wifi_app.c
+        -main/tasks_common.h
+        -main/wifi_app.h
+        -main/wifi_app.c
+        -.vscode/c_code.code-snippets  --->file header macro
