@@ -16,13 +16,18 @@ void app_main(void)
 {
     while (true)
     {
+        printf("yellow\n");
         rgb_led_wifi_app_started();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
     
+        printf("Purple\n");
         rgb_led_http_server_started();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
 
+        printf("Green\n");
         rgb_led_wifi_connected();
-        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        vTaskDelay(4000 / portTICK_PERIOD_MS);
+
+        printf("\n");
     }
 }
