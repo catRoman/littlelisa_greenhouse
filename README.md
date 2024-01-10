@@ -14,4 +14,10 @@ which shouldnt be an issue,
 the sdkconfig will remain shared incase of other development related changes
 
 status lights done -jan 10/24
+    rgb_led.c added
+    rgb_led.h added
 wifi implementation - started jan 10/24
+    added:
+        -tasks_common.h
+        -wifi_app.h
+        -wifi_app.c
