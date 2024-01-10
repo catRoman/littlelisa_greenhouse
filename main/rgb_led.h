@@ -19,7 +19,7 @@
 // RGB LED configuration
 typedef struct
 {
-    int channe;
+    int channel;
     int gpio;
     int mode;
     int timeer_index;
