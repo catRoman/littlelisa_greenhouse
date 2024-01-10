@@ -13,6 +13,8 @@
 // RGB LED Configuration Array
 ledc_info_t ledc_ch[RGB_LED_CHANNEL_NUM];
 
+bool g_pwm_init_handle = false;
+
 /**
  * Initialize the RGB LED settings per channel, 
  * including the GPIO for each color, mode and timer
@@ -64,8 +66,9 @@ static void rgb_led_pwm_init(void)
             .timer_sel          = ledc_ch[rgb_ch].timer_index
         };
         ledc_channel_config(&ledc_channel);
-
     }
+
+    g_pwm_init_handle = true;
 }
 /**
  * Set the RGB Color
@@ -82,4 +85,32 @@ static void rgb_led_set_color(uint8_t red, uint8_t green, uint8_t blue)
     ledc_set_duty(ledc_ch[2].mode,ledc_ch[2].channel, blue);
     ledc_update_duty(ledc_ch[2].mode, ledc_ch[2].channel);
     
+}
+
+void rgb_led_wifi_app_started(void)
+{
+    if (g_pwm_init_handle = true)
+    {
+        rgb_led_pwm_init();
+        rgb_led_set_color(RGB_LED_WIFI_STARTED_COLOR);
+    }
+}
+
+void rgb_led_http_server_started(void)
+{ 
+    if (g_pwm_init_handle = true)
+    {
+        rgb_led_pwm_init();
+        rgb_led_set_color(RGB_LED_HTTP_SERVER_STARTED_COLOR);
+    }
+    
+}
+
+void rgb_led_wifi_connected(void)
+{
+    if (g_pwm_init_handle = true)
+    {
+        rgb_led_pwm_init();
+        rgb_led_set_color(RGB_LED_WIFI_CONNECTED_COLOR);
+    }
 }
