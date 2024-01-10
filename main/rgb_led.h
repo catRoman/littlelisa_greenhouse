@@ -13,6 +13,11 @@
 #define RGB_LED_GREEN_GPIO      20
 #define RGB_LED_BLUE_GPIO       19
 
+// RGB LED status colors ---> (red, green, blue)
+#define RGB_LED_WIFI_STARTED_COLOR            255, 255, 0 // Yellow
+#define RGB_LED_HTTP_SERVER_STARTED_COLOR     128, 0, 128  // Deep Purple 
+#define RGB_LED_WIFI_CONNECTED_COLOR          0, 255, 0     // Green
+
 // RGB LED color mix channels
 #define RGB_LED_CHANNEL_NUM     3
 
@@ -22,7 +27,7 @@ typedef struct
     int channel;
     int gpio;
     int mode;
-    int timeer_index;
+    int timer_index;
 } ledc_info_t;
 
 
