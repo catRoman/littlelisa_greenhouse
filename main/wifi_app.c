@@ -17,6 +17,7 @@
 #include "lwip/netdb.h"
 
 #include "rgb_led.h"
+#include "http_server.h"
 #include "task_common.h"
 #include "wifi_app.h"
 
