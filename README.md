@@ -34,6 +34,7 @@ http server -- started jan 10/24
         -main/CMakeList.txt --> added embed filed from website/
                             --> add http_Server.c
         -main/task_common.h --> added http server task, http monitor task
+        -main/wifi_app.c --> added call to http server start
     added:
         -webpage/app.css
         -webpage/app.js
