@@ -36,10 +36,10 @@ http server -- started jan 10/24
         -main/task_common.h --> added http server task, http monitor task
         -main/wifi_app.c --> added call to http server start
     added:
-        -webpage/app.css
-        -webpage/app.js
-        -webpage/favicon.ico
-        -webpage/index.html
-        -webpage/jquery-3.3.1.min.js
+        -main/webpage/app.css
+        -main/webpage/app.js
+        -main/webpage/favicon.ico
+        -main/webpage/index.html
+        -main/webpage/jquery-3.3.1.min.js
         -main/http_server.c
         -main/http_server.h
