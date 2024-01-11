@@ -75,7 +75,7 @@ static void  wifi_app_soft_ap_config(void)
     inet_pton(AF_INET, WIFI_AP_NETMASK, &ap_ip_info.netmask);
     ESP_ERROR_CHECK(esp_netif_set_ip_info(esp_netif_ap, &ap_ip_info));              ///> statically configure the network interface
     ESP_ERROR_CHECK(esp_netif_dhcps_start(esp_netif_ap));                           ///> start the ap dhcp server (for connecting stations eg. mobile device)
-    ESP_ERROR_CHECK(esp_set_mode(WIFI_MODE_APSTA));                                 ///> Setting the mode as access point / station mode
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));                                 ///> Setting the mode as access point / station mode
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &ap_config));               ///> set our configuration
     ESP_ERROR_CHECK(esp_wifi_set_bandwidth(ESP_IF_WIFI_AP, WIFI_AP_BANDWIDTH));     ///> Our default bandwidth 20 MHz
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_STA_POWER_SAVE));                          ///> Power save sett to none
@@ -180,7 +180,7 @@ static void wifi_app_task(void *pvParameters)
      ESP_ERROR_CHECK(esp_wifi_start());
 
      // Send first event message
-     wifi_app_message(WIFI_APP_MSG_START_HTTP_SERVER);
+     wifi_app_send_message(WIFI_APP_MSG_START_HTTP_SERVER);
 
      for(;;)
      {
