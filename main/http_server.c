@@ -60,7 +60,7 @@ static esp_err_t http_server_index_html_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "index.html requested");
 
-    http_resp_set_type(req, "text/html");
+    httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, (const char *)index_html_start, index_html_end- index_html_start);
 
     return ESP_OK;
@@ -75,7 +75,7 @@ static esp_err_t http_server_app_js_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "App.js requested");
 
-    http_resp_set_type(req, "application/javascript");
+    httpd_resp_set_type(req, "application/javascript");
     httpd_resp_send(req, (const char *)app_js_start, app_js_end - app_js_start);
 
     return ESP_OK;
@@ -90,7 +90,7 @@ static esp_err_t http_server_app_css_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "App.css requested");
 
-    http_resp_set_type(req, "text/css");
+    httpd_resp_set_type(req, "text/css");
     httpd_resp_send(req, (const char *)app_css_start, app_css_end - app_css_start);
 
     return ESP_OK;
@@ -105,7 +105,7 @@ static esp_err_t http_server_favicon_ico_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "Favicon.ico requested");
 
-    http_resp_set_type(req, "image/x-icon");
+    httpd_resp_set_type(req, "image/x-icon");
     httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_end - favicon_ico_start);
 
     return ESP_OK;
@@ -140,9 +140,8 @@ static httpd_handle_t http_server_configuration(void)
     config.recv_wait_timeout = 10;
     config.send_wait_timeout = 10;
 
-    ESP_LOGI(TAG,
-        ()"http_server_configure: Starting server on port '%d'", 
-            config.server_port, config.task_priority);
+    ESP_LOGI(TAG, "http_server_configure: Starting server on port '%d'", 
+            config.server_port);
 
     // start the httpd server
     if(httpd_start(&http_server_handle, &config)== ESP_OK)
@@ -204,7 +203,7 @@ void http_server_start(void)
 {
     if (http_server_handle == NULL)
     {
-        http_server_handle = http_server_configure();
+        http_server_handle = http_server_configuration();
     };
 }
 
