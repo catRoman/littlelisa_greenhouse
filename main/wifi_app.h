@@ -5,7 +5,8 @@
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
  * 
- * Detailed desciption (optional)
+ * includes all base configuration for wifi, enum for wifi messages 
+ * and netif objects for stations and access point
  */
 
 #ifndef MAIN_WIFI_APP_H_
@@ -48,7 +49,7 @@ typedef enum wifi_app_message
  * Structure for the message queue
  * @note Expand this based on application requirments, e.g. add another type and parameter as required
 */
-typedef struct wifi_app_queue_message
+typedef struct wifi_app_queue_message_t
 {
     wifi_app_message_e msgID;
 } wifi_app_queue_message_t;
