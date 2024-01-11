@@ -33,7 +33,7 @@ http server -- started jan 10/24
     updated:
         -main/CMakeList.txt --> added embed filed from website/
                             --> add http_Server.c
-    
+        -main/task_common.h --> added http server task, http monitor task
     added:
         -webpage/app.css
         -webpage/app.js
