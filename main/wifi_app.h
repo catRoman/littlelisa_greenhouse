@@ -13,6 +13,7 @@
 #define MAIN_WIFI_APP_H_
 
 #include "esp_netif.h"
+#include "freertos/FreeRTOS.h"
 
 // WiFi application settings
 #define WIFI_AP_SSID                "ESP32_AP"      // AP name
