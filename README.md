@@ -19,8 +19,11 @@ status lights done -jan 10/24
 wifi implementation - started jan 10/24
     updated:
         -main/CMakeList.txt     --> added wifi_app.c
+        -main/main.c            --> changed to drive wifi_app.c
     added:
         -main/tasks_common.h
         -main/wifi_app.h
         -main/wifi_app.c
         -.vscode/c_code.code-snippets   --->file header macro
+
+    finished jan 10/24 --> working on laptop:wsl:ubuntu
