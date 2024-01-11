@@ -159,7 +159,7 @@ static httpd_handle_t http_server_configuration(void)
         
         //register index.html handler
         httpd_uri_t index_html = {
-            .uri = "/index.html",
+            .uri = "/",
             .method = HTTP_GET,
             .handler = http_server_index_html_handler,
             .user_ctx = NULL,
