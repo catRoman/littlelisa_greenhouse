@@ -16,6 +16,7 @@ the sdkconfig will remain shared incase of other development related changes
 status lights done -jan 10/24
     rgb_led.c added
     rgb_led.h added
+
 wifi implementation - started jan 10/24
     updated:
         -main/CMakeList.txt     --> added wifi_app.c
@@ -27,3 +28,17 @@ wifi implementation - started jan 10/24
         -.vscode/c_code.code-snippets   --->file header macro
 
     finished jan 10/24 --> working on laptop:wsl:ubuntu
+
+http server -- started jan 10/24
+    updated:
+        -main/CMakeList.txt --> added embed filed from website/
+                            --> add http_Server.c
+    
+    added:
+        -webpage/app.css
+        -webpage/app.js
+        -webpage/favicon.ico
+        -webpage/index.html
+        -webpage/jquery-3.3.1.min.js
+        -main/http_server.c
+        -main/http_server.h
