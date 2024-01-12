@@ -48,3 +48,17 @@ OTA firmware update -- started jan 11
     updated:
         -http_server.c --> added ota functionality
         -http_server.h
+    add:
+        updates/udemy_esp32_app-update.bin
+
+    finished jan 11
+
+DHT22 Implementaion started jan 11/24
+    updated:
+        -/main/CMakeList.txt --> added DHT22.c
+        -main/task_common.h --> added dht22 task
+        -main/DHT22.h --> added task start protoype
+        -main/DHT22.c 
+    added:
+        -main/DHT22.c --> dht driver
+        -main/DHT22.h --> dht driver header

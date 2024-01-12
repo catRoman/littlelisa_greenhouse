@@ -9,9 +9,9 @@
 #define MAIN_RGB_LED_H_
 
 // RGB LED GPIO
-#define RGB_LED_RED_GPIO        34
-#define RGB_LED_GREEN_GPIO      35
-#define RGB_LED_BLUE_GPIO       32
+#define RGB_LED_RED_GPIO        32
+#define RGB_LED_GREEN_GPIO      33
+#define RGB_LED_BLUE_GPIO       25
 
 // RGB LED status colors ---> (red, green, blue)
 #define RGB_LED_WIFI_STARTED_COLOR            255, 255, 0 // Yellow
