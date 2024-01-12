@@ -43,3 +43,8 @@ http server -- started jan 10/24
         -main/webpage/jquery-3.3.1.min.js
         -main/http_server.c
         -main/http_server.h
+
+OTA firmware update -- started jan 11
+    updated:
+        -http_server.c --> added ota functionality
+        -http_server.h
