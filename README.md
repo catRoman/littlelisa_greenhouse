@@ -58,7 +58,7 @@ DHT22 Implementaion started jan 11/24
         -/main/CMakeList.txt --> added DHT22.c
         -main/task_common.h --> added dht22 task
         -main/DHT22.h --> added task start protoype
-        -main/DHT22.c 
+        -main/DHT22.c --> replaced ets_delay_us() w/ esp_rom_daly_us()
     added:
         -main/DHT22.c --> dht driver
         -main/DHT22.h --> dht driver header
