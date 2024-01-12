@@ -255,8 +255,6 @@ static void DHT22_task(void *vpParameter)
 		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
 	}
 }
-
-
 void DHT22_task_start(void){
 	xTaskCreatePinnedToCore(&DHT22_task, "DHT22_task", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }
