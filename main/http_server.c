@@ -214,7 +214,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
     bool is_req_body_started = false;
     bool flash_succesful = false;
 
-    const esp_partition_t *update_partition = esp_OTA_get_next_update_partition(NULL);
+    const esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);
 
     do
     {
@@ -227,7 +227,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
                 ESP_LOGI(TAG, "http_server_/ota_update_handler: Socket Timeout");
                 continue; // retry recieving if timeout occured
             }
-            ESP_LOFI(TAG, "http_server_OTA_update_handler: OTA other Error %d", recv_len);
+            ESP_LOGI(TAG, "http_server_OTA_update_handler: OTA other Error %d", recv_len);
             return ESP_FAIL;
         }
         printf("http_server_OTA_update_handler: OTA RX: %d of %d\r", content_recieved, content_length);
@@ -251,7 +251,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
             }
             else
             {
-                printf("http_server_OTA_update_handler: Writing to partioin subtype %d at offset 0c%x\r\n", update_partition->subtype, update_partition->address);
+                printf("http_server_OTA_update_handler: Writing to partioin subtype %d at offset 0x%lx\r\n", update_partition->subtype, update_partition->address);
             }
             // write this first part of the data
             esp_ota_write(ota_handle, body_start_p, body_part_len);
@@ -271,7 +271,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
         if (esp_ota_set_boot_partition(update_partition) == ESP_OK)
         {
             const esp_partition_t *boot_partition = esp_ota_get_boot_partition();
-            ESP_LOGI(TAG, "http_server_OTA_update_handle: Next boot partition subtype %d at offset 0x%x", boot_partition->subtype, boot_partition->address);
+            ESP_LOGI(TAG, "http_server_OTA_update_handle: Next boot partition subtype %d at offset 0x%lx", boot_partition->subtype, boot_partition->address);
             flash_succesful = true;
         }
         else
@@ -308,7 +308,7 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 
     ESP_LOGI(TAG, "OTAstatus requested");
 
-    sprint(otaJSON, "{\"ota_update_status\":%d,\"compile_time\":\"%s\",\"compile_data\":\"%s\"}", g_fw_update_status, __TIME__, __DATE__);
+    sprintf(otaJSON, "{\"ota_update_status\":%d,\"compile_time\":\"%s\",\"compile_data\":\"%s\"}", g_fw_update_status, __TIME__, __DATE__);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, otaJSON, strlen(otaJSON));
 
@@ -415,7 +415,7 @@ static httpd_handle_t http_server_configuration(void)
             .handler = http_server_OTA_status_handler,
             .user_ctx = NULL
         };
-        ttpd_register_uri_handler(http_server_handle, &OTA_status);
+        httpd_register_uri_handler(http_server_handle, &OTA_status);
         
         return http_server_handle;
     }
@@ -455,7 +455,7 @@ BaseType_t http_server_monitor_send_message(http_server_message_e msgID)
 }
 
 
-void http_server_fw_update_rest_callback(void *arg)
+void http_server_fw_update_reset_callback(void *arg)
 {
     ESP_LOGI(TAG, "http_server_fw_update_reset_callback: Timer timed out, restarting the device");
     esp_restart();
