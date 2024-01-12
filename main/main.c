@@ -9,6 +9,7 @@
 #include "nvs_flash.h"
 
 #include "wifi_app.h"
+#include "DHT22.h"
 
 void app_main(void)
 {
@@ -21,8 +22,12 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
-    // Satrt Wifi
+    // Start Wifi
     wifi_app_start();
+    
+
+    // start DHT22 Sensor task
+    DHT22_task_start();
 
 
 
