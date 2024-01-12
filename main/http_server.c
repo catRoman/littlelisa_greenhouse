@@ -9,6 +9,8 @@
 
 #include "esp_http_server.h"
 #include "esp_log.h"
+#include "esp_ota_ops.h"
+#include "sys/param.h"
 
 #include "http_server.h"
 #include "task_common.h"
@@ -16,6 +18,9 @@
 
 // Tag used for ESP serial console message
 static const char TAG[] = "http_server";
+
+// Firmware update status
+static int g_fw_update_status = OTA_UPDATE_PENDING;
 
 // HTTP Server task handle
 static httpd_handle_t http_server_handle = NULL;
@@ -72,19 +77,15 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
 
                 case HTTP_MSG_OTA_UPDATE_SUCCESFUL:
                     ESP_LOGI(TAG, "HTTP_MSG_OTA_UPDATE_SUCCESFUL");
-
+                    g_fw_update_status = OTA_UPDATE_SUCCESSFUL;
                     break;
 
                 case HTTP_MSG_OTA_UPDATE_FAILED:
                     ESP_LOGI(TAG, "HTTP_MSG_OTA_UPDATE_FAILED");
+                    g_fw_update_status = OTA_UPDATE_FAILED;
 
                     break;
 
-                case HTTP_MSG_OTA_UPDATE_INITALIZED:
-                    ESP_LOGI(TAG, "HTTP_MSG_OTA_UPDATE_INITALIZED");
-
-                    break;
-                
                 default:
                     break;
             }
@@ -165,6 +166,70 @@ static esp_err_t http_server_favicon_ico_handler(httpd_req_t *req)
     httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_end - favicon_ico_start);
 
     return ESP_OK;
+}
+/**
+ * Recieves the .bin file via the web page and handles the firmware update
+ * @param req HTTP request for which the uri needs to be handles.
+ * @return ESP_OK, otherwise ESP_FAIL if timeout occurs and the update cannot be started
+*/
+esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
+{
+    esp_ota_handle_t ota_handle;
+
+    char ota_buff[1024];
+    int content_length = req->content_len;
+    int content_recieved = 0;
+    int recv_len;
+    bool is_req_body_started = false;
+    bool flash_succesful = false;
+
+    const esp_partition_t *update_partiion = esp_OTA_get_next_update_partition(NULL);
+
+    do
+    {
+        // Read the data for the request
+        if ((recv_len = httpd_req_recv(req, ota_buff, MIN(content_length, sizeof(ota_buff)))) < 0)
+        {
+            // check if timeout occured
+            if (recv_len == HTTPD_SOCK_ERR_TIMEOUT)
+            {
+                ESP_LOGI(TAG, "http_server_/ota_update_handler: Socket Timeout");
+                continue; // retry recieving if timeout occured
+            }
+            ESP_LOFI(TAG, "http_server_OTA_update_handler: OTA other Error %d", recv_len);
+            return ESP_FAIL;
+        }
+        printf("http_server_OTA_update_handler: OTA RX: %d of %d\r", content_recieved, content_length);
+
+        // is this the first data we are recieving
+        // if so, it will have the information in the header that we need
+        if (!is_req_body_started)
+        {
+            is_req_body_started = true;
+
+            // get the location of the .bin file content (remove the web form data)
+            char *body_start_p = strstr(ota_buff, "\r\n\r\n") + strlen("\r\n\r\n"); // + 4
+            int body_part_len = recv_len - (body_start_p - ota_buff);
+
+            printf("http_server_OTA_update_handler: OTA file size: %d\r\n", content_length);
+
+            esp_err_t err = esp_ota_begin(update_partiion, OTA_SIZE_UNKNOWN, &ota_handle);
+            if(err != ESP_OK)
+            {
+                printf("http_server_OTA_update_handler: Error with OTA begin, cancelling OTA\r\n");
+            }
+            else
+            {
+                printf("http_server_OTA_update_handler: Writing to partioin subtype %d at offset 0c%x\r\n", update_partition->subtype, update_partition->address);
+            }
+            esp_ota_write(ota_handle, body_start_p, body_part_len);
+
+        }
+
+    } while ({
+        recv_len > 0 && content_recieved < content_length
+    });
+    
 }
 
 /**
@@ -250,6 +315,24 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &favicon_ico);
 
+        // resgister OTA update handler
+        httpd_uri_t OTA_update = {
+            .uri = "/OTAupdate",
+            .method = HTTP_POST,
+            .handler = http_server_OTA_update_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &OTA_update);
+        
+        // register_OTAstatus_handler
+        httpd_uri_t OTA_status = {
+            .uri = "/OTAstatus",
+            .method = HTTP_POST,
+            .handler = http_server_OTA_status_handler,
+            .user_ctx = NULL
+        };
+        ttpd_register_uri_handler(http_server_handle, &OTA_status);
+        
         return http_server_handle;
     }
 
