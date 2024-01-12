@@ -58,7 +58,15 @@ DHT22 Implementaion started jan 11/24
         -/main/CMakeList.txt --> added DHT22.c
         -main/task_common.h --> added dht22 task
         -main/DHT22.h --> added task start protoype
-        -main/DHT22.c --> replaced ets_delay_us() w/ esp_rom_daly_us()
+        -main/DHT22.c --> replaced ets_delay_us() w/ esp_rom_daly_us(), 
+                      --> (jan12) commented out serial data sensor data
+        index.html -->(jan 12) divs for sensor data
+        app.js -->(jan 12) function call for recieving data
+        app.css -->(jan 12) for added sensor div
+        http_server -->((jan 12)) created and registorered dhtsensor.json handler
+
     added:
         -main/DHT22.c --> dht driver
         -main/DHT22.h --> dht driver header
+
+    
