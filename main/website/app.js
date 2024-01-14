@@ -125,6 +125,16 @@ function getDHTSensorValues(){
     $.getJSON('/dhtSensor.json', function(data) {
         $("#temperature_reading").text(data["temp"]);
         $("#humidity_reading").text(data["humidity"]);
+
+
+        // Get the current time
+        var now = new Date();
+
+        // Format the time - e.g., 'Jan 12, 2024, 15:45:30'
+        var formattedTime = now.toLocaleString(); 
+
+        // Update the webpage with the last update time
+        $("#last_update_time").text("Last updated: " + formattedTime);
     });
 }
 

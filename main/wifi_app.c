@@ -193,7 +193,7 @@ static void wifi_app_task(void *pvParameters)
                     ESP_LOGI(TAG, "WIFI_APP_MSG_START_HTTP_SERVER");
 
                     http_server_start();
-                    rgb_led_http_server_started();
+                    led_http_server_started();
                     
                     break;
 
@@ -204,7 +204,7 @@ static void wifi_app_task(void *pvParameters)
                 
                 case WIFI_APP_MSG_STA_CONNECTED_GOT_IP:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP");
-                    rgb_led_wifi_connected();
+                    led_wifi_connected();
 
                     break;
 

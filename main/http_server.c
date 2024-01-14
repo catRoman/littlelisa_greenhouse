@@ -327,7 +327,7 @@ static esp_err_t http_ser_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 
     char dhtSensorJSON[100];
 
-    sprintf(dhtSensorJSON, "{\"temp\":\"%.1f\", \"humidity\":\"%.1f\"}", getTemperature(), getHumidity());
+    sprintf(dhtSensorJSON, "{\"temp\":\"%.1f\", \"humidity\":\"%.1f\"}", (getTemperature()*(9.0/5.0) + 32), getHumidity()); //temp in fahrenheit
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
