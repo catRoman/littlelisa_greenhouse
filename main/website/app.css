@@ -37,12 +37,22 @@ h4 {
 	color: #1d3557;
 }	
 
-#temperature_reading {
+#inside_temperature_reading {
     display: inline;
 	color: #1d3557;
 }
 
-#humidity_reading {
+#inside_humidity_reading {
+    display: inline;
+	color: #1d3557;
+}
+
+#outside_temperature_reading {
+    display: inline;
+	color: #1d3557;
+}
+
+#outside_humidity_reading {
     display: inline;
 	color: #1d3557;
 }
