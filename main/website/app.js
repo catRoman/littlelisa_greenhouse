@@ -1,8 +1,9 @@
-/**
+hh/**
  * Add gobals here
  */
 var seconds 	= null;
 var otaTimerVar =  null;
+var wifiConnectInterval = null;
 
 /**
  * Initialize functions here.
@@ -10,6 +11,9 @@ var otaTimerVar =  null;
 $(document).ready(function(){
 	getUpdateStatus();
     startDHTSensorInterval();
+    $("#connect_wifi").on("click", function(){
+        checkCredentials();
+    });
 });   
 
 /**
@@ -135,3 +139,100 @@ function startDHTSensorInterval()
 }
 
 
+/**
+ * Clears the connection staus interval
+ */
+function stopWifiConnectStatusInterval()
+{
+
+}
+
+/**
+ * Gets the WiFi connection status
+ */
+function getWifiConnectStatus()
+{
+    var xhr = new XMLHttpRequest();
+    var requestURL = "/wifiConnectStatus";
+    xhr.open('POST', requestURL, false);
+    xhr.send('Wifi_connect_status');
+
+    if (xhr.readyState == 4 && xhr.status == 200)
+    {
+        var response = JSON.parse(xhr.responseText);
+
+        document.getElementById("wifi_connect_status").innerHTML = "Connecting...";
+
+        if(response.wifi_connect_status == 2){
+            document.getElementById("wifi_connect_status").innderHTML = 
+                "<h4 class='rd'>Failed to connect. Check your ap credientials and compadibility.</h4>";
+                stopWifiConnectStatusInterval();
+        }
+        if(response.wifi_connect_status == 3){
+            document.getElementById("wifi_connect_status").innderHTML = 
+                "<h4 class='gr'>Connection Successful</h4>";
+                stopWifiConnectStatusInterval();
+        }
+    }
+
+}
+
+/**
+ * Starts the interval for checking the connection status
+ */
+function startWifiConnectStatusInterval()
+{
+    wifiConnectInterval = setInterval(getWifiConnectStatus, 2800);
+}
+/**
+ * Connect Wifi function called using the SSID and password entered in the text fields
+ * 
+ */
+function connectWifi()
+{
+    //get the SSID and password
+    selectedSSID = $("#connect_ssid").val();
+    pwd = $("#connect_pass").val();
+
+    $.ajax({
+        url: '/wifiConnect.json',
+        dataType: 'json',
+        methof: 'POST',
+        cache: false,
+        headers: {'my-connect-ssid': selectedSSID, 'my-connect-pwd': pwd},
+        data: {'timestamp': Date.now()}
+    });
+}
+/**
+ * Checks credentials on connect_wifi button clicks:
+ */
+function checkCredentials()
+{
+    errorList = "";
+    credsOk = true;
+
+    selectedSSID = $("#connect_ssid").val();
+    pwd = $("#connect_pass").val();
+
+    if (selectedSSID == "")
+    {
+        errorList += "<h4 class='rd>SSID cannot be empty!</h4>";
+        credsOk = false;
+    }
+    
+    if (pass == "")
+    {
+        errorList += "<h4 class='rd>Password cannot be empty!</h4>";
+        credsOk = false;
+    }
+
+    if (credsOk == false)
+    {
+        $("#wifi_connect_credentials_errors").html(errorList);
+    }
+    else
+    {
+        $("#wifi_connect_credentials_errors").html("");
+        connectWifi();
+    }
+}
