@@ -16,6 +16,7 @@
 #include "http_server.h"
 #include "task_common.h"
 #include "wifi_app.h"
+
 #include "DHT22.h"
 
 // Tag used for ESP serial console message
@@ -331,7 +332,7 @@ static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_r
 
     char dhtInsideSensorJSON[100];
 
-    sprintf(dhtInsideSensorJSON, "{\"inside temp\":\"%.1f\", \"inside humidity\":\"%.1f\"}", (getTemperature(&inside_sensor_gt)*(9.0/5.0) + 32), getHumidity(&inside_sensor_gt)); //inside temp in fahrenheit
+    sprintf(dhtInsideSensorJSON, "{\"inside temp\":\"%.1f\", \"inside humidity\":\"%.1f\"}", (get_temperature(&inside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&inside_sensor_gt)); //inside temp in fahrenheit
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
@@ -351,7 +352,7 @@ static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_
 
     char dhtOutsideSensorJSON[100];
 
-    sprintf(dhtOutsideSensorJSON, "{\"outside temp\":\"%.1f\", \"outside humidity\":\"%.1f\"}", (getTemperature(&outside_sensor_gt)*(9.0/5.0) + 32), getHumidity(&outside_sensor_gt)); //outside temp in fahrenheit
+    sprintf(dhtOutsideSensorJSON, "{\"outside temp\":\"%.1f\", \"outside humidity\":\"%.1f\"}", (get_temperature(&outside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&outside_sensor_gt)); //outside temp in fahrenheit
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtOutsideSensorJSON, strlen(dhtOutsideSensorJSON));

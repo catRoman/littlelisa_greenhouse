@@ -38,8 +38,8 @@ void DHT22_sensor_task_start(void);
 void 	setDHTgpio(int gpio, dht22_sensor_t *sensor_t);
 void 	errorHandler(int response, dht22_sensor_t *sensor_t);
 int 	readDHT(dht22_sensor_t *sensor_t);
-float 	getHumidity(dht22_sensor_t *sensor_t);
-float 	getTemperature(dht22_sensor_t *sensor_t);
+float 	get_humidity(dht22_sensor_t *sensor_t);
+float 	get_temperature(dht22_sensor_t *sensor_t);
 int 	getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t);
 
 #endif

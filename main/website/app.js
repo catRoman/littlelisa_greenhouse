@@ -118,14 +118,31 @@ function otaRebootTimer()
 }
 
 /**
- * Gest the DHT22 sensor temperature and humidity values for display on
+ * Get the DHT22 inside sensor temperature and humidity values for display on
  * the webpage
  */
-function getDHTSensorValues(){
-    $.getJSON('/dhtSensor.json', function(data) {
+function getDHTInsideSensorValues(){
+    $.getJSON('/dhtInsideSensor.json', function(data) {
         $("#inside_temperature_reading").text(data["inside_temp"]);
         $("#inside_humidity_reading").text(data["inside_humidity"]);
-        
+
+        // Get the current time
+        var now = new Date();
+
+        // Format the time - e.g., 'Jan 12, 2024, 15:45:30'
+        var formattedTime = now.toLocaleString(); 
+
+        // Update the webpage with the last update time
+        $("#last_update_time").text("Last updated: " + formattedTime);
+    });
+}
+
+/**
+ * Get the DHT22 outside sensor temperature and humidity values for display on
+ * the webpage
+ */
+function getDHTOutsideSensorValues(){
+    $.getJSON('/dhtOutsideSensor.json', function(data) {
         $("#outside_temperature_reading").text(data["outside_temp"]);
         $("#outside_humidity_reading").text(data["outside_humidity"]);
 
@@ -143,7 +160,8 @@ function getDHTSensorValues(){
 /** Sets the interval for getting the updated DHT22 */
 function startDHTSensorInterval()
 {
-    setInterval(getDHTSensorValues, 5000)
+    setInterval(getDHTInsideSensorValues, 5000);
+    setInterval(getDHTOutsideSensorValues, 5000);
 }
 
 
