@@ -31,43 +31,33 @@
 
 // == global defines =============================================
 
-static const char* TAG = "DHT";
-
-int DHTgpio = 4;				// my default DHT pin = 4
-float humidity = 0.;
-float temperature = 0.;
-
-// == set the DHT used pin=========================================
-
-void setDHTgpio( int gpio )
-{
-	DHTgpio = gpio;
-}
+dht22_sensor_t inside_sensor;
+dht22_sensor_t outside_sensor;
 
 // == get temp & hum =============================================
 
-float getHumidity() { return humidity; }
-float getTemperature() { return temperature; }
+float get_humidity(dht22_sensor_t *sensor) { return sensor->humidity; }
+float get_temperature(dht22_sensor_t *sensor) { return sensor->temperature; }
 
 // == error handler ===============================================
 
-void errorHandler(int response)
+void errorHandler(int response, dht22_sensor_t *sensor)
 {
 	switch(response) {
 	
 		case DHT_TIMEOUT_ERROR :
-			ESP_LOGE( TAG, "Sensor Timeout\n" );
+			ESP_LOGE( sensor->TAG, "Sensor Timeout\n" );
 			break;
 
 		case DHT_CHECKSUM_ERROR:
-			ESP_LOGE( TAG, "CheckSum error\n" );
+			ESP_LOGE( sensor->TAG, "CheckSum error\n" );
 			break;
 
 		case DHT_OK:
 			break;
 
 		default :
-			ESP_LOGE( TAG, "Unknown error\n" );
+			ESP_LOGE( sensor->TAG, "Unknown error\n" );
 	}
 }
 
@@ -80,11 +70,11 @@ void errorHandler(int response)
 ;
 ;--------------------------------------------------------------------------------*/
 
-int getSignalLevel( int usTimeOut, bool state )
+int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor )
 {
 
 	int uSec = 0;
-	while( gpio_get_level(DHTgpio)==state ) {
+	while( gpio_get_level(sensor->pin_number)==state ) {
 
 		if( uSec > usTimeOut ) 
 			return -1;
@@ -138,13 +128,19 @@ To request data from DHT:
 
 #define MAXdhtData 5	// to complete 40 = 5*8 Bits
 
-int readDHT()
+int readDHT(dht22_sensor_t *sensor)
 {
 int uSec = 0;
 
 uint8_t dhtData[MAXdhtData];
 uint8_t byteInx = 0;
 uint8_t bitInx = 7;
+
+
+// instance varables
+int DHTgpio = sensor->pin_number;
+int humidity = sensor->humidity;
+int temperature = sensor->temperature;
 
 	for (int k = 0; k<MAXdhtData; k++) 
 		dhtData[k] = 0;
@@ -165,13 +161,13 @@ uint8_t bitInx = 7;
   
 	// == DHT will keep the line low for 80 us and then high for 80us ====
 
-	uSec = getSignalLevel( 85, 0 );
+	uSec = getSignalLevel( 85, 0, sensor );
 //	ESP_LOGI( TAG, "Response = %d", uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR; 
 
 	// -- 80us up ------------------------
 
-	uSec = getSignalLevel( 85, 1 );
+	uSec = getSignalLevel( 85, 1 , sensor);
 //	ESP_LOGI( TAG, "Response = %d", uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
@@ -181,12 +177,12 @@ uint8_t bitInx = 7;
 
 		// -- starts new data transmission with >50us low signal
 
-		uSec = getSignalLevel( 56, 0 );
+		uSec = getSignalLevel( 56, 0 , sensor);
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// -- check to see if after >70us rx data is a 0 or a 1
 
-		uSec = getSignalLevel( 75, 1 );
+		uSec = getSignalLevel( 75, 1 , sensor);
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// add the current read to the output data
@@ -220,7 +216,8 @@ uint8_t bitInx = 7;
 	if( dhtData[2] & 0x80 ) 			// negative temp, brrr it's freezing
 		temperature *= -1;
 
-
+	sensor->temperature = temperature;
+	sensor->humidity = humidity;
 	// == verify if checksum is ok ===========================================
 	// Checksum is the sum of Data 8 bits masked out 0xFF
 	
@@ -233,19 +230,29 @@ uint8_t bitInx = 7;
 
 // my functions --->
 /**
- * DHT22 Sensor task
+ * DHT22 inside Sensor task
 */
-static void DHT22_task(void *vpParameter)
+static void DHT22_inside_task(void *vpParameter)
 {
-	setDHTgpio(DHT_GPIO);
-	printf("starting DHT task\n\n");
+
+	static dht22_sensor_t inside_sensor =  {
+	.pin_number = DHT_INSIDE_GPIO,
+	.temperature = 0.,
+	.humidity = 0.,
+	.TAG = "inside dht sensor",
+
+};
+
+
+
+	printf("starting Inside DHT Sensor Reading\n\n");
 
 	for(;;)
 	{
 		//printf("=== Reading DHT ===\n");
-		int ret = readDHT();
+		int ret = readDHT(&inside_sensor);
 
-		errorHandler(ret);
+		errorHandler(ret, &inside_sensor);
 
 		//printf("Hum: %.1f\n", getHumidity());
 		//printf("Temp: %.1f\n", getTemperature());
@@ -255,7 +262,43 @@ static void DHT22_task(void *vpParameter)
 		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
 	}
 }
-void DHT22_task_start(void){
-	xTaskCreatePinnedToCore(&DHT22_task, "DHT22_task", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+/**
+ * DHT22 outside Sensor task
+*/
+static void DHT22_outside_task(void *vpParameter)
+{
+
+	static dht22_sensor_t outside_sensor = {
+	.pin_number = DHT_OUTSIDE_GPIO,
+	.temperature = 0.,
+	.humidity = 0.,
+	.TAG = "outside dht sensor",
+};
+
+	printf("starting Outside DHT Sensor Reading\n\n");
+
+	for(;;)
+	{
+		//printf("=== Reading DHT ===\n");
+		int ret = readDHT(&outside_sensor);
+
+		errorHandler(ret, &outside_sensor);
+
+		//printf("Hum: %.1f\n", getHumidity());
+		//printf("Temp: %.1f\n", getTemperature());
+
+		// Wait at least 2 seconds before reading again (as suggested by driver author)
+		// The interval of the whole process must be more than 2 seconds
+		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
+	}
+}
+void DHT22_sensor_task_start(void){
+
+
+	// pin inside sensor
+	xTaskCreatePinnedToCore(&DHT22_inside_task, "inside_sensor", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+	
+	// pin outside sensor
+	xTaskCreatePinnedToCore(&DHT22_outside_task, "outside_sensor", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }
 

@@ -20,17 +20,17 @@
 /**
  * Color to indicate wifi app started
 */
-void rgb_led_wifi_app_started(void);
+void led_wifi_app_started(void);
 
 /**
  * Color to indicate http server app started
 */
-void rgb_led_http_server_started(void);
+void led_http_server_started(void);
 
 /**
  * Color to indicate that ESP32 is connected to an access point
  * */
-void rgb_led_wifi_connected(void);
+void led_wifi_connected(void);
 
 /**
  * initialize led

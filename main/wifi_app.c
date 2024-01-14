@@ -16,7 +16,7 @@
 #include "esp_wifi.h"
 #include "lwip/netdb.h"
 
-#include "rgb_led.h"
+#include "led.h"
 #include "http_server.h"
 #include "task_common.h"
 #include "wifi_app.h"
@@ -229,7 +229,7 @@ void wifi_app_start(void)
     ESP_LOGI(TAG, "STARTING WIFI APPLICATION"); // log to serial console
 
     // start wifi started led
-    rgb_led_wifi_app_started();
+    led_wifi_app_started();
 
     // Disable default wifi logging messages (for breviety in serial console)
     esp_log_level_set("wifi", ESP_LOG_NONE);

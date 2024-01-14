@@ -123,9 +123,11 @@ function otaRebootTimer()
  */
 function getDHTSensorValues(){
     $.getJSON('/dhtSensor.json', function(data) {
-        $("#temperature_reading").text(data["temp"]);
-        $("#humidity_reading").text(data["humidity"]);
-
+        $("#inside_temperature_reading").text(data["inside_temp"]);
+        $("#inside_humidity_reading").text(data["inside_humidity"]);
+        
+        $("#outside_temperature_reading").text(data["outside_temp"]);
+        $("#outside_humidity_reading").text(data["outside_humidity"]);
 
         // Get the current time
         var now = new Date();
