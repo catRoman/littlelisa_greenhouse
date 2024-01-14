@@ -44,6 +44,10 @@ const esp_timer_create_args_t fw_update_reset_args = {
 };
 esp_timer_handle_t fw_update_reset;
 
+// sensor data instances
+extern dht22_sensor_t inside_sensor_gt;
+extern dht22_sensor_t outside_sensor_gt;
+
 // Embeded files: JQuery, index.html, app.css, app.js and favicon.ico files
 extern const uint8_t jquery_3_3_1_min_js_start[]    asm("_binary_jquery_3_3_1_min_js_start");
 extern const uint8_t jquery_3_3_1_min_js_end[]      asm("_binary_jquery_3_3_1_min_js_end");
@@ -317,20 +321,40 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 }
 
 /**
- * DHT sensor readings JSON handler responds with DHT22 sensor data
+ * DHT inside sensor readings JSON handler responds with DHT22 sensor data
  * @param req http request for which the uri needs to be handled
  * @return ESP_OK
 */
-static esp_err_t http_ser_get_dht_sensor_readings_json_handler(httpd_req_t *req)
+static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/dhtSensor.json requested");
+    ESP_LOGI(TAG, "/dhtInsideSensor.json requested");
 
-    char dhtSensorJSON[100];
+    char dhtInsideSensorJSON[100];
 
-    sprintf(dhtSensorJSON, "{\"temp\":\"%.1f\", \"humidity\":\"%.1f\"}", (getTemperature()*(9.0/5.0) + 32), getHumidity()); //temp in fahrenheit
+    sprintf(dhtInsideSensorJSON, "{\"inside temp\":\"%.1f\", \"inside humidity\":\"%.1f\"}", (getTemperature(&inside_sensor_gt)*(9.0/5.0) + 32), getHumidity(&inside_sensor_gt)); //inside temp in fahrenheit
 
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
+    httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
+
+    return ESP_OK;
+}
+
+
+/**
+ * DHT outside sensor readings JSON handler responds with DHT22 sensor data
+ * @param req http request for which the uri needs to be handled
+ * @return ESP_OK
+*/
+static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "/dhtOutsideSensor.json requested");
+
+    char dhtOutsideSensorJSON[100];
+
+    sprintf(dhtOutsideSensorJSON, "{\"outside temp\":\"%.1f\", \"outside humidity\":\"%.1f\"}", (getTemperature(&outside_sensor_gt)*(9.0/5.0) + 32), getHumidity(&outside_sensor_gt)); //outside temp in fahrenheit
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, dhtOutsideSensorJSON, strlen(dhtOutsideSensorJSON));
 
     return ESP_OK;
 }
@@ -436,15 +460,23 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &OTA_status);
 
-        //register D]dhtSensor.json handler
-        httpd_uri_t dht_sensor_json = {
-            .uri = "/dhtSensor.json",
+        //register dhtInsideSensor.json handler
+        httpd_uri_t dht_inside_sensor_json = {
+            .uri = "/dhtInsideSensor.json",
             .method = HTTP_GET,
-            .handler = http_ser_get_dht_sensor_readings_json_handler,
+            .handler = http_server_get_dht_inside_sensor_readings_json_handler,
             .user_ctx = NULL
-        };;
-        httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
+        };
+        httpd_register_uri_handler(http_server_handle, &dht_inside_sensor_json);
 
+        //register dhtOutssideSensor.json handler
+        httpd_uri_t dht_outside_sensor_json = {
+            .uri = "/dhtOutsideSensor.json",
+            .method = HTTP_GET,
+            .handler = http_server_get_dht_outside_sensor_readings_json_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &dht_outside_sensor_json);
 
         return http_server_handle;
     }
