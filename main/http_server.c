@@ -33,6 +33,9 @@ static TaskHandle_t task_http_server_monitor = NULL;
 // Queue handle used to manipulate the main queue of events
 static QueueHandle_t http_server_monitor_queue_handle;
 
+//wifi Connect status
+static int g_wifi_connect_status = NONE;
+
 /**
  * ESP32 timer configuration passed to esp_timer_creat
 */
@@ -94,16 +97,21 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
                 case HTTP_MSG_WIFI_CONNECT_INIT:
                     ESP_LOGI(TAG, "HTTP_MSG_CONNECT_INIT");
 
+                    g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECTING;
+
                     break;
 
                 case HTTP_MSG_WIFI_CONNECT_SUCCESS:
                     ESP_LOGI(TAG, "HTTP_MSG_CONNECT_SUCCESS");
+
+                    g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_SUCCESS;
 
                     break;
 
                 case HTTP_MSG_WIFI_CONNECT_FAIL:
                     ESP_LOGI(TAG, "HTTP_MSG_WIFI_CONNECT_FAIL");
 
+                    g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_FAILED;
                     break;
 
                 case HTTP_MSG_OTA_UPDATE_SUCCESSFUL:
@@ -445,7 +453,24 @@ static httpd_handle_t http_server_configuration(void)
         };;
         httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
 
+        //register wifiConnect.json handler
+        httpd_uri_t wifi_connect_json = {
+            .uri = "/wifiConnect.json",
+            .method = HTTP_POST,
+            .handler = http_server_wifi_connect_json_handler,
+            .user_ctx = NULL
+        };;
+        httpd_register_uri_handler(http_server_handle, &wifi_connect_json);
 
+
+        //register wifiConnectStatus.json handler
+        httpd_uri_t wifi_connect_status_json = {
+            .uri = "/dhtSensor.json",
+            .method = HTTP_POST,
+            .handler = http_server_wifi_connect_status_json_handler,
+            .user_ctx = NULL
+        };;
+        httpd_register_uri_handler(http_server_handle, &wifi_connect_status_json);
         return http_server_handle;
     }
 

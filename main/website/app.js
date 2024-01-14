@@ -144,7 +144,11 @@ function startDHTSensorInterval()
  */
 function stopWifiConnectStatusInterval()
 {
-
+    if(wifiConnectInterval != null)
+    {
+        clearInterval(wifiConnectInterval);
+        wifiConnectInterval = null;
+    }
 }
 
 /**
@@ -164,12 +168,12 @@ function getWifiConnectStatus()
         document.getElementById("wifi_connect_status").innerHTML = "Connecting...";
 
         if(response.wifi_connect_status == 2){
-            document.getElementById("wifi_connect_status").innderHTML = 
+            document.getElementById("wifi_connect_status").innerHTML = 
                 "<h4 class='rd'>Failed to connect. Check your ap credientials and compadibility.</h4>";
                 stopWifiConnectStatusInterval();
         }
         if(response.wifi_connect_status == 3){
-            document.getElementById("wifi_connect_status").innderHTML = 
+            document.getElementById("wifi_connect_status").innerHTML = 
                 "<h4 class='gr'>Connection Successful</h4>";
                 stopWifiConnectStatusInterval();
         }
@@ -234,5 +238,20 @@ function checkCredentials()
     {
         $("#wifi_connect_credentials_errors").html("");
         connectWifi();
+    }
+}
+/**
+ * show the wifi password is the box is checked
+ */
+function showPassword()
+{
+    var x = document.getElementById("connect_pass");
+    if (x.type == "password") 
+    {
+        x.type = "text";
+    }  
+    else
+    {
+        x.type = "password";
     }
 }

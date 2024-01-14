@@ -29,6 +29,16 @@ typedef enum http_server_message
 } http_server_message_e;
 
 /**
+ * Connection status for wifi
+*/
+typedef enum http_server_wifi_connect_status
+{
+    NONE = 0,
+    HTTP_WIFI_STATUS_CONNECT_FAILED,
+    HTTP_WIFI_STATUS_CONNECT_SUCCESS,
+} http_server_wifi_connect_status_e;
+
+/**
  * Structure for the message queue
 */
 typedef struct http_server_queue_message
