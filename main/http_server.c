@@ -343,6 +343,73 @@ static esp_err_t http_ser_get_dht_sensor_readings_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+/** Wifi connect.json is invoked after the connect button is pressed and 
+ * handles recieving the SSID and password entered by the user
+ * @param req HTTP request for which the uri needs to handled
+ * @return ESP_OK
+*/
+static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "/wifiConnect.json requested");
+
+    size_t len_ssid = 0, len_pass = 0;
+    char *ssid_str = NULL, *pass_str = NULL;
+
+    // get SSID header
+
+    len_ssid = httpd_req_get_hdr_value_len(req, "my-connect-ssid") + 1;
+    
+    if (len_ssid > 1)
+    {
+        ssid_str = malloc(len_ssid);
+        if (http_req_get_hdr_value_str(req, "my-connect-ssid", ssid_str, len_ssid) == ESP_OK)
+        {
+            ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-ssid : %s", ssid_str);
+        }
+    }
+
+    // get password header
+
+    len_pass = httpd_req_get_hdr_value_len(req, "my-connect-pwd") + 1;
+    
+    if (len_pass > 1)
+    {
+        pass_str = malloc(len_pass);
+        if (http_req_get_hdr_value_str(req, "my-connect-pass", pass_str, len_pass) == ESP_OK)
+        {
+            ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pass : %s", pass_str);
+        }
+    }
+
+    // update the wifi networks configuration and let the wifi application know
+    wifi_config_t* wifi_config = wifi_app_get_wifi_config();
+    memset(wifi_config, 0x00, sizeof(wifi_config_t));
+    memcpy(wifi_config->sta.ssid, ssid_str, len_ssid);
+    memcpy(wifi_config->sta.password, pass_str, len_pass);
+    wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
+
+    free(ssid_str);
+    free(pass_str);
+
+    return ESP_OK;
+}
+
+/**
+ * 
+ * wifiConnectHanedle updates the connection status for the 
+ * web page
+*/
+static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG< "/wifiConnectStatus requested");
+
+    char statusJSON[100];
+    sprintf(statusJSON, "{\"wifi_connect_status\"}:%d}", g_wifi_connect_status);
+    httpd_resp_send(req, statusJSON, strlen(statusJSON));
+
+    return ESP_OK;
+}
+
 /**
  * Setsd up the default httpd server configurations
  * @return http server inc\stance handle if succseful, NULL otherwise
