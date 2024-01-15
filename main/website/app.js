@@ -157,9 +157,9 @@ function stopWifiConnectStatusInterval()
 function getWifiConnectStatus()
 {
     var xhr = new XMLHttpRequest();
-    var requestURL = "/wifiConnectStatus";
+    var requestURL = "/wifiConnectStatus.json";
     xhr.open('POST', requestURL, false);
-    xhr.send('Wifi_connect_status');
+    xhr.send('wifi_connect_status');
 
     if (xhr.readyState == 4 && xhr.status == 200)
     {
@@ -201,7 +201,7 @@ function connectWifi()
     $.ajax({
         url: '/wifiConnect.json',
         dataType: 'json',
-        methof: 'POST',
+        method: 'POST',
         cache: false,
         headers: {'my-connect-ssid': selectedSSID, 'my-connect-pwd': pwd},
         data: {'timestamp': Date.now()}
@@ -220,13 +220,13 @@ function checkCredentials()
 
     if (selectedSSID == "")
     {
-        errorList += "<h4 class='rd>SSID cannot be empty!</h4>";
+        errorList += "<h4 class='rd'>SSID cannot be empty!</h4>";
         credsOk = false;
     }
     
-    if (pass == "")
+    if (pwd == "")
     {
-        errorList += "<h4 class='rd>Password cannot be empty!</h4>";
+        errorList += "<h4 class='rd'>Password cannot be empty!</h4>";
         credsOk = false;
     }
 

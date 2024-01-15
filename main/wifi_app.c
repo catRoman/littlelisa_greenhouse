@@ -236,13 +236,14 @@ static void wifi_app_task(void *pvParameters)
 
                     //attempt a connecting
                     wifi_app_connect_sta();
+                    rgb_led_wifi_app_started();
 
                     //set current number of retries to zero
                     g_retry_number = 0;
 
                     //let the http server know about the connection attempt
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
-
+                    
                     break;
                 
                 case WIFI_APP_MSG_STA_CONNECTED_GOT_IP:

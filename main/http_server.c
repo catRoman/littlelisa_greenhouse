@@ -331,7 +331,6 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
-    printf("Hello, from insisde the dht json handler\n");
     ESP_LOGI(TAG, "dhtSensor.json requested");
 
     char dhtSensorJSON[100];
@@ -340,11 +339,6 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
-
-    return ESP_OK;
-}
-static esp_err_t debug_handler(httpd_req_t *req){
-    printf("hello there");
 
     return ESP_OK;
 }
@@ -381,9 +375,9 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     if (len_pass > 1)
     {
         pass_str = malloc(len_pass);
-        if (httpd_req_get_hdr_value_str(req, "my-connect-pass", pass_str, len_pass) == ESP_OK)
+        if (httpd_req_get_hdr_value_str(req, "my-connect-pwd", pass_str, len_pass) == ESP_OK)
         {
-            ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pass : %s", pass_str);
+            ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pwd : %s", pass_str);
         }
     }
 
