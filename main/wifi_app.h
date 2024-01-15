@@ -14,6 +14,7 @@
 
 #include "esp_netif.h"
 #include "freertos/FreeRTOS.h"
+#include "esp_wifi.h"
 
 // WiFi application settings
 #define WIFI_AP_SSID                "Little Lisa-Greenhouse"      // AP name
@@ -44,6 +45,7 @@ typedef enum wifi_app_message
     WIFI_APP_MSG_START_HTTP_SERVER = 0,
     WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER,
     WIFI_APP_MSG_STA_CONNECTED_GOT_IP,
+    WIFI_APP_MSG_STA_DISCONNECTED,
 
 } wifi_app_message_e;
 /**
@@ -68,5 +70,10 @@ BaseType_t wifi_app_send_message(wifi_app_message_e msgID);
 */
 void wifi_app_start(void);
 
+/**
+ * Gets the wifi configuration
+ * @return wifi_config_t*
+*/
+wifi_config_t* wifi_app_get_wifi_config(void);
 
 #endif /* MAIN_WIFI_APP_H_ */
