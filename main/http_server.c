@@ -331,7 +331,8 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/dhtSensor.json requested");
+    printf("Hello, from insisde the dht json handler\n");
+    ESP_LOGI(TAG, "dhtSensor.json requested");
 
     char dhtSensorJSON[100];
 
@@ -339,6 +340,11 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
+
+    return ESP_OK;
+}
+static esp_err_t debug_handler(httpd_req_t *req){
+    printf("hello there");
 
     return ESP_OK;
 }
@@ -511,10 +517,10 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &OTA_status);
 
-        //register D]dhtSensor.json handler
+        //register dhtSensor.json handler
         httpd_uri_t dht_sensor_json = {
             .uri = "/dhtSensor.json",
-            .method = HTTP_POST,
+            .method = HTTP_GET,
             .handler = http_server_get_dht_sensor_readings_json_handler,
             .user_ctx = NULL
         };

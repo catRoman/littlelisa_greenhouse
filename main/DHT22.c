@@ -242,13 +242,13 @@ static void DHT22_task(void *vpParameter)
 
 	for(;;)
 	{
-		printf("=== Reading DHT ===\n");
+		//printf("=== Reading DHT ===\n");
 		int ret = readDHT();
 
 		errorHandler(ret);
 
-		printf("Hum: %.1f\n", getHumidity());
-		printf("Temp: %.1f\n", getTemperature());
+		//printf("Hum: %.1f\n", getHumidity());
+		//printf("Temp: %.1f\n", getTemperature());
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds

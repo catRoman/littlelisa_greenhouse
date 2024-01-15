@@ -1,4 +1,4 @@
-hh/**
+/**
  * Add gobals here
  */
 var seconds 	= null;
@@ -126,7 +126,7 @@ function otaRebootTimer()
  * the webpage
  */
 function getDHTSensorValues(){
-    $.getJSON('/dhtSensor.json', function(data) {
+    $.getJSON("/dhtSensor.json", function(data) {
         $("#temperature_reading").text(data["temp"]);
         $("#humidity_reading").text(data["humidity"]);
     });
