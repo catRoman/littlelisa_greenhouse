@@ -36,6 +36,7 @@ typedef enum http_server_wifi_connect_status
     NONE = 0,
     HTTP_WIFI_STATUS_CONNECT_FAILED,
     HTTP_WIFI_STATUS_CONNECT_SUCCESS,
+    HTTP_WIFI_STATUS_CONNECTING,
 } http_server_wifi_connect_status_e;
 
 /**

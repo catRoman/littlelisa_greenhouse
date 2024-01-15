@@ -14,6 +14,7 @@
 
 #include "esp_netif.h"
 #include "freertos/FreeRTOS.h"
+#include "esp_wifi.h"
 
 // WiFi application settings
 #define WIFI_AP_SSID                "Little Lisa"      // AP name

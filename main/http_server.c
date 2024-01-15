@@ -362,7 +362,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     if (len_ssid > 1)
     {
         ssid_str = malloc(len_ssid);
-        if (http_req_get_hdr_value_str(req, "my-connect-ssid", ssid_str, len_ssid) == ESP_OK)
+        if (httpd_req_get_hdr_value_str(req, "my-connect-ssid", ssid_str, len_ssid) == ESP_OK)
         {
             ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-ssid : %s", ssid_str);
         }
@@ -375,7 +375,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     if (len_pass > 1)
     {
         pass_str = malloc(len_pass);
-        if (http_req_get_hdr_value_str(req, "my-connect-pass", pass_str, len_pass) == ESP_OK)
+        if (httpd_req_get_hdr_value_str(req, "my-connect-pass", pass_str, len_pass) == ESP_OK)
         {
             ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pass : %s", pass_str);
         }
@@ -401,7 +401,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG< "/wifiConnectStatus requested");
+    ESP_LOGI(TAG, "/wifiConnectStatus requested");
 
     char statusJSON[100];
     sprintf(statusJSON, "{\"wifi_connect_status\"}:%d}", g_wifi_connect_status);

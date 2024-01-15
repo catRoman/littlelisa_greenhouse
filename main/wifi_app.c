@@ -15,6 +15,7 @@
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "lwip/netdb.h"
+#include "esp_event.h"
 
 #include "rgb_led.h"
 #include "http_server.h"
@@ -135,9 +136,9 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
             case WIFI_EVENT_STA_DISCONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
                 
-                wifi_event_sta_disconnected_t *wifi_event_sta_disconnected_t = (wifi_event_sta_disconnected_t*)malloc(sizeof(wifi_event_sta_disconnected_t));
-                *wifi_event_sta_disconnected_t = *((wifi_event_sta_disconnected_t*)event_data);
-                printf("WIFI_EVENT_STA_DISCONNECT, reason code %d\n", wifi_event_sta_disconnected->reasons);
+                wifi_event_sta_disconnected_t *wifi_event_sta_disconnected = (wifi_event_sta_disconnected_t*)malloc(sizeof(wifi_event_sta_disconnected_t));
+                *wifi_event_sta_disconnected = *((wifi_event_sta_disconnected_t*) event_data);
+                printf("WIFI_EVENT_STA_DISCONNECT, reason code %d\n", wifi_event_sta_disconnected->reason);
 
                 if (g_retry_number < MAX_CONNECTION_RETRIES)
                 {
