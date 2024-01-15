@@ -517,7 +517,7 @@ static httpd_handle_t http_server_configuration(void)
             .method = HTTP_GET,
             .handler = http_ser_get_dht_sensor_readings_json_handler,
             .user_ctx = NULL
-        };;
+        };
         httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
 
         //register wifiConnect.json handler
@@ -526,13 +526,13 @@ static httpd_handle_t http_server_configuration(void)
             .method = HTTP_POST,
             .handler = http_server_wifi_connect_json_handler,
             .user_ctx = NULL
-        };;
+        };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_json);
 
 
         //register wifiConnectStatus.json handler
         httpd_uri_t wifi_connect_status_json = {
-            .uri = "/dhtSensor.json",
+            .uri = "/wifiConnectStatus.json",
             .method = HTTP_POST,
             .handler = http_server_wifi_connect_status_json_handler,
             .user_ctx = NULL
