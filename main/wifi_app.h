@@ -17,7 +17,7 @@
 #include "esp_wifi.h"
 
 // WiFi application settings
-#define WIFI_AP_SSID                "Little Lisa-Greenhouse"      // AP name
+#define WIFI_AP_SSID                "Little Lisa-Greenhouse1"      // AP name
 #define WIFI_AP_PASSWORD            "Westgate4@"      // AP password
 #define WIFI_AP_CHANNEL             1               // AP channel
 #define WIFI_AP_SSID_HIDDEN         0               // 0 is visable

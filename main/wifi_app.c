@@ -236,7 +236,7 @@ static void wifi_app_task(void *pvParameters)
 
                     //attempt a connecting
                     wifi_app_connect_sta();
-                    rgb_led_wifi_app_started();
+                    led_wifi_app_started();
 
                     //set current number of retries to zero
                     g_retry_number = 0;
