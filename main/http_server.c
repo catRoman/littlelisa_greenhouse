@@ -329,7 +329,7 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
  * @param req http request for which the uri needs to be handled
  * @return ESP_OK
 */
-static esp_err_t http_ser_get_dht_sensor_readings_json_handler(httpd_req_t *req)
+static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
     ESP_LOGI(TAG, "/dhtSensor.json requested");
 
@@ -514,8 +514,8 @@ static httpd_handle_t http_server_configuration(void)
         //register D]dhtSensor.json handler
         httpd_uri_t dht_sensor_json = {
             .uri = "/dhtSensor.json",
-            .method = HTTP_GET,
-            .handler = http_ser_get_dht_sensor_readings_json_handler,
+            .method = HTTP_POST,
+            .handler = http_server_get_dht_sensor_readings_json_handler,
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
@@ -536,7 +536,7 @@ static httpd_handle_t http_server_configuration(void)
             .method = HTTP_POST,
             .handler = http_server_wifi_connect_status_json_handler,
             .user_ctx = NULL
-        };;
+        };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_status_json);
         return http_server_handle;
     }
