@@ -1,4 +1,5 @@
 /**
+ * gle.com66
  * Add gobals here
  */
 var seconds 	= null;
@@ -268,7 +269,7 @@ function showPassword()
  */
 function getConnectInfo()
 {
-    $.getJSON('/wifiCOnnectInfo.json', function(data)
+    $.getJSON('/wifiConnectInfo.json', function(data)
     {
         $("#connected_ap_label").html("Connected to: ");
         $("#connected_ap").text(data["ap"]);

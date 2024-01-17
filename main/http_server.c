@@ -420,14 +420,14 @@ static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req
 {
     ESP_LOGI(TAG, "/wifiConnectInfo.json requested");
 
-    char ipInfoJSON[100];
-    memset(ipInfoJSON, 0, sieof(ipInfoJSON));
+    char ipInfoJSON[200];
+    memset(ipInfoJSON, 0, sizeof(ipInfoJSON));
 
     char ip[IP4ADDR_STRLEN_MAX];
     char netmask[IP4ADDR_STRLEN_MAX];
     char gw[IP4ADDR_STRLEN_MAX];
 
-    if(g_fw_update_status == HTTP_WIFI_STATUS_CONNECT_SUCCESS)
+    if(g_wifi_connect_status == HTTP_WIFI_STATUS_CONNECT_SUCCESS)
     {
         wifi_ap_record_t wifi_data;
         ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
