@@ -161,22 +161,25 @@ function getWifiConnectStatus()
     xhr.open('POST', requestURL, false);
     xhr.send('wifi_connect_status');
 
+    
     if (xhr.readyState == 4 && xhr.status == 200)
     {
         var response = JSON.parse(xhr.responseText);
-
-        document.getElementById("wifi_connect_status").innerHTML = "Connecting...";
-
-        if(response.wifi_connect_status == 2){
+    
+        document.getElementById("wifi_connect_status").innerHTML = "<h4 class=\"gr\">Connecting... </h4>";
+        
+        
+        if(response.wifi_connect_status == 1){
             document.getElementById("wifi_connect_status").innerHTML = 
-                "<h4 class='rd'>Failed to connect. Check your ap credientials and compadibility.</h4>";
+                "<h4 class=\"rd\">Failed to connect. Check your ap credientials and compadibility.</h4>";
                 stopWifiConnectStatusInterval();
         }
-        if(response.wifi_connect_status == 3){
+        else if(response.wifi_connect_status == 2){
             document.getElementById("wifi_connect_status").innerHTML = 
-                "<h4 class='gr'>Connection Successful</h4>";
+                "<h4 class=\"gr\">Connection Successful</h4>";
                 stopWifiConnectStatusInterval();
         }
+        
     }
 
 }
@@ -206,6 +209,8 @@ function connectWifi()
         headers: {'my-connect-ssid': selectedSSID, 'my-connect-pwd': pwd},
         data: {'timestamp': Date.now()}
     });
+
+    startWifiConnectStatusInterval();
 }
 /**
  * Checks credentials on connect_wifi button clicks:
