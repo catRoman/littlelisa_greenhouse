@@ -1,4 +1,4 @@
-hh/**
+/**
  * Add gobals here
  */
 var seconds 	= null;
@@ -126,7 +126,7 @@ function otaRebootTimer()
  * the webpage
  */
 function getDHTSensorValues(){
-    $.getJSON('/dhtSensor.json', function(data) {
+    $.getJSON("/dhtSensor.json", function(data) {
         $("#temperature_reading").text(data["temp"]);
         $("#humidity_reading").text(data["humidity"]);
     });
@@ -144,7 +144,11 @@ function startDHTSensorInterval()
  */
 function stopWifiConnectStatusInterval()
 {
-
+    if(wifiConnectInterval != null)
+    {
+        clearInterval(wifiConnectInterval);
+        wifiConnectInterval = null;
+    }
 }
 
 /**
@@ -153,26 +157,29 @@ function stopWifiConnectStatusInterval()
 function getWifiConnectStatus()
 {
     var xhr = new XMLHttpRequest();
-    var requestURL = "/wifiConnectStatus";
+    var requestURL = "/wifiConnectStatus.json";
     xhr.open('POST', requestURL, false);
-    xhr.send('Wifi_connect_status');
+    xhr.send('wifi_connect_status');
 
+    
     if (xhr.readyState == 4 && xhr.status == 200)
     {
         var response = JSON.parse(xhr.responseText);
-
-        document.getElementById("wifi_connect_status").innerHTML = "Connecting...";
-
-        if(response.wifi_connect_status == 2){
-            document.getElementById("wifi_connect_status").innderHTML = 
-                "<h4 class='rd'>Failed to connect. Check your ap credientials and compadibility.</h4>";
+    
+        document.getElementById("wifi_connect_status").innerHTML = "<h4 class=\"gr\">Connecting... </h4>";
+        
+        
+        if(response.wifi_connect_status == 1){
+            document.getElementById("wifi_connect_status").innerHTML = 
+                "<h4 class=\"rd\">Failed to connect. Check your ap credientials and compadibility.</h4>";
                 stopWifiConnectStatusInterval();
         }
-        if(response.wifi_connect_status == 3){
-            document.getElementById("wifi_connect_status").innderHTML = 
-                "<h4 class='gr'>Connection Successful</h4>";
+        else if(response.wifi_connect_status == 2){
+            document.getElementById("wifi_connect_status").innerHTML = 
+                "<h4 class=\"gr\">Connection Successful</h4>";
                 stopWifiConnectStatusInterval();
         }
+        
     }
 
 }
@@ -197,11 +204,13 @@ function connectWifi()
     $.ajax({
         url: '/wifiConnect.json',
         dataType: 'json',
-        methof: 'POST',
+        method: 'POST',
         cache: false,
         headers: {'my-connect-ssid': selectedSSID, 'my-connect-pwd': pwd},
         data: {'timestamp': Date.now()}
     });
+
+    startWifiConnectStatusInterval();
 }
 /**
  * Checks credentials on connect_wifi button clicks:
@@ -216,13 +225,13 @@ function checkCredentials()
 
     if (selectedSSID == "")
     {
-        errorList += "<h4 class='rd>SSID cannot be empty!</h4>";
+        errorList += "<h4 class='rd'>SSID cannot be empty!</h4>";
         credsOk = false;
     }
     
-    if (pass == "")
+    if (pwd == "")
     {
-        errorList += "<h4 class='rd>Password cannot be empty!</h4>";
+        errorList += "<h4 class='rd'>Password cannot be empty!</h4>";
         credsOk = false;
     }
 
@@ -234,5 +243,20 @@ function checkCredentials()
     {
         $("#wifi_connect_credentials_errors").html("");
         connectWifi();
+    }
+}
+/**
+ * show the wifi password is the box is checked
+ */
+function showPassword()
+{
+    var x = document.getElementById("connect_pass");
+    if (x.type == "password") 
+    {
+        x.type = "text";
+    }  
+    else
+    {
+        x.type = "password";
     }
 }
