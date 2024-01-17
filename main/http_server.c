@@ -429,7 +429,7 @@ static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
     ESP_LOGI(TAG, "/wifiConnectStatus requested");
 
     char statusJSON[100];
-    sprintf(statusJSON, "{\"wifi_connect_status\"}:%d}", g_wifi_connect_status);
+    sprintf(statusJSON, "{\"wifi_connect_status\":%d}", g_wifi_connect_status);
     httpd_resp_send(req, statusJSON, strlen(statusJSON));
 
     return ESP_OK;
@@ -565,13 +565,15 @@ static httpd_handle_t http_server_configuration(void)
 
 
         //register wifiConnectStatus.json handler
-        httpd_uri_t wifi_connect_status_json = {
+        httpd_uri_t wifi_connect_status = {
             .uri = "/wifiConnectStatus.json",
             .method = HTTP_POST,
             .handler = http_server_wifi_connect_status_json_handler,
             .user_ctx = NULL
         };
-        httpd_register_uri_handler(http_server_handle, &wifi_connect_status_json);
+        httpd_register_uri_handler(http_server_handle, &wifi_connect_status);
+        
+        
         return http_server_handle;
     }
 

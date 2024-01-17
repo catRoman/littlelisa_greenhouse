@@ -115,6 +115,7 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
 
             case WIFI_EVENT_AP_STACONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_AP_STACONNECTED");
+               
                 break;
             
             case WIFI_EVENT_AP_STADISCONNECTED:
@@ -131,6 +132,11 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
 
             case WIFI_EVENT_STA_CONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
+ 
+                wifi_event_sta_connected_t *wifi_event_sta_connected = (wifi_event_sta_connected_t*)malloc(sizeof(wifi_event_sta_connected_t));
+                *wifi_event_sta_connected = *((wifi_event_sta_connected_t*) event_data);
+
+                wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTED_GOT_IP);
                 break;
 
             case WIFI_EVENT_STA_DISCONNECTED:
