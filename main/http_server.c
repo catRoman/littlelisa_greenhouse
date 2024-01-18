@@ -437,6 +437,18 @@ static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 }
 
 /**
+ * wifiDisconnect.json handler response by sending a message to the wifi app to disconnect.
+ * @param req HTTP request for which the uri needs to be handled
+ * @return ESP_OK
+*/
+static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
+{
+    ESP_LOGI(TAG, "wifiDisconnect.json requested");
+    wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
+
+    return ESP_OK;
+}
+/**
  * wiwifConnectINfo.json handler updates the webpage with connection inforation.
  * @param req HTTP request for which the uri needs to be handled
  * @return ESP_OK
@@ -611,7 +623,7 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_status);
         
-        //register wifiConnectIno.json handler
+        //register wifiConnectInfo.json handler
         httpd_uri_t wifi_connect_info_json = {
             .uri = "/wifiConnectInfo.json",
             .method = HTTP_GET,
@@ -619,6 +631,16 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_info_json);
+        
+
+        //register wifiDisconnect.json handler
+        httpd_uri_t wifi_disconnect_json = {
+            .uri = "/wifiDisconnect.json",
+            .method = HTTP_DELETE,
+            .handler = http_server_wifi_disconnect_json_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &wifi_disconnect_json);
         
         return http_server_handle;
     }

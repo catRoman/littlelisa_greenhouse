@@ -16,6 +16,10 @@ $(document).ready(function(){
     $("#connect_wifi").on("click", function(){
         checkCredentials();
     });
+
+    $("#disconnect_wifi").on("click", function(){
+        disconnectWifi();
+    });
 });   
 
 /**
@@ -211,6 +215,12 @@ function getWifiConnectStatus()
                 "<h4 class=\"gr\">Connection Successful</h4>";
                 stopWifiConnectStatusInterval();
                 getConnectInfo();
+                //update the webpage
+                setTimeout(function() {
+                    document.getElementById("wifi_connect_status").innerHTML = "";
+                    document.getElementById("connect_ssid").value = "";
+                    document.getElementById("connect_pass").value = "";
+                }, 5000);
         }
         
     }
@@ -315,4 +325,22 @@ function getConnectInfo()
 
         document.getElementById('disconnect_wifi').style.display = 'block';
     })
+}
+
+/**
+ * Disconnects WiFi once the disconnect button is pressed and reloads the web page
+ */
+function disconnectWifi()
+{
+    $.ajax({
+        url: '/wifiDisconnect.json',
+        dataType: 'json',
+        method: 'DELETE',
+        cache: false,
+        data: {'timestamp': Date.now()}
+    });
+    //update the webpage
+    setTimeout(function() {
+        location.reload(true);
+    }, 2000);
 }
