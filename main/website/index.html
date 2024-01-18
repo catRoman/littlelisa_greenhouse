@@ -4,6 +4,7 @@
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<script src="https://code.highcharts.com/highcharts.js"></script>
 		<script src='jquery-3.3.1.min.js'></script>
 		<link rel="stylesheet" href="app.css">
 		<script async src="app.js"></script>
@@ -30,11 +31,18 @@
 
 	<div id="DHTSensor">
 		<h2>DHT22 Sensor Readings</h2>
+		<h3>Current Readings:</h3>
 		<label for="temperature_reading">Temperature: </label>
 		<div id="temperature_reading"></div>
 
 		<label for="humidity_reading">Humidity: </label>
 		<div id="humidity_reading"></div>
+
+		<div id="highchart_container"></div>
+		<div id="temp_chart"></div><br>
+		<div id="humidity_chart"></div><br>
+
+		
 	</div>
 	<hr>
 

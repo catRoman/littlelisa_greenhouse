@@ -120,7 +120,12 @@ input[type="button"]:active {
                 inset 2px 2px 3px rgba(0, 0, 0, .6);
 }
 
-
+#temp_chart{
+    height: 600px;
+}
+#humidity_chart{
+    height: 600px;
+}
 
 
 

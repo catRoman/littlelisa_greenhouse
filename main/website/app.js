@@ -5,6 +5,74 @@
 var seconds 	= null;
 var otaTimerVar =  null;
 var wifiConnectInterval = null;
+var tempChart = null;
+var humidityChart = null;
+/**
+ * highcharts
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    var tempchartOptions = {
+        chart: {
+            renderTo: 'temp_chart', 
+            type: 'line' 
+        },
+        credits: {
+            enabled: false
+        },
+        title: {
+            text: 'Temperature'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: 'Readings'
+            }
+        },
+        series: [{
+            type: 'line',
+            name: 'Inside Temperature',
+            data: []
+        }]
+    }
+    var humiditychartOptions = {
+        chart: {
+            renderTo: 'humidity_chart', 
+            type: 'line' 
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions : {
+            line : {
+                marker: { 
+                    enabled: true
+                }
+            }
+        },
+        title: {
+            text: 'Humidity'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: 'Readings'
+            }
+        },
+        series: [{
+            type: 'line',
+            name: 'Inside Humidity',
+            data: []
+        }]
+    }
+
+    humidityChart = Highcharts.chart(humiditychartOptions);
+    tempChart = Highcharts.chart(tempchartOptions);
+});
+
 
 /**
  * Initialize functions here.
@@ -141,7 +209,20 @@ function getDHTSensorValues(){
 /** Sets the interval for getting the updated DHT22 */
 function startDHTSensorInterval()
 {
-    setInterval(getDHTSensorValues, 5000)
+    setInterval(function(){
+        getDHTSensorValues();
+        var inside_temp = parseInt(document.getElementById('temperature_reading').innerText, 10);
+        var inside_humidity = parseInt(document.getElementById('humidity_reading').innerText, 10);
+        var currentTime = (new Date()).getTime();
+        if (tempChart != null){
+            tempChart.series[0].addPoint([currentTime, inside_temp], false);
+            tempChart.redraw();
+        }
+        if (humidityChart != null){
+            humidityChart.series[0].addPoint([currentTime, inside_humidity], false);
+            humidityChart.redraw();
+        }
+    }, 5000)
 }
 
 
