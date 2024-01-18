@@ -185,6 +185,12 @@ function getWifiConnectStatus()
                 "<h4 class=\"gr\">Connection Successful</h4>";
                 stopWifiConnectStatusInterval();
                 getConnectInfo();
+                //update the webpage
+                setTimeout(function() {
+                    document.getElementById("wifi_connect_status").innerHTML = "";
+                    document.getElementById("connect_ssid").value = "";
+                    document.getElementById("connect_pass").value = "";
+                }, 5000);
         }
         
     }
@@ -301,8 +307,10 @@ function disconnectWifi()
         dataType: 'json',
         method: 'DELETE',
         cache: false,
-        data: { 'timestamp' : Date.now()}
+        data: {'timestamp': Date.now()}
     });
     //update the webpage
-    setTimeout("location.reload(true);", 2000);
+    setTimeout(function() {
+        location.reload(true);
+    }, 2000);
 }

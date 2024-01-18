@@ -598,7 +598,6 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_info_json);
         
-        return http_server_handle;
 
         //register wifiDisconnect.json handler
         httpd_uri_t wifi_disconnect_json = {
