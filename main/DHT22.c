@@ -25,6 +25,7 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "driver/gpio.h"
+#include "cJSON.h"
 
 #include "DHT22.h"
 #include "task_common.h"
@@ -48,6 +49,24 @@ void setDHTgpio( int gpio )
 
 float getHumidity() { return humidity; }
 float getTemperature() { return temperature; }
+
+//== Log JSON of data ============================
+void DHT22_log_JSON_data(void)
+{
+	cJSON *json_data = cJSON_CreateObject();
+	
+	cJSON_AddNumberToObject(json_data, "temperature", getTemperature());
+	cJSON_AddNumberToObject(json_data, "humidity", getHumidity());
+
+	char *json_string = cJSON_Print(json_data);
+
+	ESP_LOGI(TAG, "Logged JSON Data: %s", json_string);
+
+	cJSON_Delete(json_data);
+	free(json_string);
+	
+}
+
 
 // == error handler ===============================================
 
@@ -246,7 +265,7 @@ static void DHT22_task(void *vpParameter)
 		int ret = readDHT();
 
 		errorHandler(ret);
-
+		DHT22_log_JSON_data();
 		//printf("Hum: %.1f\n", getHumidity());
 		//printf("Temp: %.1f\n", getTemperature());
 
