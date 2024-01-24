@@ -1,6 +1,7 @@
 import  { SerialPort } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
 
+
 // created a new port
 const port = new SerialPort({ 
     path: '/dev/ttyACM0',
@@ -9,24 +10,36 @@ const port = new SerialPort({
 
 const parser = port.pipe(new ReadlineParser({delimiter: '\r\n' }));
 
-port.on('readable', () => {
-        console.log(`START===============${port.readableLength}`);
+let currentDataPacket = '';
 
-        let rawSerialBuffer = port.read();
-        setTimeout (() => {
-        handleSensorData(parseBufferForJSON(rawSerialBuffer.toString('utf-8')));
-}, 100);
-    });
+port.on('data', (data) => {
+  currentDataPacket += data.toString();
 
-            console.log("END==============");
+  if (currentDataPacket.includes('}')) {
+    processJSONPacket(currentDataPacket);
+    currentDataPacket = '';
+  }
+});
+
+function processJSONPacket(packet) {
+  // Your packet processing logic here
+    const startSensorPacket = packet.indexOf('{');
+    const endSensorPacket = packet.indexOf('}', startSensorPacket) + 1;
+
+    const sensorDataJSON = JSON.parse(packet.substring(startSensorPacket, endSensorPacket));
+    
+    console.log("Recieved Packet:", sensorDataJSON);
+}
 
 const parseBufferForJSON = (stringToParse) => {
-    
     return stringToParse;
 }
 
+
 const handleSensorData = (jsonString) => {
-    console.log(jsonString);
+    let testArr = [];
+    testArr.push(jsonString);
+    return testArr;
 }
 
 
