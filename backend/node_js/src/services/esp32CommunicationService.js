@@ -7,30 +7,27 @@ const port = new SerialPort({
     baudRate: 115200
 });
 
-
-
-const helloThere = () => {
-    if(port.isOpen)
-        console.log("Hello There, The port is open");
-    else
-        console.log("The port is still closed");
-};
-
-helloThere(); 
+const parser = port.pipe(new ReadlineParser({delimiter: '\r\n' }));
 
 port.on('readable', () => {
-    
-    let rawString =JSON.stringify(port.read().toString('utf-8'));
-    let sensorEntryString = rawString.substring(rawString.indexOf('{'));
-    let sensorEntryObject = JSON.parse(sensorEntryString);
+        console.log(`START===============${port.readableLength}`);
 
-    
-    console.log(sensorEntryString);
-    console.log(sensorEntryObject);
-});
+        let rawSerialBuffer = port.read();
+        setTimeout (() => {
+        handleSensorData(parseBufferForJSON(rawSerialBuffer.toString('utf-8')));
+}, 100);
+    });
 
-//const parser = port.pipe(new ReadlineParser({}));
-//ReadlineParser.on('data', console.log);
+            console.log("END==============");
+
+const parseBufferForJSON = (stringToParse) => {
+    
+    return stringToParse;
+}
+
+const handleSensorData = (jsonString) => {
+    console.log(jsonString);
+}
 
 
 
