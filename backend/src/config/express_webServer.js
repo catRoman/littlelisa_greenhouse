@@ -1,34 +1,27 @@
-import  express  from 'express';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import  fs  from 'fs';
-
+import express from 'express';
 
 const PORT = 3000;
-const public_dir_relAddr = "../../../frontend/public";
 const SERVER_IP = '10.0.0.204';
-const __dirname = import.meta.url;
-
-const app = express();
-
 
 function setupWebServer() {
-
-    try{
-
-        console.log(__dirname);
-       // app.use(express.static(__dirname + '/frontend/public'));
+    const webApp = express();
 
 
-    }catch (error){
-        console.error("Cannot load static pages=>:", error);
-    }
+    webApp.use(express.static('./config'));
+    console.log("Static Pages loaded...");
+
+    webApp.listen(PORT, SERVER_IP, () => {
+        console.log(`Server is running at localhost:${PORT}`);
+    });
+
+    webApp.on('error', (err) => {
+        console.error('Web server error:', err);
+    });
+
 }
 
 export {
     setupWebServer,
     PORT,
     SERVER_IP,
-    app,
-    __dirname
     };

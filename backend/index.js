@@ -1,19 +1,21 @@
 import  * as WebServer from './src/config/express_webServer.js';
 import { connectToDatabase } from './src/config/pgresql_database.js'
 import express from 'express';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-async function startServers(){
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+    async function startServers(){
     try {
-        const webApp = express();
-        console.log(WebServer.__dirname);
+
         await connectToDatabase();
-        console.log("Connected successfully to database");
+        console.log("Connected successfully to database...");
 
-        webApp.listen(WebServer.PORT, WebServer.SERVER_IP, () => {
-            console.log(`Server is running at localhost:${WebServer.PORT}`)
-        });
+        WebServer.setupWebServer();
+        console.log("Webserver successfully running...");
 
-        //webApp.use(express.static(WebServer.__dirname + '/frontend/public'));
     } catch (error){
         console.error('Error starting servers->:', error);
     }
