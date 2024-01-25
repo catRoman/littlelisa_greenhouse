@@ -20,7 +20,7 @@ function startWebServer(){
             res.json(sensorDataJSON);
             logSentJSONData(JSON.stringify(sensorDataJSON));
         }catch(error){
-            console.error("U oh ===>", error.message);
+            console.error("Uh oh ===>", error.message);
         }
     });
 

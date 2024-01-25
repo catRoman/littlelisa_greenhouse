@@ -1,4 +1,4 @@
-import express from 'express';
+
 import { startWebServer } from './src/config/express_webServer.js'
 import { connectToDatabase } from './src/config/pgresql_database.js'
 import { Web_Config_g, __root_dir } from './src/config/globals.js';

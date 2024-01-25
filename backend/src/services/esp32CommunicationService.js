@@ -1,6 +1,7 @@
 import  { SerialPort } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
 import { logSentJSONData } from '../config/log_config.js';
+import { format } from 'date-fns';
 
 let sensorDataJSON;
 // created a new port
@@ -17,7 +18,7 @@ port.on('data', (data) => {
   currentDataPacket += data.toString();
 
   if (currentDataPacket.includes('}')) {
-    sensorDataJSON =processJSONPacket(currentDataPacket);
+    sensorDataJSON = processJSONPacket(currentDataPacket);
     currentDataPacket = '';
   }
 });
@@ -27,10 +28,17 @@ function processJSONPacket(packet) {
     const startSensorPacket = packet.indexOf('{');
     const endSensorPacket = packet.indexOf('}', startSensorPacket) + 1;
 
-    const sensorDataJson = JSON.parse(packet.substring(startSensorPacket, endSensorPacket));
+    const sensorDataJSON = JSON.parse(packet.substring(startSensorPacket, endSensorPacket));
+   //console.log(JSON.stringify(sensorDataJSON));
 
+    const sensorDataWithServerTimeJSON = {
+      ...sensorDataJSON,
+      serverTime : (new Date()).toLocaleString()
+    };
 
-    return sensorDataJson;
+   //console.log(sensorDataWithServerTimeJSON);
+   // console.log(JSON.stringify(sensorDataWithServerTimeJSON));
+    return sensorDataWithServerTimeJSON;
 }
 
 const parseBufferForJSON = (stringToParse) => {
