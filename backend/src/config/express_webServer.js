@@ -1,27 +1,17 @@
 import express from 'express';
+import {join } from 'path'
+import { Web_Config_g, __root_dir } from './globals.js';
 
-const PORT = 3000;
-const SERVER_IP = '10.0.0.204';
 
-function setupWebServer() {
+function startWebServer(){
     const webApp = express();
 
+    // middleware for static pages
+    webApp.use(express.static(join(__root_dir + "/frontend/public")));
 
-    webApp.use(express.static('./config'));
-    console.log("Static Pages loaded...");
-
-    webApp.listen(PORT, SERVER_IP, () => {
-        console.log(`Server is running at localhost:${PORT}`);
-    });
-
-    webApp.on('error', (err) => {
-        console.error('Web server error:', err);
-    });
-
+    return webApp;
 }
 
 export {
-    setupWebServer,
-    PORT,
-    SERVER_IP,
+    startWebServer,
     };

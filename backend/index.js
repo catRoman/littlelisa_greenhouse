@@ -1,25 +1,22 @@
-import  * as WebServer from './src/config/express_webServer.js';
+import { startWebServer } from './src/config/express_webServer.js'
 import { connectToDatabase } from './src/config/pgresql_database.js'
-import express from 'express';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { Web_Config_g, __root_dir } from './src/config/globals.js';
+function startServers(){
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+    try{
+        connectToDatabase();
+        console.log("Connection Successful");
 
-    async function startServers(){
-    try {
+        console.log(__root_dir);
 
-        await connectToDatabase();
-        console.log("Connected successfully to database...");
+        const webApp = startWebServer();
 
-        WebServer.setupWebServer();
-        console.log("Webserver successfully running...");
-
-    } catch (error){
-        console.error('Error starting servers->:', error);
+        webApp.listen(Web_Config_g.PORT, Web_Config_g.SERVER_IP, ()=> {
+            console.log(`Server is running at ${Web_Config_g.SERVER_IP}:${Web_Config_g.PORT}`);
+        });
+    }catch(error){
+        console.error("Uh Oh ==>: ", error);
     }
 }
 
-//starting app servers
 startServers();
