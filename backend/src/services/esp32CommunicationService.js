@@ -1,9 +1,10 @@
 import  { SerialPort } from 'serialport';
 import { ReadlineParser } from '@serialport/parser-readline';
+import { logSentJSONData } from '../config/log_config.js';
 
-
+let sensorDataJSON;
 // created a new port
-const port = new SerialPort({ 
+const port = new SerialPort({
     path: '/dev/ttyACM0',
     baudRate: 115200
 });
@@ -16,7 +17,7 @@ port.on('data', (data) => {
   currentDataPacket += data.toString();
 
   if (currentDataPacket.includes('}')) {
-    processJSONPacket(currentDataPacket);
+    sensorDataJSON =processJSONPacket(currentDataPacket);
     currentDataPacket = '';
   }
 });
@@ -26,9 +27,10 @@ function processJSONPacket(packet) {
     const startSensorPacket = packet.indexOf('{');
     const endSensorPacket = packet.indexOf('}', startSensorPacket) + 1;
 
-    const sensorDataJSON = JSON.parse(packet.substring(startSensorPacket, endSensorPacket));
-    
-    console.log("Recieved Packet:", sensorDataJSON);
+    const sensorDataJson = JSON.parse(packet.substring(startSensorPacket, endSensorPacket));
+
+
+    return sensorDataJson;
 }
 
 const parseBufferForJSON = (stringToParse) => {
@@ -42,6 +44,4 @@ const handleSensorData = (jsonString) => {
     return testArr;
 }
 
-
-
-
+export { sensorDataJSON };

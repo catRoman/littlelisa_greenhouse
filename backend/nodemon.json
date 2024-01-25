@@ -1,0 +1,4 @@
+{
+    "ignore": "logs/",
+    "exec": "node index.js"
+}
