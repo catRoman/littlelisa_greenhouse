@@ -1,13 +1,15 @@
-import { Highcharts} from 'highcharts';
 
 var tempChart = null;
 var humidityChart = null;
 
 
 /**
- * highcharts
+ * Initialize functions
  */
+
 document.addEventListener('DOMContentLoaded', function () {
+
+    startDHTSensorInterval();
     var tempChartOptions = {
         chart: {
             renderTo: 'temp_chart',
@@ -20,7 +22,10 @@ document.addEventListener('DOMContentLoaded', function () {
             text: 'Temperature'
         },
         xAxis: {
-            type: 'datetime'
+            type: 'datetime',
+            labels: {
+                format: '{value:%Y-%m-%d}'
+            },
         },
         yAxis: {
             title: {
@@ -52,8 +57,10 @@ document.addEventListener('DOMContentLoaded', function () {
             text: 'Humidity'
         },
         xAxis: {
-            type: 'datetime'
+            type: 'datetime',
+            allowDecimals: false,
         },
+
         yAxis: {
             title: {
                 text: 'Readings'
@@ -71,30 +78,14 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-/**
- * Initialize functions here.
- */
-$(document).ready(function(){
-    startDHTSensorInterval();
-});
-
-
 /** Sets the interval for getting the updated DHT22 */
 function startDHTSensorInterval()
 {
     setInterval(function(){
         fetchDHTSensorValues();
-        var inside_temp = parseInt(document.getElementById('temperature_reading').innerText, 10);
-        var inside_humidity = parseInt(document.getElementById('humidity_reading').innerText, 10);
-        var currentTime = (new Date()).getTime();
-        if (tempChart != null){
-            tempChart.series[0].addPoint([currentTime, inside_temp], false);
-            tempChart.redraw();
-        }
-        if (humidityChart != null){
-            humidityChart.series[0].addPoint([currentTime, inside_humidity], false);
-            humidityChart.redraw();
-        }
+        var inside_temp = parseFloat(document.getElementById('temperature_reading').innerText, 10);
+        var inside_humidity = parseFloat(document.getElementById('humidity_reading').innerText, 10);
+
     }, 5000)
 }
 
@@ -108,11 +99,22 @@ async function fetchDHTSensorValues(){
         const response = await fetch("/api/dhtData.json");
         const data = await response.json();
 
-        document.getElementById("temperature_reading").textContent = data.temp;
-        document.getElementById("humidity_reading").textContent = data.humidity;
+        const timeStamp = new Date(data.server_info.epoch).getTime();
 
-        humidityChart.series[0].addPoint(data.humidity);
-        tempChart.series[0].addPoint(data.temp);
+
+        document.getElementById("temperature_reading").textContent = data.temperature.toFixed(2);
+        document.getElementById("humidity_reading").textContent = data.humidity.toFixed(2);
+
+        if (tempChart != null){
+        tempChart.series[0].addPoint([timeStamp, Number(data.temperature.toFixed(2))], false);
+            tempChart.redraw();
+        }
+        if (humidityChart != null){
+            humidityChart.series[0].addPoint([timeStamp, Number(data.humidity.toFixed(2))], false);
+            humidityChart.redraw();
+        }
+//        humidityChart.series[0].addPoint(data.humidity);
+//        tempChart.series[0].addPoint(data.temperature);
     } catch (error) {
         console.error('Error fetching data:', error);
     }
