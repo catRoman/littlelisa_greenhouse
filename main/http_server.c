@@ -18,6 +18,7 @@
 #include "task_common.h"
 #include "wifi_app.h"
 #include "DHT22.h"
+#include "nvs_service.h"
 
 // Tag used for ESP serial console message
 static const char TAG[] = "http_server";
@@ -383,12 +384,19 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
         }
     }
 
+
+
     // update the wifi networks configuration and let the wifi application know
     wifi_config_t* wifi_config = wifi_app_get_wifi_config();
     memset(wifi_config, 0x00, sizeof(wifi_config_t));
     memcpy(wifi_config->sta.ssid, ssid_str, len_ssid);
     memcpy(wifi_config->sta.password, pass_str, len_pass);
     wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
+
+
+    //save to nvs
+    nvs_set_wifi_info(ssid_str, pass_str);
+    ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
 
     free(ssid_str);
     free(pass_str);

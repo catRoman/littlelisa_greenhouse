@@ -16,15 +16,21 @@
 #include "esp_wifi.h"
 #include "lwip/netdb.h"
 #include "esp_event.h"
+#include "nvs.h"
 
 #include "rgb_led.h"
 #include "http_server.h"
 #include "task_common.h"
 #include "wifi_app.h"
+#include "nvs_service.h"
+
 
 // Tag used for ESP serial console messages
 static const char TAG [] = "wifi_app";
 
+//nvs initial values
+static char *wifi_ssid_from_nvs = NULL;
+static char *wifi_pwd_from_nvs = NULL;
 
 // Used for returning the WiFi configuration
 wifi_config_t *wifi_config = NULL;
@@ -265,12 +271,31 @@ static void wifi_app_task(void *pvParameters)
                     g_retry_number = MAX_CONNECTION_RETRIES;
                     ESP_ERROR_CHECK(esp_wifi_disconnect());
                     rgb_led_http_server_started(); // TODO: rename status led to a name more meaninful
+                    //remove the existing ssid and pass from nvs
+                    nvs_set_wifi_info(NULL,NULL);
                     break;
 
                 case WIFI_APP_MSG_STA_DISCONNECTED:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_STA_DISCONNECTED");
                     
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_FAIL);
+                    break;
+
+                case WIFI_APP_MSG_STA_CONNECTING_FROM_NVS:
+
+                    ESP_LOGI(TAG, "nvs_service: existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
+                    memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
+                    memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
+                    
+                     wifi_app_connect_sta();
+                    rgb_led_wifi_app_started();
+
+                    //set current number of retries to zero
+                    g_retry_number = 0;
+
+                    //let the http server know about the connection attempt
+                    http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
+                    
                     break;
 
                 default:
@@ -314,6 +339,20 @@ void wifi_app_start(void)
 
     // Start the Wifif application
     xTaskCreatePinnedToCore(&wifi_app_task, "wifi_app_task", WIFI_APP_TASK_STACK_SIZE, NULL, WIFI_APP_TASK_PRIORITY, NULL, WIFI_APP_TASK_CORE_ID);
+
+    //check for wifi credientials in nvs and set
+ 
+
+    nvs_get_wifi_info(&wifi_ssid_from_nvs, &wifi_pwd_from_nvs);
+
+    if(wifi_ssid_from_nvs == NULL){
+        ESP_LOGI(TAG, "nvs_serice: no existing wifi credientials found in nvs");
+    }else{
+        wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTING_FROM_NVS);
+    }
+
+   
+      
 
 }
 
