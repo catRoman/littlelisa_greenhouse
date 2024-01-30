@@ -338,6 +338,7 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
 
     sprintf(dhtSensorJSON, "{\"temp\":\"%.1f\", \"humidity\":\"%.1f\"}", getTemperature(), getHumidity());
 
+    ESP_LOGI(TAG,"%s", dhtSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
 
