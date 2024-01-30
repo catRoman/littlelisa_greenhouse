@@ -15,7 +15,7 @@
 void app_main(void)
 {
     // Initialize NVS
-    ESP_ERROR_CHECK(nvs_initiate());
+    nvs_initiate();
     
     // Start Wifi
     wifi_app_start();

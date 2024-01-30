@@ -286,6 +286,8 @@ static void wifi_app_task(void *pvParameters)
                     ESP_LOGI(TAG, "nvs_service: existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
                     memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
                     memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
+                    free(wifi_ssid_from_nvs);
+                    free(wifi_pwd_from_nvs);
                     
                      wifi_app_connect_sta();
                     rgb_led_wifi_app_started();
@@ -343,16 +345,15 @@ void wifi_app_start(void)
     //check for wifi credientials in nvs and set
  
 
-    nvs_get_wifi_info(&wifi_ssid_from_nvs, &wifi_pwd_from_nvs);
+    esp_err_t nvs_err = nvs_get_wifi_info(&wifi_ssid_from_nvs, &wifi_pwd_from_nvs);
 
-    if(wifi_ssid_from_nvs == NULL){
-        ESP_LOGI(TAG, "nvs_serice: no existing wifi credientials found in nvs");
-    }else{
+    if(nvs_err == ESP_ERR_NVS_NOT_FOUND || wifi_ssid_from_nvs == NULL){
+        ESP_LOGI(TAG, "no existing wifi credientials found in nvs");
+    }else if (nvs_err == ESP_OK){
         wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTING_FROM_NVS);
+    }else{
+        ESP_LOGE(TAG, "error with loading nvs on start: %s", esp_err_to_name(nvs_err));
     }
-
-   
-      
 
 }
 
