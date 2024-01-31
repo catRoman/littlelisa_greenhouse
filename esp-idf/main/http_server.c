@@ -349,7 +349,7 @@ static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_r
 
     sprintf(dhtInsideSensorJSON, "{\"inside_temp\":\"%.1f\", \"inside_humidity\":\"%.1f\"}", (get_temperature(&inside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&inside_sensor_gt)); //inside temp in fahrenheit
 
-    ESP_LOGI(TAG,"%s", dhtSensorJSON);
+    ESP_LOGI(TAG,"%s", dhtInsideSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
 

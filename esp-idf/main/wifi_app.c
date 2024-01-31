@@ -272,7 +272,7 @@ static void wifi_app_task(void *pvParameters)
 
                     g_retry_number = MAX_CONNECTION_RETRIES;
                     ESP_ERROR_CHECK(esp_wifi_disconnect());
-                    rgb_led_http_server_started(); // TODO: rename status led to a name more meaninful
+                    led_http_server_started(); // TODO: rename status led to a name more meaninful
                     break;
 
                 case WIFI_APP_MSG_STA_DISCONNECTED:
@@ -292,7 +292,7 @@ static void wifi_app_task(void *pvParameters)
                     free(wifi_pwd_from_nvs);
 
                      wifi_app_connect_sta();
-                    rgb_led_wifi_app_started();
+                    led_wifi_app_started();
 
                     //set current number of retries to zero
                     g_retry_number = 0;

@@ -2,11 +2,11 @@
 
 	DHT22 temperature & humidity sensor_t AM2302 (DHT22) driver for ESP32
 
-	Jun 2017:	Ricardo Timmermann, new for DHT22  	
+	Jun 2017:	Ricardo Timmermann, new for DHT22
 
 	Code Based on Adafruit Industries and Sam Johnston and Coffe & Beer. Please help
-	to improve this code. 
-	
+	to improve this code.
+
 	This example code is in the Public Domain (or CC0 licensed, at your option.)
 
 	Unless required by applicable law or agreed to in writing, this
@@ -34,6 +34,7 @@
 
 dht22_sensor_t inside_sensor_gt;
 dht22_sensor_t outside_sensor_gt;
+static const char TAG [] = "dht22_sensor";
 
 // == get temp & hum =============================================
 
@@ -44,19 +45,19 @@ float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; 
 void DHT22_log_JSON_data(void)
 {
 	cJSON *json_data = cJSON_CreateObject();
-	
+
 	cJSON_AddStringToObject(json_data, "location", "inside");
-	cJSON_AddNumberToObject(json_data, "temperature", getTemperature());
-	cJSON_AddNumberToObject(json_data, "humidity", getHumidity());
+	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(&inside_sensor_gt));
+	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(&inside_sensor_gt));
 
 
 	char *json_string = cJSON_Print(json_data);
 
-	ESP_LOGI(TAG, "SENSOR_DATA: Logged JSON Data: %s", json_string);
+	ESP_LOGI(TAG, "Logged JSON Data: %s", json_string);
 
 	cJSON_Delete(json_data);
 	free(json_string);
-	
+
 }
 
 
@@ -65,7 +66,7 @@ void DHT22_log_JSON_data(void)
 void errorHandler(int response, dht22_sensor_t *sensor_t)
 {
 	switch(response) {
-	
+
 		case DHT_TIMEOUT_ERROR :
 			ESP_LOGE( sensor_t->TAG, "Sensor Timeout\n" );
 			break;
@@ -84,7 +85,7 @@ void errorHandler(int response, dht22_sensor_t *sensor_t)
 
 /*-------------------------------------------------------------------------------
 ;
-;	get next state 
+;	get next state
 ;
 ;	I don't like this logic. It needs some interrupt blocking / priority
 ;	to ensure it runs in realtime.
@@ -97,13 +98,13 @@ int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
 	int uSec = 0;
 	while( gpio_get_level(sensor_t->pin_number)==state ) {
 
-		if( uSec > usTimeOut ) 
+		if( uSec > usTimeOut )
 			return -1;
-		
+
 		++uSec;
 		esp_rom_delay_us(1);		// uSec delay
 	}
-	
+
 	return uSec;
 }
 
@@ -125,7 +126,7 @@ Binary system Decimal system: RH=652/10=65.2%RH
 2) we convert 16 bits T data from binary system to decimal system, 0000 0001 0101 1111 → 351
 Binary system Decimal system: T=351/10=35.1°C
 
-When highest bit of temperature is 1, it means the temperature is below 0 degree Celsius. 
+When highest bit of temperature is 1, it means the temperature is below 0 degree Celsius.
 Example: 1000 0000 0110 0101, T= minus 10.1°C: 16 bits T data
 
 3) Check Sum=0000 0010+1000 1100+0000 0001+0101 1111=1110 1110 Check-sum=the last 8 bits of Sum=11101110
@@ -138,9 +139,9 @@ To request data from DHT:
 
 1) Sent low pulse for > 1~10 ms (MILI SEC)
 2) Sent high pulse for > 20~40 us (Micros).
-3) When DHT detects the start signal, it will pull low the bus 80us as response signal, 
+3) When DHT detects the start signal, it will pull low the bus 80us as response signal,
    then the DHT pulls up 80us for preparation to send data.
-4) When DHT is sending data to MCU, every bit's transmission begin with low-voltage-level that last 50us, 
+4) When DHT is sending data to MCU, every bit's transmission begin with low-voltage-level that last 50us,
    the following high-voltage-level signal's length decide the bit is "1" or "0".
 	0: 26~28 us
 	1: 70 us
@@ -163,28 +164,28 @@ int DHTgpio = sensor_t->pin_number;
 int humidity = sensor_t->humidity;
 int temperature = sensor_t->temperature;
 
-	for (int k = 0; k<MAXdhtData; k++) 
+	for (int k = 0; k<MAXdhtData; k++)
 		dhtData[k] = 0;
 
 	// == Send start signal to DHT sensor_t ===========
 
 	gpio_set_direction( DHTgpio, GPIO_MODE_OUTPUT );
 
-	// pull down for 3 ms for a smooth and nice wake up 
+	// pull down for 3 ms for a smooth and nice wake up
 	gpio_set_level( DHTgpio, 0 );
-	esp_rom_delay_us( 3000 );			
+	esp_rom_delay_us( 3000 );
 
 	// pull up for 25 us for a gentile asking for data
 	gpio_set_level( DHTgpio, 1 );
 	esp_rom_delay_us( 25 );
 
 	gpio_set_direction( DHTgpio, GPIO_MODE_INPUT );		// change to input mode
-  
+
 	// == DHT will keep the line low for 80 us and then high for 80us ====
 
 	uSec = getSignalLevel( 85, 0, sensor_t );
 //	ESP_LOGI( TAG, "Response = %d", uSec );
-	if( uSec<0 ) return DHT_TIMEOUT_ERROR; 
+	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// -- 80us up ------------------------
 
@@ -193,7 +194,7 @@ int temperature = sensor_t->temperature;
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// == No errors, read the 40 data bits ================
-  
+
 	for( int k = 0; k < 40; k++ ) {
 
 		// -- starts new data transmission with >50us low signal
@@ -207,13 +208,13 @@ int temperature = sensor_t->temperature;
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// add the current read to the output data
-		// since all dhtData array where set to 0 at the start, 
+		// since all dhtData array where set to 0 at the start,
 		// only look for "1" (>28us us)
-	
+
 		if (uSec > 40) {
 			dhtData[ byteInx ] |= (1 << bitInx);
 			}
-	
+
 		// index to next byte
 
 		if (bitInx == 0) { bitInx = 7; ++byteInx; }
@@ -228,8 +229,8 @@ int temperature = sensor_t->temperature;
 	humidity /= 10;						// get the decimal
 
 	// == get temp from Data[2] and Data[3]
-	
-	temperature = dhtData[2] & 0x7F;	
+
+	temperature = dhtData[2] & 0x7F;
 	temperature *= 0x100;				// >> 8
 	temperature += dhtData[3];
 	temperature /= 10;
@@ -241,11 +242,11 @@ int temperature = sensor_t->temperature;
 	sensor_t->humidity = humidity;
 	// == verify if checksum is ok ===========================================
 	// Checksum is the sum of Data 8 bits masked out 0xFF
-	
-	if (dhtData[4] == ((dhtData[0] + dhtData[1] + dhtData[2] + dhtData[3]) & 0xFF)) 
+
+	if (dhtData[4] == ((dhtData[0] + dhtData[1] + dhtData[2] + dhtData[3]) & 0xFF))
 		return DHT_OK;
 
-	else 
+	else
 		return DHT_CHECKSUM_ERROR;
 }
 
@@ -321,8 +322,7 @@ void DHT22_sensor_task_start(void){
 
 	// pin inside sensor_t
 	xTaskCreatePinnedToCore(&DHT22_inside_task, "inside_sensor", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-	
+
 	// pin outside sensor_t
 	xTaskCreatePinnedToCore(&DHT22_outside_task, "outside_sensor", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }
-
