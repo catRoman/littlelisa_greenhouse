@@ -242,11 +242,7 @@ static void wifi_app_task(void *pvParameters)
 
                     http_server_start();
                     led_http_server_started();
-<<<<<<< HEAD:main/wifi_app.c
 
-=======
-                    
->>>>>>> 029a7baf865f0bc75a589658b0f8551027afaccb:esp-idf/main/wifi_app.c
                     break;
 
                 case WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER:
@@ -266,11 +262,7 @@ static void wifi_app_task(void *pvParameters)
 
                 case WIFI_APP_MSG_STA_CONNECTED_GOT_IP:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP");
-<<<<<<< HEAD:main/wifi_app.c
 
-=======
-                    
->>>>>>> 029a7baf865f0bc75a589658b0f8551027afaccb:esp-idf/main/wifi_app.c
                     led_wifi_connected();
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_SUCCESS);
                     break;
