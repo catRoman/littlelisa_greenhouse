@@ -4,7 +4,7 @@
  *
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
- * 
+ *
  */
 
 #include "esp_http_server.h"
@@ -19,6 +19,7 @@
 #include "wifi_app.h"
 
 #include "DHT22.h"
+#include "nvs_service.h"
 
 // Tag used for ESP serial console message
 static const char TAG[] = "http_server";
@@ -81,7 +82,7 @@ static void http_server_fw_update_reset_timer(void)
         // Give the web page a chance to recieve an acknowedge back and initalize the timer
         ESP_ERROR_CHECK(esp_timer_create(&fw_update_reset_args, &fw_update_reset));
         ESP_ERROR_CHECK(esp_timer_start_once(fw_update_reset, 8000000));
-    }    
+    }
     else
     {
         ESP_LOGI(TAG, "http_Server_fw_update_reset_timer: FW update unsuccessful");
@@ -111,6 +112,11 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
                     ESP_LOGI(TAG, "HTTP_MSG_CONNECT_SUCCESS");
 
                     g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_SUCCESS;
+                        //save to nvs
+                    wifi_config_t* wifi_config = wifi_app_get_wifi_config();
+
+                    nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
+                    ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
 
                     break;
 
@@ -139,7 +145,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
     }
 }
 
-/** 
+/**
  * jquery get handler is requested when accessing the web page
  * @param req HTTP request for which the uri needs to be handled
  * @return ESP_OK
@@ -279,7 +285,7 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
             content_recieved += recv_len;
         }
     } while ( recv_len > 0 && content_recieved < content_length);
-    
+
     if(esp_ota_end(ota_handle) == ESP_OK)
     {
         // update the partition
@@ -299,11 +305,11 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
         ESP_LOGI(TAG, "http_server_OTA_update_handler: esp_ota_end ERROR! ! !");
     }
     // we wont update the global variables throughout the file, so send the message sbout the status
-    if(flash_succesful) 
-    { 
+    if(flash_succesful)
+    {
         http_server_monitor_send_message(HTTP_MSG_OTA_UPDATE_SUCCESSFUL);
     }
-    else 
+    else
     {
         http_server_monitor_send_message(HTTP_MSG_OTA_UPDATE_FAILED);
     }
@@ -343,6 +349,7 @@ static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_r
 
     sprintf(dhtInsideSensorJSON, "{\"inside_temp\":\"%.1f\", \"inside_humidity\":\"%.1f\"}", (get_temperature(&inside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&inside_sensor_gt)); //inside temp in fahrenheit
 
+    ESP_LOGI(TAG,"%s", dhtSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
 
@@ -369,7 +376,7 @@ static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_
     return ESP_OK;
 }
 
-/** Wifi connect.json is invoked after the connect button is pressed and 
+/** Wifi connect.json is invoked after the connect button is pressed and
  * handles recieving the SSID and password entered by the user
  * @param req HTTP request for which the uri needs to handled
  * @return ESP_OK
@@ -384,7 +391,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     // get SSID header
 
     len_ssid = httpd_req_get_hdr_value_len(req, "my-connect-ssid") + 1;
-    
+
     if (len_ssid > 1)
     {
         ssid_str = malloc(len_ssid);
@@ -397,7 +404,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     // get password header
 
     len_pass = httpd_req_get_hdr_value_len(req, "my-connect-pwd") + 1;
-    
+
     if (len_pass > 1)
     {
         pass_str = malloc(len_pass);
@@ -407,6 +414,8 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
         }
     }
 
+
+
     // update the wifi networks configuration and let the wifi application know
     wifi_config_t* wifi_config = wifi_app_get_wifi_config();
     memset(wifi_config, 0x00, sizeof(wifi_config_t));
@@ -414,15 +423,14 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     memcpy(wifi_config->sta.password, pass_str, len_pass);
     wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
 
-    free(ssid_str);
-    free(pass_str);
+
 
     return ESP_OK;
 }
 
 /**
- * 
- * wifiConnectHanedle updates the connection status for the 
+ *
+ * wifiConnectHanedle updates the connection status for the
  * web page
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
@@ -475,7 +483,7 @@ static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req
         esp_ip4addr_ntoa(&ip_info.ip, ip, IP4ADDR_STRLEN_MAX);
         esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
         esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
-    
+
         sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
     }
 
@@ -495,7 +503,7 @@ static httpd_handle_t http_server_configuration(void)
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
     // create HTTP server monitor task
-    xTaskCreatePinnedToCore(&http_server_monitor, "http_server_monitor", 
+    xTaskCreatePinnedToCore(&http_server_monitor, "http_server_monitor",
         HTTP_SERVER_MONITOR_STACK_SIZE, NULL, HTTP_SERVER_MONITOR_PRIORITY, &task_http_server_monitor, HTTP_SERVER_MONITOR_CORE_ID);
     // create the message queue
     http_server_monitor_queue_handle = xQueueCreate(3, sizeof(http_server_queue_message_t));
@@ -515,7 +523,7 @@ static httpd_handle_t http_server_configuration(void)
     config.recv_wait_timeout = 10;
     config.send_wait_timeout = 10;
 
-    ESP_LOGI(TAG, "http_server_configure: Starting server on port '%d'", 
+    ESP_LOGI(TAG, "http_server_configure: Starting server on port '%d'",
             config.server_port);
 
     // start the httpd server
@@ -531,7 +539,7 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL,
         };
         httpd_register_uri_handler(http_server_handle, &jquery_js);
-        
+
         //register index.html handler
         httpd_uri_t index_html = {
             .uri = "/",
@@ -549,7 +557,7 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL,
         };
         httpd_register_uri_handler(http_server_handle, &app_css);
-     
+
         //register query handler
         httpd_uri_t app_js = {
             .uri = "/app.js",
@@ -576,7 +584,7 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &OTA_update);
-        
+
         // register_OTAstatus_handler
         httpd_uri_t OTA_status = {
             .uri = "/OTAstatus",
@@ -622,7 +630,7 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_status);
-        
+
         //register wifiConnectInfo.json handler
         httpd_uri_t wifi_connect_info_json = {
             .uri = "/wifiConnectInfo.json",
@@ -631,7 +639,7 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_info_json);
-        
+
 
         //register wifiDisconnect.json handler
         httpd_uri_t wifi_disconnect_json = {
@@ -641,7 +649,7 @@ static httpd_handle_t http_server_configuration(void)
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_disconnect_json);
-        
+
         return http_server_handle;
     }
 
