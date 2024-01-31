@@ -1,0 +1,8 @@
+# /little_lisa/nginx/conf/nginx.conf
+
+
+    set $project_root /little_lisa;
+
+    root $project_root/nginx/sites-available/html;
+    index index.html;
+
