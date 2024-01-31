@@ -1,6 +1,6 @@
 /**
  * nvs_service.h
- * 
+ *
  * Created on: 2024-01-30
  * Author: Catlin Roman
 */
@@ -32,6 +32,10 @@ void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd);
  * */
 esp_err_t nvs_get_wifi_info(char **curr_saved_wifi_ssid_out, char **curr_saved_wifi_pwd_out );
 
+/**
+ * erase nvs flash and thus remove credientials stored
+*/
+void nvs_erase(void);
 
 
 #endif

@@ -4,8 +4,10 @@
  *
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
- * 
+ *
  */
+
+#include <string.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -67,7 +69,7 @@ static void wifi_app_default_wifi_init(void)
 static void  wifi_app_soft_ap_config(void)
 {
     // SoftAP - WiFi access point configuration
-    wifi_config_t ap_config = 
+    wifi_config_t ap_config =
     {
         .ap = {
             .ssid = WIFI_AP_SSID,
@@ -121,24 +123,24 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
 
             case WIFI_EVENT_AP_STACONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_AP_STACONNECTED");
-               
+
                 break;
-            
+
             case WIFI_EVENT_AP_STADISCONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_AP_STADISCONNECT");
                 break;
-            
+
             case WIFI_EVENT_STA_START:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
                 break;
-            
+
             case WIFI_EVENT_STA_STOP:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_STOP");
                 break;
 
             case WIFI_EVENT_STA_CONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
- 
+
                 wifi_event_sta_connected_t *wifi_event_sta_connected = (wifi_event_sta_connected_t*)malloc(sizeof(wifi_event_sta_connected_t));
                 *wifi_event_sta_connected = *((wifi_event_sta_connected_t*) event_data);
 
@@ -147,7 +149,7 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
 
             case WIFI_EVENT_STA_DISCONNECTED:
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
-                
+
                 wifi_event_sta_disconnected_t *wifi_event_sta_disconnected = (wifi_event_sta_disconnected_t*)malloc(sizeof(wifi_event_sta_disconnected_t));
                 *wifi_event_sta_disconnected = *((wifi_event_sta_disconnected_t*) event_data);
                 printf("WIFI_EVENT_STA_DISCONNECT, reason code %d\n", wifi_event_sta_disconnected->reason);
@@ -161,10 +163,10 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
                 {
                     wifi_app_send_message(WIFI_APP_MSG_STA_DISCONNECTED);
                 }
-        
+
                 break;
-            
-            
+
+
             default:
                 break;
         }
@@ -240,7 +242,7 @@ static void wifi_app_task(void *pvParameters)
 
                     http_server_start();
                     rgb_led_http_server_started();
-                    
+
                     break;
 
                 case WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER:
@@ -255,30 +257,30 @@ static void wifi_app_task(void *pvParameters)
 
                     //let the http server know about the connection attempt
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
-                    
+
                     break;
-                
+
                 case WIFI_APP_MSG_STA_CONNECTED_GOT_IP:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP");
-                    
+
                     rgb_led_wifi_connected();
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_SUCCESS);
                     break;
 
                 case WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECTED");
-                    
+
                     g_retry_number = MAX_CONNECTION_RETRIES;
                     ESP_ERROR_CHECK(esp_wifi_disconnect());
                     rgb_led_http_server_started(); // TODO: rename status led to a name more meaninful
-                    //remove the existing ssid and pass from nvs
-                    nvs_set_wifi_info(NULL,NULL);
                     break;
 
                 case WIFI_APP_MSG_STA_DISCONNECTED:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_STA_DISCONNECTED");
-                    
+
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_FAIL);
+                    //remove credentials from  nvs
+                    nvs_erase();
                     break;
 
                 case WIFI_APP_MSG_STA_CONNECTING_FROM_NVS:
@@ -288,7 +290,7 @@ static void wifi_app_task(void *pvParameters)
                     memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
                     free(wifi_ssid_from_nvs);
                     free(wifi_pwd_from_nvs);
-                    
+
                      wifi_app_connect_sta();
                     rgb_led_wifi_app_started();
 
@@ -297,7 +299,7 @@ static void wifi_app_task(void *pvParameters)
 
                     //let the http server know about the connection attempt
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
-                    
+
                     break;
 
                 default:
@@ -308,7 +310,7 @@ static void wifi_app_task(void *pvParameters)
      }
 }
 
- 
+
 BaseType_t wifi_app_send_message(wifi_app_message_e msgID)
 {
     wifi_app_queue_message_t msg;
@@ -343,11 +345,11 @@ void wifi_app_start(void)
     xTaskCreatePinnedToCore(&wifi_app_task, "wifi_app_task", WIFI_APP_TASK_STACK_SIZE, NULL, WIFI_APP_TASK_PRIORITY, NULL, WIFI_APP_TASK_CORE_ID);
 
     //check for wifi credientials in nvs and set
- 
+
 
     esp_err_t nvs_err = nvs_get_wifi_info(&wifi_ssid_from_nvs, &wifi_pwd_from_nvs);
 
-    if(nvs_err == ESP_ERR_NVS_NOT_FOUND || wifi_ssid_from_nvs == NULL){
+    if(nvs_err == ESP_ERR_NVS_NOT_FOUND || wifi_ssid_from_nvs == NULL || (strcmp(wifi_ssid_from_nvs, "") == 0)){
         ESP_LOGI(TAG, "no existing wifi credientials found in nvs");
     }else if (nvs_err == ESP_OK){
         wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTING_FROM_NVS);
@@ -356,6 +358,3 @@ void wifi_app_start(void)
     }
 
 }
-
-
-
