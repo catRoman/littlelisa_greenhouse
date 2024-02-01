@@ -44,15 +44,15 @@ SemaphoreHandle_t xSemaphore = NULL;
 
 dht22_sensor_t outside_sensor_gt = {
 	.pin_number = DHT_OUTSIDE_GPIO,
-	.temperature = 0.,
-	.humidity = 0.,
+	.temperature = 0.2,
+	.humidity = 0.2,
 	.TAG = "outside",
 };
 
 dht22_sensor_t inside_sensor_gt =  {
 	.pin_number = DHT_INSIDE_GPIO,
-	.temperature = 0.,
-	.humidity = 0.,
+	.temperature = 0.2,
+	.humidity = 0.2,
 	.TAG = "inside",
 
 };
