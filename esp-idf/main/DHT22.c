@@ -89,7 +89,7 @@ void DHT22_log_JSON_data(dht22_sensor_t *sensor_t)
 
 	char *json_string = cJSON_Print(json_data);
 
-	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 
 	cJSON_Delete(json_data);
 	free(json_string);
@@ -220,13 +220,13 @@ int temperature = sensor_t->temperature;
 	// == DHT will keep the line low for 80 us and then high for 80us ====
 
 	uSec = getSignalLevel( 85, 0, sensor_t );
-//	ESP_LOGI( TAG, "Response = %d", uSec );
+	ESP_LOGV( TAG, "Response = %d", uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// -- 80us up ------------------------
 
 	uSec = getSignalLevel( 85, 1 , sensor_t);
-//	ESP_LOGI( TAG, "Response = %d", uSec );
+	ESP_LOGV( TAG, "Response = %d", uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// == No errors, read the 40 data bits ================
@@ -301,8 +301,7 @@ static void DHT22_task(void *vpParameter)
 	{
 		xSemaphoreTake( xSemaphore, portMAX_DELAY );
 
-		ESP_LOGI(TAG, "{==%s==}: semaphore taken", sensor_t->TAG);
-		ESP_LOGI(TAG, "starting DHT Sensor Reading Task");
+		ESP_LOGV(TAG, "{==%s==}: semaphore taken", sensor_t->TAG);
 
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
@@ -316,7 +315,7 @@ static void DHT22_task(void *vpParameter)
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
 		xSemaphoreGive( xSemaphore );
-		ESP_LOGI(TAG, "{==%s==}: semaphore given", sensor_t->TAG);
+		ESP_LOGV(TAG, "{==%s==}: semaphore given", sensor_t->TAG);
 
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
@@ -326,9 +325,11 @@ void DHT22_sensor_task_start(void){
 
 	xSemaphore = xSemaphoreCreateMutex();
 
+	ESP_LOGI(TAG, "started Inside Sensor Reading Task");
 	// pin inside sensor_t
 	xTaskCreatePinnedToCore(DHT22_task, "inside_sensor", DHT22_TASK_STACK_SIZE, (void *)&inside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 	
+	ESP_LOGI(TAG, "starting Outside Sensor Reading Task");
 	// pin outside sensor_t
 	xTaskCreatePinnedToCore(DHT22_task, "outside_sensor", DHT22_TASK_STACK_SIZE, (void *)&outside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }

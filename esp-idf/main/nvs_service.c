@@ -47,27 +47,44 @@ esp_err_t nvs_get_wifi_info(char **curr_saved_wifi_ssid_out, char **curr_saved_w
     }
     ESP_LOGI(TAG, "ssid_required_size: %d", sizeof(ssid_required_size));
 
-    *curr_saved_wifi_ssid_out = malloc(sizeof(ssid_required_size));
-    ESP_LOGI(TAG, "curr_saved_wiifi_ssid_out size: %d", sizeof(*curr_saved_wifi_pwd_out));
-
-     if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, *curr_saved_wifi_ssid_out, &ssid_required_size)) != ESP_OK){
-        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
-        return err;
+    *curr_saved_wifi_ssid_out = (char *)malloc(sizeof(ssid_required_size));
+    if (*curr_saved_wifi_ssid_out == NULL)
+    {
+        ESP_LOGE(TAG, "ssid memory alloaction error");
+        err = ESP_ERR_NO_MEM;
     }
-    size_t pwd_required_size;
-    if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, NULL, &pwd_required_size)) != ESP_OK){
-        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
-        return err;
+    else
+    {
+        ESP_LOGI(TAG, "curr_saved_wiifi_ssid_out size: %d", sizeof(*curr_saved_wifi_pwd_out));
+
+        if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, *curr_saved_wifi_ssid_out, &ssid_required_size)) != ESP_OK){
+            ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+            return err;
+        }
+        size_t pwd_required_size;
+        if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, NULL, &pwd_required_size)) != ESP_OK){
+            ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+            return err;
+        }
+        
+        *curr_saved_wifi_pwd_out = (char *)malloc(sizeof(pwd_required_size));
+
+        if(*curr_saved_wifi_pwd_out == NULL)
+        {
+            ESP_LOGE(TAG, "pwd memory allocation error");
+            err = ESP_ERR_NO_MEM;
+        }
+        else
+        {
+            if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, *curr_saved_wifi_pwd_out, &pwd_required_size)) != ESP_OK){
+                ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+                return err;
+            }
+            nvs_close(nvs_wifi_handle);
+
+            return err;
+        } 
     }
-
-    *curr_saved_wifi_pwd_out = malloc(sizeof(pwd_required_size));
-
-    if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, *curr_saved_wifi_pwd_out, &pwd_required_size)) != ESP_OK){
-        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
-        return err;
-    }
-    nvs_close(nvs_wifi_handle);
-
     return err;
 }
 

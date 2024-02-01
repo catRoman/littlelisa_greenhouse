@@ -2,6 +2,13 @@
  * gle.com66
  * Add gobals here
  */
+//TODO: remove jquery and update functions to modern js
+//TODO: implement dynamic page using REACT based on sensors available
+//TODO display more device info such as mac adress etc
+//TODO: fix OTA so that it says the filename of last update-might ned to save it to nvs and retrieve
+// TODO add password protection to page, store password on nvs
+//TODO make page https
+
 var seconds 	= null;
 var otaTimerVar =  null;
 var wifiConnectInterval = null;
@@ -9,7 +16,7 @@ var tempChart = null;
 var humidityChart = null;
 /**
  * highcharts
- */
+ 
 document.addEventListener('DOMContentLoaded', function () {
     var tempchartOptions = {
         chart: {
@@ -73,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
     tempChart = Highcharts.chart(tempchartOptions);
 });
 
-
+*/
 /**
  * Initialize functions here.
  */
@@ -238,14 +245,12 @@ function getDHTOutsideSensorValues(){
 /** Sets the interval for getting the updated DHT22 */
 function startDHTSensorInterval()
 {
-<<<<<<< HEAD:main/website/app.js
     setInterval(getDHTInsideSensorValues, 5000);
     setInterval(getDHTOutsideSensorValues, 5000);
-=======
+    
     setInterval(function(){
-        getDHTSensorValues();
-        var inside_temp = parseInt(document.getElementById('temperature_reading').innerText, 10);
-        var inside_humidity = parseInt(document.getElementById('humidity_reading').innerText, 10);
+        var inside_temp = parseInt(document.getElementById('inside_temperature_reading').innerText, 10);
+        var inside_humidity = parseInt(document.getElementById('inside_humidity_reading').innerText, 10);
         var currentTime = (new Date()).getTime();
         if (tempChart != null){
             tempChart.series[0].addPoint([currentTime, inside_temp], false);
@@ -256,7 +261,6 @@ function startDHTSensorInterval()
             humidityChart.redraw();
         }
     }, 5000)
->>>>>>> laptop_dev:esp-idf/common/web/esp_main_controller_landing_page/app.js
 }
 
 

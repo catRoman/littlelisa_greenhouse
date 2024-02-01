@@ -12,6 +12,12 @@
 #include "DHT22.h"
 #include "nvs_service.h"
 
+//TODO implement ntc clock with rtc backup/sync
+//TODO capacicance meter driver
+//TODO sd card sqlite database 
+//TODO nvs mem allocation bug fix
+//TODO serial parser, for logs
+//TODO settings for turing on/off the loging for different services easily
 
 /**
  * freeRTOS function invocation
