@@ -29,6 +29,7 @@
 #include "esp_system.h"
 #include "driver/gpio.h"
 #include "cJSON.h"
+#include "freertos/semphr.h"
 
 #include "DHT22.h"
 #include "task_common.h"
@@ -37,6 +38,7 @@
 
 
 static const char TAG [] = "dht22_sensor";
+SemaphoreHandle_t xSemaphore = NULL;
 
 // == Sensor structs
 
@@ -81,8 +83,8 @@ void DHT22_log_JSON_data(dht22_sensor_t *sensor_t)
 
 	cJSON_AddStringToObject(json_data, "time", strftime_buf);
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
-	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(&inside_sensor_gt));
-	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(&inside_sensor_gt));
+	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(sensor_t));
+	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(sensor_t));
 
 
 	char *json_string = cJSON_Print(json_data);
@@ -283,93 +285,25 @@ int temperature = sensor_t->temperature;
 	else
 		return DHT_CHECKSUM_ERROR;
 }
+		
 
-// my functions --->
 /**
- * DHT22 inside Sensor task
-*/
-static void DHT22_inside_task(void *vpParameter)
-{
-
-	static dht22_sensor_t inside_sensor_t =  {
-	.pin_number = DHT_INSIDE_GPIO,
-	.temperature = 0.,
-	.humidity = 0.,
-	.TAG = "inside",
-
-};
-
-
-
-	printf("starting Inside DHT Sensor Reading\n\n");
-
-	for(;;)
-	{
-		//printf("=== Reading DHT ===\n");
-		int ret = readDHT(&inside_sensor_t);
-
-		if (ret == DHT_OK){
-			DHT22_log_JSON_data(&inside_sensor_t);
-		}else{
-			errorHandler(ret, &inside_sensor_t);
-		}
-
-		//printf("Hum: %.1f\n", getHumidity());
-		//printf("Temp: %.1f\n", getTemperature());
-
-		// Wait at least 2 seconds before reading again (as suggested by driver author)
-		// The interval of the whole process must be more than 2 seconds
-		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
-		inside_sensor_gt = inside_sensor_t;
-	}
-}
-/**
- * DHT22 outside Sensor task
-*/
-static void DHT22_outside_task(void *vpParameter)
-{
-
-	static dht22_sensor_t outside_sensor_t = {
-	.pin_number = DHT_OUTSIDE_GPIO,
-	.temperature = 0.,
-	.humidity = 0.,
-	.TAG = "outside",
-};
-
-	printf("starting Outside DHT Sensor Reading\n\n");
-
-	for(;;)
-	{
-		//printf("=== Reading DHT ===\n");
-		int ret = readDHT(&outside_sensor_t);
-
-		if (ret == DHT_OK){
-			DHT22_log_JSON_data(&outside_sensor_t);
-		}else{
-			errorHandler(ret, &outside_sensor_t);
-		}
-		//printf("Hum: %.1f\n", getHumidity());
-		//printf("Temp: %.1f\n", getTemperature());
-
-		// Wait at least 2 seconds before reading again (as suggested by driver author)
-		// The interval of the whole process must be more than 2 seconds
-		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
-
-	}
-}
-/**
- * DHT22 outside Sensor task
+ * DHT22 Sensor task
 */
 static void DHT22_task(void *vpParameter)
 {
-
 	dht22_sensor_t *sensor_t;
 	sensor_t = (dht22_sensor_t *)vpParameter;
 
-	ESP_LOGI(TAG, "starting DHT Sensor Reading Task");
+	 	
 
 	for(;;)
 	{
+		xSemaphoreTake( xSemaphore, portMAX_DELAY );
+
+		ESP_LOGI(TAG, "{==%s==}: semaphore taken", sensor_t->TAG);
+		ESP_LOGI(TAG, "starting DHT Sensor Reading Task");
+
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
 
@@ -378,20 +312,23 @@ static void DHT22_task(void *vpParameter)
 		}else{
 			errorHandler(ret, sensor_t);
 		}
-		//printf("Hum: %.1f\n", getHumidity());
-		//printf("Temp: %.1f\n", getTemperature());
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
-		vTaskDelay(5000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
+		xSemaphoreGive( xSemaphore );
+		ESP_LOGI(TAG, "{==%s==}: semaphore given", sensor_t->TAG);
+
+		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
 }
+
 void DHT22_sensor_task_start(void){
 
+	xSemaphore = xSemaphoreCreateMutex();
 
 	// pin inside sensor_t
-	xTaskCreatePinnedToCore(&DHT22_task, "inside_sensor", DHT22_TASK_STACK_SIZE, (void *)&inside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-	vTaskDelay(2000 / portTICK_PERIOD_MS);
+	xTaskCreatePinnedToCore(DHT22_task, "inside_sensor", DHT22_TASK_STACK_SIZE, (void *)&inside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+	
 	// pin outside sensor_t
-	xTaskCreatePinnedToCore(&DHT22_task, "outside_sensor", DHT22_TASK_STACK_SIZE, (void *)&outside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+	xTaskCreatePinnedToCore(DHT22_task, "outside_sensor", DHT22_TASK_STACK_SIZE, (void *)&outside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }
