@@ -16,7 +16,7 @@
 	PLEASE KEEP THIS CODE IN LESS THAN 0XFF LINES. EACH LINE MAY CONTAIN ONE BUG !!!
 
 ---------------------------------------------------------------------------------*/
-
+// TODO: make the temp and humidity have a precision of 2 decimal points
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 
 #include <stdio.h>
@@ -44,15 +44,15 @@ SemaphoreHandle_t xSemaphore = NULL;
 
 dht22_sensor_t outside_sensor_gt = {
 	.pin_number = DHT_OUTSIDE_GPIO,
-	.temperature = 0.2,
-	.humidity = 0.2,
+	.temperature = 0.0f,
+	.humidity = 0.0f,
 	.TAG = "outside",
 };
 
 dht22_sensor_t inside_sensor_gt =  {
 	.pin_number = DHT_INSIDE_GPIO,
-	.temperature = 0.2,
-	.humidity = 0.2,
+	.temperature = 0.0f,
+	.humidity = 0.0f,
 	.TAG = "inside",
 
 };
