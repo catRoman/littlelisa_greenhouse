@@ -32,9 +32,26 @@
 
 // == global defines =============================================
 
-dht22_sensor_t inside_sensor_gt;
-dht22_sensor_t outside_sensor_gt;
+
 static const char TAG [] = "dht22_sensor";
+
+// == Sensor structs
+
+dht22_sensor_t outside_sensor_gt = {
+	.pin_number = DHT_OUTSIDE_GPIO,
+	.temperature = 0.,
+	.humidity = 0.,
+	.TAG = "outside",
+};
+
+dht22_sensor_t inside_sensor_gt =  {
+	.pin_number = DHT_INSIDE_GPIO,
+	.temperature = 0.,
+	.humidity = 0.,
+	.TAG = "inside",
+
+};
+
 
 // == get temp & hum =============================================
 
@@ -42,18 +59,18 @@ float get_humidity(dht22_sensor_t *sensor_t) { return sensor_t->humidity; }
 float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; }
 
 //== Log JSON of data ============================
-void DHT22_log_JSON_data(void)
+void DHT22_log_JSON_data(dht22_sensor_t *sensor_t)
 {
 	cJSON *json_data = cJSON_CreateObject();
 
-	cJSON_AddStringToObject(json_data, "location", "inside");
+	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
 	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(&inside_sensor_gt));
 	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(&inside_sensor_gt));
 
 
 	char *json_string = cJSON_Print(json_data);
 
-	ESP_LOGI(TAG, "Logged JSON Data: %s", json_string);
+	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 
 	cJSON_Delete(json_data);
 	free(json_string);
@@ -68,18 +85,18 @@ void errorHandler(int response, dht22_sensor_t *sensor_t)
 	switch(response) {
 
 		case DHT_TIMEOUT_ERROR :
-			ESP_LOGE( sensor_t->TAG, "Sensor Timeout\n" );
+			ESP_LOGE( TAG, "{==%s==}: Sensor Timeout\n",sensor_t->TAG);
 			break;
 
 		case DHT_CHECKSUM_ERROR:
-			ESP_LOGE( sensor_t->TAG, "CheckSum error\n" );
+			ESP_LOGE( TAG, "{==%s==}: CheckSum error\n", sensor_t->TAG );
 			break;
 
 		case DHT_OK:
 			break;
 
 		default :
-			ESP_LOGE( sensor_t->TAG, "Unknown error\n" );
+			ESP_LOGE( TAG, "{==%s==}: Unknown error\n",  sensor_t->TAG);
 	}
 }
 
@@ -261,7 +278,7 @@ static void DHT22_inside_task(void *vpParameter)
 	.pin_number = DHT_INSIDE_GPIO,
 	.temperature = 0.,
 	.humidity = 0.,
-	.TAG = "inside dht sensor_t",
+	.TAG = "inside",
 
 };
 
@@ -274,8 +291,11 @@ static void DHT22_inside_task(void *vpParameter)
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(&inside_sensor_t);
 
-		errorHandler(ret, &inside_sensor_t);
-		DHT22_log_JSON_data();
+		if (ret == DHT_OK){
+			DHT22_log_JSON_data(&inside_sensor_t);
+		}else{
+			errorHandler(ret, &inside_sensor_t);
+		}
 
 		//printf("Hum: %.1f\n", getHumidity());
 		//printf("Temp: %.1f\n", getTemperature());
@@ -296,7 +316,7 @@ static void DHT22_outside_task(void *vpParameter)
 	.pin_number = DHT_OUTSIDE_GPIO,
 	.temperature = 0.,
 	.humidity = 0.,
-	.TAG = "outside dht sensor_t",
+	.TAG = "outside",
 };
 
 	printf("starting Outside DHT Sensor Reading\n\n");
@@ -306,23 +326,55 @@ static void DHT22_outside_task(void *vpParameter)
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(&outside_sensor_t);
 
-		errorHandler(ret, &outside_sensor_t);
-
+		if (ret == DHT_OK){
+			DHT22_log_JSON_data(&outside_sensor_t);
+		}else{
+			errorHandler(ret, &outside_sensor_t);
+		}
 		//printf("Hum: %.1f\n", getHumidity());
 		//printf("Temp: %.1f\n", getTemperature());
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
 		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
-		outside_sensor_gt = outside_sensor_t;
+
+	}
+}
+/**
+ * DHT22 outside Sensor task
+*/
+static void DHT22_task(void *vpParameter)
+{
+
+	dht22_sensor_t *sensor_t;
+	sensor_t = (dht22_sensor_t *)vpParameter;
+
+	printf("starting Outside DHT Sensor Reading\n\n");
+
+	for(;;)
+	{
+		//printf("=== Reading DHT ===\n");
+		int ret = readDHT(sensor_t);
+
+		if (ret == DHT_OK){
+			DHT22_log_JSON_data(sensor_t);
+		}else{
+			errorHandler(ret, sensor_t);
+		}
+		//printf("Hum: %.1f\n", getHumidity());
+		//printf("Temp: %.1f\n", getTemperature());
+
+		// Wait at least 2 seconds before reading again (as suggested by driver author)
+		// The interval of the whole process must be more than 2 seconds
+		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
 	}
 }
 void DHT22_sensor_task_start(void){
 
 
 	// pin inside sensor_t
-	xTaskCreatePinnedToCore(&DHT22_inside_task, "inside_sensor", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+	xTaskCreatePinnedToCore(&DHT22_task, "inside_sensor", DHT22_TASK_STACK_SIZE, (void *)&inside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 
 	// pin outside sensor_t
-	xTaskCreatePinnedToCore(&DHT22_outside_task, "outside_sensor", DHT22_TASK_STACK_SIZE, NULL, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+	xTaskCreatePinnedToCore(&DHT22_task, "outside_sensor", DHT22_TASK_STACK_SIZE, (void *)&outside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }
