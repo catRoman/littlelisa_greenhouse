@@ -20,6 +20,9 @@
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "esp_sntp.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -61,8 +64,22 @@ float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; 
 //== Log JSON of data ============================
 void DHT22_log_JSON_data(dht22_sensor_t *sensor_t)
 {
+
+	time_t now;
+	char strftime_buf[64];
+	struct tm timeinfo;
+
+	time(&now);
+	// Set timezone to China Standard Time
+	setenv("TZ", "America/Vancouver", 1);
+	tzset();
+
+	localtime_r(&now, &timeinfo);
+	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+
 	cJSON *json_data = cJSON_CreateObject();
 
+	cJSON_AddStringToObject(json_data, "time", strftime_buf);
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
 	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(&inside_sensor_gt));
 	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(&inside_sensor_gt));
@@ -349,7 +366,7 @@ static void DHT22_task(void *vpParameter)
 	dht22_sensor_t *sensor_t;
 	sensor_t = (dht22_sensor_t *)vpParameter;
 
-	printf("starting Outside DHT Sensor Reading\n\n");
+	ESP_LOGI(TAG, "starting DHT Sensor Reading Task");
 
 	for(;;)
 	{
@@ -366,7 +383,7 @@ static void DHT22_task(void *vpParameter)
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
-		vTaskDelay(4000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
+		vTaskDelay(5000 / portTICK_PERIOD_MS);		// wait for 4 seconds befor next reading
 	}
 }
 void DHT22_sensor_task_start(void){
@@ -374,7 +391,7 @@ void DHT22_sensor_task_start(void){
 
 	// pin inside sensor_t
 	xTaskCreatePinnedToCore(&DHT22_task, "inside_sensor", DHT22_TASK_STACK_SIZE, (void *)&inside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-
+	vTaskDelay(2000 / portTICK_PERIOD_MS);
 	// pin outside sensor_t
 	xTaskCreatePinnedToCore(&DHT22_task, "outside_sensor", DHT22_TASK_STACK_SIZE, (void *)&outside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 }
