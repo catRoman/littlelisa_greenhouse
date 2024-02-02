@@ -327,6 +327,10 @@ wifi_config_t* wifi_app_get_wifi_config(void)
 
 void wifi_app_start(void)
 {
+    extern SemaphoreHandle_t wifiInitSemephore;
+
+    xSemaphoreTake( wifiInitSemephore, portMAX_DELAY);
+
     ESP_LOGI(TAG, "STARTING WIFI APPLICATION"); // log to serial console
 
     // start wifi started led
@@ -359,4 +363,5 @@ void wifi_app_start(void)
         ESP_LOGE(TAG, "error with loading nvs on start: %s", esp_err_to_name(nvs_err));
     }
 
+    xSemaphoreGive( wifiInitSemephore);
 }
