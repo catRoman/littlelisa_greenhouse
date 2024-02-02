@@ -6,6 +6,7 @@
  * @date 		created on: 2024-01-10
  *
  */
+// FIXME: when wifi connects to new ssid ip adress , netk, gateway show up as 0.0.0.0 untill refresh
 
 #include <string.h>
 
@@ -31,8 +32,8 @@
 static const char TAG [] = "wifi_app";
 
 //nvs initial values
-static char *wifi_ssid_from_nvs = NULL;
-static char *wifi_pwd_from_nvs = NULL;
+static char wifi_ssid_from_nvs[50];
+static char wifi_pwd_from_nvs[50];
 
 // Used for returning the WiFi configuration
 wifi_config_t *wifi_config = NULL;
@@ -285,11 +286,11 @@ static void wifi_app_task(void *pvParameters)
 
                 case WIFI_APP_MSG_STA_CONNECTING_FROM_NVS:
 
-                    ESP_LOGI(TAG, "nvs_service: existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
+                    ESP_LOGI(TAG, "existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
                     memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
                     memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
-                    free(wifi_ssid_from_nvs);
-                    free(wifi_pwd_from_nvs);
+                    //free(wifi_ssid_from_nvs);
+                    //free(wifi_pwd_from_nvs);
 
                      wifi_app_connect_sta();
                     led_wifi_app_started();
@@ -347,9 +348,9 @@ void wifi_app_start(void)
     //check for wifi credientials in nvs and set
 
 
-    esp_err_t nvs_err = nvs_get_wifi_info(&wifi_ssid_from_nvs, &wifi_pwd_from_nvs);
+    esp_err_t nvs_err = nvs_get_wifi_info(wifi_ssid_from_nvs, wifi_pwd_from_nvs);
 
-    if(nvs_err == ESP_ERR_NVS_NOT_FOUND || wifi_ssid_from_nvs == NULL || (strcmp(wifi_ssid_from_nvs, "") == 0)){
+    if(nvs_err == ESP_ERR_NVS_NOT_FOUND || (strcmp(wifi_ssid_from_nvs, "") == 0)){
         ESP_LOGI(TAG, "no existing wifi credientials found in nvs");
     }else if (nvs_err == ESP_OK){
         wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTING_FROM_NVS);

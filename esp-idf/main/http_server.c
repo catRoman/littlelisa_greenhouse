@@ -343,13 +343,13 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/dhtInsideSensor.json requested");
+    ESP_LOGV(TAG, "dhtInsideSensor.json requested");
 
     char dhtInsideSensorJSON[100];
 
     sprintf(dhtInsideSensorJSON, "{\"inside_temp\":\"%.1f\", \"inside_humidity\":\"%.1f\"}", (get_temperature(&inside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&inside_sensor_gt)); //inside temp in fahrenheit
 
-    ESP_LOGI(TAG,"%s", dhtInsideSensorJSON);
+    ESP_LOGV(TAG,"%s", dhtInsideSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
 
@@ -364,12 +364,13 @@ static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_r
 */
 static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/dhtOutsideSensor.json requested");
+    ESP_LOGV(TAG, "dhtOutsideSensor.json requested");
 
     char dhtOutsideSensorJSON[100];
 
     sprintf(dhtOutsideSensorJSON, "{\"outside_temp\":\"%.1f\", \"outside_humidity\":\"%.1f\"}", (get_temperature(&outside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&outside_sensor_gt)); //outside temp in fahrenheit
 
+    ESP_LOGV(TAG,"%s", dhtOutsideSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtOutsideSensorJSON, strlen(dhtOutsideSensorJSON));
 
@@ -383,7 +384,7 @@ static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_
 */
 static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/wifiConnect.json requested");
+    ESP_LOGI(TAG, "wifiConnect.json requested");
 
     size_t len_ssid = 0, len_pass = 0;
     char *ssid_str = NULL, *pass_str = NULL;
@@ -435,7 +436,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/wifiConnectStatus requested");
+    ESP_LOGI(TAG, "wifiConnectStatus requested");
 
     char statusJSON[100];
     sprintf(statusJSON, "{\"wifi_connect_status\":%d}", g_wifi_connect_status);
@@ -463,7 +464,7 @@ static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/wifiConnectInfo.json requested");
+    ESP_LOGI(TAG, "wifiConnectInfo.json requested");
 
     char ipInfoJSON[200];
     memset(ipInfoJSON, 0, sizeof(ipInfoJSON));
