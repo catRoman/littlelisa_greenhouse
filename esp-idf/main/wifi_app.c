@@ -32,6 +32,7 @@
 static const char TAG [] = "wifi_app";
 
 //nvs initial values
+// TODO: change back dynamic allocation including methods with char ** param
 static char wifi_ssid_from_nvs[50];
 static char wifi_pwd_from_nvs[50];
 

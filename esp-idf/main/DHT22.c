@@ -16,7 +16,6 @@
 	PLEASE KEEP THIS CODE IN LESS THAN 0XFF LINES. EACH LINE MAY CONTAIN ONE BUG !!!
 
 ---------------------------------------------------------------------------------*/
-// TODO: make the temp and humidity have a precision of 2 decimal points
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 
 #include <stdio.h>
@@ -197,8 +196,8 @@ uint8_t bitInx = 7;
 
 // instance varables
 int DHTgpio = sensor_t->pin_number;
-int humidity = sensor_t->humidity;
-int temperature = sensor_t->temperature;
+float humidity = sensor_t->humidity;
+float temperature = sensor_t->temperature;
 
 	for (int k = 0; k<MAXdhtData; k++)
 		dhtData[k] = 0;

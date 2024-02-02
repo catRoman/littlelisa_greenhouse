@@ -9,6 +9,7 @@
 // TODO add password protection to page, store password on nvs
 //TODO make page https
 
+
 var seconds 	= null;
 var otaTimerVar =  null;
 var wifiConnectInterval = null;
