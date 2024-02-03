@@ -16,6 +16,7 @@
 #include "DHT22.h"
 #include "nvs_service.h"
 #include "sntp_rtc.h"
+#include "spi_sd_card.h"
 
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
@@ -49,4 +50,8 @@ void app_main(void)
     
     // start DHT22 Sensor task
     DHT22_sensor_task_start();
+
+    vTaskDelay(15000/ portMAX_DELAY);
+  
+
 }

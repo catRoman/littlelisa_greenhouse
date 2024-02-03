@@ -7,6 +7,7 @@ idf_component_register(
         DHT22.c
         nvs_service.c
         sntp_rtc.c
+        spi_sd_card.c
 
     INCLUDE_DIRS "."
 

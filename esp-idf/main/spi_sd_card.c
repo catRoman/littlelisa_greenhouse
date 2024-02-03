@@ -9,10 +9,10 @@
 #include "spi_sd_card.h"
 
 
-static const char *TAG = "spi_sd_card";
+static const char TAG [] = "spi_sd_card";
+sdmmc_card_t *card;
 
-
-esp_err_t spi_cd_card_write_test(const char *path, char *data)
+esp_err_t spi_sd_card_write(const char *path, char *data)
 {
     ESP_LOGI(TAG, "{==WRITE TEST==} Opening file %s", path);
     FILE *file = fopen(path, "w");
@@ -27,7 +27,7 @@ esp_err_t spi_cd_card_write_test(const char *path, char *data)
     return ESP_OK;
 }
 
-esp_err_t spi_sd_card_read_test(const char *path)
+esp_err_t spi_sd_card_read(const char *path)
 {
     ESP_LOGI(TAG, "{==READ TEST==} Reading file from %s", path);
     FILE *file = fopen(path, "r");
@@ -59,7 +59,7 @@ void spi_sd_card_init(void){
         .max_files = 5,
         .allocation_unit_size = 16 * 1024
     };
-    sdmmc_card_t *card;
+    
 
     const char mount_point[] = MOUNT_POINT;
     
@@ -114,15 +114,16 @@ void spi_sd_card_init(void){
     // Card has been initialized, print its properties
     sdmmc_card_print_info(stdout, card);
 }
-/*
 
+void spi_sd_card_test(void){
 // Use POSIX and C standard library functions to work with files.
-
+    esp_err_t ret;
+    const char mount_point[] = MOUNT_POINT;
     // First create a file.
     const char *file_hello = MOUNT_POINT"/hello.txt";
-    char data[EXAMPLE_MAX_CHAR_SIZE];
-    snprintf(data, EXAMPLE_MAX_CHAR_SIZE, "%s %s!\n", "Hello", card->cid.name);
-    ret = s_example_write_file(file_hello, data);
+    char data[MAX_LINE_SIZE];
+    snprintf(data, MAX_LINE_SIZE, "%s %s!\n", "Hello", card->cid.name);
+    ret = spi_sd_card_write(file_hello, data);
     if (ret != ESP_OK) {
         return;
     }
@@ -143,7 +144,7 @@ void spi_sd_card_init(void){
         return;
     }
 
-    ret = s_example_read_file(file_foo);
+    ret = spi_sd_card_read(file_foo);
     if (ret != ESP_OK) {
         return;
     }
@@ -163,26 +164,18 @@ void spi_sd_card_init(void){
     }
 
     const char *file_nihao = MOUNT_POINT"/nihao.txt";
-    memset(data, 0, EXAMPLE_MAX_CHAR_SIZE);
-    snprintf(data, EXAMPLE_MAX_CHAR_SIZE, "%s %s!\n", "Nihao", card->cid.name);
-    ret = s_example_write_file(file_nihao, data);
+    memset(data, 0, MAX_LINE_SIZE);
+    snprintf(data, MAX_LINE_SIZE, "%s %s!\n", "Nihao", card->cid.name);
+    ret = spi_sd_card_write(file_nihao, data);
     if (ret != ESP_OK) {
         return;
     }
 
     //Open file for reading
-    ret = s_example_read_file(file_nihao);
+    ret = spi_sd_card_read(file_nihao);
     if (ret != ESP_OK) {
         return;
     }
 
-
-
-     // All done, unmount partition and disable SPI peripheral
-    esp_vfs_fat_sdcard_unmount(mount_point, card);
-    ESP_LOGI(TAG, "Card unmounted");
-
-    //deinitialize the bus after all devices are removed
-    spi_bus_free(host.slot);
 }
-*/
+
