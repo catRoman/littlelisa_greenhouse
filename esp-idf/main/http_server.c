@@ -117,6 +117,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
 
                     nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
                     ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
+                    
 
                     break;
 
@@ -685,6 +686,7 @@ BaseType_t http_server_monitor_send_message(http_server_message_e msgID)
 {
     http_server_queue_message_t msg;
     msg.msgID = msgID;
+    //vTaskDelay(5000 / portTICK_PERIOD_MS);
     return xQueueSend(http_server_monitor_queue_handle, &msg, portMAX_DELAY);
 }
 

@@ -5,6 +5,8 @@
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
  */
+#include <time.h>
+#include <sys/time.h>
 
 #include "nvs_flash.h"
 
@@ -23,6 +25,8 @@
 //TODO settings for turing on/off the loging for different services easily
 
 SemaphoreHandle_t wifiInitSemephore = NULL;
+
+
 /**
  * freeRTOS function invocation
 */
@@ -31,13 +35,17 @@ void app_main(void)
 
     wifiInitSemephore = xSemaphoreCreateMutex();
 
-    // Initialize NVS
+        // Initialize NVS 
     nvs_initiate();
+
     
+    sntp_rtc_init();
+
+
     // Start Wifi
     wifi_app_start();
     
-    sntp_test();
+    
     // start DHT22 Sensor task
     DHT22_sensor_task_start();
 }
