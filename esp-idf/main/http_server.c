@@ -346,14 +346,13 @@ static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_r
 {
     ESP_LOGV(TAG, "dhtInsideSensor.json requested");
 
-    char dhtInsideSensorJSON[100];
+    extern dht22_sensor_t inside_sensor_gt;
 
-    sprintf(dhtInsideSensorJSON, "{\"inside_temp\":\"%.1f\", \"inside_humidity\":\"%.1f\"}", (get_temperature(&inside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&inside_sensor_gt)); //inside temp in fahrenheit
-
+    char * dhtInsideSensorJSON = get_DHT22_JSON_String(&inside_sensor_gt);
     ESP_LOGV(TAG,"%s", dhtInsideSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
-
+    free(dhtInsideSensorJSON);
     return ESP_OK;
 }
 
@@ -367,14 +366,11 @@ static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_
 {
     ESP_LOGV(TAG, "dhtOutsideSensor.json requested");
 
-    char dhtOutsideSensorJSON[100];
-
-    sprintf(dhtOutsideSensorJSON, "{\"outside_temp\":\"%.1f\", \"outside_humidity\":\"%.1f\"}", (get_temperature(&outside_sensor_gt)*(9.0/5.0) + 32), get_humidity(&outside_sensor_gt)); //outside temp in fahrenheit
-
+    char * dhtOutsideSensorJSON= get_DHT22_JSON_String(&outside_sensor_gt);
     ESP_LOGV(TAG,"%s", dhtOutsideSensorJSON);
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, dhtOutsideSensorJSON, strlen(dhtOutsideSensorJSON));
-
+    free(dhtOutsideSensorJSON);
     return ESP_OK;
 }
 
