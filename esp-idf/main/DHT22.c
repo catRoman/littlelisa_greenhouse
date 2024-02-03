@@ -66,11 +66,12 @@ float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; 
 //== Log JSON of data ============================
 char * get_DHT22_JSON_String(dht22_sensor_t *sensor_t)
 {
-	extern time_t now;
+	time_t currentTime;
+	time(&currentTime);
 
 	cJSON *json_data = cJSON_CreateObject();
 
-	cJSON_AddStringToObject(json_data, "system time", ctime(&now));
+	cJSON_AddStringToObject(json_data, "system time", ctime(&currentTime));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
 	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(sensor_t));
 	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(sensor_t));
@@ -85,7 +86,7 @@ char * get_DHT22_JSON_String(dht22_sensor_t *sensor_t)
 }
  void log_sensor_JSON(dht22_sensor_t *sensor_t){
 	char * json_string = get_DHT22_JSON_String(sensor_t);
-	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
  }
 
@@ -300,7 +301,8 @@ static void DHT22_task(void *vpParameter)
 		int ret = readDHT(sensor_t);
 
 		if (ret == DHT_OK){
-			get_DHT22_JSON_String(sensor_t); //TODO: change either the function name or the function for better focus
+			log_sensor_JSON(sensor_t);
+			 //TODO: change either the function name or the function for better focus
 		}else{
 			errorHandler(ret, sensor_t);
 		}
