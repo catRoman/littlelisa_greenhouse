@@ -294,17 +294,9 @@ static void wifi_app_task(void *pvParameters)
                     ESP_LOGI(TAG, "existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
                     memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
                     memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
-                    //free(wifi_ssid_from_nvs);
-                    //free(wifi_pwd_from_nvs);
 
                     wifi_app_connect_sta();
                     led_wifi_app_started();
-
-                    //set current number of retries to zero
-                    //g_retry_number = 0;
-
-                    //let the http server know about the connection attempt
-                   // http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
 
                     break;
 
