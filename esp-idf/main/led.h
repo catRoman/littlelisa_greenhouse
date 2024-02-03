@@ -9,7 +9,7 @@
 #define MAIN_RGB_LED_H_
 
 // RGB LED GPIO
-#define LED_YELLOW_GPIO         23
+#define LED_YELLOW_GPIO         15
 #define LED_GREEN_GPIO          22
 #define LED_BLUE_GPIO           21
 

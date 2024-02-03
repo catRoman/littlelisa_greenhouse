@@ -12,8 +12,8 @@
 #define DHT_TIMEOUT_ERROR -2
 
 
-#define DHT_INSIDE_GPIO			18
-#define DHT_OUTSIDE_GPIO		19
+#define DHT_INSIDE_GPIO			4
+#define DHT_OUTSIDE_GPIO		2
 
 
 
