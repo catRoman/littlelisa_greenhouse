@@ -26,6 +26,7 @@
 #include "task_common.h"
 #include "wifi_app.h"
 #include "nvs_service.h"
+#include "sntp_rtc.h"
 
 
 // Tag used for ESP serial console messages
@@ -172,7 +173,7 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
             default:
                 break;
         }
-    }
+    }/*
     else if (event_base == IP_EVENT)
     {
         switch (event_id)
@@ -183,7 +184,7 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
                 wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTED_GOT_IP);
                 break;
         }
-    }
+    }*/
 }
 
 /**
@@ -254,6 +255,7 @@ static void wifi_app_task(void *pvParameters)
                     wifi_app_connect_sta();
                     led_wifi_app_started();
 
+
                     //set current number of retries to zero
                     g_retry_number = 0;
 
@@ -265,8 +267,10 @@ static void wifi_app_task(void *pvParameters)
                 case WIFI_APP_MSG_STA_CONNECTED_GOT_IP:
                     ESP_LOGI(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP");
 
-                    led_wifi_connected();
+                    led_wifi_connected();// TODO: rename status led to a name more meaninful
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_SUCCESS);
+                    
+                    //sntp_rtc_test();
                     break;
 
                 case WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT:
@@ -274,7 +278,7 @@ static void wifi_app_task(void *pvParameters)
 
                     g_retry_number = MAX_CONNECTION_RETRIES;
                     ESP_ERROR_CHECK(esp_wifi_disconnect());
-                    led_http_server_started(); // TODO: rename status led to a name more meaninful
+                    led_http_server_started(); 
                     break;
 
                 case WIFI_APP_MSG_STA_DISCONNECTED:
@@ -290,17 +294,9 @@ static void wifi_app_task(void *pvParameters)
                     ESP_LOGI(TAG, "existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
                     memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
                     memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
-                    //free(wifi_ssid_from_nvs);
-                    //free(wifi_pwd_from_nvs);
 
-                     wifi_app_connect_sta();
+                    wifi_app_connect_sta();
                     led_wifi_app_started();
-
-                    //set current number of retries to zero
-                    g_retry_number = 0;
-
-                    //let the http server know about the connection attempt
-                    http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
 
                     break;
 
@@ -327,6 +323,10 @@ wifi_config_t* wifi_app_get_wifi_config(void)
 
 void wifi_app_start(void)
 {
+    extern SemaphoreHandle_t wifiInitSemephore;
+
+    xSemaphoreTake( wifiInitSemephore, portMAX_DELAY);
+
     ESP_LOGI(TAG, "STARTING WIFI APPLICATION"); // log to serial console
 
     // start wifi started led
@@ -359,4 +359,5 @@ void wifi_app_start(void)
         ESP_LOGE(TAG, "error with loading nvs on start: %s", esp_err_to_name(nvs_err));
     }
 
+    xSemaphoreGive( wifiInitSemephore);
 }

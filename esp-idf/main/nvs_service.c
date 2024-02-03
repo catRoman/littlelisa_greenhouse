@@ -78,10 +78,8 @@ esp_err_t nvs_get_wifi_info(char *curr_saved_wifi_ssid_out, char *curr_saved_wif
 
 void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
 
-
-
     if(nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs opened");
+        ESP_LOGI(TAG, "{==set info==} opened");
     }
     ESP_ERROR_CHECK(nvs_set_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, new_wifi_ssid));
     ESP_ERROR_CHECK(nvs_set_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, new_wifi_pwd));
@@ -97,22 +95,22 @@ void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
         }
         */
     if (nvs_commit(nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs changes succeffully commited");
+        ESP_LOGI(TAG, "{==set_info==} changes succeffully commited");
     }
     nvs_close(nvs_wifi_handle);
 }
 void nvs_erase(void){
     esp_err_t err;
     if(nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs opened");
+        ESP_LOGI(TAG, "{==nvs_erase==} opened");
     }
      if(nvs_erase_all(nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs credientials erased");
+        ESP_LOGI(TAG, "{==nvs_erase==} credientials erased");
     }
      if((err =nvs_commit(nvs_wifi_handle)) == ESP_OK){
-        ESP_LOGI(TAG, "nvs changes commited");
+        ESP_LOGI(TAG, "{==nvs_erase} changes succesfully commited");
     }else{
-        ESP_LOGE(TAG, "couldnt commit changes %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "{==nvs_erase==} couldnt commit changes %s", esp_err_to_name(err));
     }
 
 }

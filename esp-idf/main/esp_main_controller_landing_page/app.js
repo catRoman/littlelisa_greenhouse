@@ -208,18 +208,14 @@ function otaRebootTimer()
  * the webpage
  */
 function getDHTInsideSensorValues(){
+
     $.getJSON('/dhtInsideSensor.json', function(data) {
-        $("#inside_temperature_reading").text(data["inside_temp"]);
-        $("#inside_humidity_reading").text(data["inside_humidity"]);
+        $("#inside_system_time").text(data["system time"]);
 
-        // Get the current time
-        var now = new Date();
+        $("#inside_temperature_reading").text(data["temperature"].toFixed(2));
+        $("#inside_humidity_reading").text(data["humidity"].toFixed(2));
 
-        // Format the time - e.g., 'Jan 12, 2024, 15:45:30'
-        var formattedTime = now.toLocaleString(); 
-
-        // Update the webpage with the last update time
-        $("#last_update_time").text("Last updated: " + formattedTime);
+ 
     });
 }
 
@@ -229,17 +225,11 @@ function getDHTInsideSensorValues(){
  */
 function getDHTOutsideSensorValues(){
     $.getJSON('/dhtOutsideSensor.json', function(data) {
-        $("#outside_temperature_reading").text(data["outside_temp"]);
-        $("#outside_humidity_reading").text(data["outside_humidity"]);
-
-        // Get the current time
-        var now = new Date();
-
-        // Format the time - e.g., 'Jan 12, 2024, 15:45:30'
-        var formattedTime = now.toLocaleString(); 
-
-        // Update the webpage with the last update time
-        $("#last_update_time").text("Last updated: " + formattedTime);
+        $("#outside_temperature_reading").text(data["temperature"].toFixed(2));
+        $("#outside_humidity_reading").text(data["humidity"].toFixed(2));
+        $("#outside_system_time").text(data["system time"]);
+        
+     
     });
 }
 
@@ -434,3 +424,4 @@ function disconnectWifi()
         location.reload(true);
     }, 2000);
 }
+

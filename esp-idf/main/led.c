@@ -4,7 +4,7 @@
  * created on: 2024-01-08
  * author: Catlin Roman
 */
-
+//TODO: shut off light if service shutdown
 #include <stdbool.h>
 
 #include "driver/gpio.h" 

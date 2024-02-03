@@ -31,7 +31,7 @@ typedef struct dht22_sensor_t {
  *  start both inside and outside sensors
 */
 void DHT22_sensor_task_start(void);
-void DHT22_log_JSON_data(dht22_sensor_t *sensor);
+char * get_DHT22_JSON_String(dht22_sensor_t *sensor);
 
 // == function prototypes =======================================
 

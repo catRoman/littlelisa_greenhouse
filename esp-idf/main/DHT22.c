@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "esp_sntp.h"
 #include "esp_log.h"
@@ -63,37 +64,31 @@ float get_humidity(dht22_sensor_t *sensor_t) { return sensor_t->humidity; }
 float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; }
 
 //== Log JSON of data ============================
-void DHT22_log_JSON_data(dht22_sensor_t *sensor_t)
+char * get_DHT22_JSON_String(dht22_sensor_t *sensor_t)
 {
-
-	time_t now;
-	char strftime_buf[64];
-	struct tm timeinfo;
-
-	time(&now);
-	// Set timezone to China Standard Time
-	setenv("TZ", "America/Vancouver", 1);
-	tzset();
-
-	localtime_r(&now, &timeinfo);
-	strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+	time_t currentTime;
+	time(&currentTime);
 
 	cJSON *json_data = cJSON_CreateObject();
 
-	cJSON_AddStringToObject(json_data, "time", strftime_buf);
+	cJSON_AddStringToObject(json_data, "system time", ctime(&currentTime));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
 	cJSON_AddNumberToObject(json_data, "temperature", get_temperature(sensor_t));
 	cJSON_AddNumberToObject(json_data, "humidity", get_humidity(sensor_t));
 
 
 	char *json_string = cJSON_Print(json_data);
-
-	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
-
+	
 	cJSON_Delete(json_data);
-	free(json_string);
+
+	return json_string;
 
 }
+ void log_sensor_JSON(dht22_sensor_t *sensor_t){
+	char * json_string = get_DHT22_JSON_String(sensor_t);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	free(json_string);
+ }
 
 
 // == error handler ===============================================
@@ -306,7 +301,8 @@ static void DHT22_task(void *vpParameter)
 		int ret = readDHT(sensor_t);
 
 		if (ret == DHT_OK){
-			DHT22_log_JSON_data(sensor_t);
+			log_sensor_JSON(sensor_t);
+			 //TODO: change either the function name or the function for better focus
 		}else{
 			errorHandler(ret, sensor_t);
 		}

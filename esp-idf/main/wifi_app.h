@@ -36,6 +36,7 @@
 extern esp_netif_t* esp_netif_sta;
 extern esp_netif_t* esp_netif_ap;
 
+
 /**
  * Message Ids for the WiFi application task
  * @note Expand this based on application requirments

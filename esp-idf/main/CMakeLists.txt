@@ -6,6 +6,7 @@ idf_component_register(
         http_server.c
         DHT22.c
         nvs_service.c
+        sntp_rtc.c
 
     INCLUDE_DIRS "."
 
