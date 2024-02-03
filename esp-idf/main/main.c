@@ -35,16 +35,17 @@ void app_main(void)
 
     wifiInitSemephore = xSemaphoreCreateMutex();
 
-        // Initialize NVS 
+    //wifi crediental storage and retrieval 
     nvs_initiate();
 
-    
+    //synced system clock
     sntp_rtc_init();
-
 
     // Start Wifi
     wifi_app_start();
     
+    // backup sd database
+    spi_sd_card_init();
     
     // start DHT22 Sensor task
     DHT22_sensor_task_start();
