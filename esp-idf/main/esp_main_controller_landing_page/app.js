@@ -208,17 +208,14 @@ function otaRebootTimer()
  * the webpage
  */
 function getDHTInsideSensorValues(){
+
     $.getJSON('/dhtInsideSensor.json', function(data) {
         $("#inside_system_time").text(data["system time"]);
-        $("#inside_temperature_reading").text(data["temperature"]);
-        $("#inside_humidity_reading").text(data["humidity"]);
 
-        // Get the current time
-        var now = new Date();
+        $("#inside_temperature_reading").text(data["temperature"].toFixed(2));
+        $("#inside_humidity_reading").text(data["humidity"].toFixed(2));
 
-        // Format the time - e.g., 'Jan 12, 2024, 15:45:30'
-        var formattedTime = now.toLocaleString(); 
-
+ 
     });
 }
 
@@ -228,15 +225,11 @@ function getDHTInsideSensorValues(){
  */
 function getDHTOutsideSensorValues(){
     $.getJSON('/dhtOutsideSensor.json', function(data) {
-        $("#outside_temperature_reading").text(data["temperature"]);
-        $("#outside_humidity_reading").text(data["humidity"]);
+        $("#outside_temperature_reading").text(data["temperature"].toFixed(2));
+        $("#outside_humidity_reading").text(data["humidity"].toFixed(2));
         $("#outside_system_time").text(data["system time"]);
-        // Get the current time
-        var now = new Date();
-
-        // Format the time - e.g., 'Jan 12, 2024, 15:45:30'
-        var formattedTime = now.toLocaleString(); 
-
+        
+     
     });
 }
 
