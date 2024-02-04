@@ -3,6 +3,7 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "esp_log.h"
+#include "esp_heap_caps.h"
 
 #include "nvs_service.h"
 
@@ -31,7 +32,7 @@ esp_err_t nvs_initiate(void){
     return err;
 }
 
-esp_err_t nvs_get_wifi_info(char **curr_saved_wifi_ssid_out, char **curr_saved_wifi_pwd_out ){
+esp_err_t nvs_get_wifi_info(char *curr_saved_wifi_ssid_out, char *curr_saved_wifi_pwd_out ){
     esp_err_t err;
 
     if((err = nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle)) != ESP_OK){
@@ -47,36 +48,38 @@ esp_err_t nvs_get_wifi_info(char **curr_saved_wifi_ssid_out, char **curr_saved_w
     }
     ESP_LOGI(TAG, "ssid_required_size: %d", sizeof(ssid_required_size));
 
-    *curr_saved_wifi_ssid_out = malloc(sizeof(ssid_required_size));
-    ESP_LOGI(TAG, "curr_saved_wiifi_ssid_out size: %d", sizeof(*curr_saved_wifi_pwd_out));
 
-     if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, *curr_saved_wifi_ssid_out, &ssid_required_size)) != ESP_OK){
+    ESP_LOGI(TAG, "curr_saved_wiifi_ssid_out size: %d", sizeof(curr_saved_wifi_pwd_out));
+
+    if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, curr_saved_wifi_ssid_out, &ssid_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
     }
+
     size_t pwd_required_size;
+
     if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, NULL, &pwd_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
     }
+    
+    
 
-    *curr_saved_wifi_pwd_out = malloc(sizeof(pwd_required_size));
-
-    if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, *curr_saved_wifi_pwd_out, &pwd_required_size)) != ESP_OK){
+    if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, curr_saved_wifi_pwd_out, &pwd_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
     }
     nvs_close(nvs_wifi_handle);
 
     return err;
-}
+    
+    }
+
 
 void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
 
-
-
     if(nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs opened");
+        ESP_LOGI(TAG, "{==set info==} opened");
     }
     ESP_ERROR_CHECK(nvs_set_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, new_wifi_ssid));
     ESP_ERROR_CHECK(nvs_set_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, new_wifi_pwd));
@@ -92,22 +95,22 @@ void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
         }
         */
     if (nvs_commit(nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs changes succeffully commited");
+        ESP_LOGI(TAG, "{==set_info==} changes succeffully commited");
     }
     nvs_close(nvs_wifi_handle);
 }
 void nvs_erase(void){
     esp_err_t err;
     if(nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs opened");
+        ESP_LOGI(TAG, "{==nvs_erase==} opened");
     }
      if(nvs_erase_all(nvs_wifi_handle) == ESP_OK){
-        ESP_LOGI(TAG, "nvs credientials erased");
+        ESP_LOGI(TAG, "{==nvs_erase==} credientials erased");
     }
      if((err =nvs_commit(nvs_wifi_handle)) == ESP_OK){
-        ESP_LOGI(TAG, "nvs changes commited");
+        ESP_LOGI(TAG, "{==nvs_erase} changes succesfully commited");
     }else{
-        ESP_LOGE(TAG, "couldnt commit changes %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "{==nvs_erase==} couldnt commit changes %s", esp_err_to_name(err));
     }
 
 }

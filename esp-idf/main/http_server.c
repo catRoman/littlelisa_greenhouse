@@ -17,6 +17,7 @@
 #include "http_server.h"
 #include "task_common.h"
 #include "wifi_app.h"
+
 #include "DHT22.h"
 #include "nvs_service.h"
 
@@ -48,6 +49,10 @@ const esp_timer_create_args_t fw_update_reset_args = {
     .name = "fw_update_reset"
 };
 esp_timer_handle_t fw_update_reset;
+
+// sensor data instances
+extern dht22_sensor_t inside_sensor_gt;
+extern dht22_sensor_t outside_sensor_gt;
 
 // Embeded files: JQuery, index.html, app.css, app.js and favicon.ico files
 extern const uint8_t jquery_3_3_1_min_js_start[]    asm("_binary_jquery_3_3_1_min_js_start");
@@ -112,6 +117,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
 
                     nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
                     ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
+                    
 
                     break;
 
@@ -332,22 +338,39 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 }
 
 /**
- * DHT sensor readings JSON handler responds with DHT22 sensor data
+ * DHT inside sensor readings JSON handler responds with DHT22 sensor data
  * @param req http request for which the uri needs to be handled
  * @return ESP_OK
 */
-static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
+static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "dhtSensor.json requested");
+    ESP_LOGV(TAG, "dhtInsideSensor.json requested");
 
-    char dhtSensorJSON[100];
+    extern dht22_sensor_t inside_sensor_gt;
 
-    sprintf(dhtSensorJSON, "{\"temp\":\"%.1f\", \"humidity\":\"%.1f\"}", getTemperature(), getHumidity());
-
-    ESP_LOGI(TAG,"%s", dhtSensorJSON);
+    char * dhtInsideSensorJSON = get_DHT22_JSON_String(&inside_sensor_gt);
+    ESP_LOGV(TAG,"%s", dhtInsideSensorJSON);
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
+    httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
+    free(dhtInsideSensorJSON);
+    return ESP_OK;
+}
 
+
+/**
+ * DHT outside sensor readings JSON handler responds with DHT22 sensor data
+ * @param req http request for which the uri needs to be handled
+ * @return ESP_OK
+*/
+static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_req_t *req)
+{
+    ESP_LOGV(TAG, "dhtOutsideSensor.json requested");
+
+    char * dhtOutsideSensorJSON= get_DHT22_JSON_String(&outside_sensor_gt);
+    ESP_LOGV(TAG,"%s", dhtOutsideSensorJSON);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, dhtOutsideSensorJSON, strlen(dhtOutsideSensorJSON));
+    free(dhtOutsideSensorJSON);
     return ESP_OK;
 }
 
@@ -358,7 +381,7 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
 */
 static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/wifiConnect.json requested");
+    ESP_LOGI(TAG, "wifiConnect.json requested");
 
     size_t len_ssid = 0, len_pass = 0;
     char *ssid_str = NULL, *pass_str = NULL;
@@ -410,7 +433,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/wifiConnectStatus requested");
+    ESP_LOGI(TAG, "wifiConnectStatus requested");
 
     char statusJSON[100];
     sprintf(statusJSON, "{\"wifi_connect_status\":%d}", g_wifi_connect_status);
@@ -438,7 +461,7 @@ static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "/wifiConnectInfo.json requested");
+    ESP_LOGI(TAG, "wifiConnectInfo.json requested");
 
     char ipInfoJSON[200];
     memset(ipInfoJSON, 0, sizeof(ipInfoJSON));
@@ -569,14 +592,23 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &OTA_status);
 
-        //register dhtSensor.json handler
-        httpd_uri_t dht_sensor_json = {
-            .uri = "/dhtSensor.json",
+        //register dhtInsideSensor.json handler
+        httpd_uri_t dht_inside_sensor_json = {
+            .uri = "/dhtInsideSensor.json",
             .method = HTTP_GET,
-            .handler = http_server_get_dht_sensor_readings_json_handler,
+            .handler = http_server_get_dht_inside_sensor_readings_json_handler,
             .user_ctx = NULL
         };
-        httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
+        httpd_register_uri_handler(http_server_handle, &dht_inside_sensor_json);
+
+        //register dhtOutssideSensor.json handler
+        httpd_uri_t dht_outside_sensor_json = {
+            .uri = "/dhtOutsideSensor.json",
+            .method = HTTP_GET,
+            .handler = http_server_get_dht_outside_sensor_readings_json_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &dht_outside_sensor_json);
 
         //register wifiConnect.json handler
         httpd_uri_t wifi_connect_json = {
@@ -650,6 +682,7 @@ BaseType_t http_server_monitor_send_message(http_server_message_e msgID)
 {
     http_server_queue_message_t msg;
     msg.msgID = msgID;
+    //vTaskDelay(5000 / portTICK_PERIOD_MS);
     return xQueueSend(http_server_monitor_queue_handle, &msg, portMAX_DELAY);
 }
 

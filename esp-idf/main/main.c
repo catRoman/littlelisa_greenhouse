@@ -5,47 +5,53 @@
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
  */
+#include <time.h>
+#include <sys/time.h>
 
 #include "nvs_flash.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "wifi_app.h"
 #include "DHT22.h"
 #include "nvs_service.h"
+#include "sntp_rtc.h"
+#include "spi_sd_card.h"
 
+//TODO implement ntc clock with rtc backup/sync
+//TODO capacicance meter driver
+//TODO sd card sqlite database 
+//TODO nvs mem allocation bug fix
+//TODO serial parser, for logs
+//TODO settings for turing on/off the loging for different services easily
+
+SemaphoreHandle_t wifiInitSemephore = NULL;
+
+
+/**
+ * freeRTOS function invocation
+*/
 void app_main(void)
 {
-    // Initialize NVS
+
+    wifiInitSemephore = xSemaphoreCreateMutex();
+
+    //wifi crediental storage and retrieval 
     nvs_initiate();
-    
+
+    //synced system clock
+    sntp_rtc_init();
+
     // Start Wifi
     wifi_app_start();
     
-
-    // start DHT22 Sensor task
-    DHT22_task_start();
-
-
-
-
-
-
-
-/*---> old test code for rgb_led.c
-    while (true)
-    {
-        printf("yellow\n");
-        rgb_led_wifi_app_started();
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    // backup sd database
+    spi_sd_card_init();
     
-        printf("Purple\n");
-        rgb_led_http_server_started();
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+    // start DHT22 Sensor task
+    DHT22_sensor_task_start();
 
-        printf("Green\n");
-        rgb_led_wifi_connected();
-        vTaskDelay(4000 / portTICK_PERIOD_MS);
+    vTaskDelay(15000/ portMAX_DELAY);
+  
 
-        printf("\n");
-     }
-*/
 }

@@ -69,4 +69,47 @@ DHT22 Implementaion started jan 11/24
         -main/DHT22.c --> dht driver
         -main/DHT22.h --> dht driver header
 
+    finished jan 12
+
+jan 13 - a short in the breadboard cause by condensation dropping from
+    greenhouse roof cause me to switch out all components onto a new,
+    protoytpe inside a plastic case, added a second sensor for external temp and exending the internal temp further from the greenhouse wall. replaced the 
+    pwm rgb led for a simpler 3 light single led on/off aproach.
+
+    added second sensor to the webpage, es32 seems to have difficulty
+    maintaing the web server at random points, will still look into
+    server for that purpose, 
+
+    will need to figure out connectivity issues, i set a booster halfway but it only work itermiddantly, will try different channel
+    i soped it out and its preatty full but i could experiment, oreder
+    new chips and antenna to hopefull help extend the range so ii dont need to hardwire anything, 
+
+    will start looking into making a server, the wifi card may be better
+
+    all the while i was working on this tonight the propane heater in 
+    greenhouse was acting up mstliky oil in the fuel line snuffing
+    out the pilot so ive been monitor, proof of concept i could tell
+    when the heater shut off do to the quick decrease in temp, could
+    easily write code to send me a text when this occurs to notifiy me
+    of that, also need to buy a fuel filter lol
+
+        updated:
+            -main/rgb_led.c --> led.c     ---> removed pwm functionality
+            -main/rgb_led.h --> led.h
+            -main/CMakeLists.txt --> update to express this change
+            -main/DHT22.c       --> removed globals and replaced with
+            -main/DHT22.h           struct, allowing for different
+                                    instances of dht22 sensors, set
+                                    up for a second sensor on a different pin
+            -main/http_server.c --> added uri handler and dealth with   
+                                    http requests for both sensors
+                                    (inside/outside)
+            -main/website/index.html --> add div for fetch json data
+            -main/website/app.css   --> add style for new section
+            -main/website/app.js --> function to fetch json data
+
+            *added a remote branch to track this current path and decided to use this as my actual protoype branch, will be shifting back to laptop-dev branch to learn in a more straightforward, areana but will apply it to the new branch
+
+
+
     
