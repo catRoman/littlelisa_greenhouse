@@ -10,8 +10,10 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
-#include "sntp.h"
+#include "ds1302.h"
 
+#include "sntp.h"
+#include "rtc_DS1302.h"
 
 static const char TAG [] = "sntp";
  esp_sntp_config_t config = {
@@ -23,17 +25,13 @@ static const char TAG [] = "sntp";
         .servers = {SNTP_SERVER},
     };
 
-    time_t now;
-    struct tm timeinfo;
-
+time_t now;
+struct tm timeinfo;
+extern ds1302_t rtc_device;
 // Set timezone for victoria Standard Time
 
 
 void sntp_service_init(void){
-
-
-
-
 
     ESP_LOGI(TAG, "initializing sntp server");
 
@@ -68,6 +66,9 @@ void sntp_service_init(void){
 void sntp_sync(void){
     esp_err_t err[3];
 
+    struct tm *time2;
+    time_t rtc_time;
+
     extern SemaphoreHandle_t wifiInitSemephore;
     xSemaphoreTake(wifiInitSemephore, portMAX_DELAY);
 
@@ -78,6 +79,18 @@ void sntp_sync(void){
                     ESP_LOGI(TAG, "sntp sync complete");
                     ESP_LOGI(TAG, "sync interval set to  %lu", sntp_get_sync_interval());
                     ESP_LOGI(TAG, "current sntp server set to: %s at %s", esp_sntp_getservername(0), ipaddr_ntoa(esp_sntp_getserver(0)));
+                    //sync with rtc
+                    time(&rtc_time);
+                    time2 = localtime(&rtc_time);
+                    ESP_LOGI(TAG, "time in %s", ctime(&rtc_time));
+                    ESP_ERROR_CHECK(ds1302_init(&rtc_device));
+                    ESP_ERROR_CHECK(ds1302_set_write_protect(&rtc_device, false));
+                    ESP_ERROR_CHECK(ds1302_start(&rtc_device, true));
+                    ESP_ERROR_CHECK(ds1302_set_time(&rtc_device, time2));
+                    ESP_ERROR_CHECK(ds1302_get_time(&rtc_device, time2));
+                    rtc_time = mktime(time2);
+                    ESP_LOGI(TAG, "{==RTC_DS1302==} set to time retrieved from sntp service: %s", ctime(&rtc_time));
+
                 }
                 else if(sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET){
                     ESP_LOGW(TAG, "not synced");
@@ -172,21 +185,25 @@ void sntp_rtc_system_test(){
 
 void sntp_server_connection_check_task(void *vpParameter){
 
+    bool RTC_IS_ON = false;
     for(;;){
-        while (timeinfo.tm_year < (2024 - 1900) ) {
+        ESP_ERROR_CHECK(ds1302_is_running(&rtc_device, &RTC_IS_ON));
+
+        while (timeinfo.tm_year < (2024 - 1900) || RTC_IS_ON) {
             ESP_LOGI(TAG, "Waiting for system time to be set... ");
             vTaskDelay(5000 / portTICK_PERIOD_MS);
             time(&now);
             localtime_r(&now, &timeinfo);
+
         }
         ESP_LOGI(TAG, "system time synced with sntp server");
         ESP_LOGI(TAG, "System time set to pacific (-8 from UTC)");
-    // sntp_set_timezone(-8 * 3600);
+
+        // sntp_set_timezone(-8 * 3600);
         setenv("TZ", "UTC+8", 1);
         tzset();
         ESP_LOGI(TAG, "The current date/time after sync is: %s", ctime(&now));
         sntp_sync();
-
         vTaskDelete(NULL);
     }
 }

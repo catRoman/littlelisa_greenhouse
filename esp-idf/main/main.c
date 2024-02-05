@@ -17,6 +17,7 @@
 #include "nvs_service.h"
 #include "sntp.h"
 #include "spi_sd_card.h"
+#include "rtc_DS1302.h"
 
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
@@ -41,6 +42,7 @@ void app_main(void)
 
     //synced system clock
     sntp_service_init();
+    //rtc_DS1302_init();
 
     // Start Wifi
     wifi_app_start();

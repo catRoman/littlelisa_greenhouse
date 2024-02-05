@@ -12,7 +12,9 @@
 #define RTC_DS1302_DATA_GPIO    33
 #define RTC_DS1302_SCLK_GPIO    4
 
+void rtc_DS1302_task(void *vpParameters);
 
+void rtc_DS1302_init(void);
 
 
 #endif
