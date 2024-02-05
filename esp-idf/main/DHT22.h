@@ -23,6 +23,8 @@ typedef struct dht22_sensor_t {
 	float temperature;
 	float humidity;
 	char* TAG;
+	char temp_unit;
+	char humidity_unit;
 
 } dht22_sensor_t;
 
