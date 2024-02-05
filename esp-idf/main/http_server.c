@@ -117,7 +117,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
 
                     nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
                     ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
-                    
+
 
                     break;
 
@@ -338,39 +338,92 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 }
 
 /**
- * DHT inside sensor readings JSON handler responds with DHT22 sensor data
- * @param req http request for which the uri needs to be handled
- * @return ESP_OK
-*/
-static esp_err_t http_server_get_dht_inside_sensor_readings_json_handler(httpd_req_t *req)
-{
-    ESP_LOGV(TAG, "dhtInsideSensor.json requested");
-
-    extern dht22_sensor_t inside_sensor_gt;
-
-    char * dhtInsideSensorJSON = get_DHT22_JSON_String(&inside_sensor_gt);
-    ESP_LOGV(TAG,"%s", dhtInsideSensorJSON);
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, dhtInsideSensorJSON, strlen(dhtInsideSensorJSON));
-    free(dhtInsideSensorJSON);
-    return ESP_OK;
-}
-
-
-/**
  * DHT outside sensor readings JSON handler responds with DHT22 sensor data
  * @param req http request for which the uri needs to be handled
  * @return ESP_OK
 */
-static esp_err_t http_server_get_dht_outside_sensor_readings_json_handler(httpd_req_t *req)
+static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGV(TAG, "dhtOutsideSensor.json requested");
+    ESP_LOGV(TAG, "dhtSensor.json requested");
+    char * dhtSensorJSON;
+    dht22_sensor_t sensor;
+    int sensor_choice;
+    char log_str [100] = "dht22-";
 
-    char * dhtOutsideSensorJSON= get_DHT22_JSON_String(&outside_sensor_gt);
-    ESP_LOGV(TAG,"%s", dhtOutsideSensorJSON);
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, dhtOutsideSensorJSON, strlen(dhtOutsideSensorJSON));
-    free(dhtOutsideSensorJSON);
+ char* buf;
+    size_t buf_len;
+    // First, get the length of the query string
+    buf_len = httpd_req_get_url_query_len(req) + 1;
+    if (buf_len > 1) {
+        buf = malloc(buf_len);
+        if(!buf){
+            httpd_resp_send_500(req);
+            ESP_LOGE(TAG, "memory allocation error");
+        }
+        if(httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+            char location[16];
+            char type[16];
+
+            // Extract 'location' parameter
+            if (httpd_query_key_value(buf, "location", location, sizeof(location)) == ESP_OK) {
+                if (strcmp(location, "inside") == 0){
+                    sensor = inside_sensor_gt;
+                    strncat(log_str, "inside-", 8);
+                }else if(strcmp(location, "outside") == 0) {
+                    sensor = outside_sensor_gt;
+                    strncat(log_str, "outside-", 9);
+                } else {
+                    ESP_LOGE(TAG, "Invalid location parameter");
+                    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Location Parameter");
+
+                    free(buf);
+                    return ESP_FAIL;
+                }
+            } else {
+                ESP_LOGE(TAG, "Location parameter not found");
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
+
+                free(buf);
+                return ESP_FAIL;
+            }
+
+            // Extract 'type' parameter
+            if (httpd_query_key_value(buf, "type", type, sizeof(type)) == ESP_OK) {
+                if (strcmp(type, "temp") == 0){
+                    sensor_choice = TEMP;
+                    strncat(log_str, "TEMP", 5);
+                }else if(strcmp(type, "humidity") == 0) {
+                    sensor_choice = HUMIDITY;
+                    strncat(log_str, "humidity", 9);
+                } else {
+                    ESP_LOGE(TAG, "Invalid type parameter");
+                    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Type Parameters");
+
+                    free(buf);
+                    return ESP_FAIL;
+                }
+            } else {
+                ESP_LOGE(TAG, "Type parameter not found");
+                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
+
+                free(buf);
+                return ESP_FAIL;
+            }
+            strncat(log_str, " JSON requested", 16);
+            ESP_LOGV(TAG, "%s", log_str);
+            dhtSensorJSON= get_DHT22_SENSOR_JSON_String(&sensor, sensor_choice);
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
+            ESP_LOGV(TAG,"%s", dhtSensorJSON);
+            free(dhtSensorJSON);
+        }
+        free(buf);
+    } else {
+        ESP_LOGE(TAG, "Query string not found");
+        httpd_resp_send_404(req);
+        return ESP_FAIL;
+    }
+
     return ESP_OK;
 }
 
@@ -592,23 +645,14 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &OTA_status);
 
-        //register dhtInsideSensor.json handler
-        httpd_uri_t dht_inside_sensor_json = {
-            .uri = "/dhtInsideSensor.json",
+        //register dhtSensor.json handler
+        httpd_uri_t dht_sensor_json = {
+        .uri = "/dhtSensor.json",
             .method = HTTP_GET,
-            .handler = http_server_get_dht_inside_sensor_readings_json_handler,
+            .handler = http_server_get_dht_sensor_readings_json_handler,
             .user_ctx = NULL
         };
-        httpd_register_uri_handler(http_server_handle, &dht_inside_sensor_json);
-
-        //register dhtOutssideSensor.json handler
-        httpd_uri_t dht_outside_sensor_json = {
-            .uri = "/dhtOutsideSensor.json",
-            .method = HTTP_GET,
-            .handler = http_server_get_dht_outside_sensor_readings_json_handler,
-            .user_ctx = NULL
-        };
-        httpd_register_uri_handler(http_server_handle, &dht_outside_sensor_json);
+        httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
 
         //register wifiConnect.json handler
         httpd_uri_t wifi_connect_json = {

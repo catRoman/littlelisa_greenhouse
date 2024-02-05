@@ -45,7 +45,9 @@ SemaphoreHandle_t xSemaphore = NULL;
 dht22_sensor_t outside_sensor_gt = {
 	.pin_number = DHT_OUTSIDE_GPIO,
 	.temperature = 0.0f,
+	.temp_unit = "C",
 	.humidity = 0.0f,
+	.humidity_unit = "%%",
 	.TAG = "outside",
 };
 
@@ -54,8 +56,8 @@ dht22_sensor_t inside_sensor_gt =  {
 	.temperature = 0.0f,
 	.humidity = 0.0f,
 	.TAG = "inside",
-	.temp_unit = 'C',
-	.humidity_unit = '%'
+	.temp_unit = "C",
+	.humidity_unit = "%%"
 
 };
 
@@ -66,7 +68,7 @@ float get_humidity(dht22_sensor_t *sensor_t) { return sensor_t->humidity; }
 float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; }
 
 //== Log JSON of data ============================
-char * get_DHT22_HUMIDITY_JSON_String(dht22_sensor_t *sensor_t)
+char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 {
 	time_t currentTime;
 	time(&currentTime);
@@ -75,30 +77,13 @@ char * get_DHT22_HUMIDITY_JSON_String(dht22_sensor_t *sensor_t)
 
 	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
-	cJSON_AddNumberToObject(json_data, "value", get_humidity(sensor_t));
-	cJSON_AddStringToObject(json_data, "unit", sensor_t->humidity_unit);
-
-
-	char *json_string = cJSON_Print(json_data);
-
-	cJSON_Delete(json_data);
-
-	return json_string;
-
-}
-char * get_DHT22_TEMP_JSON_String(dht22_sensor_t *sensor_t)
-{
-	time_t currentTime;
-	time(&currentTime);
-
-	cJSON *json_data = cJSON_CreateObject();
-
-	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
-	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
-	cJSON_AddNumberToObject(json_data, "value", get_temperature(sensor_t));
-	cJSON_AddStringToObject(json_data, "unit", sensor_t->temp_unit);
-
-
+	if(sensor_choice == HUMIDITY){
+		cJSON_AddNumberToObject(json_data, "value", get_humidity(sensor_t));
+		cJSON_AddStringToObject(json_data, "unit", sensor_t->humidity_unit);
+	}else if(sensor_choice == TEMP){
+		cJSON_AddNumberToObject(json_data, "value", get_temperature(sensor_t));
+		cJSON_AddStringToObject(json_data, "unit", sensor_t->temp_unit);
+	}
 
 	char *json_string = cJSON_Print(json_data);
 
@@ -107,8 +92,8 @@ char * get_DHT22_TEMP_JSON_String(dht22_sensor_t *sensor_t)
 	return json_string;
 
 }
- void log_sensor_JSON(dht22_sensor_t *sensor_t){
-	char * json_string = get_DHT22_JSON_String(sensor_t);
+ void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
+	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
 	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
  }
@@ -324,7 +309,8 @@ static void DHT22_task(void *vpParameter)
 		int ret = readDHT(sensor_t);
 
 		if (ret == DHT_OK){
-			log_sensor_JSON(sensor_t);
+			log_sensor_JSON(sensor_t, TEMP);
+			log_sensor_JSON(sensor_t, HUMIDITY);
 			 //TODO: change either the function name or the function for better focus
 		}else{
 			errorHandler(ret, sensor_t);
