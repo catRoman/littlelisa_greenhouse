@@ -142,6 +142,23 @@ esp_err_t set_write_protection(bool state);
 
 /**
  *
+ *
+ * check voltage --returns true when volate > 2.5 voltsa
+ *
+ * inputdata --- manipulates pins for data transfer
+ *
+ * outputdata --- manipulates pins for data transfer
+ *
+ *
+ * setcommandbyte - lower level
+ *
+ * read_byte
+ *
+ * write_byte
+ *
+ * set
+ *
+ * binaryToBCD -- take a manipulated binary number and convert
 */
 
 
