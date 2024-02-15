@@ -13,8 +13,9 @@ static char TAG[] = "nvs_service";
  * initiate wifi config structure
 */
 nvs_handle_t nvs_wifi_handle;
-
-
+nvs_handle_t nvs_module_type_handle;
+nvs_handle_t nvs_sensor_arr_handle;
+nvs_handle_t nvs_node_arr_handle;
 
 
 esp_err_t nvs_initiate(void){
@@ -99,6 +100,96 @@ void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
     }
     nvs_close(nvs_wifi_handle);
 }
+
+
+void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
+
+    if(nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle) == ESP_OK){
+        ESP_LOGI(TAG, "{==set info==} opened");
+    }
+    ESP_ERROR_CHECK(nvs_set_str(nvs_wifi_handle, NVS_WIFI_SSID_INDEX, new_wifi_ssid));
+    ESP_ERROR_CHECK(nvs_set_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, new_wifi_pwd));
+       /**char* pass = NULL;
+        char* ssid = NULL;
+        esp_err_t nvs_err;
+        if((nvs_err = nvs_get_wifi_info(&ssid, &pass)) == ESP_OK){
+            ESP_LOGI(TAG, "credientials added-> ssid: %s, pwd: %s", ssid, pass);
+            free(ssid);
+            free(pass);
+        }else{
+            ESP_LOGE(TAG, "couldn't get wifi credentials from nvs: %s", esp_err_to_name(nvs_err));
+        }
+        */
+    if (nvs_commit(nvs_wifi_handle) == ESP_OK){
+        ESP_LOGI(TAG, "{==set_info==} changes succeffully commited");
+    }
+    nvs_close(nvs_wifi_handle);
+}
+
+void nvs_set_module(char *module_type, int8_t moduleNum){
+
+    if(nvs_open(NVS_MODULE_NAMESPACE, NVS_READWRITE, &nvs_module_type_handle) == ESP_OK){
+        ESP_LOGI(TAG, "{==module type==} opened");
+    }
+    ESP_ERROR_CHECK(nvs_set_str(nvs_module_type_handle, NVS_MODULE_TYPE_INDEX, module_type));
+    ESP_ERROR_CHECK(nvs_set_i8(nvs_module_type_handle, NVS_MODULE_IDENTIFIER_INDEX, moduleNum));
+   
+    if (nvs_commit(nvs_module_type_handle) == ESP_OK){
+        ESP_LOGI(TAG, "{==module set==} changes succeffully commited-> module set to %s, unit num: %d", module_type, moduleNum);
+    }
+    nvs_close(nvs_module_type_handle);
+}
+
+void nvs_set_node_arr(const uint8_t *node_arr, int8_t arrLength){
+
+    if(nvs_open(NVS_NODE_ARR_NAMESPACE, NVS_READWRITE, &nvs_node_arr_handle) == ESP_OK){
+        ESP_LOGI(TAG, "{==node list==} opened");
+    }
+    ESP_ERROR_CHECK(nvs_set_i8(nvs_node_arr_handle, NVS_NODE_TOTAL_INDEX, arrLength));
+    ESP_ERROR_CHECK(nvs_set_blob(nvs_node_arr_handle, NVS_NODE_ARR_INDEX, node_arr, arrLength));
+   
+    if (nvs_commit(nvs_node_arr_handle) == ESP_OK){
+        char node_list[arrLength * 3]; //todo: change to something smarter
+        node_list[0] = '[';
+        for(int i = 0; i <= arrLength; i++){
+            node_list[i] = node_arr[i];
+            if(i < arrLength){
+                node_list[i + 1] = ' ';
+            }else{
+                node_list[i] = '\0';
+            }
+        }
+        ESP_LOGI(TAG, "{==node list==} changes succeffully commited-> node list set to \n%s,\n with a total num of nodes: %d", node_list, arrLength);
+    }
+    nvs_close(nvs_node_arr_handle);
+}
+
+void nvs_set_sensor_arr(const uint8_t *sensor_arr, int8_t arrLength){
+
+    if(nvs_open(NVS_SENSOR_ARR_NAMESPACE, NVS_READWRITE, &nvs_sensor_arr_handle) == ESP_OK){
+        ESP_LOGI(TAG, "{==sensor list==} opened");
+    }
+    ESP_ERROR_CHECK(nvs_set_i8(nvs_sensor_arr_handle, NVS_SENSOR_TOTAL_INDEX, arrLength));
+    ESP_ERROR_CHECK(nvs_set_blob(nvs_sensor_arr_handle, NVS_SENSOR_ARR_INDEX, sensor_arr, arrLength));
+   
+    if (nvs_commit(nvs_sensor_arr_handle) == ESP_OK){
+        char sensor_list[arrLength * 3]; //todo: change to something smarter
+        sensor_list[0] = '[';
+        for(int i = 0; i <= arrLength; i++){
+            sensor_list[i] = i;
+            sensor_list[i + 1] = sensor_arr[i];
+            if(i < arrLength){
+                sensor_list[i + 2] = ' ';
+            }else{
+                sensor_list[i] = '\0';
+            }
+        }
+        ESP_LOGI(TAG, "{==sensor list==} changes succeffully commited-> sensor list set to \n%s,\n with a total num of sensors: %d", sensor_list, arrLength);
+    }
+    nvs_close(nvs_sensor_arr_handle);
+}
+
+
 void nvs_erase(void){
     esp_err_t err;
     if(nvs_open(NVS_WIFI_NAMESPACE, NVS_READWRITE, &nvs_wifi_handle) == ESP_OK){
