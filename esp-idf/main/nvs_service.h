@@ -74,11 +74,11 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info);
 
 void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum);
 
-esp_err_t nvs_get_node_arr(int8_t *node_arr, int8_t *arrLength);
+esp_err_t nvs_get_node_arr(int8_t **node_arr, int8_t *arrLength);
 
 void nvs_set_node_arr(const uint8_t *node_arr, int8_t arrLength);
 
-esp_err_t nvs_get_sensor_arr(int8_t *sensor_arr, int8_t *arrLength);
+esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength);
 
 void nvs_set_sensor_arr(const uint8_t *sensor_arr, int8_t arrLength);
 

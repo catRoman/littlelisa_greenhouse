@@ -21,6 +21,7 @@
 #include "spi_sd_card.h"
 #include "rtc_DS1302.h"
 #include "ds1302.h"
+#include "node_info.h"
 
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
@@ -96,6 +97,7 @@ void app_main(void)
     nvs_set_node_arr(&node_arr, 1);
     nvs_set_sensor_arr(&sensor_arr, 7);
 
+    
     //synced system clock
     sntp_service_init();
 

@@ -1,0 +1,106 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "esp_log.h"
+#include "esp_err.h"
+
+#include "node_info.h"
+#include "nvs_service.h"
+
+const char TAG[] = "node_info";
+
+void log_module_info(void){
+    Module_info_t module_info = {0};
+    esp_err_t err;
+
+    err = nvs_get_module_info(&module_info);
+
+    if(err == ESP_OK){    
+        ESP_LOGI(TAG, "Module info-> Type: %s | Location: %s | Identifier: %d", module_info.type, module_info.location, module_info.identity );
+    }else{
+        ESP_LOGE(TAG, "%s", esp_err_to_name(err));
+    }
+}
+
+void log_node_list(void){
+    int8_t *node_list = NULL;
+    int8_t nodeLength = 0xff;
+
+    esp_err_t err;
+
+    err = nvs_get_node_arr(&node_list, &nodeLength);
+
+
+    char node_info_str[200] = "Node List:\n";
+    if(err == ESP_OK && node_list != NULL){
+        for(int i = 0; i < nodeLength; i++){
+            if(i == 0){
+                snprintf(node_info_str + strlen(node_info_str), sizeof(node_info_str) - strlen(node_info_str), "\tLocal-> # %d:\n", node_list[i]);
+            }else{
+                snprintf(node_info_str + strlen(node_info_str), sizeof(node_info_str) - strlen(node_info_str), "\tNode-> # %d:\n", node_list[i]);
+
+            } //TODO: add node info here
+            }
+        ESP_LOGI(TAG, "%s", node_info_str);
+    }else{
+        ESP_LOGE(TAG, "%s", esp_err_to_name(err));
+    }
+
+}
+
+
+void log_sensor_list(void){
+    int8_t *sensor_list = NULL;
+    int8_t sensorLength = 0xff;
+
+    esp_err_t err;
+
+    err = nvs_get_sensor_arr(&sensor_list, &sensorLength);
+
+    /**
+ * sensor list 
+ * 
+ * 0 - temp
+ * 1 - humidity
+ * 2 - soil moisture
+ * 4 - light
+ * 5 - sound
+ * 6 - movement
+ * 7 - cam
+*/
+    char sensor_info_str[200] = "Sensor List:\n";
+    if(err == ESP_OK && sensor_list != NULL){
+        for(int i = 0; i < sensorLength; i++){
+            switch(i){
+                case 0:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tTemp: %d\n", sensor_list[i]);
+                    break; 
+                case 1:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tHumidity: %d\n", sensor_list[i]);
+                    break;
+                case 2:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tSoil Moisture: %d\n", sensor_list[i]);
+                    break;
+                case 3:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tLight: %d\n", sensor_list[i]);
+                    break;
+                case 4:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tSound: %d\n", sensor_list[i]);
+                    break;
+                case 5:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tMovement: %d\n", sensor_list[i]);
+                    break;
+                case 6:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tCam: %d\n", sensor_list[i]);
+                    break;
+                default:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tUnknown sensor type: %d", sensor_list[i]);
+            }
+        }
+        ESP_LOGI(TAG, "%s", sensor_info_str);
+    }else{
+        ESP_LOGE(TAG, "%s", esp_err_to_name(err));
+    }
+
+}
