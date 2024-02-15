@@ -5,6 +5,7 @@
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
 #include "esp_log.h"
+#include "driver/gpio.h"
 
 #include "spi_sd_card.h"
 
@@ -51,6 +52,36 @@ esp_err_t spi_sd_card_read(const char *path)
 void spi_sd_card_init(void){
      esp_err_t ret;
 
+    gpio_config_t spi_out_conf;
+
+    spi_out_conf = (gpio_config_t){0};
+
+    spi_out_conf.pin_bit_mask = 
+        (1ULL<<PIN_NUM_CLK) |   
+        (1ULL<<PIN_NUM_CS) |     
+        (1ULL<<PIN_NUM_MOSI);
+
+    spi_out_conf.mode = GPIO_MODE_OUTPUT;
+    spi_out_conf.pull_up_en = 1;
+    spi_out_conf.pull_down_en = 0;
+
+    gpio_config(&spi_out_conf);
+
+       gpio_config_t spi_in_conf;
+
+    // Zero-initialize the config structure.
+    spi_in_conf = (gpio_config_t){0};
+
+    // Bit mask of the pins that you want to set,e.g.GPIO18/19
+    spi_in_conf.pin_bit_mask = 
+        (1UL<<PIN_NUM_MISO);
+
+    spi_in_conf.mode = GPIO_MODE_OUTPUT;
+    spi_in_conf.pull_up_en = 1;
+    spi_in_conf.pull_down_en = 0;
+
+    gpio_config(&spi_in_conf);
+
     // Options for mounting the filesystem.
     // If format_if_mount_failed is set to true, SD card will be partitioned and
     // formatted in case when mounting fails.
@@ -84,6 +115,8 @@ void spi_sd_card_init(void){
         .quadhd_io_num = -1,
         .max_transfer_sz = 4000,
     };
+
+  
     ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize bus.");
