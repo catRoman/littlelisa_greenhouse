@@ -11,6 +11,7 @@ idf_component_register(
         rtc_DS1302.c
         ds1302.c
         node_info.c
+        helper.c
 
     INCLUDE_DIRS "."
 

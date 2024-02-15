@@ -20,9 +20,10 @@
 
 #include "DHT22.h"
 #include "nvs_service.h"
+#include "node_info.c"
 
 // Tag used for ESP serial console message
-static const char TAG[] = "http_server";
+static const char HTTP_SERVER_TAG[] = "http_server";
 
 // Firmware update status
 static int g_fw_update_status = OTA_UPDATE_PENDING;
@@ -77,7 +78,7 @@ static void http_server_fw_update_reset_timer(void)
 {
     if (g_fw_update_status == OTA_UPDATE_SUCCESSFUL)
     {
-        ESP_LOGI(TAG, "http_server_fw_update_reset_timer: fw update succesful starting Fw update rest timer");
+        ESP_LOGI(HTTP_SERVER_TAG, "http_server_fw_update_reset_timer: fw update succesful starting Fw update rest timer");
 
         // Give the web page a chance to recieve an acknowedge back and initalize the timer
         ESP_ERROR_CHECK(esp_timer_create(&fw_update_reset_args, &fw_update_reset));
@@ -85,7 +86,7 @@ static void http_server_fw_update_reset_timer(void)
     }
     else
     {
-        ESP_LOGI(TAG, "http_Server_fw_update_reset_timer: FW update unsuccessful");
+        ESP_LOGI(HTTP_SERVER_TAG, "http_Server_fw_update_reset_timer: FW update unsuccessful");
     }
 }
 /**
@@ -102,39 +103,39 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
             switch(msg.msgID)
             {
                 case HTTP_MSG_WIFI_CONNECT_INIT:
-                    ESP_LOGI(TAG, "HTTP_MSG_CONNECT_INIT");
+                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_CONNECT_INIT");
 
                     g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECTING;
 
                     break;
 
                 case HTTP_MSG_WIFI_CONNECT_SUCCESS:
-                    ESP_LOGI(TAG, "HTTP_MSG_CONNECT_SUCCESS");
+                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_CONNECT_SUCCESS");
 
                     g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_SUCCESS;
                         //save to nvs
                     wifi_config_t* wifi_config = wifi_app_get_wifi_config();
 
                     nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
-                    ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
+                    ESP_LOGI(HTTP_SERVER_TAG, "nvs_service, ssid and pwd added to nvs");
 
 
                     break;
 
                 case HTTP_MSG_WIFI_CONNECT_FAIL:
-                    ESP_LOGI(TAG, "HTTP_MSG_WIFI_CONNECT_FAIL");
+                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_WIFI_CONNECT_FAIL");
 
                     g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_FAILED;
                     break;
 
                 case HTTP_MSG_OTA_UPDATE_SUCCESSFUL:
-                    ESP_LOGI(TAG, "HTTP_MSG_OTA_UPDATE_SUCCESFUL");
+                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_OTA_UPDATE_SUCCESFUL");
                     g_fw_update_status = OTA_UPDATE_SUCCESSFUL;
                     http_server_fw_update_reset_timer();
                     break;
 
                 case HTTP_MSG_OTA_UPDATE_FAILED:
-                    ESP_LOGI(TAG, "HTTP_MSG_OTA_UPDATE_FAILED");
+                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_OTA_UPDATE_FAILED");
                     g_fw_update_status = OTA_UPDATE_FAILED;
 
                     break;
@@ -153,7 +154,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
 */
 static esp_err_t http_server_jquery_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "JQuery requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "JQuery requested");
 
     httpd_resp_set_type(req, "application/javascript");
     httpd_resp_send(req, (const char *)jquery_3_3_1_min_js_start, jquery_3_3_1_min_js_end - jquery_3_3_1_min_js_start);
@@ -168,7 +169,7 @@ static esp_err_t http_server_jquery_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_index_html_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "index.html requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "index.html requested");
 
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, (const char *)index_html_start, index_html_end- index_html_start);
@@ -183,7 +184,7 @@ static esp_err_t http_server_index_html_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_app_js_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "App.js requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "App.js requested");
 
     httpd_resp_set_type(req, "application/javascript");
     httpd_resp_send(req, (const char *)app_js_start, app_js_end - app_js_start);
@@ -198,7 +199,7 @@ static esp_err_t http_server_app_js_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_app_css_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "App.css requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "App.css requested");
 
     httpd_resp_set_type(req, "text/css");
     httpd_resp_send(req, (const char *)app_css_start, app_css_end - app_css_start);
@@ -213,7 +214,7 @@ static esp_err_t http_server_app_css_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_favicon_ico_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "Favicon.ico requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "Favicon.ico requested");
 
     httpd_resp_set_type(req, "image/x-icon");
     httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_end - favicon_ico_start);
@@ -246,10 +247,10 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
             // check if timeout occured
             if (recv_len == HTTPD_SOCK_ERR_TIMEOUT)
             {
-                ESP_LOGI(TAG, "http_server_/ota_update_handler: Socket Timeout");
+                ESP_LOGI(HTTP_SERVER_TAG, "http_server_/ota_update_handler: Socket Timeout");
                 continue; // retry recieving if timeout occured
             }
-            ESP_LOGI(TAG, "http_server_OTA_update_handler: OTA other Error %d", recv_len);
+            ESP_LOGI(HTTP_SERVER_TAG, "http_server_OTA_update_handler: OTA other Error %d", recv_len);
             return ESP_FAIL;
         }
         printf("http_server_OTA_update_handler: OTA RX: %d of %d\r", content_recieved, content_length);
@@ -293,17 +294,17 @@ esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
         if (esp_ota_set_boot_partition(update_partition) == ESP_OK)
         {
             const esp_partition_t *boot_partition = esp_ota_get_boot_partition();
-            ESP_LOGI(TAG, "http_server_OTA_update_handle: Next boot partition subtype %d at offset 0x%lx", boot_partition->subtype, boot_partition->address);
+            ESP_LOGI(HTTP_SERVER_TAG, "http_server_OTA_update_handle: Next boot partition subtype %d at offset 0x%lx", boot_partition->subtype, boot_partition->address);
             flash_succesful = true;
         }
         else
         {
-            ESP_LOGI(TAG, "http_server_OTA_update_handler: FLASH ERROR! ! !");
+            ESP_LOGI(HTTP_SERVER_TAG, "http_server_OTA_update_handler: FLASH ERROR! ! !");
         }
     }
     else
     {
-        ESP_LOGI(TAG, "http_server_OTA_update_handler: esp_ota_end ERROR! ! !");
+        ESP_LOGI(HTTP_SERVER_TAG, "http_server_OTA_update_handler: esp_ota_end ERROR! ! !");
     }
     // we wont update the global variables throughout the file, so send the message sbout the status
     if(flash_succesful)
@@ -328,7 +329,7 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 {
     char otaJSON[100];
 
-    ESP_LOGI(TAG, "OTAstatus requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "OTAstatus requested");
 
     sprintf(otaJSON, "{\"ota_update_status\":%d,\"compile_time\":\"%s\",\"compile_data\":\"%s\"}", g_fw_update_status, __TIME__, __DATE__);
     httpd_resp_set_type(req, "application/json");
@@ -344,7 +345,7 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
-    ESP_LOGV(TAG, "dhtSensor.json requested");
+    ESP_LOGV(HTTP_SERVER_TAG, "dhtSensor.json requested");
     char * dhtSensorJSON;
     dht22_sensor_t sensor;
     int sensor_choice;
@@ -358,7 +359,7 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
         buf = malloc(buf_len);
         if(!buf){
             httpd_resp_send_500(req);
-            ESP_LOGE(TAG, "memory allocation error");
+            ESP_LOGE(HTTP_SERVER_TAG, "memory allocation error");
         }
         if(httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
             char location[16];
@@ -373,14 +374,14 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
                     sensor = outside_sensor_gt;
                     strncat(log_str, "outside-", 9);
                 } else {
-                    ESP_LOGE(TAG, "Invalid location parameter");
+                    ESP_LOGE(HTTP_SERVER_TAG, "Invalid location parameter");
                     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Location Parameter");
 
                     free(buf);
                     return ESP_FAIL;
                 }
             } else {
-                ESP_LOGE(TAG, "Location parameter not found");
+                ESP_LOGE(HTTP_SERVER_TAG, "Location parameter not found");
                 httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
 
                 free(buf);
@@ -396,34 +397,46 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
                     sensor_choice = HUMIDITY;
                     strncat(log_str, "humidity", 9);
                 } else {
-                    ESP_LOGE(TAG, "Invalid type parameter");
+                    ESP_LOGE(HTTP_SERVER_TAG, "Invalid type parameter");
                     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Type Parameters");
 
                     free(buf);
                     return ESP_FAIL;
                 }
             } else {
-                ESP_LOGE(TAG, "Type parameter not found");
+                ESP_LOGE(HTTP_SERVER_TAG, "Type parameter not found");
                 httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
 
                 free(buf);
                 return ESP_FAIL;
             }
             strncat(log_str, " JSON requested", 16);
-            ESP_LOGV(TAG, "%s", log_str);
+            ESP_LOGV(HTTP_SERVER_TAG, "%s", log_str);
             dhtSensorJSON= get_DHT22_SENSOR_JSON_String(&sensor, sensor_choice);
             httpd_resp_set_type(req, "application/json");
             httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
-            ESP_LOGV(TAG,"%s", dhtSensorJSON);
+            ESP_LOGV(HTTP_SERVER_TAG,"%s", dhtSensorJSON);
             free(dhtSensorJSON);
         }
         free(buf);
     } else {
-        ESP_LOGE(TAG, "Query string not found");
+        ESP_LOGE(HTTP_SERVER_TAG, "Query string not found");
         httpd_resp_send_404(req);
         return ESP_FAIL;
     }
 
+    return ESP_OK;
+}
+
+
+static esp_err_t http_server_get_module_info_json_handler(httpd_req_t *req){
+
+    ESP_LOGI(HTTP_SERVER_TAG, "moduleInfo.json requested");
+
+    const char *module_json_data = node_info_get_module_info_json();
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, module_json_data);
     return ESP_OK;
 }
 
@@ -434,7 +447,7 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
 */
 static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "wifiConnect.json requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "wifiConnect.json requested");
 
     size_t len_ssid = 0, len_pass = 0;
     char *ssid_str = NULL, *pass_str = NULL;
@@ -448,7 +461,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
         ssid_str = malloc(len_ssid);
         if (httpd_req_get_hdr_value_str(req, "my-connect-ssid", ssid_str, len_ssid) == ESP_OK)
         {
-            ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-ssid : %s", ssid_str);
+            ESP_LOGI(HTTP_SERVER_TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-ssid : %s", ssid_str);
         }
     }
 
@@ -461,7 +474,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
         pass_str = malloc(len_pass);
         if (httpd_req_get_hdr_value_str(req, "my-connect-pwd", pass_str, len_pass) == ESP_OK)
         {
-            ESP_LOGI(TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pwd : %s", pass_str);
+            ESP_LOGI(HTTP_SERVER_TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pwd : %s", pass_str);
         }
     }
 
@@ -486,7 +499,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "wifiConnectStatus requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "wifiConnectStatus requested");
 
     char statusJSON[100];
     sprintf(statusJSON, "{\"wifi_connect_status\":%d}", g_wifi_connect_status);
@@ -502,7 +515,7 @@ static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "wifiDisconnect.json requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "wifiDisconnect.json requested");
     wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
 
     return ESP_OK;
@@ -514,7 +527,7 @@ static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
 {
-    ESP_LOGI(TAG, "wifiConnectInfo.json requested");
+    ESP_LOGI(HTTP_SERVER_TAG, "wifiConnectInfo.json requested");
 
     char ipInfoJSON[200];
     memset(ipInfoJSON, 0, sizeof(ipInfoJSON));
@@ -574,13 +587,13 @@ static httpd_handle_t http_server_configuration(void)
     config.recv_wait_timeout = 10;
     config.send_wait_timeout = 10;
 
-    ESP_LOGI(TAG, "http_server_configure: Starting server on port '%d'",
+    ESP_LOGI(HTTP_SERVER_TAG, "http_server_configure: Starting server on port '%d'",
             config.server_port);
 
     // start the httpd server
     if(httpd_start(&http_server_handle, &config)== ESP_OK)
     {
-        ESP_LOGI(TAG, "http_server_configure: Registering URI handlers");
+        ESP_LOGI(HTTP_SERVER_TAG, "http_server_configure: Registering URI handlers");
 
         //register query handler
         httpd_uri_t jquery_js = {
@@ -692,6 +705,16 @@ static httpd_handle_t http_server_configuration(void)
         };
         httpd_register_uri_handler(http_server_handle, &wifi_disconnect_json);
 
+    //register moduleInfo.json handler
+        httpd_uri_t module_info_json = {
+            .uri = "/moduleInfo.json",
+            .method = HTTP_GET,
+            .handler = http_server_get_module_info_json_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &module_info_json);
+
+
         return http_server_handle;
     }
 
@@ -711,13 +734,13 @@ void http_server_stop(void)
     if(http_server_handle)
     {
         httpd_stop(http_server_handle);
-        ESP_LOGI(TAG, "http_server_stop: stopping HTTP server");
+        ESP_LOGI(HTTP_SERVER_TAG, "http_server_stop: stopping HTTP server");
         http_server_handle = NULL;
     }
     if (task_http_server_monitor)
     {
         vTaskDelete(task_http_server_monitor);
-        ESP_LOGI(TAG, "http_server_stop: stopping http server monitor");
+        ESP_LOGI(HTTP_SERVER_TAG, "http_server_stop: stopping http server monitor");
         task_http_server_monitor = NULL;
     }
 }
@@ -733,6 +756,6 @@ BaseType_t http_server_monitor_send_message(http_server_message_e msgID)
 
 void http_server_fw_update_reset_callback(void *arg)
 {
-    ESP_LOGI(TAG, "http_server_fw_update_reset_callback: Timer timed out, restarting the device");
+    ESP_LOGI(HTTP_SERVER_TAG, "http_server_fw_update_reset_callback: Timer timed out, restarting the device");
     esp_restart();
 }

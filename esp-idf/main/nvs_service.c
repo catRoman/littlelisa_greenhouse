@@ -174,7 +174,7 @@ void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum){
     }
     nvs_close(nvs_module_handle);
 
-    log_module_info();
+    node_info_log_module_info();
 }
 
 esp_err_t nvs_get_node_arr(int8_t **node_arr, int8_t *arrLength){
@@ -219,7 +219,7 @@ esp_err_t nvs_get_node_arr(int8_t **node_arr, int8_t *arrLength){
     
     }
 
-void nvs_set_node_arr(const uint8_t *node_arr, int8_t arrLength){
+void nvs_set_node_arr(const int8_t *node_arr, int8_t arrLength){
 
     if(nvs_open(NVS_NODE_ARR_NAMESPACE, NVS_READWRITE, &nvs_node_arr_handle) == ESP_OK){
         ESP_LOGI(TAG, "{==node list==} opened");
@@ -232,7 +232,7 @@ void nvs_set_node_arr(const uint8_t *node_arr, int8_t arrLength){
     }
     nvs_close(nvs_node_arr_handle);
 
-    log_node_list();
+    node_info_log_node_list();
 }
 
 
@@ -282,7 +282,7 @@ esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength){
     }
 
 
-void nvs_set_sensor_arr(const uint8_t *sensor_arr, int8_t arrLength){
+void nvs_set_sensor_arr(const int8_t *sensor_arr, int8_t arrLength){
 
     if(nvs_open(NVS_SENSOR_ARR_NAMESPACE, NVS_READWRITE, &nvs_sensor_arr_handle) == ESP_OK){
         ESP_LOGI(TAG, "{==sensor list==} opened");
@@ -296,7 +296,7 @@ void nvs_set_sensor_arr(const uint8_t *sensor_arr, int8_t arrLength){
     }
     nvs_close(nvs_sensor_arr_handle);
 
-    log_sensor_list();
+    node_info_log_sensor_list();
 }
 
 
