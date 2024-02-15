@@ -16,15 +16,36 @@
 
 #define NVS_MODULE_NAMESPACE            "module_info"
 #define NVS_MODULE_TYPE_INDEX           "module_type"
+#define NVS_MODULE_LOCATION_INDEX       "module_location"
 #define NVS_MODULE_IDENTIFIER_INDEX     "module_ident"
 
 #define NVS_NODE_ARR_NAMESPACE          "node_list"
-#define NVS_NODE_arr_INDEX              "node_arr"
+#define NVS_NODE_ARR_INDEX              "node_arr"
 #define NVS_NODE_TOTAL_INDEX            "node_total"
 
 #define NVS_SENSOR_ARR_NAMESPACE        "local_sensor_list"
 #define NVS_SENSOR_ARR_INDEX            "sensor_list"
 #define NVS_SENSOR_TOTAL_INDEX          "sesonr_total"
+
+
+typedef struct {
+    .type;
+    .location;
+    .identity;
+}Module_info_t;
+
+/**
+ * sensor list 
+ * 
+ * 0 - temp
+ * 1 - humidity
+ * 2 - soil moisture
+ * 4 - light
+ * 5 - sound
+ * 6 - movement
+ * 7 - cam
+*/
+//TODO: decide on structure for sensor list enum, def etc
 
 
 /**
