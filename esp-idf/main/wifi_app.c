@@ -26,7 +26,7 @@
 #include "task_common.h"
 #include "wifi_app.h"
 #include "nvs_service.h"
-#include "sntp_rtc.h"
+#include "sntp.h"
 
 
 // Tag used for ESP serial console messages
@@ -269,7 +269,7 @@ static void wifi_app_task(void *pvParameters)
 
                     led_wifi_connected();// TODO: rename status led to a name more meaninful
                     http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_SUCCESS);
-                    
+
                     //sntp_rtc_test();
                     break;
 
@@ -278,7 +278,7 @@ static void wifi_app_task(void *pvParameters)
 
                     g_retry_number = MAX_CONNECTION_RETRIES;
                     ESP_ERROR_CHECK(esp_wifi_disconnect());
-                    led_http_server_started(); 
+                    led_http_server_started();
                     break;
 
                 case WIFI_APP_MSG_STA_DISCONNECTED:
