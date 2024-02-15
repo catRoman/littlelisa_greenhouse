@@ -2,7 +2,7 @@ import {createWriteStream} from 'fs';
 import {join } from 'path';
 import {__root_dir} from './globals.js'
 
-const logPath = join(__root_dir, "/backend/logs/data_logs.js");
+const logPath = join(__root_dir, "/backend/logs/data_logs.txt");
 
 const stream = createWriteStream(logPath, { flags: 'a'});
 
