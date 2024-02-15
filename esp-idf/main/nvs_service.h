@@ -23,15 +23,15 @@
 #define NVS_NODE_ARR_INDEX              "node_arr"
 #define NVS_NODE_TOTAL_INDEX            "node_total"
 
-#define NVS_SENSOR_ARR_NAMESPACE        "local_sensor_list"
+#define NVS_SENSOR_ARR_NAMESPACE        "sensor_list"
 #define NVS_SENSOR_ARR_INDEX            "sensor_list"
-#define NVS_SENSOR_TOTAL_INDEX          "sesonr_total"
+#define NVS_SENSOR_TOTAL_INDEX          "sensor_total"
 
 
-typedef struct {
-    .type;
-    .location;
-    .identity;
+typedef struct Module_info_t{
+    char *type;
+    char *location;
+    int8_t identity;
 }Module_info_t;
 
 /**
@@ -69,5 +69,17 @@ esp_err_t nvs_get_wifi_info(char *curr_saved_wifi_ssid_out, char *curr_saved_wif
 */
 void nvs_erase(void);
 
+
+esp_err_t nvs_get_module_info(Module_info_t *module_info);
+
+void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum);
+
+esp_err_t nvs_get_node_arr(int8_t *node_arr, int8_t *arrLength);
+
+void nvs_set_node_arr(const uint8_t *node_arr, int8_t arrLength);
+
+esp_err_t nvs_get_sensor_arr(int8_t *sensor_arr, int8_t *arrLength);
+
+void nvs_set_sensor_arr(const uint8_t *sensor_arr, int8_t arrLength);
 
 #endif
