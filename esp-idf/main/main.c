@@ -5,47 +5,92 @@
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
  */
+#include <time.h>
+#include <sys/time.h>
+#include <string.h>
 
 #include "nvs_flash.h"
+#include "esp_log.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+#include "freertos/task.h"
 #include "wifi_app.h"
 #include "DHT22.h"
 #include "nvs_service.h"
+#include "sntp.h"
+#include "spi_sd_card.h"
+#include "rtc_DS1302.h"
+#include "ds1302.h"
+#include "node_info.h"
 
+//TODO implement ntc clock with rtc backup/sync
+//TODO capacicance meter driver
+//TODO sd card sqlite database
+//TODO nvs mem allocation bug fix
+//TODO serial parser, for logs
+//TODO settings for turing on/off the loging for different services easily
+
+
+bool REWRITE = false;
+
+SemaphoreHandle_t wifiInitSemephore = NULL;
+Module_info_t module_info = {
+    .type = "Controller",
+    .location = "Power Board",
+    .identity = 0
+};
+
+/**
+ * node identity numbers including self
+*/
+const int8_t node_arr[1] = {0};
+
+const int8_t sensor_arr[7] = {2,  // temp
+                        2,  // humidity
+                        0,  // soil moisture
+                        0,  // light
+                        0,  // sound
+                        0,  // movement
+                        0,  // cam
+                        };
+
+
+/**
+ * freeRTOS function invocation
+*/
 void app_main(void)
 {
-    // Initialize NVS
+    static const char TAG[] = "main_app";
+
+    wifiInitSemephore = xSemaphoreCreateMutex();
+
+    //wifi crediental storage and retrieval
     nvs_initiate();
-    
+
+    //set node info and log
+    if(REWRITE == true){
+        nvs_set_module(module_info.type, module_info.location, module_info.identity);
+        nvs_set_node_arr(&node_arr, 1);
+        nvs_set_sensor_arr(&sensor_arr, 7);
+    }
+    ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
+
+    //synced system clock
+    sntp_service_init();
+
     // Start Wifi
     wifi_app_start();
-    
+
+    // backup sd database
+    spi_sd_card_init();
 
     // start DHT22 Sensor task
-    DHT22_task_start();
+    DHT22_sensor_task_start();
+
+    vTaskDelay(15000/ portMAX_DELAY);
 
 
 
 
-
-
-
-/*---> old test code for rgb_led.c
-    while (true)
-    {
-        printf("yellow\n");
-        rgb_led_wifi_app_started();
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-    
-        printf("Purple\n");
-        rgb_led_http_server_started();
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-
-        printf("Green\n");
-        rgb_led_wifi_connected();
-        vTaskDelay(4000 / portTICK_PERIOD_MS);
-
-        printf("\n");
-     }
-*/
 }

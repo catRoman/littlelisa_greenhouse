@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "express webserver, serial communication and postgresql database integration for esp32 enabled automated greenhouse webapp",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/catRoman/littlelisa_greenhouse.git"
+  },
+  "keywords": [
+    "esp32",
+    "webapp",
+    "greenhouse"
+  ],
+  "type": "module",
+  "author": "cat Roman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/catRoman/littlelisa_greenhouse/issues"
+  },
+  "homepage": "https://www.littlelisagreenhouse.com",
+  "dependencies": {
+    "express": "^4.18.2",
+    "highcharts": "^11.3.0",
+    "serialport": "^12.0.0"
+  }
+}
