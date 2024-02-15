@@ -10,6 +10,8 @@ idf_component_register(
         spi_sd_card.c
         rtc_DS1302.c
         ds1302.c
+        node_info.c
+        helper.c
 
     INCLUDE_DIRS "."
 

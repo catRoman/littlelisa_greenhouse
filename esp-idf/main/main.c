@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "nvs_flash.h"
+#include "esp_log.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -21,6 +22,7 @@
 #include "spi_sd_card.h"
 #include "rtc_DS1302.h"
 #include "ds1302.h"
+#include "node_info.h"
 
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
@@ -29,78 +31,53 @@
 //TODO serial parser, for logs
 //TODO settings for turing on/off the loging for different services easily
 
+
+bool REWRITE = false;
+
 SemaphoreHandle_t wifiInitSemephore = NULL;
+Module_info_t module_info = {
+    .type = "Controller",
+    .location = "Power Board",
+    .identity = 0
+};
 
-char * binary_string( uint8_t decNum )
-{
-    char * binaryString = malloc(sizeof(char)*11);
-    char * bitString= malloc(sizeof(char)*9);
+/**
+ * node identity numbers including self
+*/
+const int8_t node_arr[1] = {0};
 
-    int k = 8;
-    for(unsigned int i = 0; i <=8; i++){
-        bitString[--k] = (((decNum >> i) & 1) ? '1' : '0');
-    }
-    bitString[8]='\0';
-    binaryString[0] = '0';
-    binaryString[1]='b';
-    binaryString[2]='\0';
+const int8_t sensor_arr[7] = {2,  // temp
+                        2,  // humidity
+                        0,  // soil moisture
+                        0,  // light
+                        0,  // sound
+                        0,  // movement
+                        0,  // cam
+                        };
 
-    strcat(binaryString, bitString);
-
-
-    return binaryString;
-}
 
 /**
  * freeRTOS function invocation
 */
 void app_main(void)
 {
+    static const char TAG[] = "main_app";
 
     wifiInitSemephore = xSemaphoreCreateMutex();
 
     //wifi crediental storage and retrieval
     nvs_initiate();
 
+    //set node info and log
+    if(REWRITE == true){
+        nvs_set_module(module_info.type, module_info.location, module_info.identity);
+        nvs_set_node_arr(&node_arr, 1);
+        nvs_set_sensor_arr(&sensor_arr, 7);
+    }
+    ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
+
     //synced system clock
     sntp_service_init();
-
-    
-    // ds1302_t clock2 = {
-    //     .ce_pin = 4, //tested at 19
-    //     .io_pin = 21, //tested at 18
-    //     .sclk_pin = 22 //tested at 5
-    // };
-
-    // ds1302_init(&clock2);
-    // ds1302_start(&clock2, false);
-
-    // struct tm testTime = {
-    //     .tm_sec = 15,
-    //     .tm_min = 05,
-    //     .tm_hour  = 8,
-    //     .tm_mday = 28,
-    //     .tm_mon = 01,
-    //     .tm_wday = 3,
-    //     .tm_year = 100
-    // };
-    // uint8_t val =0;
-    // for(int i = 0 ; i < 10; i++){
-    //     printf("year struct: %s\n", binary_string(testTime.tm_year));
-    //     printf("test struct time: %s\n", asctime(&testTime));
-    //     ds1302_set_time(&clock2, &testTime);
-    //     ds1302_get_time(&clock2, &testTime);
-    //     printf("\n");
-    //     printf("struct time after set/get: %s\n", asctime(&testTime));
-    //     printf("struct year reg after set/get: %s\n", binary_string(testTime.tm_year));
-    //     read_register(&clock2, 0x8D, &val);
-    //     printf("year reg val: %s\n", binary_string(val));
-    //     testTime.tm_year = testTime.tm_year + 1;
-    //     printf("\n");
-    //     vTaskDelay(pdMS_TO_TICKS(1000));
-    // }
-
-    //rtc_DS1302_init();
 
     // Start Wifi
     wifi_app_start();
