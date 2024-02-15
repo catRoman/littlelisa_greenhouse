@@ -12,17 +12,21 @@
 #define DHT_TIMEOUT_ERROR -2
 
 
-#define DHT_INSIDE_GPIO			4
-#define DHT_OUTSIDE_GPIO		2
+#define DHT_INSIDE_GPIO			25
+#define DHT_OUTSIDE_GPIO		26
 
 
 
+#define TEMP 0
+#define HUMIDITY 1
 
 typedef struct dht22_sensor_t {
 	int pin_number;
 	float temperature;
 	float humidity;
 	char* TAG;
+	char* temp_unit;
+	char* humidity_unit;
 
 } dht22_sensor_t;
 
@@ -31,7 +35,8 @@ typedef struct dht22_sensor_t {
  *  start both inside and outside sensors
 */
 void DHT22_sensor_task_start(void);
-char * get_DHT22_JSON_String(dht22_sensor_t *sensor);
+char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor, int sensor_choice);
+
 
 // == function prototypes =======================================
 

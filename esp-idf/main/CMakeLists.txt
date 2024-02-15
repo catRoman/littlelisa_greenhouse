@@ -6,8 +6,12 @@ idf_component_register(
         http_server.c
         DHT22.c
         nvs_service.c
-        sntp_rtc.c
+        sntp.c
         spi_sd_card.c
+        rtc_DS1302.c
+        ds1302.c
+        node_info.c
+        helper.c
 
     INCLUDE_DIRS "."
 

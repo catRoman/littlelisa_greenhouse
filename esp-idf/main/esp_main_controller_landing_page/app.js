@@ -17,12 +17,12 @@ var tempChart = null;
 var humidityChart = null;
 /**
  * highcharts
- 
+
 document.addEventListener('DOMContentLoaded', function () {
     var tempchartOptions = {
         chart: {
-            renderTo: 'temp_chart', 
-            type: 'line' 
+            renderTo: 'temp_chart',
+            type: 'line'
         },
         credits: {
             enabled: false
@@ -46,15 +46,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     var humiditychartOptions = {
         chart: {
-            renderTo: 'humidity_chart', 
-            type: 'line' 
+            renderTo: 'humidity_chart',
+            type: 'line'
         },
         credits: {
             enabled: false
         },
         plotOptions : {
             line : {
-                marker: { 
+                marker: {
                     enabled: true
                 }
             }
@@ -96,12 +96,12 @@ $(document).ready(function(){
     $("#disconnect_wifi").on("click", function(){
         disconnectWifi();
     });
-});   
+});
 
 /**
  * Gets file name and size for display on the web page.
- */        
-function getFileInfo() 
+ */
+function getFileInfo()
 {
     var x = document.getElementById("selected_file");
     var file = x.files[0];
@@ -112,13 +112,13 @@ function getFileInfo()
 /**
  * Handles the firmware update.
  */
-function updateFirmware() 
+function updateFirmware()
 {
     // Form Data
     var formData = new FormData();
     var fileSelect = document.getElementById("selected_file");
-    
-    if (fileSelect.files && fileSelect.files.length == 1) 
+
+    if (fileSelect.files && fileSelect.files.length == 1)
 	{
         var file = fileSelect.files[0];
         formData.set("file", file, file.name);
@@ -131,8 +131,8 @@ function updateFirmware()
         request.open('POST', "/OTAupdate");
         request.responseType = "blob";
         request.send(formData);
-    } 
-	else 
+    }
+	else
 	{
         window.alert('Select A File First')
     }
@@ -141,13 +141,13 @@ function updateFirmware()
 /**
  * Progress on transfers from the server to the client (downloads).
  */
-function updateProgress(oEvent) 
+function updateProgress(oEvent)
 {
-    if (oEvent.lengthComputable) 
+    if (oEvent.lengthComputable)
 	{
         getUpdateStatus();
-    } 
-	else 
+    }
+	else
 	{
         window.alert('total size is unknown')
     }
@@ -156,28 +156,28 @@ function updateProgress(oEvent)
 /**
  * Posts the firmware udpate status.
  */
-function getUpdateStatus() 
+function getUpdateStatus()
 {
     var xhr = new XMLHttpRequest();
     var requestURL = "/OTAstatus";
     xhr.open('POST', requestURL, false);
     xhr.send('ota_update_status');
 
-    if (xhr.readyState == 4 && xhr.status == 200) 
-	{		
+    if (xhr.readyState == 4 && xhr.status == 200)
+	{
         var response = JSON.parse(xhr.responseText);
-						
+
 	 	document.getElementById("latest_firmware").innerHTML = response.compile_date + " - " + response.compile_time
 
 		// If flashing was complete it will return a 1, else -1
 		// A return of 0 is just for information on the Latest Firmware request
-        if (response.ota_update_status == 1) 
+        if (response.ota_update_status == 1)
 		{
     		// Set the countdown timer time
             seconds = 10;
             // Start the countdown timer
             otaRebootTimer();
-        } 
+        }
         else if (response.ota_update_status == -1)
 		{
             document.getElementById("ota_update_status").innerHTML = "!!! Upload Error !!!";
@@ -188,16 +188,16 @@ function getUpdateStatus()
 /**
  * Displays the reboot countdown.
  */
-function otaRebootTimer() 
-{	
+function otaRebootTimer()
+{
     document.getElementById("ota_update_status").innerHTML = "OTA Firmware Update Complete. This page will close shortly, Rebooting in: " + seconds;
 
-    if (--seconds == 0) 
+    if (--seconds == 0)
 	{
         clearTimeout(otaTimerVar);
         window.location.reload();
-    } 
-	else 
+    }
+	else
 	{
         otaTimerVar = setTimeout(otaRebootTimer, 1000);
     }
@@ -207,38 +207,43 @@ function otaRebootTimer()
  * Get the DHT22 inside sensor temperature and humidity values for display on
  * the webpage
  */
-function getDHTInsideSensorValues(){
+function getDHTInsideTempSensorValues(){
 
-    $.getJSON('/dhtInsideSensor.json', function(data) {
-        $("#inside_system_time").text(data["system time"]);
-
-        $("#inside_temperature_reading").text(data["temperature"].toFixed(2));
-        $("#inside_humidity_reading").text(data["humidity"].toFixed(2));
-
- 
+    $.getJSON('/dhtSensor.json',{ location: "inside", type: "temp"}, function(data) {
+        $("#inside_system_time").text(data["timestamp"]);
+        $("#inside_temperature_reading").text(data["value"].toFixed(2));
     });
 }
+function getDHTInsideHumiditySensorValues(){
 
-/**
- * Get the DHT22 outside sensor temperature and humidity values for display on
- * the webpage
- */
-function getDHTOutsideSensorValues(){
-    $.getJSON('/dhtOutsideSensor.json', function(data) {
-        $("#outside_temperature_reading").text(data["temperature"].toFixed(2));
-        $("#outside_humidity_reading").text(data["humidity"].toFixed(2));
-        $("#outside_system_time").text(data["system time"]);
-        
-     
+    $.getJSON('/dhtSensor.json',{ location: "inside", type: "humidity"}, function(data) {
+        $("#inside_humidity_reading").text(data["value"].toFixed(2));
+    });
+}
+function getDHTOutsideTempSensorValues(){
+
+    $.getJSON('/dhtSensor.json',{ location: "outside", type: "temp"}, function(data) {
+        $("#outside_system_time").text(data["timestamp"]);
+        $("#outside_temperature_reading").text(data["value"].toFixed(2));
+    });
+}
+function getDHTOutsideHumiditySensorValues(){
+
+    $.getJSON('/dhtSensor.json',{ location: "outside", type: "humidity"}, function(data) {
+        $("#outside_system_time").text(data["timestamp"]);
+        $("#outside_humidity_reading").text(data["value"].toFixed(2));
     });
 }
 
 /** Sets the interval for getting the updated DHT22 */
 function startDHTSensorInterval()
 {
-    setInterval(getDHTInsideSensorValues, 5000);
-    setInterval(getDHTOutsideSensorValues, 5000);
-    
+    setInterval(getDHTInsideTempSensorValues, 5000);
+    setInterval(getDHTOutsideTempSensorValues, 5000);
+    setInterval(getDHTInsideHumiditySensorValues, 5000);
+    setInterval(getDHTOutsideHumiditySensorValues, 5000);
+
+/*
     setInterval(function(){
         var inside_temp = parseInt(document.getElementById('inside_temperature_reading').innerText, 10);
         var inside_humidity = parseInt(document.getElementById('inside_humidity_reading').innerText, 10);
@@ -252,6 +257,8 @@ function startDHTSensorInterval()
             humidityChart.redraw();
         }
     }, 5000)
+
+    */
 }
 
 
@@ -277,21 +284,21 @@ function getWifiConnectStatus()
     xhr.open('POST', requestURL, false);
     xhr.send('wifi_connect_status');
 
-    
+
     if (xhr.readyState == 4 && xhr.status == 200)
     {
         var response = JSON.parse(xhr.responseText);
-    
+
         document.getElementById("wifi_connect_status").innerHTML = "<h4 class=\"gr\">Connecting... </h4>";
-        
-        
+
+
         if(response.wifi_connect_status == 1){
-            document.getElementById("wifi_connect_status").innerHTML = 
+            document.getElementById("wifi_connect_status").innerHTML =
                 "<h4 class=\"rd\">Failed to connect. Check your ap credientials and compadibility.</h4>";
                 stopWifiConnectStatusInterval();
         }
         else if(response.wifi_connect_status == 2){
-            document.getElementById("wifi_connect_status").innerHTML = 
+            document.getElementById("wifi_connect_status").innerHTML =
                 "<h4 class=\"gr\">Connection Successful</h4>";
                 stopWifiConnectStatusInterval();
                 getConnectInfo();
@@ -302,7 +309,7 @@ function getWifiConnectStatus()
                     document.getElementById("connect_pass").value = "";
                 }, 5000);
         }
-        
+
     }
 
 }
@@ -316,7 +323,7 @@ function startWifiConnectStatusInterval()
 }
 /**
  * Connect Wifi function called using the SSID and password entered in the text fields
- * 
+ *
  */
 function connectWifi()
 {
@@ -351,7 +358,7 @@ function checkCredentials()
         errorList += "<h4 class='rd'>SSID cannot be empty!</h4>";
         credsOk = false;
     }
-    
+
     if (pwd == "")
     {
         errorList += "<h4 class='rd'>Password cannot be empty!</h4>";
@@ -374,10 +381,10 @@ function checkCredentials()
 function showPassword()
 {
     var x = document.getElementById("connect_pass");
-    if (x.type == "password") 
+    if (x.type == "password")
     {
         x.type = "text";
-    }  
+    }
     else
     {
         x.type = "password";
@@ -424,4 +431,3 @@ function disconnectWifi()
         location.reload(true);
     }, 2000);
 }
-
