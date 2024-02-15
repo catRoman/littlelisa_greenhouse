@@ -9,6 +9,7 @@ idf_component_register(
         sntp.c
         spi_sd_card.c
         rtc_DS1302.c
+        ds1302.c
 
     INCLUDE_DIRS "."
 

@@ -15,9 +15,9 @@
 /**
  * set of compatable pins
 */
-#define RTC_DS1302_RST_GPIO     32
-#define RTC_DS1302_DATA_GPIO    33
-#define RTC_DS1302_SCLK_GPIO    4
+#define RTC_DS1302_RST_GPIO     4
+#define RTC_DS1302_DATA_GPIO    21
+#define RTC_DS1302_SCLK_GPIO    22
 
 /**
  * GPIO pin struct needed for initialization
