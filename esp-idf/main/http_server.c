@@ -473,6 +473,13 @@ static esp_err_t http_server_get_module_info_json_handler(httpd_req_t *req){
 */
 static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 {
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    
+    
     ESP_LOGI(HTTP_SERVER_TAG, "wifiConnect.json requested");
 
     size_t len_ssid = 0, len_pass = 0;
@@ -525,6 +532,12 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 {
+    
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
     ESP_LOGI(HTTP_SERVER_TAG, "wifiConnectStatus requested");
 
     char statusJSON[100];
@@ -541,6 +554,12 @@ static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 {
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "DELETE");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    
     ESP_LOGI(HTTP_SERVER_TAG, "wifiDisconnect.json requested");
     wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
 
@@ -553,6 +572,12 @@ static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
 {
+// Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
     ESP_LOGI(HTTP_SERVER_TAG, "wifiConnectInfo.json requested");
 
     char ipInfoJSON[200];

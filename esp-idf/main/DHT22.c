@@ -63,7 +63,7 @@ dht22_sensor_t inside_sensor_gt =  {
 };
 
 dht22_sensor_t test_sensor_gt =  {
-	.pin_number =12,
+	.pin_number =33,
 	.temperature = 0.0f,
 	.humidity = 0.0f,
 	.TAG = "test location",
