@@ -47,8 +47,9 @@ dht22_sensor_t outside_sensor_gt = {
 	.temperature = 0.0f,
 	.temp_unit = "C",
 	.humidity = 0.0f,
-	.humidity_unit = "%%",
+	.humidity_unit = "%",
 	.TAG = "outside",
+	.identifier = 0
 };
 
 dht22_sensor_t inside_sensor_gt =  {
@@ -57,8 +58,18 @@ dht22_sensor_t inside_sensor_gt =  {
 	.humidity = 0.0f,
 	.TAG = "inside",
 	.temp_unit = "C",
-	.humidity_unit = "%%"
+	.humidity_unit = "%",
+	.identifier = 1
+};
 
+dht22_sensor_t test_sensor_gt =  {
+	.pin_number =12,
+	.temperature = 0.0f,
+	.humidity = 0.0f,
+	.TAG = "test location",
+	.temp_unit = "C",
+	.humidity_unit = "%",
+	.identifier = 2
 };
 
 
@@ -75,6 +86,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 	cJSON *json_data = cJSON_CreateObject();
 
+	cJSON_AddNumberToObject(json_data, "identity", sensor_t->identifier);
 	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
 	if(sensor_choice == HUMIDITY){
@@ -328,6 +340,11 @@ static void DHT22_task(void *vpParameter)
 void DHT22_sensor_task_start(void){
 
 	xSemaphore = xSemaphoreCreateMutex();
+
+	ESP_LOGI(TAG, "started test Sensor Reading Task");
+	// pin inside sensor_t
+	xTaskCreatePinnedToCore(DHT22_task, "test_sensor", DHT22_TASK_STACK_SIZE, (void *)&test_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+
 
 	ESP_LOGI(TAG, "started Inside Sensor Reading Task");
 	// pin inside sensor_t

@@ -46,8 +46,8 @@ Module_info_t module_info = {
 */
 const int8_t node_arr[1] = {0};
 
-const int8_t sensor_arr[7] = {2,  // temp
-                        2,  // humidity
+const int8_t sensor_arr[7] = {3,  // temp
+                        3,  // humidity
                         0,  // soil moisture
                         0,  // light
                         0,  // sound

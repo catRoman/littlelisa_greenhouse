@@ -54,6 +54,7 @@ esp_timer_handle_t fw_update_reset;
 // sensor data instances
 extern dht22_sensor_t inside_sensor_gt;
 extern dht22_sensor_t outside_sensor_gt;
+extern dht22_sensor_t test_sensor_gt;
 
 // Embeded files: JQuery, index.html, app.css, app.js and favicon.ico files
 extern const uint8_t jquery_3_3_1_min_js_start[]    asm("_binary_jquery_3_3_1_min_js_start");
@@ -170,6 +171,11 @@ static esp_err_t http_server_jquery_handler(httpd_req_t *req)
 static esp_err_t http_server_index_html_handler(httpd_req_t *req)
 {
     ESP_LOGI(HTTP_SERVER_TAG, "index.html requested");
+
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
     httpd_resp_set_type(req, "text/html");
     httpd_resp_send(req, (const char *)index_html_start, index_html_end- index_html_start);
@@ -345,13 +351,22 @@ esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
+
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
+
+
     ESP_LOGV(HTTP_SERVER_TAG, "dhtSensor.json requested");
     char * dhtSensorJSON;
     dht22_sensor_t sensor;
     int sensor_choice;
     char log_str [100] = "dht22-";
 
- char* buf;
+    char* buf;
     size_t buf_len;
     // First, get the length of the query string
     buf_len = httpd_req_get_url_query_len(req) + 1;
@@ -362,18 +377,23 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
             ESP_LOGE(HTTP_SERVER_TAG, "memory allocation error");
         }
         if(httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
-            char location[16];
+            char ident[3];
             char type[16];
 
             // Extract 'location' parameter
-            if (httpd_query_key_value(buf, "location", location, sizeof(location)) == ESP_OK) {
-                if (strcmp(location, "inside") == 0){
+            if (httpd_query_key_value(buf, "identity", ident, sizeof(ident)) == ESP_OK) {
+                int identNum = atoi(ident);
+
+                if (identNum == 0){
                     sensor = inside_sensor_gt;
-                    strncat(log_str, "inside-", 8);
-                }else if(strcmp(location, "outside") == 0) {
+                    strncat(log_str, "1-", 3);
+                }else if(identNum == 1) {
                     sensor = outside_sensor_gt;
-                    strncat(log_str, "outside-", 9);
-                } else {
+                    strncat(log_str, "0-", 3);
+                } else if(identNum == 2) {
+                    sensor = test_sensor_gt;
+                    strncat(log_str, "2-", 3);
+                }else {
                     ESP_LOGE(HTTP_SERVER_TAG, "Invalid location parameter");
                     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Location Parameter");
 
@@ -432,6 +452,12 @@ static esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *r
 static esp_err_t http_server_get_module_info_json_handler(httpd_req_t *req){
 
     ESP_LOGI(HTTP_SERVER_TAG, "moduleInfo.json requested");
+
+      // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
 
     const char *module_json_data = node_info_get_module_info_json();
 

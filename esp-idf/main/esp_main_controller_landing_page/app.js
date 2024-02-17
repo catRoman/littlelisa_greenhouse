@@ -209,27 +209,27 @@ function otaRebootTimer()
  */
 function getDHTInsideTempSensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ location: "inside", type: "temp"}, function(data) {
+    $.getJSON('/dhtSensor.json',{ identity: 0, type: "temp"}, function(data) {
         $("#inside_system_time").text(data["timestamp"]);
         $("#inside_temperature_reading").text(data["value"].toFixed(2));
     });
 }
 function getDHTInsideHumiditySensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ location: "inside", type: "humidity"}, function(data) {
+    $.getJSON('/dhtSensor.json',{ identity: 0, type: "humidity"}, function(data) {
         $("#inside_humidity_reading").text(data["value"].toFixed(2));
     });
 }
 function getDHTOutsideTempSensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ location: "outside", type: "temp"}, function(data) {
+    $.getJSON('/dhtSensor.json',{ identity: 1, type: "temp"}, function(data) {
         $("#outside_system_time").text(data["timestamp"]);
         $("#outside_temperature_reading").text(data["value"].toFixed(2));
     });
 }
 function getDHTOutsideHumiditySensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ location: "outside", type: "humidity"}, function(data) {
+    $.getJSON('/dhtSensor.json',{ identity: 1, type: "humidity"}, function(data) {
         $("#outside_system_time").text(data["timestamp"]);
         $("#outside_humidity_reading").text(data["value"].toFixed(2));
     });
