@@ -1,6 +1,6 @@
 idf_component_register(
     SRCS
-        network_components/wifi_app.c
+        network_components/wifi_ap_sta.c
         network_components/http_server.c
         network_components/sntp.c
         module_components/led.c

@@ -16,7 +16,7 @@
 
 #include "http_server.h"
 #include "task_common.h"
-#include "wifi_app.h"
+#include "wifi_ap_sta.h"
 
 #include "module_components/DHT22.h"
 #include "nvs_components/nvs_service.h"
@@ -511,12 +511,12 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 
 
 
-    // update the wifi networks configuration and let the wifi application know
-    wifi_config_t* wifi_config = wifi_app_get_wifi_config();
-    memset(wifi_config, 0x00, sizeof(wifi_config_t));
-    memcpy(wifi_config->sta.ssid, ssid_str, len_ssid);
-    memcpy(wifi_config->sta.password, pass_str, len_pass);
-    wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
+    // // update the wifi networks configuration and let the wifi application know
+    // wifi_config_t* wifi_config = wifi_app_get_wifi_config();
+    // memset(wifi_config, 0x00, sizeof(wifi_config_t));
+    // memcpy(wifi_config->sta.ssid, ssid_str, len_ssid);
+    // memcpy(wifi_config->sta.password, pass_str, len_pass);
+    // //wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
 
     httpd_resp_send(req, NULL, 0);
 
@@ -563,7 +563,7 @@ static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 
     }else if(req->method == HTTP_DELETE){
         ESP_LOGI(HTTP_SERVER_TAG, "wifiDisconnect.json requested");
-        wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
+        //wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
 
         httpd_resp_send(req, NULL, 0);
 
@@ -591,21 +591,21 @@ static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req
     char ip[IP4ADDR_STRLEN_MAX];
     char netmask[IP4ADDR_STRLEN_MAX];
     char gw[IP4ADDR_STRLEN_MAX];
-    extern int wifi_sta_state;
-    if(wifi_sta_state == CONNECTED)
-    {
-        wifi_ap_record_t wifi_data;
-        ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
-        char *ssid = (char*)wifi_data.ssid;
+    // extern int wifi_sta_state;
+    // if(wifi_sta_state == CONNECTED)
+    // {
+    //     wifi_ap_record_t wifi_data;
+    //     ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
+    //     char *ssid = (char*)wifi_data.ssid;
 
-        esp_netif_ip_info_t ip_info;
-        ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_sta, &ip_info));
-        esp_ip4addr_ntoa(&ip_info.ip, ip, IP4ADDR_STRLEN_MAX);
-        esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
-        esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
+    //     esp_netif_ip_info_t ip_info;
+    //    // ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_sta, &ip_info));
+    //     esp_ip4addr_ntoa(&ip_info.ip, ip, IP4ADDR_STRLEN_MAX);
+    //     esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
+    //     esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
 
-        sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
-    }
+    //     sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
+    // }
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, ipInfoJSON, strlen(ipInfoJSON));

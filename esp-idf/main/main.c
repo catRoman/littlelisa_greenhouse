@@ -15,7 +15,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-#include "network_components/wifi_app.h"
+#include "network_components/wifi_ap_sta.h"
 #include "module_components/DHT22.h"
 #include "nvs_components/nvs_service.h"
 #include "network_components/sntp.h"
@@ -80,7 +80,7 @@ void app_main(void)
     sntp_service_init();
 
     // Start Wifi
-    wifi_app_start();
+    wifi_ap_sta_init();
 
     // backup sd database
     spi_sd_card_init();

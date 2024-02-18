@@ -1,0 +1,32 @@
+menu "Network Configuration"
+
+    config ESP_ENABLE_AP
+        bool "Enable Ap"
+        default y
+        help
+            Allow node to act as access point (AP).
+
+    config ESP_WIFI_SSID
+        string "WiFi AP SSID"
+        default "LittleLisa - Greenhouse"
+        help
+            SSID (network name) for the AP.
+
+    config ESP_WIFI_PASSWORD
+        string "WiFi AP Password"
+        default "Westgate4@"
+        help
+            WiFi password (WPA or WPA2) for AP.
+    config ESP_WIFI_CHANNEL
+        int "WiFi AP Channel"
+        range 1 13
+        default 1
+        help
+            WiFi channel (network channel) for the AP to use.
+
+    config ESP_MAX_STA_CONN
+        int "Maximal STA connections"
+        default 4
+        help
+            Max number of the STA connects to AP.
+endmenu
