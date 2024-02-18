@@ -28,6 +28,8 @@
 #include "nvs_service.h"
 #include "sntp.h"
 
+//sta state
+int wifi_sta_state = DISCONNECTED;
 
 // Tag used for ESP serial console messages
 static const char TAG [] = "wifi_app";
@@ -142,31 +144,40 @@ static void wifi_app_event_handler(void *arg, esp_event_base_t event_base, int32
                 break;
 
             case WIFI_EVENT_STA_CONNECTED:
+
+                if(wifi_sta_state == DISCONNECTED){
                 ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
 
-                wifi_event_sta_connected_t *wifi_event_sta_connected = (wifi_event_sta_connected_t*)malloc(sizeof(wifi_event_sta_connected_t));
-                *wifi_event_sta_connected = *((wifi_event_sta_connected_t*) event_data);
+                    wifi_event_sta_connected_t *wifi_event_sta_connected = (wifi_event_sta_connected_t*)malloc(sizeof(wifi_event_sta_connected_t));
+                    *wifi_event_sta_connected = *((wifi_event_sta_connected_t*) event_data);
 
-                wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTED_GOT_IP);
+                    wifi_app_send_message(WIFI_APP_MSG_STA_CONNECTED_GOT_IP);
+                    wifi_sta_state = CONNECTED;
+                    vTaskDelay(pdMS_TO_TICKS(10));
+                }
                 break;
 
             case WIFI_EVENT_STA_DISCONNECTED:
-                ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
+                if(wifi_sta_state == CONNECTED){
+                    ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
 
-                wifi_event_sta_disconnected_t *wifi_event_sta_disconnected = (wifi_event_sta_disconnected_t*)malloc(sizeof(wifi_event_sta_disconnected_t));
-                *wifi_event_sta_disconnected = *((wifi_event_sta_disconnected_t*) event_data);
-                printf("WIFI_EVENT_STA_DISCONNECT, reason code %d\n", wifi_event_sta_disconnected->reason);
+                    wifi_event_sta_disconnected_t *wifi_event_sta_disconnected = (wifi_event_sta_disconnected_t*)malloc(sizeof(wifi_event_sta_disconnected_t));
+                    *wifi_event_sta_disconnected = *((wifi_event_sta_disconnected_t*) event_data);
+                    printf("WIFI_EVENT_STA_DISCONNECT, reason code %d\n", wifi_event_sta_disconnected->reason);
 
-                if (g_retry_number < MAX_CONNECTION_RETRIES)
-                {
-                    esp_wifi_connect();
-                    g_retry_number ++;
+                    if (g_retry_number < MAX_CONNECTION_RETRIES)
+                    {
+                        esp_wifi_connect();
+                        g_retry_number ++;
+                    }
+                    else
+                    {
+                        wifi_app_send_message(WIFI_APP_MSG_STA_DISCONNECTED);
+                        wifi_sta_state = DISCONNECTED;
+                        vTaskDelay(pdMS_TO_TICKS(10));
+                    }
+
                 }
-                else
-                {
-                    wifi_app_send_message(WIFI_APP_MSG_STA_DISCONNECTED);
-                }
-
                 break;
 
 
@@ -234,6 +245,7 @@ static void wifi_app_task(void *pvParameters)
      // Send first event message
      wifi_app_send_message(WIFI_APP_MSG_START_HTTP_SERVER);
 
+
      for(;;)
      {
         if (xQueueReceive(wifi_app_queue_handle, &msg, portMAX_DELAY))
@@ -249,55 +261,82 @@ static void wifi_app_task(void *pvParameters)
                     break;
 
                 case WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER:
-                    ESP_LOGI(TAG, "WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER");
+                    if(wifi_sta_state == DISCONNECTED){
+                        ESP_LOGI(TAG, "WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER");
 
-                    //attempt a connecting
-                    wifi_app_connect_sta();
-                    led_wifi_app_started();
+                        //attempt a connecting
+                        wifi_app_connect_sta();
+                        led_wifi_app_started();
 
 
-                    //set current number of retries to zero
-                    g_retry_number = 0;
+                        //set current number of retries to zero
+                        g_retry_number = 0;
 
-                    //let the http server know about the connection attempt
-                    http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
+                        //let the http server know about the connection attempt
+                        http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_INIT);
+                    }else{
+                        ESP_LOGW(TAG, "WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER--> already connected, ignoring");
 
+                    }
                     break;
 
                 case WIFI_APP_MSG_STA_CONNECTED_GOT_IP:
-                    ESP_LOGI(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP");
+                    if(wifi_sta_state == DISCONNECTED){
+                        ESP_LOGI(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP");
+                        led_wifi_connected();// TODO: rename status led to a name more meaninful
 
-                    led_wifi_connected();// TODO: rename status led to a name more meaninful
-                    http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_SUCCESS);
 
-                    //sntp_rtc_test();
+                        nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
+                        ESP_LOGI(TAG, "nvs_service, ssid and pwd added to nvs");
+
+                        http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_SUCCESS);
+                        wifi_sta_state = CONNECTED;
+                    }else{
+                        ESP_LOGW(TAG, "WIFI_APP_MSG_STA_CONNECTED_GOT_IP-->already connected, ignoring");
+                    }
+
                     break;
 
                 case WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT:
-                    ESP_LOGI(TAG, "WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECTED");
+                    if(wifi_sta_state == CONNECTED){
+                        ESP_LOGI(TAG, "WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECTED");
 
-                    g_retry_number = MAX_CONNECTION_RETRIES;
-                    ESP_ERROR_CHECK(esp_wifi_disconnect());
-                    led_http_server_started();
+                        ESP_ERROR_CHECK(esp_wifi_disconnect());
+                        nvs_erase();
+                        g_retry_number = MAX_CONNECTION_RETRIES;
+                        wifi_sta_state = DISCONNECTED;
+                    }else{
+                        ESP_LOGW(TAG, "WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECTED -- already disconnected, ignoring");
+
+                    }
                     break;
 
                 case WIFI_APP_MSG_STA_DISCONNECTED:
-                    ESP_LOGI(TAG, "WIFI_APP_MSG_STA_DISCONNECTED");
+                    if( wifi_sta_state == CONNECTED){
+                        ESP_LOGI(TAG, "WIFI_APP_MSG_STA_DISCONNECTED");
 
-                    http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_FAIL);
-                    //remove credentials from  nvs
-                    nvs_erase();
+                        http_server_monitor_send_message(HTTP_MSG_WIFI_CONNECT_FAIL);
+                        //remove credentials from  nvs
+
+                        wifi_sta_state = DISCONNECTED;
+                    }else{
+                        ESP_LOGW(TAG, "WIFI_APP_MSG_STA_DISCONNECTED--> already disconected, igrnoring");
+
+                    }
                     break;
 
                 case WIFI_APP_MSG_STA_CONNECTING_FROM_NVS:
+                    if(wifi_sta_state == DISCONNECTED){
+                        ESP_LOGI(TAG, "existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
+                        memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
+                        memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
 
-                    ESP_LOGI(TAG, "existing wifi ssid found in nvs -> %s", wifi_ssid_from_nvs);
-                    memcpy(wifi_config->sta.ssid, wifi_ssid_from_nvs, strlen(wifi_ssid_from_nvs));
-                    memcpy(wifi_config->sta.password, wifi_pwd_from_nvs, strlen(wifi_pwd_from_nvs));
-
-                    wifi_app_connect_sta();
-                    led_wifi_app_started();
-
+                        wifi_app_connect_sta();
+                        led_wifi_app_started();
+                        wifi_sta_state = CONNECTED;
+                    }else{
+                        ESP_LOGW(TAG, "WIFI_APP_MSG_STA_CONNECTING_FROM_NVS --> already connected, ignoring");
+                    }
                     break;
 
                 default:

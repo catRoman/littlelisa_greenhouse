@@ -128,7 +128,7 @@ function updateFirmware()
         var request = new XMLHttpRequest();
 
         request.upload.addEventListener("progress", updateProgress);
-        request.open('POST', "/OTAupdate");
+        request.open('POST', "/api/OTAupdate");
         request.responseType = "blob";
         request.send(formData);
     }
@@ -159,7 +159,7 @@ function updateProgress(oEvent)
 function getUpdateStatus()
 {
     var xhr = new XMLHttpRequest();
-    var requestURL = "/OTAstatus";
+    var requestURL = "/api/OTAstatus";
     xhr.open('POST', requestURL, false);
     xhr.send('ota_update_status');
 
@@ -209,27 +209,27 @@ function otaRebootTimer()
  */
 function getDHTInsideTempSensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ identity: 0, type: "temp"}, function(data) {
+    $.getJSON('/api/dhtSensor.json',{ identity: 0, type: "temp"}, function(data) {
         $("#inside_system_time").text(data["timestamp"]);
         $("#inside_temperature_reading").text(data["value"].toFixed(2));
     });
 }
 function getDHTInsideHumiditySensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ identity: 0, type: "humidity"}, function(data) {
+    $.getJSON('/api/dhtSensor.json',{ identity: 0, type: "humidity"}, function(data) {
         $("#inside_humidity_reading").text(data["value"].toFixed(2));
     });
 }
 function getDHTOutsideTempSensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ identity: 1, type: "temp"}, function(data) {
+    $.getJSON('/api/dhtSensor.json',{ identity: 1, type: "temp"}, function(data) {
         $("#outside_system_time").text(data["timestamp"]);
         $("#outside_temperature_reading").text(data["value"].toFixed(2));
     });
 }
 function getDHTOutsideHumiditySensorValues(){
 
-    $.getJSON('/dhtSensor.json',{ identity: 1, type: "humidity"}, function(data) {
+    $.getJSON('/api/dhtSensor.json',{ identity: 1, type: "humidity"}, function(data) {
         $("#outside_system_time").text(data["timestamp"]);
         $("#outside_humidity_reading").text(data["value"].toFixed(2));
     });
@@ -280,7 +280,7 @@ function stopWifiConnectStatusInterval()
 function getWifiConnectStatus()
 {
     var xhr = new XMLHttpRequest();
-    var requestURL = "/wifiConnectStatus.json";
+    var requestURL = "/api/wifiConnectStatus.json";
     xhr.open('POST', requestURL, false);
     xhr.send('wifi_connect_status');
 
@@ -332,7 +332,7 @@ function connectWifi()
     pwd = $("#connect_pass").val();
 
     $.ajax({
-        url: '/wifiConnect.json',
+        url: '/api/wifiConnect.json',
         dataType: 'json',
         method: 'POST',
         cache: false,
@@ -396,7 +396,7 @@ function showPassword()
  */
 function getConnectInfo()
 {
-    $.getJSON('/wifiConnectInfo.json', function(data)
+    $.getJSON('/api/wifiConnectInfo.json', function(data)
     {
         $("#connected_ap_label").html("Connected to: ");
         $("#connected_ap").text(data["ap"]);
@@ -420,7 +420,7 @@ function getConnectInfo()
 function disconnectWifi()
 {
     $.ajax({
-        url: '/wifiDisconnect.json',
+        url: '/api/wifiDisconnect.json',
         dataType: 'json',
         method: 'DELETE',
         cache: false,

@@ -114,11 +114,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
                     ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_CONNECT_SUCCESS");
 
                     g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_SUCCESS;
-                        //save to nvs
-                    wifi_config_t* wifi_config = wifi_app_get_wifi_config();
 
-                    nvs_set_wifi_info((char *)(wifi_config->sta.ssid), (char *)(wifi_config->sta.password));
-                    ESP_LOGI(HTTP_SERVER_TAG, "nvs_service, ssid and pwd added to nvs");
 
 
                     break;
@@ -463,6 +459,8 @@ static esp_err_t http_server_get_module_info_json_handler(httpd_req_t *req){
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, module_json_data);
+
+
     return ESP_OK;
 }
 
@@ -478,8 +476,8 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
-    
-    
+
+
     ESP_LOGI(HTTP_SERVER_TAG, "wifiConnect.json requested");
 
     size_t len_ssid = 0, len_pass = 0;
@@ -520,6 +518,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
     memcpy(wifi_config->sta.password, pass_str, len_pass);
     wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
 
+    httpd_resp_send(req, NULL, 0);
 
 
     return ESP_OK;
@@ -532,7 +531,7 @@ static esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 {
-    
+
     // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -554,15 +553,21 @@ static esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
 */
 static esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
 {
-    // Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "DELETE");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+    if(req->method == HTTP_OPTIONS){
+        // Add CORS headers to the response
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "DELETE, OPTIONS");
+        httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+        ESP_LOGI(HTTP_SERVER_TAG, "wifiDisconnect.json OPTIONS requested");
+        httpd_resp_send(req, NULL, 0);
 
-    
-    ESP_LOGI(HTTP_SERVER_TAG, "wifiDisconnect.json requested");
-    wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
+    }else if(req->method == HTTP_DELETE){
+        ESP_LOGI(HTTP_SERVER_TAG, "wifiDisconnect.json requested");
+        wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
 
+        httpd_resp_send(req, NULL, 0);
+
+    }
     return ESP_OK;
 }
 /**
@@ -574,7 +579,7 @@ static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req
 {
 // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
@@ -586,8 +591,8 @@ static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req
     char ip[IP4ADDR_STRLEN_MAX];
     char netmask[IP4ADDR_STRLEN_MAX];
     char gw[IP4ADDR_STRLEN_MAX];
-
-    if(g_wifi_connect_status == HTTP_WIFI_STATUS_CONNECT_SUCCESS)
+    extern int wifi_sta_state;
+    if(wifi_sta_state == CONNECTED)
     {
         wifi_ap_record_t wifi_data;
         ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
@@ -607,6 +612,16 @@ static esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req
 
     return ESP_OK;
 }
+
+/* Generic Preflight Request Handler */
+esp_err_t preflight_handler(httpd_req_t *req) {
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+    httpd_resp_send(req, NULL, 0); // 200 OK with no body
+    return ESP_OK;
+}
+
 
 /**
  * Setsd up the default httpd server configurations
@@ -693,7 +708,7 @@ static httpd_handle_t http_server_configuration(void)
 
         // resgister OTA update handler
         httpd_uri_t OTA_update = {
-            .uri = "/OTAupdate",
+            .uri = "/api/OTAupdate",
             .method = HTTP_POST,
             .handler = http_server_OTA_update_handler,
             .user_ctx = NULL
@@ -702,7 +717,7 @@ static httpd_handle_t http_server_configuration(void)
 
         // register_OTAstatus_handler
         httpd_uri_t OTA_status = {
-            .uri = "/OTAstatus",
+            .uri = "/api/OTAstatus",
             .method = HTTP_POST,
             .handler = http_server_OTA_status_handler,
             .user_ctx = NULL
@@ -711,7 +726,7 @@ static httpd_handle_t http_server_configuration(void)
 
         //register dhtSensor.json handler
         httpd_uri_t dht_sensor_json = {
-        .uri = "/dhtSensor.json",
+        .uri = "/api/dhtSensor.json",
             .method = HTTP_GET,
             .handler = http_server_get_dht_sensor_readings_json_handler,
             .user_ctx = NULL
@@ -720,7 +735,7 @@ static httpd_handle_t http_server_configuration(void)
 
         //register wifiConnect.json handler
         httpd_uri_t wifi_connect_json = {
-            .uri = "/wifiConnect.json",
+            .uri = "/api/wifiConnect.json",
             .method = HTTP_POST,
             .handler = http_server_wifi_connect_json_handler,
             .user_ctx = NULL
@@ -730,7 +745,7 @@ static httpd_handle_t http_server_configuration(void)
 
         //register wifiConnectStatus.json handler
         httpd_uri_t wifi_connect_status = {
-            .uri = "/wifiConnectStatus.json",
+            .uri = "/api/wifiConnectStatus.json",
             .method = HTTP_POST,
             .handler = http_server_wifi_connect_status_json_handler,
             .user_ctx = NULL
@@ -739,7 +754,7 @@ static httpd_handle_t http_server_configuration(void)
 
         //register wifiConnectInfo.json handler
         httpd_uri_t wifi_connect_info_json = {
-            .uri = "/wifiConnectInfo.json",
+            .uri = "/api/wifiConnectInfo.json",
             .method = HTTP_GET,
             .handler = http_server_get_wifi_connect_info_json_handler,
             .user_ctx = NULL
@@ -749,22 +764,30 @@ static httpd_handle_t http_server_configuration(void)
 
         //register wifiDisconnect.json handler
         httpd_uri_t wifi_disconnect_json = {
-            .uri = "/wifiDisconnect.json",
+            .uri = "/api/wifiDisconnect.json",
             .method = HTTP_DELETE,
             .handler = http_server_wifi_disconnect_json_handler,
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_disconnect_json);
 
-    //register moduleInfo.json handler
-        httpd_uri_t module_info_json = {
-            .uri = "/moduleInfo.json",
-            .method = HTTP_GET,
-            .handler = http_server_get_module_info_json_handler,
-            .user_ctx = NULL
-        };
-        httpd_register_uri_handler(http_server_handle, &module_info_json);
+        //register moduleInfo.json handler
+            httpd_uri_t module_info_json = {
+                .uri = "/api/moduleInfo.json",
+                .method = HTTP_GET,
+                .handler = http_server_get_module_info_json_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &module_info_json);
 
+        /* Register a generic preflight handler */
+            httpd_uri_t options_uri = {
+                .uri       = "*",
+                .method    = HTTP_OPTIONS,
+                .handler   = preflight_handler,
+                .user_ctx  = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &options_uri);
 
         return http_server_handle;
     }

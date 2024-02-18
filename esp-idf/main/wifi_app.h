@@ -4,8 +4,8 @@
  *
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
- * 
- * includes all base configuration for wifi, enum for wifi messages 
+ *
+ * includes all base configuration for wifi, enum for wifi messages
  * and netif objects for stations and access point
  */
 
@@ -36,6 +36,8 @@
 extern esp_netif_t* esp_netif_sta;
 extern esp_netif_t* esp_netif_ap;
 
+#define CONNECTED 1
+#define DISCONNECTED 0
 
 /**
  * Message Ids for the WiFi application task
