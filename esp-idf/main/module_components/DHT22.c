@@ -26,10 +26,12 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/portmacro.h"
 #include "esp_system.h"
 #include "driver/gpio.h"
 #include "cJSON.h"
 #include "freertos/semphr.h"
+
 
 #include "DHT22.h"
 #include "task_common.h"
@@ -39,6 +41,7 @@
 
 static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
+
 
 // == Sensor structs
 
@@ -145,6 +148,7 @@ void errorHandler(int response, dht22_sensor_t *sensor_t)
 int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
 {
 
+
 	int uSec = 0;
 	while( gpio_get_level(sensor_t->pin_number)==state ) {
 
@@ -154,7 +158,6 @@ int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
 		++uSec;
 		esp_rom_delay_us(1);		// uSec delay
 	}
-
 	return uSec;
 }
 
@@ -202,6 +205,9 @@ To request data from DHT:
 
 int readDHT(dht22_sensor_t *sensor_t)
 {
+
+
+
 int uSec = 0;
 
 uint8_t dhtData[MAXdhtData];
@@ -220,6 +226,7 @@ float temperature = sensor_t->temperature;
 	// == Send start signal to DHT sensor_t ===========
 
 	gpio_set_direction( DHTgpio, GPIO_MODE_OUTPUT );
+	gpio_set_pull_mode(DHTgpio, GPIO_PULLUP_ENABLE);
 
 	// pull down for 3 ms for a smooth and nice wake up
 	gpio_set_level( DHTgpio, 0 );
@@ -300,6 +307,7 @@ float temperature = sensor_t->temperature;
 
 	else
 		return DHT_CHECKSUM_ERROR;
+
 }
 
 
