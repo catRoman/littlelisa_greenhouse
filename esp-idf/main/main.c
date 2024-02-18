@@ -15,14 +15,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-#include "wifi_app.h"
-#include "DHT22.h"
-#include "nvs_service.h"
-#include "sntp.h"
-#include "spi_sd_card.h"
-#include "rtc_DS1302.h"
-#include "ds1302.h"
-#include "node_info.h"
+#include "network_components/wifi_app.h"
+#include "module_components/DHT22.h"
+#include "nvs_components/nvs_service.h"
+#include "network_components/sntp.h"
+#include "module_components/spi_sd_card.h"
+#include "module_components/rtc_DS1302.h"
+#include "module_components/ds1302.h"
+#include "nvs_components/node_info.h"
 
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver

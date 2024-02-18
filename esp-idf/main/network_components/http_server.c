@@ -18,9 +18,9 @@
 #include "task_common.h"
 #include "wifi_app.h"
 
-#include "DHT22.h"
-#include "nvs_service.h"
-#include "node_info.c"
+#include "module_components/DHT22.h"
+#include "nvs_components/nvs_service.h"
+#include "nvs_components/node_info.c"
 
 // Tag used for ESP serial console message
 static const char HTTP_SERVER_TAG[] = "http_server";

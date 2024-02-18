@@ -21,11 +21,11 @@
 #include "esp_event.h"
 #include "nvs.h"
 
-#include "led.h"
+#include "module_components/led.h"
 #include "http_server.h"
 #include "task_common.h"
 #include "wifi_app.h"
-#include "nvs_service.h"
+#include "nvs_components/nvs_service.h"
 #include "sntp.h"
 
 //sta state
