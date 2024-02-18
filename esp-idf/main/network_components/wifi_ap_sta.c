@@ -21,6 +21,7 @@
 #include "sdkconfig.h"
 
 #include "wifi_ap_sta.h"
+#include "module_components/led.h"
 
 static const char TAG[] = "wifi_ap_sta";
 
@@ -38,13 +39,11 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 {
     switch(event_id){
         case WIFI_EVENT_AP_STACONNECTED:
-            wifi_event_ap_staconnected_t* con_event = (wifi_event_ap_staconnected_t*) event_data;
             
             ESP_LOGI(TAG, "station joined");
             
             break;
         case WIFI_EVENT_AP_STADISCONNECTED:
-            wifi_event_ap_stadisconnected_t* discon_event = (wifi_event_ap_stadisconnected_t*) event_data;
         
             ESP_LOGI(TAG, "station left");
 
@@ -91,6 +90,7 @@ void wifi_ap_sta_init(void)
 
         ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
                 ESP_WIFI_SSID, ESP_WIFI_PASS, ESP_WIFI_CHANNEL);
+        led_wifi_app_started();
     }
 }
 

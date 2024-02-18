@@ -77,7 +77,7 @@ void app_main(void)
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
 
     //synced system clock
-    sntp_service_init();
+    //sntp_service_init();
 
     // Start Wifi
     wifi_ap_sta_init();

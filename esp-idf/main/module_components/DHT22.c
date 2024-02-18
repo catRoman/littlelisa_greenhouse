@@ -106,7 +106,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 }
  void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
-	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
  }
 
@@ -234,13 +234,13 @@ float temperature = sensor_t->temperature;
 	// == DHT will keep the line low for 80 us and then high for 80us ====
 
 	uSec = getSignalLevel( 85, 0, sensor_t );
-	ESP_LOGV( TAG, "Response = %d", uSec );
+	ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// -- 80us up ------------------------
 
 	uSec = getSignalLevel( 85, 1 , sensor_t);
-	ESP_LOGV( TAG, "Response = %d", uSec );
+	ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// == No errors, read the 40 data bits ================
@@ -250,11 +250,13 @@ float temperature = sensor_t->temperature;
 		// -- starts new data transmission with >50us low signal
 
 		uSec = getSignalLevel( 56, 0 , sensor_t);
+		ESP_LOGV( TAG, "{==%s==} Data Read Response = %d",sensor_t->TAG, uSec );
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// -- check to see if after >70us rx data is a 0 or a 1
 
 		uSec = getSignalLevel( 75, 1 , sensor_t);
+		ESP_LOGV( TAG, "{==%s==} Data Read Response 2 = %d",sensor_t->TAG, uSec );
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// add the current read to the output data
@@ -314,7 +316,6 @@ static void DHT22_task(void *vpParameter)
 	for(;;)
 	{
 		xSemaphoreTake( xSemaphore, portMAX_DELAY );
-
 		ESP_LOGV(TAG, "{==%s==}: semaphore taken", sensor_t->TAG);
 
 		//printf("=== Reading DHT ===\n");
@@ -341,6 +342,8 @@ void DHT22_sensor_task_start(void){
 
 	xSemaphore = xSemaphoreCreateMutex();
 
+	esp_log_level_set(TAG, ESP_LOG_VERBOSE);
+	
 	ESP_LOGI(TAG, "started test Sensor Reading Task");
 	// pin inside sensor_t
 	xTaskCreatePinnedToCore(DHT22_task, "test_sensor", DHT22_TASK_STACK_SIZE, (void *)&test_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
