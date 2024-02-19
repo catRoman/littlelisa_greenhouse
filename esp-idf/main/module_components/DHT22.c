@@ -109,7 +109,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 }
  void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
-	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
  }
 
@@ -355,7 +355,7 @@ void DHT22_sensor_task_start(void){
 
 	xSemaphore = xSemaphoreCreateMutex();
 
-	
+
 	ESP_LOGI(TAG, "started test Sensor Reading Task");
 	// pin inside sensor_t
 	xTaskCreatePinnedToCore(DHT22_task, "test_sensor", DHT22_TASK_STACK_SIZE, (void *)&test_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);

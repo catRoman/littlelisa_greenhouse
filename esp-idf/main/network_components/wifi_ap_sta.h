@@ -12,13 +12,37 @@
 #ifndef MAIN_WIFI_AP_STA_H_
 #define MAIN_WIFI_AP_STA_H
 
+#include <stdbool.h>
+/**
+ *  Network configurations set via project configuration menu.
+*/
+//for ap mode
+#ifdef CONFIG_ESP_ENABLE_AP_MODE
+    #define ESP_ENABLE_AP_MODE              CONFIG_ESP_ENABLE_AP_MODE
+#else
+    #define ESP_ENABLE_AP_MODE              false
+#endif
 
+#ifdef CONFIG_ESP_AP_MODE_HIDE_SSID
+    #define ESP_AP_MODE_HIDE_SSID           CONFIG_ESP_AP_MODE_HIDE_SSID
+#else
+    #define ESP_AP_MODE_HIDE_SSID           false
+#endif
 
+#define ESP_WIFI_AP_MODE_SSID           CONFIG_ESP_WIFI_AP_MODE_SSID
+#define ESP_WIFI_AP_MODE_PASSWORD       CONFIG_ESP_WIFI_AP_MODE_PASSWORD
+#define ESP_WIFI_AP_MODE_CHANNEL        CONFIG_ESP_WIFI_AP_MODE_CHANNEL
+#define MAX_AP_STA_MODE_CONN            CONFIG_ESP_MAX_AP_STA_MODE_CONN
+
+//for sta mode
+#define ESP_WIFI_INIT_STA_MODE_SSID      CONFIG_ESP_WIFI_INIT_STA_MODE_SSID
+#define ESP_WIFI_INIT_STA_MODE_PASSWORD  CONFIG_ESP_WIFI_INIT_STA_MODE_PASSWORD
+#define MAX_STA_MODE_RETRY_ATTEMPT       CONFIG_MAX_STA_MODE_RETRY_ATTEMPT
 
 
 /**
  * initialize and start wifi
 */
-void wifi_ap_sta_init(void);
+void wifi_init(void);
 
 #endif /* MAIN_WIFI_APP_H_ */

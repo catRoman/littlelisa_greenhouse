@@ -12,6 +12,12 @@ menu "Network Configuration"
         help
             SSID (network name) for the modules AP.
 
+    config ESP_AP_MODE_HIDE_SSID
+        bool "Hide Ap ssid"
+        default n
+        help
+            Hide modules access point ssid.
+
     config ESP_WIFI_AP_MODE_PASSWORD
         string "WiFi AP Password"
         default "Westgate4@"
@@ -29,7 +35,7 @@ menu "Network Configuration"
         default 4
         help
             Max number of the STA connects to modules AP.
-    
+
     ##
     # As a station options
     ##
@@ -39,7 +45,7 @@ menu "Network Configuration"
         default "Bill Nye the WiFi Guy"
         help
             SSID (network name) for an inital connection as a station to a specific ap.
-    config ESP_WIFI_INIAL_STA_MODE_PASSWORD
+    config ESP_WIFI_INIT_STA_MODE_PASSWORD
         string "WiFi Initial STA Password"
         default "Westgate1"
         help

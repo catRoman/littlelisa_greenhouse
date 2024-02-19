@@ -80,7 +80,7 @@ void app_main(void)
     //sntp_service_init();
 
     // Start Wifi
-    //wifi_ap_sta_init();
+    wifi_init();
 
     // backup sd database
     spi_sd_card_init();
