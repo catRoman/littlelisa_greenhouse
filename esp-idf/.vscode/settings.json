@@ -4,6 +4,9 @@
     "idf.flashType": "UART",
     "files.associations": {
         "freertos.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "random": "cpp",
+        "http_handlers.h": "c",
+        "esp_ota_ops.h": "c"
     }
 }

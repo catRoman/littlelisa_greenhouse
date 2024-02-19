@@ -4,7 +4,7 @@
  *
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
- * 
+ *
  */
 
 #ifndef MAIN_HTTP_SERVER_H_
@@ -69,5 +69,8 @@ void http_server_stop(void);
  * Timer callback function which calls esp_restart upon successfull firmware update
 */
 void http_server_fw_update_reset_callback(void *arg);
+
+
+static void http_server_fw_update_reset_timer(void);
 
 #endif /* MAIN_HTTP_SERVER_H_ */

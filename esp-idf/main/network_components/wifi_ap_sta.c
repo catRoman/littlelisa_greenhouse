@@ -22,11 +22,9 @@
 
 #include "wifi_ap_sta.h"
 #include "module_components/led.h"
+#include "http_server.h"
 
 static const char TAG[] = "wifi_ap_sta";
-
-
-
 static int s_retry_num = 0;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
@@ -34,24 +32,22 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 {
     switch(event_id){
         case WIFI_EVENT_AP_STACONNECTED:
-
             ESP_LOGI(TAG, "station joined to module ap");
-
             break;
+
         case WIFI_EVENT_AP_STADISCONNECTED:
-
             ESP_LOGI(TAG, "station left modules ap");
-
             break;
+
         case WIFI_EVENT_STA_START:
             esp_wifi_connect();
             ESP_LOGI(TAG, "module joined ap as sta");
             break;
+
         case IP_EVENT_STA_GOT_IP:
             ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
             ESP_LOGI(TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
             s_retry_num = 0;
-
 
         default:
             break;
@@ -107,8 +103,6 @@ esp_netif_t *wifi_init_sta(void)
     return esp_netif_sta;
 }
 
-
-
 void wifi_init(void)
 {
     ESP_ERROR_CHECK(esp_netif_init());
@@ -153,6 +147,11 @@ void wifi_init(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
+
+        //start http server
+
+        http_server_start();
+        led_http_server_started();
     }else if(ESP_ENABLE_AP_MODE == false){
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_LOGI(TAG, "wifi sta only mode selected");
@@ -166,6 +165,11 @@ void wifi_init(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
+
+        //start http server
+
+        http_server_start();
+        led_http_server_started();
     }else{
         ESP_LOGE(TAG, "Error in ap/sta selection mode");
     }
