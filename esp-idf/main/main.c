@@ -88,7 +88,7 @@ void app_main(void)
     // start DHT22 Sensor task
     DHT22_sensor_task_start();
 
-    vTaskDelay(15000/ portMAX_DELAY);
+    //vTaskDelay(15000/ portMAX_DELAY);
 
 
 

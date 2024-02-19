@@ -41,7 +41,7 @@
 
 static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
-
+static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 // == Sensor structs
 
@@ -150,14 +150,20 @@ int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
 
 
 	int uSec = 0;
+
+	portENTER_CRITICAL(&myMutex);
+
 	while( gpio_get_level(sensor_t->pin_number)==state ) {
 
-		if( uSec > usTimeOut )
+		if( uSec > usTimeOut ){
+			portEXIT_CRITICAL(&myMutex);
 			return -1;
+		}
 
 		++uSec;
 		esp_rom_delay_us(1);		// uSec delay
 	}
+	portEXIT_CRITICAL(&myMutex);
 	return uSec;
 }
 
@@ -226,7 +232,6 @@ float temperature = sensor_t->temperature;
 	// == Send start signal to DHT sensor_t ===========
 
 	gpio_set_direction( DHTgpio, GPIO_MODE_OUTPUT );
-	gpio_set_pull_mode(DHTgpio, GPIO_PULLUP_ENABLE);
 
 	// pull down for 3 ms for a smooth and nice wake up
 	gpio_set_level( DHTgpio, 0 );
@@ -319,7 +324,7 @@ static void DHT22_task(void *vpParameter)
 	dht22_sensor_t *sensor_t;
 	sensor_t = (dht22_sensor_t *)vpParameter;
 
-
+	esp_log_level_set(TAG, ESP_LOG_INFO);
 
 	for(;;)
 	{
@@ -350,7 +355,6 @@ void DHT22_sensor_task_start(void){
 
 	xSemaphore = xSemaphoreCreateMutex();
 
-	esp_log_level_set(TAG, ESP_LOG_VERBOSE);
 	
 	ESP_LOGI(TAG, "started test Sensor Reading Task");
 	// pin inside sensor_t

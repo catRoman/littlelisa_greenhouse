@@ -28,11 +28,17 @@ static const char TAG[] = "wifi_ap_sta";
 /**
  *  Network configurations set via project configuration menu.
 */
-#define ESP_ENABLE_AP      CONFIG_ESP_ENABLE_AP
-#define ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
-#define ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
-#define ESP_WIFI_CHANNEL   CONFIG_ESP_WIFI_CHANNEL
-#define MAX_STA_CONN       CONFIG_ESP_MAX_STA_CONN
+//for ap mode
+#define ESP_ENABLE_AP_MODE              CONFIG_ESP_ENABLE_AP_MODE
+#define ESP_WIFI_AP_MODE_SSID           CONFIG_ESP_WIFI_AP_MODE_SSID
+#define ESP_WIFI_AP_MODE_PASSWORD       CONFIG_ESP_WIFI_AP_MODE_PASSWORD
+#define ESP_WIFI_AP_MODE_CHANNEL        CONFIG_ESP_WIFI_AP_MODE_CHANNEL
+#define MAX_AP_STA_MODE_CONN            CONFIG_ESP_MAX_AP_STA_CONN
+
+//for sta mode
+#define ESP_WIFI_INIT_STA_MODE_SSID      CONFIG_ESP_WIFI_INIT_STA_MODE_SSID         
+#define ESP_WIFI_INIT_STA_MODE_PASS      CONFIG_ESP_WIFI_INIT_STA_MODE_PASS
+#define MAX_STA_MODE_RETRY_ATTEMPT       CONFIG_ESP_MAX_STA_MODE_RETRY_MODE_ATTEMPT
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                     int32_t event_id, void* event_data)
@@ -48,6 +54,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(TAG, "station left");
 
             break;
+
 
         default:
             break;
