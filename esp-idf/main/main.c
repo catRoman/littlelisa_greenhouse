@@ -23,6 +23,8 @@
 #include "module_components/rtc_DS1302.h"
 #include "module_components/ds1302.h"
 #include "nvs_components/node_info.h"
+#include "network_components/http_server.h"
+#include "module_components/led.h"
 
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
@@ -76,8 +78,7 @@ void app_main(void)
     }
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
 
-    //synced system clock
-    sntp_service_init();
+
 
     // Start Wifi
     wifi_init();
@@ -88,7 +89,9 @@ void app_main(void)
     // start DHT22 Sensor task
     DHT22_sensor_task_start();
 
-    //vTaskDelay(15000/ portMAX_DELAY);
+    vTaskDelay(5000/ portMAX_DELAY);
+
+
 
 
 

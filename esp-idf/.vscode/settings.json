@@ -7,6 +7,8 @@
         "string.h": "c",
         "random": "cpp",
         "http_handlers.h": "c",
-        "esp_ota_ops.h": "c"
+        "esp_ota_ops.h": "c",
+        "wifi_ap_sta.h": "c",
+        "sdkconfig.h": "c"
     }
 }

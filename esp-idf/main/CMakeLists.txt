@@ -17,8 +17,8 @@ idf_component_register(
     INCLUDE_DIRS "."
 
     EMBED_FILES
-        esp_main_controller_landing_page/app.css
-        esp_main_controller_landing_page/app.js
-        esp_main_controller_landing_page/favicon.ico
-        esp_main_controller_landing_page/index.html
-        esp_main_controller_landing_page/jquery-3.3.1.min.js)
+        new_landing_page/index.html
+        new_landing_page/plant3.svg
+        new_landing_page/assets/index-Brmxup6R.js
+        new_landing_page/assets/index-Cjz8_SRG.css
+)

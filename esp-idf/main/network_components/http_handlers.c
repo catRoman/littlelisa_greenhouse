@@ -23,23 +23,37 @@ extern int g_wifi_connect_status;
 
 extern httpd_handle_t http_server_handle;
 
+//new landing page
+//embed files: all files in new-landing page
+extern const uint8_t index_html_start[]         asm("_binary_index_html_start");
+extern const uint8_t index_html_end[]         asm("_binary_index_html_end");
+
+extern const uint8_t plant3_svg_start[]         asm("_binary_plant3_svg_start");
+extern const uint8_t plant3_svg_end[]         asm("_binary_plant3_svg_end");
 
 
-// Embeded files: JQuery, index.html, app.css, app.js and favicon.ico files
-extern const uint8_t jquery_3_3_1_min_js_start[]    asm("_binary_jquery_3_3_1_min_js_start");
-extern const uint8_t jquery_3_3_1_min_js_end[]      asm("_binary_jquery_3_3_1_min_js_end");
+extern const uint8_t index_Brmxup6R_js_start[]         asm("_binary_index_Brmxup6R_js_start");
+extern const uint8_t index_Brmxup6R_js_end[]         asm("_binary_index_Brmxup6R_js_end");
 
-extern const uint8_t index_html_start[]             asm("_binary_index_html_start");
-extern const uint8_t index_html_end[]               asm("_binary_index_html_end");
 
-extern const uint8_t app_css_start[]                asm("_binary_app_css_start");
-extern const uint8_t app_css_end[]                  asm("_binary_app_css_end");
+extern const uint8_t index_Cjz8_SRG_css_start[]         asm("_binary_index_Cjz8_SRG_css_start");
+extern const uint8_t index_Cjz8_SRG_css_end[]         asm("_binary_index_Cjz8_SRG_css_end");
 
-extern const uint8_t app_js_start[]                 asm("_binary_app_js_start");
-extern const uint8_t app_js_end[]                   asm("_binary_app_js_end");
+// // Embeded files: JQuery, index.html, app.css, app.js and favicon.ico files
+// extern const uint8_t jquery_3_3_1_min_js_start[]    asm("_binary_jquery_3_3_1_min_js_start");
+// extern const uint8_t jquery_3_3_1_min_js_end[]      asm("_binary_jquery_3_3_1_min_js_end");
 
-extern const uint8_t favicon_ico_start[]            asm("_binary_favicon_ico_start");
-extern const uint8_t favicon_ico_end[]              asm("_binary_favicon_ico_end");
+// extern const uint8_t index_html_start[]             asm("_binary_index_html_start");
+// extern const uint8_t index_html_end[]               asm("_binary_index_html_end");
+
+// extern const uint8_t app_css_start[]                asm("_binary_app_css_start");
+// extern const uint8_t app_css_end[]                  asm("_binary_app_css_end");
+
+// extern const uint8_t app_js_start[]                 asm("_binary_app_js_start");
+// extern const uint8_t app_js_end[]                   asm("_binary_app_js_end");
+
+// extern const uint8_t favicon_ico_start[]            asm("_binary_favicon_ico_start");
+// extern const uint8_t favicon_ico_end[]              asm("_binary_favicon_ico_end");
 
 static const char HTTP_HANDLER_TAG [] = "http_handlers";
 
@@ -47,97 +61,58 @@ static const char HTTP_HANDLER_TAG [] = "http_handlers";
 
 void register_http_server_handlers(void)
 {
-
-
     ESP_LOGI(HTTP_HANDLER_TAG, "http_server_configure: Registering URI handlers");
-
-        //register query handler
-        httpd_uri_t jquery_js = {
-            .uri = "/jquery-3.3.1.min.js",
-            .method = HTTP_GET,
-            .handler = http_server_jquery_handler,
-            .user_ctx = NULL,
-        };
-        httpd_register_uri_handler(http_server_handle, &jquery_js);
 
         //register index.html handler
         httpd_uri_t index_html = {
             .uri = "/",
             .method = HTTP_GET,
-            .handler = http_server_index_html_handler,
+            .handler = index_html_handler,
             .user_ctx = NULL,
         };
         httpd_register_uri_handler(http_server_handle, &index_html);
 
-        //register query handler
-        httpd_uri_t app_css = {
-            .uri = "/app.css",
+        //register css handler
+        httpd_uri_t index_Cjz8_SRG_css = {
+            .uri = "/assets/index-Cjz8_SRG.css",
             .method = HTTP_GET,
-            .handler = http_server_app_css_handler,
+            .handler = index_Cjz8_SRG_css_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &app_css);
+        httpd_register_uri_handler(http_server_handle, &index_Cjz8_SRG_css);
 
-        //register query handler
-        httpd_uri_t app_js = {
-            .uri = "/app.js",
+        //register js handler
+        httpd_uri_t index_Brmxup6R_js = {
+            .uri = "/assets/index-Brmxup6R.js",
             .method = HTTP_GET,
-            .handler = http_server_app_js_handler,
+            .handler = index_Brmxup6R_js_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &app_js);
+        httpd_register_uri_handler(http_server_handle, &index_Brmxup6R_js);
 
-        //register query handler
-        httpd_uri_t favicon_ico = {
-            .uri = "/favicon.ico",
+        //register icon handler
+        httpd_uri_t plant3_svg = {
+            .uri = "/plant3.svg",
             .method = HTTP_GET,
-            .handler = http_server_favicon_ico_handler,
+            .handler = plant3_svg_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &favicon_ico);
-
-        // resgister OTA update handler
-        httpd_uri_t OTA_update = {
-            .uri = "/api/OTAupdate",
-            .method = HTTP_POST,
-            .handler = http_server_OTA_update_handler,
-            .user_ctx = NULL
-        };
-        httpd_register_uri_handler(http_server_handle, &OTA_update);
-
-        // register_OTAstatus_handler
-        httpd_uri_t OTA_status = {
-            .uri = "/api/OTAstatus",
-            .method = HTTP_POST,
-            .handler = http_server_OTA_status_handler,
-            .user_ctx = NULL
-        };
-        httpd_register_uri_handler(http_server_handle, &OTA_status);
+        httpd_register_uri_handler(http_server_handle, &plant3_svg);
 
         //register dhtSensor.json handler
         httpd_uri_t dht_sensor_json = {
         .uri = "/api/dhtSensor.json",
             .method = HTTP_GET,
-            .handler = http_server_get_dht_sensor_readings_json_handler,
+            .handler = get_dht_sensor_readings_json_handler,
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &dht_sensor_json);
-
-        //register wifiConnect.json handler
-        httpd_uri_t wifi_connect_json = {
-            .uri = "/api/wifiConnect.json",
-            .method = HTTP_POST,
-            .handler = http_server_wifi_connect_json_handler,
-            .user_ctx = NULL
-        };
-        httpd_register_uri_handler(http_server_handle, &wifi_connect_json);
-
 
         //register wifiConnectStatus.json handler
         httpd_uri_t wifi_connect_status = {
             .uri = "/api/wifiConnectStatus.json",
             .method = HTTP_POST,
-            .handler = http_server_wifi_connect_status_json_handler,
+            .handler = wifi_connect_status_json_handler,
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_status);
@@ -146,26 +121,16 @@ void register_http_server_handlers(void)
         httpd_uri_t wifi_connect_info_json = {
             .uri = "/api/wifiConnectInfo.json",
             .method = HTTP_GET,
-            .handler = http_server_get_wifi_connect_info_json_handler,
+            .handler = get_wifi_connect_info_json_handler,
             .user_ctx = NULL
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_info_json);
-
-
-        //register wifiDisconnect.json handler
-        httpd_uri_t wifi_disconnect_json = {
-            .uri = "/api/wifiDisconnect.json",
-            .method = HTTP_DELETE,
-            .handler = http_server_wifi_disconnect_json_handler,
-            .user_ctx = NULL
-        };
-        httpd_register_uri_handler(http_server_handle, &wifi_disconnect_json);
 
         //register moduleInfo.json handler
             httpd_uri_t module_info_json = {
                 .uri = "/api/moduleInfo.json",
                 .method = HTTP_GET,
-                .handler = http_server_get_module_info_json_handler,
+                .handler = get_module_info_json_handler,
                 .user_ctx = NULL
             };
             httpd_register_uri_handler(http_server_handle, &module_info_json);
@@ -182,17 +147,17 @@ void register_http_server_handlers(void)
 }
 
 
-esp_err_t http_server_jquery_handler(httpd_req_t *req)
+esp_err_t index_Cjz8_SRG_css_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "JQuery requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "index-Cjz8_SRG.css requested");
 
-    httpd_resp_set_type(req, "application/javascript");
-    httpd_resp_send(req, (const char *)jquery_3_3_1_min_js_start, jquery_3_3_1_min_js_end - jquery_3_3_1_min_js_start);
+    httpd_resp_set_type(req, "text/css");
+    httpd_resp_send(req, (const char *)index_Cjz8_SRG_css_start, index_Cjz8_SRG_css_end - index_Cjz8_SRG_css_start);
 
     return ESP_OK;
 }
 
-esp_err_t http_server_index_html_handler(httpd_req_t *req)
+esp_err_t index_html_handler(httpd_req_t *req)
 {
     ESP_LOGI(HTTP_HANDLER_TAG, "index.html requested");
 
@@ -207,144 +172,29 @@ esp_err_t http_server_index_html_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t http_server_app_js_handler(httpd_req_t *req)
+esp_err_t index_Brmxup6R_js_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "App.js requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "index-Brmxup6R.js requested");
 
     httpd_resp_set_type(req, "application/javascript");
-    httpd_resp_send(req, (const char *)app_js_start, app_js_end - app_js_start);
+    httpd_resp_send(req, (const char *)index_Brmxup6R_js_start, index_Brmxup6R_js_end - index_Brmxup6R_js_start);
 
     return ESP_OK;
 }
 
- esp_err_t http_server_app_css_handler(httpd_req_t *req)
+ esp_err_t plant3_svg_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "App.css requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "plant3.svg requested");
 
-    httpd_resp_set_type(req, "text/css");
-    httpd_resp_send(req, (const char *)app_css_start, app_css_end - app_css_start);
-
-    return ESP_OK;
-}
-
-esp_err_t http_server_favicon_ico_handler(httpd_req_t *req)
-{
-    ESP_LOGI(HTTP_HANDLER_TAG, "Favicon.ico requested");
-
-    httpd_resp_set_type(req, "image/x-icon");
-    httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_end - favicon_ico_start);
-
-    return ESP_OK;
-}
-
-esp_err_t http_server_OTA_update_handler(httpd_req_t *req)
-{
-    esp_ota_handle_t ota_handle;
-
-    char ota_buff[1024];
-    int content_length = req->content_len;
-    int content_recieved = 0;
-    int recv_len;
-    bool is_req_body_started = false;
-    bool flash_succesful = false;
-
-    const esp_partition_t *update_partition = esp_ota_get_next_update_partition(NULL);
-
-    do
-    {
-        // Read the data for the request
-        if ((recv_len = httpd_req_recv(req, ota_buff, MIN(content_length, sizeof(ota_buff)))) < 0)
-        {
-            // check if timeout occured
-            if (recv_len == HTTPD_SOCK_ERR_TIMEOUT)
-            {
-                ESP_LOGI(HTTP_HANDLER_TAG, "http_server_/ota_update_handler: Socket Timeout");
-                continue; // retry recieving if timeout occured
-            }
-            ESP_LOGI(HTTP_HANDLER_TAG, "http_server_OTA_update_handler: OTA other Error %d", recv_len);
-            return ESP_FAIL;
-        }
-        printf("http_server_OTA_update_handler: OTA RX: %d of %d\r", content_recieved, content_length);
-
-        // is this the first data we are recieving
-        // if so, it will have the information in the header that we need
-        if (!is_req_body_started)
-        {
-            is_req_body_started = true;
-
-            // get the location of the .bin file content (remove the web form data)
-            char *body_start_p = strstr(ota_buff, "\r\n\r\n") + strlen("\r\n\r\n"); // + 4
-            int body_part_len = recv_len - (body_start_p - ota_buff);
-
-            printf("http_server_OTA_update_handler: OTA file size: %d\r\n", content_length);
-
-            esp_err_t err = esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &ota_handle);
-            if(err != ESP_OK)
-            {
-                printf("http_server_OTA_update_handler: Error with OTA begin, cancelling OTA\r\n");
-            }
-            else
-            {
-                printf("http_server_OTA_update_handler: Writing to partioin subtype %d at offset 0x%lx\r\n", update_partition->subtype, update_partition->address);
-            }
-            // write this first part of the data
-            esp_ota_write(ota_handle, body_start_p, body_part_len);
-            content_recieved += body_part_len;
-        }
-        else
-        {
-            // write OTA data
-            esp_ota_write(ota_handle, ota_buff, recv_len);
-            content_recieved += recv_len;
-        }
-    } while ( recv_len > 0 && content_recieved < content_length);
-
-    if(esp_ota_end(ota_handle) == ESP_OK)
-    {
-        // update the partition
-        if (esp_ota_set_boot_partition(update_partition) == ESP_OK)
-        {
-            const esp_partition_t *boot_partition = esp_ota_get_boot_partition();
-            ESP_LOGI(HTTP_HANDLER_TAG, "http_server_OTA_update_handle: Next boot partition subtype %d at offset 0x%lx", boot_partition->subtype, boot_partition->address);
-            flash_succesful = true;
-        }
-        else
-        {
-            ESP_LOGI(HTTP_HANDLER_TAG, "http_server_OTA_update_handler: FLASH ERROR! ! !");
-        }
-    }
-    else
-    {
-        ESP_LOGI(HTTP_HANDLER_TAG, "http_server_OTA_update_handler: esp_ota_end ERROR! ! !");
-    }
-    // we wont update the global variables throughout the file, so send the message sbout the status
-    if(flash_succesful)
-    {
-        http_server_monitor_send_message(HTTP_MSG_OTA_UPDATE_SUCCESSFUL);
-    }
-    else
-    {
-        http_server_monitor_send_message(HTTP_MSG_OTA_UPDATE_FAILED);
-    }
+    httpd_resp_set_type(req, "image/x-con");
+    httpd_resp_send(req, (const char *)plant3_svg_start, plant3_svg_end - plant3_svg_start);
 
     return ESP_OK;
 }
 
 
-esp_err_t http_server_OTA_status_handler(httpd_req_t *req)
-{
-    char otaJSON[100];
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "OTAstatus requested");
-
-    sprintf(otaJSON, "{\"ota_update_status\":%d,\"compile_time\":\"%s\",\"compile_data\":\"%s\"}", g_fw_update_status, __TIME__, __DATE__);
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, otaJSON, strlen(otaJSON));
-
-    return ESP_OK;
-}
-
-esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
+esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
 
     // Add CORS headers to the response
@@ -443,8 +293,7 @@ esp_err_t http_server_get_dht_sensor_readings_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-
-esp_err_t http_server_get_module_info_json_handler(httpd_req_t *req){
+esp_err_t get_module_info_json_handler(httpd_req_t *req){
 
     ESP_LOGI(HTTP_HANDLER_TAG, "moduleInfo.json requested");
 
@@ -463,62 +312,7 @@ esp_err_t http_server_get_module_info_json_handler(httpd_req_t *req){
     return ESP_OK;
 }
 
-esp_err_t http_server_wifi_connect_json_handler(httpd_req_t *req)
-{
-    // Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
-
-
-
-    ESP_LOGI(HTTP_HANDLER_TAG, "wifiConnect.json requested");
-
-    size_t len_ssid = 0, len_pass = 0;
-    char *ssid_str = NULL, *pass_str = NULL;
-
-    // get SSID header
-
-    len_ssid = httpd_req_get_hdr_value_len(req, "my-connect-ssid") + 1;
-
-    if (len_ssid > 1)
-    {
-        ssid_str = malloc(len_ssid);
-        if (httpd_req_get_hdr_value_str(req, "my-connect-ssid", ssid_str, len_ssid) == ESP_OK)
-        {
-            ESP_LOGI(HTTP_HANDLER_TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-ssid : %s", ssid_str);
-        }
-    }
-
-    // get password header
-
-    len_pass = httpd_req_get_hdr_value_len(req, "my-connect-pwd") + 1;
-
-    if (len_pass > 1)
-    {
-        pass_str = malloc(len_pass);
-        if (httpd_req_get_hdr_value_str(req, "my-connect-pwd", pass_str, len_pass) == ESP_OK)
-        {
-            ESP_LOGI(HTTP_HANDLER_TAG, "http_server_wifi_connect_json_handler: Found header => my-connect-pwd : %s", pass_str);
-        }
-    }
-
-
-
-    // // update the wifi networks configuration and let the wifi application know
-    // wifi_config_t* wifi_config = wifi_app_get_wifi_config();
-    // memset(wifi_config, 0x00, sizeof(wifi_config_t));
-    // memcpy(wifi_config->sta.ssid, ssid_str, len_ssid);
-    // memcpy(wifi_config->sta.password, pass_str, len_pass);
-    // //wifi_app_send_message(WIFI_APP_MSG_CONNECTING_FROM_HTTP_SERVER);
-
-    httpd_resp_send(req, NULL, 0);
-
-
-    return ESP_OK;
-}
-
-esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
+esp_err_t wifi_connect_status_json_handler(httpd_req_t *req)
 {
 
     // Add CORS headers to the response
@@ -535,27 +329,7 @@ esp_err_t http_server_wifi_connect_status_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t http_server_wifi_disconnect_json_handler(httpd_req_t *req)
-{
-    if(req->method == HTTP_OPTIONS){
-        // Add CORS headers to the response
-        httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-        httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "DELETE, OPTIONS");
-        httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
-        ESP_LOGI(HTTP_HANDLER_TAG, "wifiDisconnect.json OPTIONS requested");
-        httpd_resp_send(req, NULL, 0);
-
-    }else if(req->method == HTTP_DELETE){
-        ESP_LOGI(HTTP_HANDLER_TAG, "wifiDisconnect.json requested");
-        //wifi_app_send_message(WIFI_APP_MSG_USER_REQUESTED_STA_DISCONNECT);
-
-        httpd_resp_send(req, NULL, 0);
-
-    }
-    return ESP_OK;
-}
-
-esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
+esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
 {
 // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -571,21 +345,20 @@ esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
     char ip[IP4ADDR_STRLEN_MAX];
     char netmask[IP4ADDR_STRLEN_MAX];
     char gw[IP4ADDR_STRLEN_MAX];
-    // extern int wifi_sta_state;
-    // if(wifi_sta_state == CONNECTED)
-    // {
-    //     wifi_ap_record_t wifi_data;
-    //     ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
-    //     char *ssid = (char*)wifi_data.ssid;
 
-    //     esp_netif_ip_info_t ip_info;
-    //    // ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_sta, &ip_info));
-    //     esp_ip4addr_ntoa(&ip_info.ip, ip, IP4ADDR_STRLEN_MAX);
-    //     esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
-    //     esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
+    wifi_ap_record_t wifi_data;
+    ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
+    char *ssid = (char*)wifi_data.ssid;
 
-    //     sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
-    // }
+    esp_netif_ip_info_t ip_info;
+
+    ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"), &ip_info));
+    esp_ip4addr_ntoa(&ip_info.ip, ip, IP4ADDR_STRLEN_MAX);
+    esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
+    esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
+
+    sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
+
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, ipInfoJSON, strlen(ipInfoJSON));
@@ -593,7 +366,6 @@ esp_err_t http_server_get_wifi_connect_info_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-/* Generic Preflight Request Handler */
 esp_err_t preflight_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");

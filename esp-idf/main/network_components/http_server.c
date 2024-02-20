@@ -26,11 +26,6 @@
 //wifi connect status
 int g_wifi_connect_status = NONE;
 
-// Firmware update status
-int g_fw_update_status = OTA_UPDATE_PENDING;
-
-
-
 static const char HTTP_SERVER_TAG[] = "http_server";
 httpd_handle_t http_server_handle = NULL;
 static TaskHandle_t task_http_server_monitor = NULL;
@@ -61,17 +56,6 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
                     g_wifi_connect_status = HTTP_WIFI_STATUS_CONNECT_FAILED;
                     break;
 
-                case HTTP_MSG_OTA_UPDATE_SUCCESSFUL:
-                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_OTA_UPDATE_SUCCESFUL");
-                    g_fw_update_status = OTA_UPDATE_SUCCESSFUL;
-                    http_server_fw_update_reset_timer();
-                    break;
-
-                case HTTP_MSG_OTA_UPDATE_FAILED:
-                    ESP_LOGI(HTTP_SERVER_TAG, "HTTP_MSG_OTA_UPDATE_FAILED");
-                    g_fw_update_status = OTA_UPDATE_FAILED;
-                    break;
-
                 default:
                     break;
             }
@@ -80,28 +64,7 @@ static void http_server_monitor(void * xTASK_PARAMETERS)
 }
 
 
-const esp_timer_create_args_t fw_update_reset_args = {
-    .callback = &http_server_fw_update_reset_callback,
-    .arg = NULL,
-    .dispatch_method = ESP_TIMER_TASK,
-    .name = "fw_update_reset"
-};
 
-static void http_server_fw_update_reset_timer(void)
-{
-    if (g_fw_update_status == OTA_UPDATE_SUCCESSFUL)
-    {
-        ESP_LOGI(HTTP_SERVER_TAG, "http_server_fw_update_reset_timer: fw update succesful starting Fw update rest timer");
-
-        // Give the web page a chance to recieve an acknowedge back and initalize the timer
-        ESP_ERROR_CHECK(esp_timer_create(&fw_update_reset_args, &fw_update_reset));
-        ESP_ERROR_CHECK(esp_timer_start_once(fw_update_reset, 8000000));
-    }
-    else
-    {
-        ESP_LOGI(HTTP_SERVER_TAG, "http_Server_fw_update_reset_timer: FW update unsuccessful");
-    }
-}
 
 static httpd_handle_t http_server_configuration(void)
 {
@@ -168,10 +131,4 @@ BaseType_t http_server_monitor_send_message(http_server_message_e msgID)
     msg.msgID = msgID;
     //vTaskDelay(5000 / portTICK_PERIOD_MS);
     return xQueueSend(http_server_monitor_queue_handle, &msg, portMAX_DELAY);
-}
-
-void http_server_fw_update_reset_callback(void *arg)
-{
-    ESP_LOGI(HTTP_SERVER_TAG, "http_server_fw_update_reset_callback: Timer timed out, restarting the device");
-    esp_restart();
 }

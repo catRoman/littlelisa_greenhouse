@@ -34,6 +34,10 @@
 #define ESP_WIFI_AP_MODE_CHANNEL        CONFIG_ESP_WIFI_AP_MODE_CHANNEL
 #define MAX_AP_STA_MODE_CONN            CONFIG_ESP_MAX_AP_STA_MODE_CONN
 
+#define WIFI_AP_IP                  "192.168.0.1"   // AP default ip
+#define WIFI_AP_GATEWAY             "192.168.0.1"   // AP default gateway(same as IP)
+#define WIFI_AP_NETMASK             "255.255.255.0" // AP Netmask
+#define WIFI_AP_BANDWIDTH           WIFI_BW_HT20    // AP Bandwidth 20 MHz
 //for sta mode
 #define ESP_WIFI_INIT_STA_MODE_SSID      CONFIG_ESP_WIFI_INIT_STA_MODE_SSID
 #define ESP_WIFI_INIT_STA_MODE_PASSWORD  CONFIG_ESP_WIFI_INIT_STA_MODE_PASSWORD

@@ -19,10 +19,12 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "sdkconfig.h"
+#include "lwip/netdb.h"
 
 #include "wifi_ap_sta.h"
 #include "module_components/led.h"
 #include "http_server.h"
+#include "sntp.h"
 
 static const char TAG[] = "wifi_ap_sta";
 static int s_retry_num = 0;
@@ -69,6 +71,17 @@ esp_netif_t *wifi_init_softap(void)
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
+
+  // Configure DHCP for the AP
+    esp_netif_ip_info_t ap_ip_info;
+    memset(&ap_ip_info, 0x00, sizeof(ap_ip_info));
+    esp_netif_dhcps_stop(esp_netif_ap);                                              ///> must call this first
+    inet_pton(AF_INET, WIFI_AP_IP, &ap_ip_info.ip);                                  ///> assign ap static ip, gw and netmask
+    inet_pton(AF_INET, WIFI_AP_GATEWAY, &ap_ip_info.gw);
+    inet_pton(AF_INET, WIFI_AP_NETMASK, &ap_ip_info.netmask);
+    ESP_ERROR_CHECK(esp_netif_set_ip_info(esp_netif_ap, &ap_ip_info));              ///> statically configure the network interface
+    ESP_ERROR_CHECK(esp_netif_dhcps_start(esp_netif_ap));                           ///> start the ap dhcp server (for connecting stations eg. mobile device)
+
 
     if (strlen(ESP_WIFI_AP_MODE_PASSWORD) == 0) {
             wifi_ap_config.ap.authmode = WIFI_AUTH_OPEN;
@@ -148,10 +161,11 @@ void wifi_init(void)
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
 
-        //start http server
-
+        //start http and sntp server
+        sntp_service_init();
         http_server_start();
         led_http_server_started();
+
     }else if(ESP_ENABLE_AP_MODE == false){
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_LOGI(TAG, "wifi sta only mode selected");
@@ -166,10 +180,12 @@ void wifi_init(void)
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
 
-        //start http server
-
+        //start http and sntp server
+        sntp_service_init();
         http_server_start();
         led_http_server_started();
+
+
     }else{
         ESP_LOGE(TAG, "Error in ap/sta selection mode");
     }
