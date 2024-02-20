@@ -25,6 +25,7 @@
 #include "module_components/led.h"
 #include "http_server.h"
 #include "sntp.h"
+#include "task_common.h"
 
 static const char TAG[] = "wifi_ap_sta";
 static int s_retry_num = 0;
@@ -115,8 +116,10 @@ esp_netif_t *wifi_init_sta(void)
 
     return esp_netif_sta;
 }
-
-void wifi_init(void)
+// void wifi_start(void){
+//     xTaskCreatePinnedToCore(&wifi_init, "wifi_init", WIFI_APP_TASK_STACK_SIZE, NULL, WIFI_APP_TASK_PRIORITY, NULL, WIFI_APP_TASK_CORE_ID);
+// }
+void wifi_start(void)
 {
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -189,4 +192,5 @@ void wifi_init(void)
     }else{
         ESP_LOGE(TAG, "Error in ap/sta selection mode");
     }
+    
 }

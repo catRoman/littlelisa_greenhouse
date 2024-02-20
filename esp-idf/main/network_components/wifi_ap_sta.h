@@ -47,6 +47,7 @@
 /**
  * initialize and start wifi
 */
-void wifi_init(void);
+void wifi_init(void *vpParam);
+void wifi_start(void);
 
 #endif /* MAIN_WIFI_APP_H_ */

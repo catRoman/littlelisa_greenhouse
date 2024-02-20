@@ -81,7 +81,7 @@ void app_main(void)
 
 
     // Start Wifi
-    wifi_init();
+    wifi_start();
 
     // backup sd database
     spi_sd_card_init();
