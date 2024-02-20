@@ -25,7 +25,6 @@
 #include "nvs_components/node_info.h"
 #include "network_components/http_server.h"
 #include "module_components/led.h"
-
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
 //TODO sd card sqlite database
@@ -91,8 +90,6 @@ void app_main(void)
     vTaskDelay(5000/ portMAX_DELAY);
 
     DHT22_sensor_task_start();
-
-
 
 
 

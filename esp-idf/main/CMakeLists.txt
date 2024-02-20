@@ -13,6 +13,7 @@ idf_component_register(
         nvs_components/node_info.c
         helper.c
         main.c
+        
 
     INCLUDE_DIRS "."
 

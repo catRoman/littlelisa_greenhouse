@@ -164,7 +164,7 @@ void wifi_start(void)
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
 
-        //start http and sntp server
+     //   start http and sntp server
         sntp_service_init();
         http_server_start();
         led_http_server_started();

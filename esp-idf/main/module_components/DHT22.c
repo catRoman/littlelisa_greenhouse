@@ -109,7 +109,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 }
  void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
-	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
  }
 
@@ -230,7 +230,6 @@ float temperature = sensor_t->temperature;
 		dhtData[k] = 0;
 
 	// == Send start signal to DHT sensor_t ===========
-
 	gpio_set_direction( DHTgpio, GPIO_MODE_OUTPUT );
 
 	// pull down for 3 ms for a smooth and nice wake up
@@ -239,20 +238,20 @@ float temperature = sensor_t->temperature;
 
 	// pull up for 25 us for a gentile asking for data
 	gpio_set_level( DHTgpio, 1 );
-	esp_rom_delay_us( 25 );
+	esp_rom_delay_us( 30 );
 
 	gpio_set_direction( DHTgpio, GPIO_MODE_INPUT );		// change to input mode
 
 	// == DHT will keep the line low for 80 us and then high for 80us ====
 
-	uSec = getSignalLevel( 85, 0, sensor_t );
-	ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
+	uSec = getSignalLevel( 80, 0, sensor_t );
+	//ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// -- 80us up ------------------------
 
-	uSec = getSignalLevel( 85, 1 , sensor_t);
-	ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
+	uSec = getSignalLevel( 80, 1 , sensor_t);
+	//ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// == No errors, read the 40 data bits ================
@@ -261,21 +260,21 @@ float temperature = sensor_t->temperature;
 
 		// -- starts new data transmission with >50us low signal
 
-		uSec = getSignalLevel( 56, 0 , sensor_t);
-		ESP_LOGV( TAG, "{==%s==} Data Read Response = %d",sensor_t->TAG, uSec );
+		uSec = getSignalLevel( 50, 0 , sensor_t);
+		//ESP_LOGV( TAG, "{==%s==} Data Read Response = %d",sensor_t->TAG, uSec );
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// -- check to see if after >70us rx data is a 0 or a 1
 
-		uSec = getSignalLevel( 75, 1 , sensor_t);
-		ESP_LOGV( TAG, "{==%s==} Data Read Response 2 = %d",sensor_t->TAG, uSec );
+		uSec = getSignalLevel( 70, 1 , sensor_t);
+		//ESP_LOGV( TAG, "{==%s==} Data Read Response 2 = %d",sensor_t->TAG, uSec );
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// add the current read to the output data
 		// since all dhtData array where set to 0 at the start,
 		// only look for "1" (>28us us)
 
-		if (uSec > 40) {
+		if (uSec > 27) {
 			dhtData[ byteInx ] |= (1 << bitInx);
 			}
 
@@ -324,7 +323,11 @@ static void DHT22_task(void *vpParameter)
 	dht22_sensor_t *sensor_t;
 	sensor_t = (dht22_sensor_t *)vpParameter;
 
-	
+
+	gpio_set_direction(sensor_t->pin_number, GPIO_MODE_INPUT);
+	esp_rom_delay_us( 100 );
+	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
+	vTaskDelay(pdMS_TO_TICKS(1000));
 	esp_log_level_set(TAG, ESP_LOG_INFO);
 
 	for(;;)
