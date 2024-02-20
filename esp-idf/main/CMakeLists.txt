@@ -17,8 +17,8 @@ idf_component_register(
     INCLUDE_DIRS "."
 
     EMBED_FILES
-        new_landing_page/index.html
-        new_landing_page/plant3.svg
-        new_landing_page/assets/index-Brmxup6R.js
-        new_landing_page/assets/index-Cjz8_SRG.css
+        landing_page/index.html
+        landing_page/plant3.svg
+        landing_page/assets/index-Brmxup6R.js
+        landing_page/assets/index-Cjz8_SRG.css
 )

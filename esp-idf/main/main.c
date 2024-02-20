@@ -87,10 +87,10 @@ void app_main(void)
     spi_sd_card_init();
 
     // start DHT22 Sensor task
-    DHT22_sensor_task_start();
 
     vTaskDelay(5000/ portMAX_DELAY);
 
+    DHT22_sensor_task_start();
 
 
 

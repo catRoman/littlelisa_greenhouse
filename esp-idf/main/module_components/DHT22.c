@@ -109,7 +109,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 }
  void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
-	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGI(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
  }
 
@@ -324,12 +324,11 @@ static void DHT22_task(void *vpParameter)
 	dht22_sensor_t *sensor_t;
 	sensor_t = (dht22_sensor_t *)vpParameter;
 
+	
 	esp_log_level_set(TAG, ESP_LOG_INFO);
 
 	for(;;)
 	{
-		xSemaphoreTake( xSemaphore, portMAX_DELAY );
-		ESP_LOGV(TAG, "{==%s==}: semaphore taken", sensor_t->TAG);
 
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
@@ -344,10 +343,8 @@ static void DHT22_task(void *vpParameter)
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
-		xSemaphoreGive( xSemaphore );
-		ESP_LOGV(TAG, "{==%s==}: semaphore given", sensor_t->TAG);
 
-		vTaskDelay(5000 / portTICK_PERIOD_MS);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
 	}
 }
 
@@ -359,7 +356,6 @@ void DHT22_sensor_task_start(void){
 	ESP_LOGI(TAG, "started test Sensor Reading Task");
 	// pin inside sensor_t
 	xTaskCreatePinnedToCore(DHT22_task, "test_sensor", DHT22_TASK_STACK_SIZE, (void *)&test_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-
 
 	ESP_LOGI(TAG, "started Inside Sensor Reading Task");
 	// pin inside sensor_t
