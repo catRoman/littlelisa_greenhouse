@@ -25,6 +25,7 @@
 #include "nvs_components/node_info.h"
 #include "network_components/http_server.h"
 #include "module_components/led.h"
+#include "module_components/sd_card_db.h"
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
 //TODO sd card sqlite database
@@ -84,6 +85,7 @@ void app_main(void)
 
     // backup sd database
     spi_sd_card_init();
+    //sd_db_init();
 
     // start DHT22 Sensor task
 

@@ -128,6 +128,7 @@ void spi_sd_card_init(void){
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = PIN_NUM_CS;
     slot_config.host_id = host.slot;
+    //gpio_set_pull_mode(PIN_NUM_CS,GPIO_PULLDOWN_ONLY);
 
     ESP_LOGI(TAG, "Mounting filesystem");
     ret = esp_vfs_fat_sdspi_mount(mount_point, &host, &slot_config, &mount_config, &card);
