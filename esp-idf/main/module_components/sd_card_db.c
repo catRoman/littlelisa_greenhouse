@@ -166,7 +166,7 @@ void sd_db_task(void *vpParam){
 
     ESP_LOGI(TAG, "Initializing SD card");
 
-    spi_sd_card_init();
+
 
     struct stat st;
     if(stat("/sdcard/chinook.db", &st) == 0){

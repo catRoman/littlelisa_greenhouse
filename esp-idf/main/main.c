@@ -81,17 +81,17 @@ void app_main(void)
 
 
     // Start Wifi
-//    wifi_start();
+    wifi_start();
 
     // backup sd database
-    //spi_sd_card_init();
-    sd_db_init();
+    spi_sd_card_init();
+    //sd_db_init();
 
     // start DHT22 Sensor task
 
     vTaskDelay(5000/ portMAX_DELAY);
 
-//    DHT22_sensor_task_start();
+    DHT22_sensor_task_start();
 
 
 
