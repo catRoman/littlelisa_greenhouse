@@ -85,7 +85,7 @@ void app_main(void)
 
     // backup sd database
     //spi_sd_card_init();
-    sd_db_test();
+    sd_db_init();
 
     // start DHT22 Sensor task
 
