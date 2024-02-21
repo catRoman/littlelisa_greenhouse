@@ -477,6 +477,10 @@ CONFIG_ESP_TLS_USING_MBEDTLS=y
 # end of ESP-TLS
 
 #
+# Sqlite3
+#
+
+#
 # ADC and ADC Calibration
 #
 # CONFIG_ADC_ONESHOT_CTRL_FUNC_IN_IRAM is not set
