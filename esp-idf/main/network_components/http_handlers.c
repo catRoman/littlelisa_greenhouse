@@ -12,6 +12,7 @@
 #include "network_components/http_handlers.h"
 #include "nvs_components/nvs_service.h"
 #include "nvs_components/node_info.c"
+#include "nvs_components/module_config.h"
 #include "sdkconfig.h"
 
 // sensor data instances
@@ -228,7 +229,7 @@ esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
             if (httpd_query_key_value(buf, "identity", ident, sizeof(ident)) == ESP_OK) {
                 int identNum = atoi(ident);
 
-                if (identNum > 0 && identNum <= CONFIG_TEMP_SENSOR){
+                if (identNum > 0 && identNum <= CONFIG_SENSOR_TEMP){
                     sensor = dht22_sensor_arr[(identNum - 1)];
                     size_t log_buf_size = sizeof(log_str) - strlen(log_str) - 1;
                     snprintf(log_str + strlen(log_str), log_buf_size, "%d-", identNum);

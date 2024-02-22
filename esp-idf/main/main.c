@@ -14,6 +14,7 @@
 
 #include "network_components/wifi_ap_sta.h"
 #include "nvs_components/nvs_service.h"
+#include "nvs_components/module_config.h"
 
 
 //TODO: esp-now feature

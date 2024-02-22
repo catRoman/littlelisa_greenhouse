@@ -1,6 +1,6 @@
 menu "NVS Module Info"
 
-    choice
+    choice 
         prompt "Select Module Type"
     
         config MODULE_TYPE_NODE
@@ -24,8 +24,7 @@ menu "NVS Module Info"
             add unique module identifier, consult config file for available unit numbers
 
     menu "Sensor List"
-        prompt "Number of each sensor type connected to module"
-
+        
         config SENSOR_TEMP
             int "Temperature"
             default 0
@@ -173,18 +172,6 @@ menu "NVS Module Info"
                         range 0 35
                         depends on SENSOR_SOIL_MOISTURE >= 1
 
-                config SENSOR_SOIL_MOISTURE_1_PIN
-                    int "Pin Number of Soil Moisture Sensor 1"
-                    default 0
-                    range 0 35
-                    depends on SENSOR_SOIL_MOISTURE >= 1
-
-                    config SENSOR_SOIL_MOISTURE_1_PIN
-                        int "Pin Number of Soil Moisture Sensor 1"
-                        default 0
-                        range 0 35
-                        depends on SENSOR_SOIL_MOISTURE >= 1
-                
                 config SENSOR_SOIL_MOISTURE_2_LOCATION
                     string "Location of Soil Moisture Sensor 2"
                     default "Unknown"
@@ -386,7 +373,7 @@ menu "NVS Module Info"
                         int "Pin Number of Movement Sensor 2"
                         default 0
                         range 0 35
-                        depends on SENSOR_MOVEMENt >= 2
+                        depends on SENSOR_MOVEMENT >= 2
                 
                 config SENSOR_MOVEMENT_3_LOCATION
                     string "Location of Movement Sensor 3"

@@ -35,6 +35,7 @@
 
 #include "DHT22.h"
 #include "task_common.h"
+#include "nvs_components/module_config.h"
 
 // == global defines =============================================
 
@@ -289,7 +290,7 @@ float temperature = sensor_t->temperature;
 /**
  * DHT22 Sensor task
 */
-static void DHT22_task(void *vpParameter)
+void DHT22_task(void *vpParameter)
 {
 	dht22_sensor_t *sensor_t;
 	sensor_t = (dht22_sensor_t *)vpParameter;

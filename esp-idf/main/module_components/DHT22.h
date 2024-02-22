@@ -17,9 +17,6 @@
 
 
 
-#define TEMP 0
-#define HUMIDITY 1
-
 typedef struct dht22_sensor_t {
 	int pin_number;
 	float temperature;
@@ -47,5 +44,6 @@ int 	readDHT(dht22_sensor_t *sensor_t);
 float 	get_humidity(dht22_sensor_t *sensor_t);
 float 	get_temperature(dht22_sensor_t *sensor_t);
 int 	getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t);
+void DHT22_task(void *vpParameter);
 
 #endif
