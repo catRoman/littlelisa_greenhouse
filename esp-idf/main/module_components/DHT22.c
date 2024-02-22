@@ -43,37 +43,6 @@ static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
 static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
-// == Sensor structs
-
-dht22_sensor_t outside_sensor_gt = {
-	.pin_number = DHT_OUTSIDE_GPIO,
-	.temperature = 0.0f,
-	.temp_unit = "C",
-	.humidity = 0.0f,
-	.humidity_unit = "%",
-	.TAG = "outside",
-	.identifier = 0
-};
-
-dht22_sensor_t inside_sensor_gt =  {
-	.pin_number = DHT_INSIDE_GPIO,
-	.temperature = 0.0f,
-	.humidity = 0.0f,
-	.TAG = "inside",
-	.temp_unit = "C",
-	.humidity_unit = "%",
-	.identifier = 1
-};
-
-dht22_sensor_t test_sensor_gt =  {
-	.pin_number =33,
-	.temperature = 0.0f,
-	.humidity = 0.0f,
-	.TAG = "test location",
-	.temp_unit = "C",
-	.humidity_unit = "%",
-	.identifier = 2
-};
 
 
 // == get temp & hum =============================================
@@ -81,6 +50,8 @@ dht22_sensor_t test_sensor_gt =  {
 float get_humidity(dht22_sensor_t *sensor_t) { return sensor_t->humidity; }
 float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; }
 
+
+//TODO: once more types of sensors are used turn this generic using void * and call value to sensor specific function
 //== Log JSON of data ============================
 char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 {
@@ -351,20 +322,4 @@ static void DHT22_task(void *vpParameter)
 	}
 }
 
-void DHT22_sensor_task_start(void){
 
-	xSemaphore = xSemaphoreCreateMutex();
-
-
-	ESP_LOGI(TAG, "started test Sensor Reading Task");
-	// pin inside sensor_t
-	xTaskCreatePinnedToCore(DHT22_task, "test_sensor", DHT22_TASK_STACK_SIZE, (void *)&test_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-
-	ESP_LOGI(TAG, "started Inside Sensor Reading Task");
-	// pin inside sensor_t
-	xTaskCreatePinnedToCore(DHT22_task, "inside_sensor", DHT22_TASK_STACK_SIZE, (void *)&inside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-
-	ESP_LOGI(TAG, "starting Outside Sensor Reading Task");
-	// pin outside sensor_t
-	xTaskCreatePinnedToCore(DHT22_task, "outside_sensor", DHT22_TASK_STACK_SIZE, (void *)&outside_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-}

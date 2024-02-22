@@ -12,11 +12,10 @@
 #include "network_components/http_handlers.h"
 #include "nvs_components/nvs_service.h"
 #include "nvs_components/node_info.c"
+#include "sdkconfig.h"
 
 // sensor data instances
-extern dht22_sensor_t inside_sensor_gt;
-extern dht22_sensor_t outside_sensor_gt;
-extern dht22_sensor_t test_sensor_gt;
+extern dht22_sensor_t *dht22_sensor_arr;
 
 extern int g_fw_update_status;
 extern int g_wifi_connect_status;
@@ -229,15 +228,10 @@ esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
             if (httpd_query_key_value(buf, "identity", ident, sizeof(ident)) == ESP_OK) {
                 int identNum = atoi(ident);
 
-                if (identNum == 0){
-                    sensor = inside_sensor_gt;
-                    strncat(log_str, "1-", 3);
-                }else if(identNum == 1) {
-                    sensor = outside_sensor_gt;
-                    strncat(log_str, "0-", 3);
-                } else if(identNum == 2) {
-                    sensor = test_sensor_gt;
-                    strncat(log_str, "2-", 3);
+                if (identNum > 0 && identNum <= CONFIG_TEMP_SENSOR){
+                    sensor = dht22_sensor_arr[(identNum - 1)];
+                    size_t log_buf_size = sizeof(log_str) - strlen(log_str) - 1;
+                    snprintf(log_str + strlen(log_str), log_buf_size, "%d-", identNum);
                 }else {
                     ESP_LOGE(HTTP_HANDLER_TAG, "Invalid location parameter");
                     httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Location Parameter");
