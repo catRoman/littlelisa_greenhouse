@@ -4,7 +4,7 @@
  *
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
- * 
+ *
  */
 
 #ifndef MAIN_HTTP_SERVER_H_
@@ -24,8 +24,6 @@ typedef enum http_server_message
     HTTP_MSG_WIFI_CONNECT_INIT = 0,
     HTTP_MSG_WIFI_CONNECT_SUCCESS,
     HTTP_MSG_WIFI_CONNECT_FAIL,
-    HTTP_MSG_OTA_UPDATE_SUCCESSFUL,
-    HTTP_MSG_OTA_UPDATE_FAILED,
 } http_server_message_e;
 
 /**
@@ -65,9 +63,5 @@ void http_server_start(void);
 */
 void http_server_stop(void);
 
-/**
- * Timer callback function which calls esp_restart upon successfull firmware update
-*/
-void http_server_fw_update_reset_callback(void *arg);
 
 #endif /* MAIN_HTTP_SERVER_H_ */
