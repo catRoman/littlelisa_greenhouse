@@ -25,13 +25,26 @@
 #include "nvs_components/node_info.h"
 #include "network_components/http_server.h"
 #include "module_components/led.h"
-#include "module_components/sd_card_db.h"
-//TODO implement ntc clock with rtc backup/sync
-//TODO capacicance meter driver
-//TODO sd card sqlite database
-//TODO nvs mem allocation bug fix
-//TODO serial parser, for logs
-//TODO settings for turing on/off the loging for different services easily
+#include "database_components/sd_card_db.h"
+
+//TODO: esp-now feature
+//TODO: kconfig for module config using kconfig files
+//TODO config file for all sensors structures and tasks
+//TODO: create database - send sensor data to db, and ram
+//TODO: db health check for recovery attempts if needed
+//TODO: database erro alert -email/led light etc
+//TODO: update landing page to retrieve data from db or ram if db down
+//TODO: ota firmwar update
+//TODO dynamicly add link to all available node landing pages based on connected nodes
+//TODO adjust nvs module info storage and module implemntation based on config
+//TODO: remove node list from nvs (rely dynamicaly based on connected devices)
+//TODO: heartbeat mechanism for esp-now connected nodes (along with active ping?)
+//TODO: ACK mechanism for espnow data transmission
+//TODO: watchdog timer for nodes transmitting data
+//TODO: add device and system information to debug page to monitor device health
+//TODO mdns setup to allow for garenteed access to node landing pages
+
+
 
 
 bool REWRITE = false;
