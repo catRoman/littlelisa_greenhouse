@@ -12,6 +12,7 @@ idf_component_register(
         database_components/sd_card_db.c
         nvs_components/nvs_service.c
         nvs_components/node_info.c
+        nvs_components/module_config.c
         helper.c
         main.c
         

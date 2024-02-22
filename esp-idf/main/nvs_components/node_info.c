@@ -53,18 +53,18 @@ void node_info_log_node_list(void){
 char *node_info_get_module_info_json(void){
     Module_info_t module_info_t = {0};
     int8_t *sensor_arr = NULL;
-    int8_t *node_arr = NULL;
+    
     int8_t sensorArrLength = 0;
-    int8_t nodeArrLength = 0;
+    
 
     ESP_ERROR_CHECK(nvs_get_module_info(&module_info_t));
     ESP_ERROR_CHECK(nvs_get_sensor_arr(&sensor_arr, &sensorArrLength));
-    ESP_ERROR_CHECK(nvs_get_node_arr(&node_arr, &nodeArrLength));
+    
 
     
     cJSON *root = cJSON_CreateObject();
     cJSON *module_info = cJSON_CreateObject();
-    cJSON *node_list = cJSON_CreateArray();
+    
     cJSON *sensor_list = cJSON_CreateObject();
 
     cJSON_AddStringToObject(module_info, "type", module_info_t.type);
@@ -105,10 +105,7 @@ char *node_info_get_module_info_json(void){
 
     cJSON_AddItemToObject(root, "sensor_list", sensor_list);
 
-    for(int i = 0; i < nodeArrLength; i++){
-        cJSON_AddItemToArray(node_list, cJSON_CreateNumber(node_arr[i]));
-    }
-    cJSON_AddItemToObject(root, "node_identifier_nums", node_list);
+   
 
     return cJSON_Print(root);
 
