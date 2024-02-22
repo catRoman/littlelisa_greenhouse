@@ -1,8 +1,8 @@
 
 
-esp_err_t index_Cjz8_SRG_css_handler(httpd_req_t *req);
+esp_err_t index_css_handler(httpd_req_t *req);
 
-esp_err_t index_Brmxup6R_js_handler(httpd_req_t *req);
+esp_err_t index_js_handler(httpd_req_t *req);
 
  esp_err_t plant3_svg_handler(httpd_req_t *req);
 

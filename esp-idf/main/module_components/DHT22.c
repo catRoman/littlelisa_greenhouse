@@ -64,6 +64,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 	cJSON_AddNumberToObject(json_data, "identity", sensor_t->identifier);
 	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
+	cJSON_AddNumberToObject(json_data, "pin", sensor_t->pin_number);
 	if(sensor_choice == HUMIDITY){
 		cJSON_AddNumberToObject(json_data, "value", get_humidity(sensor_t));
 		cJSON_AddStringToObject(json_data, "unit", sensor_t->humidity_unit);

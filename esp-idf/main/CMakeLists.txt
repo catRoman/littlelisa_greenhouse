@@ -22,6 +22,6 @@ idf_component_register(
     EMBED_FILES
         landing_page/index.html
         landing_page/plant3.svg
-        landing_page/assets/index-Brmxup6R.js
-        landing_page/assets/index-Cjz8_SRG.css
+        landing_page/assets/index.js
+        landing_page/assets/index.css
 )
