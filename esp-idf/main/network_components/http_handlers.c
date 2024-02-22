@@ -15,8 +15,10 @@
 #include "nvs_components/module_config.h"
 #include "sdkconfig.h"
 
+#define SQL_ID_SYNC_VAL 1
+
 // sensor data instances
-extern dht22_sensor_t *dht22_sensor_arr;
+extern dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL];
 
 extern int g_fw_update_status;
 extern int g_wifi_connect_status;
@@ -32,28 +34,14 @@ extern const uint8_t plant3_svg_start[]         asm("_binary_plant3_svg_start");
 extern const uint8_t plant3_svg_end[]         asm("_binary_plant3_svg_end");
 
 
-extern const uint8_t index_Brmxup6R_js_start[]         asm("_binary_index_Brmxup6R_js_start");
-extern const uint8_t index_Brmxup6R_js_end[]         asm("_binary_index_Brmxup6R_js_end");
+extern const uint8_t index_js_start[]         asm("_binary_index_js_start");
+extern const uint8_t index_js_end[]         asm("_binary_index_js_end");
 
 
-extern const uint8_t index_Cjz8_SRG_css_start[]         asm("_binary_index_Cjz8_SRG_css_start");
-extern const uint8_t index_Cjz8_SRG_css_end[]         asm("_binary_index_Cjz8_SRG_css_end");
+extern const uint8_t index_css_start[]         asm("_binary_index_css_start");
+extern const uint8_t index_css_end[]         asm("_binary_index_css_end");
 
-// // Embeded files: JQuery, index.html, app.css, app.js and favicon.ico files
-// extern const uint8_t jquery_3_3_1_min_js_start[]    asm("_binary_jquery_3_3_1_min_js_start");
-// extern const uint8_t jquery_3_3_1_min_js_end[]      asm("_binary_jquery_3_3_1_min_js_end");
 
-// extern const uint8_t index_html_start[]             asm("_binary_index_html_start");
-// extern const uint8_t index_html_end[]               asm("_binary_index_html_end");
-
-// extern const uint8_t app_css_start[]                asm("_binary_app_css_start");
-// extern const uint8_t app_css_end[]                  asm("_binary_app_css_end");
-
-// extern const uint8_t app_js_start[]                 asm("_binary_app_js_start");
-// extern const uint8_t app_js_end[]                   asm("_binary_app_js_end");
-
-// extern const uint8_t favicon_ico_start[]            asm("_binary_favicon_ico_start");
-// extern const uint8_t favicon_ico_end[]              asm("_binary_favicon_ico_end");
 
 static const char HTTP_HANDLER_TAG [] = "http_handlers";
 
@@ -73,22 +61,22 @@ void register_http_server_handlers(void)
         httpd_register_uri_handler(http_server_handle, &index_html);
 
         //register css handler
-        httpd_uri_t index_Cjz8_SRG_css = {
-            .uri = "/assets/index-Cjz8_SRG.css",
+        httpd_uri_t index_css = {
+            .uri = "/assets/index.css",
             .method = HTTP_GET,
-            .handler = index_Cjz8_SRG_css_handler,
+            .handler = index_css_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &index_Cjz8_SRG_css);
+        httpd_register_uri_handler(http_server_handle, &index_css);
 
         //register js handler
-        httpd_uri_t index_Brmxup6R_js = {
-            .uri = "/assets/index-Brmxup6R.js",
+        httpd_uri_t index_js = {
+            .uri = "/assets/index.js",
             .method = HTTP_GET,
-            .handler = index_Brmxup6R_js_handler,
+            .handler = index_js_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &index_Brmxup6R_js);
+        httpd_register_uri_handler(http_server_handle, &index_js);
 
         //register icon handler
         httpd_uri_t plant3_svg = {
@@ -147,12 +135,12 @@ void register_http_server_handlers(void)
 }
 
 
-esp_err_t index_Cjz8_SRG_css_handler(httpd_req_t *req)
+esp_err_t index_css_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "index-Cjz8_SRG.css requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "index.css requested");
 
     httpd_resp_set_type(req, "text/css");
-    httpd_resp_send(req, (const char *)index_Cjz8_SRG_css_start, index_Cjz8_SRG_css_end - index_Cjz8_SRG_css_start);
+    httpd_resp_send(req, (const char *)index_css_start, index_css_end - index_css_start);
 
     return ESP_OK;
 }
@@ -172,12 +160,12 @@ esp_err_t index_html_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t index_Brmxup6R_js_handler(httpd_req_t *req)
+esp_err_t index_js_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "index-Brmxup6R.js requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "index.js requested");
 
     httpd_resp_set_type(req, "application/javascript");
-    httpd_resp_send(req, (const char *)index_Brmxup6R_js_start, index_Brmxup6R_js_end - index_Brmxup6R_js_start);
+    httpd_resp_send(req, (const char *)index_js_start, index_js_end - index_js_start);
 
     return ESP_OK;
 }
@@ -229,8 +217,8 @@ esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
             if (httpd_query_key_value(buf, "identity", ident, sizeof(ident)) == ESP_OK) {
                 int identNum = atoi(ident);
 
-                if (identNum > 0 && identNum <= CONFIG_SENSOR_TEMP){
-                    sensor = dht22_sensor_arr[(identNum - 1)];
+                if (identNum >= 1 && identNum < (CONFIG_SENSOR_TEMP+SQL_ID_SYNC_VAL)){
+                    sensor = dht22_sensor_arr[identNum];
                     size_t log_buf_size = sizeof(log_str) - strlen(log_str) - 1;
                     snprintf(log_str + strlen(log_str), log_buf_size, "%d-", identNum);
                 }else {

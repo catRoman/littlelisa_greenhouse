@@ -18,8 +18,6 @@
 
 
 //TODO: esp-now feature
-//TODO: kconfig for module config using kconfig files
-//TODO config file for all sensors structures and tasks
 //TODO: create database - send sensor data to db, and ram
 //TODO: db health check for recovery attempts if needed
 //TODO: database erro alert -email/led light etc

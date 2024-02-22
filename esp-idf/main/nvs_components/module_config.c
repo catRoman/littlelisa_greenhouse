@@ -17,8 +17,11 @@
 #include "nvs_service.h"
 
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
+#define SQL_ID_SYNC_VAL 1
 
-const char* dht22_sensor_locations[MAX_TEMP_SENSORS] = {
+//to match sql table id with sensor
+const char* dht22_sensor_locations[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
+    "Intentialy Empty",
     #ifdef CONFIG_SENSOR_TEMP_1_LOCATION
     CONFIG_SENSOR_TEMP_1_LOCATION,
     #endif
@@ -36,7 +39,9 @@ const char* dht22_sensor_locations[MAX_TEMP_SENSORS] = {
     #endif
 };
 
-const int dht22_pin_number[MAX_TEMP_SENSORS] = {
+//to match sql table id with sensor
+const int dht22_pin_number[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
+    0, //initaly empty
     #ifdef CONFIG_SENSOR_TEMP_1_PIN
     CONFIG_SENSOR_TEMP_1_PIN,
     #endif
@@ -65,7 +70,8 @@ const char TAG [] = "module_config";
                         CONFIG_SENSOR_CAMERA,  
                         };
 
-dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP];
+//one more as list start at index 1 with 0=null for sql sync
+dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
 
 #ifdef CONFIG_MODULE_TYPE_CONTROLLER
     Module_info_t module_info = {
@@ -92,8 +98,9 @@ void initiate_config(){
     esp_err_t err;
 
     Module_info_t temp_info = {0};
-
+    
     int8_t tempArr[SENSOR_LIST_TOTAL];
+    int8_t tempArrLength = 0;
 
     //check for existing module info data change
     if((err=nvs_get_module_info(&temp_info)) != ESP_OK){
@@ -110,23 +117,28 @@ void initiate_config(){
     }
 
     //check for existing senor array data change
-    if((err = nvs_get_sensor_arr(&tempArr, SENSOR_LIST_TOTAL)) != ESP_OK){
+    if((err = nvs_get_sensor_arr(&tempArr, &tempArrLength)) != ESP_OK){
         ESP_LOGI(TAG, "%s", esp_err_to_name(err));
         nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
     }else if(err == ESP_OK){
-        for(int i =0; i < SENSOR_LIST_TOTAL; i++){
-            if(tempArr[i] != sensor_arr[i]){
-                nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
-                break;
+        if(tempArrLength != SENSOR_LIST_TOTAL){
+            ESP_LOGE(TAG, "nvs retrieved sensor length mismatch");
+            
+        }else{
+            for(int i =0; i < SENSOR_LIST_TOTAL; i++){
+                if(tempArr[i] != sensor_arr[i]){
+                    nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
+                    break;
+                }
+                ESP_LOGI(TAG, "sensor list info has not changed since last write");
             }
-            ESP_LOGI(TAG, "sensor list info has not changed since last write");
         }
     }
 
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
 
-    
-    for(int i = 0; i < CONFIG_SENSOR_TEMP; i++){
+    //starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
+    for(int i = 1; i <= CONFIG_SENSOR_TEMP; i++){
         dht22_sensor_arr[i].pin_number = dht22_pin_number[i];
         dht22_sensor_arr[i].temperature = 0.0f;
         dht22_sensor_arr[i].temp_unit = "C";
@@ -138,7 +150,7 @@ void initiate_config(){
         }else{
             ESP_LOGE(TAG, "Error allocation memory for sensor location tag");
         }
-        dht22_sensor_arr[i].identifier = i + 1;
+        dht22_sensor_arr[i].identifier = i;
     }
 
 
@@ -157,7 +169,7 @@ void initiate_config(){
 void initiate_sensor_tasks(){
     
     for(Sensor_List sensor_type = TEMP; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
-        for(int sensor = 0; sensor < sensor_arr[sensor_type]; sensor++){
+        for(int sensor = 1; sensor < sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor++){
             switch(sensor_type){
                 case TEMP:
 	                ESP_LOGI(TAG, "Started Temp Sensor: Id: #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
@@ -167,17 +179,22 @@ void initiate_sensor_tasks(){
                     break;
                 case HUMIDITY:
                     //current using dht22 which is dual temp/humidity no extra task needed
-	                ESP_LOGI(TAG, "Started Humidity Sensor #%d Reading Task", sensor);
+	                ESP_LOGI(TAG, "Started Humidity Sensor: Id #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
                     break;
                 case SOIL_MOISTURE:
+	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
                     break;
                 case LIGHT:
+	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
                     break;
                 case SOUND:
+	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
                     break;
                 case MOVEMENT:
+	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
                     break;
                 case CAMERA:
+	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
                     break;
                 default:
                     ESP_LOGE(TAG, "sensor list length mismatch error");
