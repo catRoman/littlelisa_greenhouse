@@ -1,23 +1,26 @@
 idf_component_register(
     SRCS
-        main.c
-        led.c
-        wifi_app.c
-        http_server.c
-        DHT22.c
-        nvs_service.c
-        sntp.c
-        spi_sd_card.c
-        rtc_DS1302.c
-        ds1302.c
-        node_info.c
+        network_components/wifi_ap_sta.c
+        network_components/http_server.c
+        network_components/http_handlers.c
+        network_components/sntp.c
+        module_components/led.c
+        module_components/DHT22.c
+        module_components/spi_sd_card.c
+        module_components/rtc_DS1302.c
+        module_components/ds1302.c
+        module_components/sd_card_db.c
+        nvs_components/nvs_service.c
+        nvs_components/node_info.c
         helper.c
+        main.c
+        
 
     INCLUDE_DIRS "."
 
     EMBED_FILES
-        esp_main_controller_landing_page/app.css
-        esp_main_controller_landing_page/app.js
-        esp_main_controller_landing_page/favicon.ico
-        esp_main_controller_landing_page/index.html
-        esp_main_controller_landing_page/jquery-3.3.1.min.js)
+        landing_page/index.html
+        landing_page/plant3.svg
+        landing_page/assets/index-Brmxup6R.js
+        landing_page/assets/index-Cjz8_SRG.css
+)

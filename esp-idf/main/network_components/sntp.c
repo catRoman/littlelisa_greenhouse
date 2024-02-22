@@ -10,10 +10,10 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
-#include "ds1302.h"
+#include "module_components/ds1302.h"
 
 #include "sntp.h"
-#include "rtc_DS1302.h"
+#include "module_components/rtc_DS1302.h"
 
 static const char TAG [] = "sntp";
  esp_sntp_config_t config = {

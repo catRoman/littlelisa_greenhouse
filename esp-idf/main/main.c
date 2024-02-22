@@ -15,15 +15,17 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
-#include "wifi_app.h"
-#include "DHT22.h"
-#include "nvs_service.h"
-#include "sntp.h"
-#include "spi_sd_card.h"
-#include "rtc_DS1302.h"
-#include "ds1302.h"
-#include "node_info.h"
-
+#include "network_components/wifi_ap_sta.h"
+#include "module_components/DHT22.h"
+#include "nvs_components/nvs_service.h"
+#include "network_components/sntp.h"
+#include "module_components/spi_sd_card.h"
+#include "module_components/rtc_DS1302.h"
+#include "module_components/ds1302.h"
+#include "nvs_components/node_info.h"
+#include "network_components/http_server.h"
+#include "module_components/led.h"
+#include "module_components/sd_card_db.h"
 //TODO implement ntc clock with rtc backup/sync
 //TODO capacicance meter driver
 //TODO sd card sqlite database
@@ -46,8 +48,8 @@ Module_info_t module_info = {
 */
 const int8_t node_arr[1] = {0};
 
-const int8_t sensor_arr[7] = {2,  // temp
-                        2,  // humidity
+const int8_t sensor_arr[7] = {3,  // temp
+                        3,  // humidity
                         0,  // soil moisture
                         0,  // light
                         0,  // sound
@@ -76,20 +78,20 @@ void app_main(void)
     }
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
 
-    //synced system clock
-    sntp_service_init();
+
 
     // Start Wifi
-    wifi_app_start();
+    wifi_start();
 
     // backup sd database
     spi_sd_card_init();
+    //sd_db_init();
 
     // start DHT22 Sensor task
+
+    vTaskDelay(5000/ portMAX_DELAY);
+
     DHT22_sensor_task_start();
-
-    vTaskDelay(15000/ portMAX_DELAY);
-
 
 
 

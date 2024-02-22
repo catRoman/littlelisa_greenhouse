@@ -26,10 +26,12 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/portmacro.h"
 #include "esp_system.h"
 #include "driver/gpio.h"
 #include "cJSON.h"
 #include "freertos/semphr.h"
+
 
 #include "DHT22.h"
 #include "task_common.h"
@@ -39,6 +41,7 @@
 
 static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
+static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 // == Sensor structs
 
@@ -47,8 +50,9 @@ dht22_sensor_t outside_sensor_gt = {
 	.temperature = 0.0f,
 	.temp_unit = "C",
 	.humidity = 0.0f,
-	.humidity_unit = "%%",
+	.humidity_unit = "%",
 	.TAG = "outside",
+	.identifier = 0
 };
 
 dht22_sensor_t inside_sensor_gt =  {
@@ -57,8 +61,18 @@ dht22_sensor_t inside_sensor_gt =  {
 	.humidity = 0.0f,
 	.TAG = "inside",
 	.temp_unit = "C",
-	.humidity_unit = "%%"
+	.humidity_unit = "%",
+	.identifier = 1
+};
 
+dht22_sensor_t test_sensor_gt =  {
+	.pin_number =33,
+	.temperature = 0.0f,
+	.humidity = 0.0f,
+	.TAG = "test location",
+	.temp_unit = "C",
+	.humidity_unit = "%",
+	.identifier = 2
 };
 
 
@@ -75,6 +89,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 	cJSON *json_data = cJSON_CreateObject();
 
+	cJSON_AddNumberToObject(json_data, "identity", sensor_t->identifier);
 	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
 	if(sensor_choice == HUMIDITY){
@@ -133,16 +148,22 @@ void errorHandler(int response, dht22_sensor_t *sensor_t)
 int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
 {
 
+
 	int uSec = 0;
+
+	portENTER_CRITICAL(&myMutex);
+
 	while( gpio_get_level(sensor_t->pin_number)==state ) {
 
-		if( uSec > usTimeOut )
+		if( uSec > usTimeOut ){
+			portEXIT_CRITICAL(&myMutex);
 			return -1;
+		}
 
 		++uSec;
 		esp_rom_delay_us(1);		// uSec delay
 	}
-
+	portEXIT_CRITICAL(&myMutex);
 	return uSec;
 }
 
@@ -190,6 +211,9 @@ To request data from DHT:
 
 int readDHT(dht22_sensor_t *sensor_t)
 {
+
+
+
 int uSec = 0;
 
 uint8_t dhtData[MAXdhtData];
@@ -206,7 +230,6 @@ float temperature = sensor_t->temperature;
 		dhtData[k] = 0;
 
 	// == Send start signal to DHT sensor_t ===========
-
 	gpio_set_direction( DHTgpio, GPIO_MODE_OUTPUT );
 
 	// pull down for 3 ms for a smooth and nice wake up
@@ -215,20 +238,20 @@ float temperature = sensor_t->temperature;
 
 	// pull up for 25 us for a gentile asking for data
 	gpio_set_level( DHTgpio, 1 );
-	esp_rom_delay_us( 25 );
+	esp_rom_delay_us( 30 );
 
 	gpio_set_direction( DHTgpio, GPIO_MODE_INPUT );		// change to input mode
 
 	// == DHT will keep the line low for 80 us and then high for 80us ====
 
-	uSec = getSignalLevel( 85, 0, sensor_t );
-	ESP_LOGV( TAG, "Response = %d", uSec );
+	uSec = getSignalLevel( 80, 0, sensor_t );
+	//ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// -- 80us up ------------------------
 
-	uSec = getSignalLevel( 85, 1 , sensor_t);
-	ESP_LOGV( TAG, "Response = %d", uSec );
+	uSec = getSignalLevel( 80, 1 , sensor_t);
+	//ESP_LOGV( TAG, "{==%s==} Response = %d",sensor_t->TAG, uSec );
 	if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 	// == No errors, read the 40 data bits ================
@@ -237,19 +260,21 @@ float temperature = sensor_t->temperature;
 
 		// -- starts new data transmission with >50us low signal
 
-		uSec = getSignalLevel( 56, 0 , sensor_t);
+		uSec = getSignalLevel( 50, 0 , sensor_t);
+		//ESP_LOGV( TAG, "{==%s==} Data Read Response = %d",sensor_t->TAG, uSec );
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// -- check to see if after >70us rx data is a 0 or a 1
 
-		uSec = getSignalLevel( 75, 1 , sensor_t);
+		uSec = getSignalLevel( 70, 1 , sensor_t);
+		//ESP_LOGV( TAG, "{==%s==} Data Read Response 2 = %d",sensor_t->TAG, uSec );
 		if( uSec<0 ) return DHT_TIMEOUT_ERROR;
 
 		// add the current read to the output data
 		// since all dhtData array where set to 0 at the start,
 		// only look for "1" (>28us us)
 
-		if (uSec > 40) {
+		if (uSec > 27) {
 			dhtData[ byteInx ] |= (1 << bitInx);
 			}
 
@@ -286,6 +311,7 @@ float temperature = sensor_t->temperature;
 
 	else
 		return DHT_CHECKSUM_ERROR;
+
 }
 
 
@@ -298,12 +324,14 @@ static void DHT22_task(void *vpParameter)
 	sensor_t = (dht22_sensor_t *)vpParameter;
 
 
+	gpio_set_direction(sensor_t->pin_number, GPIO_MODE_INPUT);
+	esp_rom_delay_us( 100 );
+	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
+	vTaskDelay(pdMS_TO_TICKS(1000));
+	esp_log_level_set(TAG, ESP_LOG_INFO);
 
 	for(;;)
 	{
-		xSemaphoreTake( xSemaphore, portMAX_DELAY );
-
-		ESP_LOGV(TAG, "{==%s==}: semaphore taken", sensor_t->TAG);
 
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
@@ -318,8 +346,6 @@ static void DHT22_task(void *vpParameter)
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
-		xSemaphoreGive( xSemaphore );
-		ESP_LOGV(TAG, "{==%s==}: semaphore given", sensor_t->TAG);
 
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
@@ -328,6 +354,11 @@ static void DHT22_task(void *vpParameter)
 void DHT22_sensor_task_start(void){
 
 	xSemaphore = xSemaphoreCreateMutex();
+
+
+	ESP_LOGI(TAG, "started test Sensor Reading Task");
+	// pin inside sensor_t
+	xTaskCreatePinnedToCore(DHT22_task, "test_sensor", DHT22_TASK_STACK_SIZE, (void *)&test_sensor_gt, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
 
 	ESP_LOGI(TAG, "started Inside Sensor Reading Task");
 	// pin inside sensor_t

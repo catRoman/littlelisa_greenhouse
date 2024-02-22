@@ -13,17 +13,20 @@
 
 void blue_led_init(){
     esp_rom_gpio_pad_select_gpio(LED_BLUE_GPIO);
+    gpio_set_pull_mode(LED_BLUE_GPIO, GPIO_PULLDOWN_ONLY);
     gpio_set_direction(LED_BLUE_GPIO, GPIO_MODE_OUTPUT);
 }
 
 void green_led_init(){
     esp_rom_gpio_pad_select_gpio(LED_GREEN_GPIO);
+    gpio_set_pull_mode(LED_GREEN_GPIO, GPIO_PULLDOWN_ONLY);
     gpio_set_direction(LED_GREEN_GPIO, GPIO_MODE_OUTPUT);
 
 }
 
 void yellow_led_init(){
     esp_rom_gpio_pad_select_gpio(LED_YELLOW_GPIO);
+    gpio_set_pull_mode(LED_YELLOW_GPIO, GPIO_PULLDOWN_ONLY);
     gpio_set_direction(LED_YELLOW_GPIO, GPIO_MODE_OUTPUT);
 }
 
