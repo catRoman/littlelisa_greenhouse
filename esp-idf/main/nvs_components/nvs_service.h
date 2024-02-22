@@ -4,7 +4,6 @@
  * Created on: 2024-01-30
  * Author: Catlin Roman
 */
-//TODO: stop nvs erase crediential echo
 #ifndef MAIN_NVS_SERVICE_H_
 #define MAIN_NVS_SERVICE_H_
 

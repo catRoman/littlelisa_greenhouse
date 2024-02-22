@@ -23,7 +23,7 @@
 #include "driver/sdspi_host.h"
 #include "sqlite3.h"
 #include "sdmmc_cmd.h"
-#include "spi_sd_card.h"
+#include "module_components/spi_sd_card.h"
 
 static const char *TAG = "sqlite3_sdspi";
 const char* data = "Callback function called";
