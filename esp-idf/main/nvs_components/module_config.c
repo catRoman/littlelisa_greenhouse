@@ -65,7 +65,7 @@ const char TAG [] = "module_config";
                         CONFIG_SENSOR_CAMERA,  
                         };
 
-dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP];
+dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP] = {0};
 
 #ifdef CONFIG_MODULE_TYPE_CONTROLLER
     Module_info_t module_info = {
@@ -92,8 +92,9 @@ void initiate_config(){
     esp_err_t err;
 
     Module_info_t temp_info = {0};
-
+    
     int8_t tempArr[SENSOR_LIST_TOTAL];
+    int8_t tempArrLength = 0;
 
     //check for existing module info data change
     if((err=nvs_get_module_info(&temp_info)) != ESP_OK){
@@ -110,16 +111,21 @@ void initiate_config(){
     }
 
     //check for existing senor array data change
-    if((err = nvs_get_sensor_arr(&tempArr, SENSOR_LIST_TOTAL)) != ESP_OK){
+    if((err = nvs_get_sensor_arr(&tempArr, &tempArrLength)) != ESP_OK){
         ESP_LOGI(TAG, "%s", esp_err_to_name(err));
         nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
     }else if(err == ESP_OK){
-        for(int i =0; i < SENSOR_LIST_TOTAL; i++){
-            if(tempArr[i] != sensor_arr[i]){
-                nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
-                break;
+        if(tempArrLength != SENSOR_LIST_TOTAL){
+            ESP_LOGE(TAG, "nvs retrieved sensor length mismatch");
+            
+        }else{
+            for(int i =0; i < SENSOR_LIST_TOTAL; i++){
+                if(tempArr[i] != sensor_arr[i]){
+                    nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
+                    break;
+                }
+                ESP_LOGI(TAG, "sensor list info has not changed since last write");
             }
-            ESP_LOGI(TAG, "sensor list info has not changed since last write");
         }
     }
 
@@ -160,14 +166,14 @@ void initiate_sensor_tasks(){
         for(int sensor = 0; sensor < sensor_arr[sensor_type]; sensor++){
             switch(sensor_type){
                 case TEMP:
-	                ESP_LOGI(TAG, "Started Temp Sensor: Id: #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
+	                ESP_LOGI(TAG, "Started Temp Sensor: Id: #%d, Location: %s", sensor+1, dht22_sensor_arr[sensor].TAG);
                     char sensor_task_name[20];
                     snprintf(sensor_task_name, sizeof(sensor_task_name), "temp_sensor_%d", dht22_sensor_arr[sensor].identifier);
                     xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&dht22_sensor_arr[sensor], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
                     break;
                 case HUMIDITY:
                     //current using dht22 which is dual temp/humidity no extra task needed
-	                ESP_LOGI(TAG, "Started Humidity Sensor #%d Reading Task", sensor);
+	                ESP_LOGI(TAG, "Started Humidity Sensor: Id #%d, Location: %s", sensor+1, dht22_sensor_arr[sensor].TAG);
                     break;
                 case SOIL_MOISTURE:
                     break;
