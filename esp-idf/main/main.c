@@ -15,19 +15,27 @@
 #include "network_components/wifi_ap_sta.h"
 #include "nvs_components/nvs_service.h"
 #include "nvs_components/module_config.h"
+//---OTA TODOs-----
+//TODO: ota firmwar update
 
-
+//---ESP_NOW TODO----
 //TODO: esp-now feature
+//TODO: heartbeat mechanism for esp-now connected nodes (along with active ping?)
+//TODO: ACK mechanism for espnow data transmission
+//TODO: watchdog timer for nodes transmitting data
+
+//---DATABASE TODO----
 //TODO: create database - send sensor data to db, and ram --> 02/22
 //TODO: db health check for recovery attempts if needed
 //TODO: database erro alert -email/led light etc
 //TODO: update landing page to retrieve data from db or ram if db down
-//TODO: ota firmwar update
-//TODO dynamicly add link to all available node landing pages based on connected nodes
-//TODO: heartbeat mechanism for esp-now connected nodes (along with active ping?)
-//TODO: ACK mechanism for espnow data transmission
-//TODO: watchdog timer for nodes transmitting data
+
+//--OTHER TODO----
+//TODO mdns setup to allow for garenteed access to node landing pages
 //TODO: add device and system information to debug page to monitor device health
+//TODO dynamicly add link to all available node landing pages based on connected nodes
+//TODO check for time sync between nodes and controller on boot and periodically, updating as neccary ?
+
 /*  Device Information:
         Model: The specific model of the ESP device (e.g., ESP8266, ESP32).
         Chip ID: Unique identifier of the chip.
@@ -77,8 +85,6 @@
         Battery Level: If the device is battery-powered, showing the current battery level or voltage.
         Power Source: The current source of power (USB, battery, external).
 */
-//TODO mdns setup to allow for garenteed access to node landing pages
-//TODO: check if sdk changed nvs data then write otherwise pass
 
 
 
