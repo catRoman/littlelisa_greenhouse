@@ -18,18 +18,65 @@
 
 
 //TODO: esp-now feature
-//TODO: create database - send sensor data to db, and ram
+//TODO: create database - send sensor data to db, and ram --> 02/22
 //TODO: db health check for recovery attempts if needed
 //TODO: database erro alert -email/led light etc
 //TODO: update landing page to retrieve data from db or ram if db down
 //TODO: ota firmwar update
 //TODO dynamicly add link to all available node landing pages based on connected nodes
-//TODO adjust nvs module info storage and module implemntation based on config
-//TODO: remove node list from nvs (rely dynamicaly based on connected devices)
 //TODO: heartbeat mechanism for esp-now connected nodes (along with active ping?)
 //TODO: ACK mechanism for espnow data transmission
 //TODO: watchdog timer for nodes transmitting data
 //TODO: add device and system information to debug page to monitor device health
+/*  Device Information:
+        Model: The specific model of the ESP device (e.g., ESP8266, ESP32).
+        Chip ID: Unique identifier of the chip.
+        Flash Chip Size: The size of the flash memory.
+        Sketch Size: Size of the current application (sketch) including the space it occupies in flash memory.
+        Free Sketch Space: Available space for future sketches.
+
+    Firmware Information:
+        Firmware Version: The current version of the firmware running on the device.
+        SDK Version: The SDK version used for building the firmware.
+
+    Network Information:
+        IP Address: The device's current IP address on the network.
+        Subnet Mask: Subnet mask of the network connection.
+        Gateway: The network gateway address.
+        MAC Address: The device's MAC address.
+        SSID: The SSID of the WiFi network the device is connected to.
+        Signal Strength (RSSI): WiFi signal strength indicator, useful for positioning the device in areas with strong signal strength.
+
+    Runtime Information:
+        Uptime: How long the device has been running since the last reset.
+        CPU Frequency: The operating frequency of the CPU.
+        Temperature (if supported): The internal temperature of the chip (some ESP32 models support this).
+
+    Memory Information:
+        Free Heap Memory: Available dynamic memory which can be useful to check for memory leaks or for determining if the application is close to running out of memory.
+        Maximum Allocatable Block Size: Gives an idea about the largest block of memory that can be allocated at once.
+        Heap Fragmentation: Indicates the state of the heap memory fragmentation.
+
+    Task & Process Information (mostly for ESP32):
+        Task List: A list of running tasks and their state.
+        Core Usage: CPU usage per core, if applicable.
+
+    Connectivity Status:
+        Wi-Fi Status: Current status of the Wi-Fi connection (connected, attempting to connect, disconnected).
+        Connected Devices: Number and possibly the list of devices connected to the ESP if it's acting as an access point.
+
+    I/O Status:
+        GPIO Status: Current status (high/low) of General Purpose Input/Output (GPIO) pins.
+        ADC Values: Analog-to-Digital Converter values for reading sensors or analog inputs.
+
+    Errors & Logs:
+        Recent Errors: Any recent errors that have occurred.
+        System Logs: A log buffer showing recent system activities or debug messages.
+
+    Power Information:
+        Battery Level: If the device is battery-powered, showing the current battery level or voltage.
+        Power Source: The current source of power (USB, battery, external).
+*/
 //TODO mdns setup to allow for garenteed access to node landing pages
 //TODO: check if sdk changed nvs data then write otherwise pass
 
