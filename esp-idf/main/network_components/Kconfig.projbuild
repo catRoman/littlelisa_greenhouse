@@ -1,4 +1,4 @@
-menu "Network Configuration"
+menu "Little-Lisa Configuration"
 
     config ESP_ENABLE_AP_MODE
         bool "Enable Ap"

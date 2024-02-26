@@ -21,13 +21,15 @@
 #include "sdkconfig.h"
 #include "lwip/netdb.h"
 
+#include "nvs_components/nvs_service.c"
+#include "mdns.h"
 #include "wifi_ap_sta.h"
 #include "module_components/led.h"
 #include "http_server.h"
 #include "sntp.h"
 #include "task_common.h"
 
-static const char TAG[] = "wifi_ap_sta";
+static const char WIFI_TAG[] = "wifi_ap_sta";
 static int s_retry_num = 0;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
@@ -35,21 +37,21 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 {
     switch(event_id){
         case WIFI_EVENT_AP_STACONNECTED:
-            ESP_LOGI(TAG, "station joined to module ap");
+            ESP_LOGI(WIFI_TAG, "station joined to module ap");
             break;
 
         case WIFI_EVENT_AP_STADISCONNECTED:
-            ESP_LOGI(TAG, "station left modules ap");
+            ESP_LOGI(WIFI_TAG, "station left modules ap");
             break;
 
         case WIFI_EVENT_STA_START:
             esp_wifi_connect();
-            ESP_LOGI(TAG, "module joined ap as sta");
+            ESP_LOGI(WIFI_TAG, "module joined ap as sta");
             break;
 
         case IP_EVENT_STA_GOT_IP:
             ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
-            ESP_LOGI(TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
+            ESP_LOGI(WIFI_TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
             s_retry_num = 0;
 
         default:
@@ -90,7 +92,7 @@ esp_netif_t *wifi_init_softap(void)
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_ap_config));
 
-    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
+    ESP_LOGI(WIFI_TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
             ESP_WIFI_AP_MODE_SSID, ESP_WIFI_AP_MODE_PASSWORD, ESP_WIFI_AP_MODE_CHANNEL);
 
     return esp_netif_ap;
@@ -111,7 +113,7 @@ esp_netif_t *wifi_init_sta(void)
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_sta_config));
 
-    ESP_LOGI(TAG, "wifi_init_sta finished. SSID:%s password:%s",
+    ESP_LOGI(WIFI_TAG, "wifi_init_sta finished. SSID:%s password:%s",
         ESP_WIFI_INIT_STA_MODE_SSID, ESP_WIFI_INIT_STA_MODE_PASSWORD);
 
     return esp_netif_sta;
@@ -149,13 +151,13 @@ void wifi_start(void)
     if(ESP_ENABLE_AP_MODE == true){
 
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-        ESP_LOGI(TAG, "wifi ap and sta mode selected");
+        ESP_LOGI(WIFI_TAG, "wifi ap and sta mode selected");
         //soft ap
-        ESP_LOGI(TAG, "wifi soft ap mode init");
+        ESP_LOGI(WIFI_TAG, "wifi soft ap mode init");
         esp_netif_t *esp_netif_ap = wifi_init_softap();
 
         //sta
-        ESP_LOGI(TAG, "wifi sta mode init");
+        ESP_LOGI(WIFI_TAG, "wifi sta mode init");
         esp_netif_t *esp_netif_sta = wifi_init_sta();
 
         ESP_ERROR_CHECK(esp_wifi_start());
@@ -164,6 +166,8 @@ void wifi_start(void)
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
 
+
+        mdns_start();
      //   start http and sntp server
         sntp_service_init();
         http_server_start();
@@ -171,10 +175,10 @@ void wifi_start(void)
 
     }else if(ESP_ENABLE_AP_MODE == false){
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-        ESP_LOGI(TAG, "wifi sta only mode selected");
+        ESP_LOGI(WIFI_TAG, "wifi sta only mode selected");
 
         //sta
-        ESP_LOGI(TAG, "wifi sta mode init");
+        ESP_LOGI(WIFI_TAG, "wifi sta mode init");
         esp_netif_t *esp_netif_sta = wifi_init_sta();
 
         ESP_ERROR_CHECK(esp_wifi_start());
@@ -183,14 +187,82 @@ void wifi_start(void)
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
 
+       
+        mdns_start();
+
         //start http and sntp server
         sntp_service_init();
         http_server_start();
         led_http_server_started();
 
+    
+
 
     }else{
-        ESP_LOGE(TAG, "Error in ap/sta selection mode");
+        ESP_LOGE(WIFI_TAG, "Error in ap/sta selection mode");
     }
     
+}
+
+esp_err_t mdns_start(){
+     //start mdns server 
+        Module_info_t module_info = {0};
+        
+
+        esp_err_t err;
+
+        if ((err = nvs_get_module_info(&module_info)) != ESP_OK){
+            ESP_LOGE("mdns", "NVS module info retreive failed %s", esp_err_to_name(err));
+            return err;
+
+        }
+        //"littlelisa-controller-099" - example 26 char w/o terminator
+        char module_id[12];
+        snprintf(module_id, sizeof(module_id), "%d", module_info.identity);
+        char mdns_host_name[50] = "littlelisa-";
+
+        size_t current_length = strlen(mdns_host_name);
+        size_t remaining_space = sizeof(mdns_host_name) - current_length - 1;
+
+        strncat(mdns_host_name, module_info.type, remaining_space);
+
+        current_length = strlen(mdns_host_name);
+        remaining_space = sizeof(mdns_host_name) - current_length -1;
+
+        strncat(mdns_host_name, "-", remaining_space);
+        
+        current_length = strlen(mdns_host_name);
+        remaining_space = sizeof(mdns_host_name) - current_length -1;
+
+        strncat(mdns_host_name, module_id, remaining_space);
+        
+
+        if ((err = mdns_init()) != ESP_OK) {
+            ESP_LOGE("mdns", "MDNS Init fail: %s", esp_err_to_name(err));
+            return err;
+        }
+        err = mdns_hostname_set(mdns_host_name);
+        if(err) {
+            ESP_LOGE("mdns", "Set hostname failed: %s", esp_err_to_name(err));
+            return err;
+        }
+
+        ESP_LOGI("mdns", "mdns hostname set to: [%s]", mdns_host_name);
+
+        if(mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0) != ESP_OK){
+            ESP_LOGE("mdns", "Failed to add services: %s", esp_err_to_name(err));
+            return err;
+        }
+
+        char service_instance[50];
+        strcpy(service_instance, mdns_host_name);
+        
+        remaining_space = sizeof(service_instance) - strlen(service_instance) - 1;
+        strncat(service_instance, " Debug Web Server", remaining_space);
+
+
+        mdns_service_instance_name_set("_http", "_tcp", service_instance);
+        ESP_LOGI("mdns", "%s running", service_instance);
+
+    return ESP_OK;
 }
