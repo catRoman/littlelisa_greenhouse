@@ -8,7 +8,7 @@
 #include "nvs_service.h"
 #include "node_info.h"
 
-static char TAG[] = "nvs_service";
+static const char TAG[] = "nvs_service";
 
 /**
  * initiate wifi config structure

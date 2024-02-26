@@ -49,5 +49,6 @@
 */
 void wifi_init(void *vpParam);
 void wifi_start(void);
+esp_err_t mdns_start(void);
 
 #endif /* MAIN_WIFI_APP_H_ */

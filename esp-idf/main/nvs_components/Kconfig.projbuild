@@ -4,10 +4,10 @@ menu "NVS Module Info"
         prompt "Select Module Type"
     
         config MODULE_TYPE_NODE
-            bool "Node"
+            bool "node"
 
         config MODULE_TYPE_CONTROLLER
-            bool "Controller"
+            bool "controller"
 
     endchoice
 
