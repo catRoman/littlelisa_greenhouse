@@ -18,7 +18,7 @@
 
 // HTTP Server task
 #define HTTP_SERVER_TASK_STACK_SIZE     8192
-#define HTTP_SERVER_TASK_PRIORITY       4
+#define HTTP_SERVER_TASK_PRIORITY       6
 #define HTTP_SERVER_TASK_CORE_ID        0
 
 // HTTP Server Monitor task
@@ -30,5 +30,15 @@
 #define DHT22_TASK_STACK_SIZE           4096
 #define DHT22_TASK_PRIORITY             5
 #define DHT22_TASK_CORE_ID              1
+
+// esp now Monitor task
+#define SENSOR_QUEUE_STACK_SIZE  4096
+#define SENSOR_QUEUE_PRIORITY    5
+#define SENSOR_QUEUE_CORE_ID     1
+
+// esp now Monitor task
+#define ESP_NOW_MONITOR_STACK_SIZE  4096
+#define ESP_NOW_MONITOR_PRIORITY    5
+#define ESP_NOW_MONITOR_CORE_ID     1
 
 #endif /* MAIN_TASKS_COMMON_H_*/

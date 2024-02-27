@@ -9,6 +9,7 @@
         "http_handlers.h": "c",
         "esp_ota_ops.h": "c",
         "wifi_ap_sta.h": "c",
-        "sdkconfig.h": "c"
+        "sdkconfig.h": "c",
+        "esp_system.h": "c"
     }
 }
