@@ -155,23 +155,37 @@ esp_err_t esp_now_comm_get_config_reciever_mac_addr(uint8_t* mac_bytes) {
     return ESP_FAIL; // Parsing failed
 }
 
+extern QueueHandle_t esp_now_comm_incoming_data_queue_handle; // Make sure this is initialized
+
 void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len) {
+    // Allocate memory for the packet and its data
+    queue_packet_t *packet = calloc(1, sizeof(queue_packet_t));
+    if (packet == NULL) {
+        ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for packet");
+        return;
+    }
 
-        // Assume data_struct is a structure you've defined for queue items.
-    queue_packet_t *packet = calloc(1, len + sizeof(size_t) + sizeof(uint8_t));
+    packet->data = malloc(len); // Allocate memory for the data
+    if (packet->data == NULL) {
+        ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for data");
+        free(packet); // Clean up previously allocated packet memory
+        return;
+    }
 
-    uint8_t * mac_addr = recv_info->src_addr;
+    // Copy MAC address
+    memcpy(packet->mac_addr, recv_info->src_addr, ESP_NOW_ETH_ALEN);
+    
+    // Copy received data
+    memcpy(packet->data, data, len);
+    packet->len = len;
 
-    if (packet != NULL) {
-        memcpy(packet->mac_addr, mac_addr, ESP_NOW_ETH_ALEN); // Copy MAC address
-        memcpy(packet->data, data, len);  // Copy received data
-        packet->len = len;
-        // Post the message pointer to the queue.
-        if(xQueueSend(esp_now_comm_incoming_data_queue_handle, &packet, portMAX_DELAY) == pdPASS){
-            ESP_LOGI(ESP_NOW_COMM_TAG, "data recieved sent to incoming que");
-        }else{
-            ESP_LOGE(ESP_NOW_COMM_TAG, "data failed to send to incoming data que");
-        }
+    // Post the message pointer to the queue
+    if (xQueueSend(esp_now_comm_incoming_data_queue_handle, &packet, portMAX_DELAY) != pdPASS) {
+        ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to send packet to incoming data queue");
+        free(packet->data); // Clean up allocated data memory
+        free(packet); // Clean up packet memory
+    } else {
+        ESP_LOGI(ESP_NOW_COMM_TAG, "Data received and sent to incoming queue");
     }
 }
 
