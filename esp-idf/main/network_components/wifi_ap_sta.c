@@ -23,6 +23,7 @@
 #include "lwip/netdb.h"
 #include "esp_netif.h"
 
+#include "network_components/esp_now_comm.h"
 #include "nvs_components/nvs_service.c"
 #include "mdns.h"
 #include "wifi_ap_sta.h"
@@ -170,6 +171,7 @@ void wifi_start(void)
         log_mac_address(true);
 
         mdns_start();
+        esp_now_comm_start();
      //   start http and sntp server
         sntp_service_init();
         http_server_start();
@@ -191,6 +193,7 @@ void wifi_start(void)
         log_mac_address(false);
        
         mdns_start();
+        esp_now_comm_start();
 
         //start http and sntp server
         sntp_service_init();

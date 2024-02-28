@@ -15,6 +15,7 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 #include "sensor_components/sensor_tasks.h"
+#include "esp_now.h"
 
 
 #define ESP_NOW_COMM_PMK                    "pmk1234567890123"
@@ -43,4 +44,8 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size);
 size_t calculate_serialized_size(const sensor_data_t *data);
 
 void print_sensor_data(const sensor_data_t* data);
+
+void esp_now_comm_incoming_data_task(void * pvParameters);
+
+void esp_now_comm_outgoing_data_task(void * pvParameters);
 #endif 

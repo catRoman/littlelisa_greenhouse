@@ -18,8 +18,8 @@
 
 static const char ESP_NOW_COMM_TAG[] = "esp_now";
 
-static QueueHandle_t esp_now_comm_outgoing_data_queue_handle = NULL;
-static QueueHandle_t esp_now_comm_incoming_data_queue_handle = NULL;
+QueueHandle_t esp_now_comm_outgoing_data_queue_handle = NULL;
+QueueHandle_t esp_now_comm_incoming_data_queue_handle = NULL;
 
 static TaskHandle_t esp_now_comm_outgoing_data_task_handle = NULL;
 static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
@@ -37,7 +37,7 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
 
 
 //for queue managment
-static void esp_now_comm_outgoing_data_task(void * pvParameters)
+void esp_now_comm_outgoing_data_task(void * pvParameters)
 {
     queue_packet_t queue_packet;
     uint8_t *temp_data;
@@ -62,7 +62,7 @@ static void esp_now_comm_outgoing_data_task(void * pvParameters)
 }
 
 //for queue managment
-static void esp_now_comm_incoming_data_task(void * pvParameters)
+void esp_now_comm_incoming_data_task(void * pvParameters)
 {
     queue_packet_t *queue_packet;
     sensor_data_t *sensor_data;

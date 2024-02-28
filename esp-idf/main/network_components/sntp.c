@@ -14,6 +14,7 @@
 
 #include "sntp.h"
 #include "module_components/rtc_DS1302.h"
+#include "sdkconfig.h"
 
 static const char TAG [] = "sntp";
  esp_sntp_config_t config = {
@@ -63,9 +64,8 @@ void sntp_server_connection_check_task(void *vpParameter){
     setenv("TZ", "UTC+8", 1);
     tzset(); 
 
+    #ifdef CONFIG_MODULE_TYPE_CONTROLLER
     bool RTC_IS_ON = true;
-
-
 
     ESP_ERROR_CHECK(ds1302_init(&rtc_device));
     ESP_ERROR_CHECK(ds1302_start(&rtc_device, RTC_IS_ON));
@@ -73,7 +73,6 @@ void sntp_server_connection_check_task(void *vpParameter){
     struct tm time_on_rtc = {0};
     ESP_ERROR_CHECK(ds1302_get_time(&rtc_device, &time_on_rtc));
     printf("time from rtc: %s", asctime(&time_on_rtc));
-
 
     time_t rtc_time_sec = mktime(&time_on_rtc);
     const struct timeval rtc_now = {.tv_sec = rtc_time_sec, .tv_usec = 0};
@@ -84,6 +83,8 @@ void sntp_server_connection_check_task(void *vpParameter){
         ESP_LOGI(TAG, "The current date/time on rtc before sync is: %s", ctime(&rtc_time_sec));
     }
     bool initial_sync = true;
+    #endif
+
     sntp_set_sync_interval(3600000); //one hour sync
     for(;;){
         
@@ -93,6 +94,7 @@ void sntp_server_connection_check_task(void *vpParameter){
                     ESP_LOGI(TAG, "sync interval set to  %lu", sntp_get_sync_interval());
                     ESP_LOGI(TAG, "current sntp server set to: %s at %s", esp_sntp_getservername(0), ipaddr_ntoa(esp_sntp_getserver(0)));
                     //sync with rtc
+                    #ifdef CONFIG_MODULE_TYPE_CONTROLLER
                     time_t current_time = time(NULL);
 
                     ESP_LOGI(TAG, "current time set to:  %s", ctime(&current_time));
@@ -108,6 +110,7 @@ void sntp_server_connection_check_task(void *vpParameter){
                     ESP_ERROR_CHECK(ds1302_set_write_protect(&rtc_device, false));
                     ESP_ERROR_CHECK(ds1302_start(&rtc_device, true));
                     initial_sync = false;
+                    #endif
 
                     
                 }else if (initial_sync == true){

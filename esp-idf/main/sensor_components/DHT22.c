@@ -99,12 +99,12 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 	sensor_data_t sensor_data = {
 		.pin_number= sensor_t->pin_number,
-		.value = (float *)malloc(sensor_data.total_values * sizeof(float)),
 		.total_values = 1,
 		.location = sensor_t->TAG,
 		.local_sensor_id = sensor_t->identifier,
 		.module_id = CONFIG_MODULE_IDENTITY
 	};
+	sensor_data.value = (float *)malloc(sensor_data.total_values * sizeof(float));
 	
 	if(sensor_choice == HUMIDITY){
 	sensor_data.value[0] = get_humidity(sensor_t);
@@ -116,6 +116,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 	packet.data = &sensor_data;
 
+	extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
 	 if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &packet, portMAX_DELAY) == pdPASS){
             ESP_LOGI(TAG, "data recieved sent to outcoming que");
         }else{
