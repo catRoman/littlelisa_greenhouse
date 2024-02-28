@@ -132,7 +132,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 	extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
 	 if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-            ESP_LOGI(TAG, "data recieved sent to outcoming que");
+            ESP_LOGV(TAG, "data recieved sent to outgoing que");
         }else{
             ESP_LOGE(TAG, "data failed to send to outcoming data que");
         }
