@@ -15,12 +15,15 @@
 #include "esp_wifi_types.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_mac.h"
 #include "nvs_flash.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "sdkconfig.h"
 #include "lwip/netdb.h"
+#include "esp_netif.h"
 
+#include "network_components/esp_now_comm.h"
 #include "nvs_components/nvs_service.c"
 #include "mdns.h"
 #include "wifi_ap_sta.h"
@@ -165,9 +168,10 @@ void wifi_start(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
-
+        log_mac_address(true);
 
         mdns_start();
+        esp_now_comm_start();
      //   start http and sntp server
         sntp_service_init();
         http_server_start();
@@ -186,12 +190,13 @@ void wifi_start(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
-
+        log_mac_address(false);
        
         mdns_start();
+        esp_now_comm_start();
 
         //start http and sntp server
-        sntp_service_init();
+        //sntp_service_init();
         http_server_start();
         led_http_server_started();
 
@@ -202,6 +207,26 @@ void wifi_start(void)
         ESP_LOGE(WIFI_TAG, "Error in ap/sta selection mode");
     }
     
+}
+
+esp_err_t log_mac_address(bool is_sta){
+    int mac_type;
+    if(is_sta == true){
+        mac_type = ESP_MAC_WIFI_STA;
+    }else{
+        mac_type = ESP_MAC_WIFI_SOFTAP;
+    }
+    uint8_t mac[6];
+    // Get MAC address for Wi-Fi Station interface
+    esp_err_t mac_ret = esp_read_mac(mac, mac_type);
+
+    if (mac_ret == ESP_OK) {
+        ESP_LOGI(WIFI_TAG, "MAC Address: %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    } else {
+        ESP_LOGE(WIFI_TAG, "Failed to get MAC address!\n");
+    }
+
+    return mac_ret;
 }
 
 esp_err_t mdns_start(){
