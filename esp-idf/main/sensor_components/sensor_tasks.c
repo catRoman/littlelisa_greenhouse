@@ -24,7 +24,6 @@ static void sensor_event_monitor_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(sensor_event_queue_handle, &event, portMAX_DELAY) == pdTRUE){
             
-            #ifdef CONFIG_MODULE_TYPE_CONTROLLER
             switch(event.eventID){
                 
                 case SENSOR_PREPOCESSING:
@@ -42,26 +41,7 @@ static void sensor_event_monitor_task(void * pvParameters)
                 case SENSOR_SEND_TO_SERVER_DB:
                     break;
             }
-            #elif CONFIG_MODULE_TYPE_NODE
-            switch(event.eventID){   
-                case SENSOR_PREPOCESSING:
-                    break;
-                case SENSOR_ESP_NOW_SEND:
-                    break;
-                case SENSOR_ESP_NOW_REC:
-                    break;
-                case SENSOR_POST_PROCESS:
-                    break;
-                case SENSOR_SEND_TO_RAM:
-                    break;
-                case SENSOR_SEND_TO_SD_DB:
-                    break;
-                case SENSOR_SEND_TO_SERVER_DB:
-                    break;
-            }
-            #else
-                ESP_LOGE(TAG, "Module config error: no module type found");
-            #endif
+           
         }
     }
 }
