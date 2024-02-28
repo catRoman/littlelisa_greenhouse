@@ -204,7 +204,10 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Calculate size needed for serialization
     size_t location_len = strlen(data->location) + 1; // +1 for null terminator
     size_t values_size = sizeof(float) * data->total_values;
-    *size = sizeof(data->pin_number) + sizeof(data->total_values) + sizeof(data->local_sensor_id) + sizeof(data->module_id) + values_size + location_len;
+    
+    *size = sizeof(data->pin_number) + sizeof(data->sensor_type) 
+            + sizeof(data->total_values) + sizeof(data->local_sensor_id) 
+            + sizeof(data->module_id) + values_size + location_len;
 
     uint8_t *buffer = malloc(*size);
     if (!buffer) {
@@ -214,6 +217,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     uint8_t *ptr = buffer;
     // Copy data into the buffer
     memcpy(ptr, &data->pin_number, sizeof(data->pin_number)); ptr += sizeof(data->pin_number);
+    memcpy(ptr, &data->sensor_type, sizeof(data->sensor_type)); ptr += sizeof(data->sensor_type);
     memcpy(ptr, &data->total_values, sizeof(data->total_values)); ptr += sizeof(data->total_values);
     memcpy(ptr, data->value, values_size); ptr += values_size;
     memcpy(ptr, &data->local_sensor_id, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
@@ -232,6 +236,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
 
     const uint8_t *ptr = buffer;
     memcpy(&data->pin_number, ptr, sizeof(data->pin_number)); ptr += sizeof(data->pin_number);
+    memcpy(&data->sensor_type, ptr, sizeof(data->sensor_type)); ptr += sizeof(data->sensor_type);
     memcpy(&data->total_values, ptr, sizeof(data->total_values)); ptr += sizeof(data->total_values);
 
     size_t values_size = sizeof(float) * data->total_values;
@@ -252,7 +257,8 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
 size_t calculate_serialized_size(const sensor_data_t *data) {
     // Fixed size for int and int fields
     size_t fixed_size = sizeof(data->pin_number) + sizeof(data->total_values) +
-                        sizeof(data->local_sensor_id) + sizeof(data->module_id);
+                        sizeof(data->local_sensor_id) + sizeof(data->module_id)
+                        + sizeof(data->sensor_type);
     
     // Dynamic size for the float array
     size_t values_size = sizeof(float) * data->total_values;
