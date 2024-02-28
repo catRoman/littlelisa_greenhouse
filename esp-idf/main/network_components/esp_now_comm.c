@@ -47,10 +47,7 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
             
-            queue_packet.len = calculate_serialized_size(queue_packet.data);
-            temp_data = serialize_sensor_data(queue_packet.data, &queue_packet.len);
-            queue_packet.data = temp_data;
-            esp_now_comm_get_config_reciever_mac_addr(&queue_packet.mac_addr);
+            
 
             esp_err_t result = esp_now_send(&queue_packet.mac_addr, queue_packet.data, queue_packet.len);
             if (result == ESP_OK){
@@ -243,7 +240,7 @@ size_t calculate_serialized_size(const sensor_data_t *data) {
     
     // Dynamic size for the float array
     size_t values_size = sizeof(float) * data->total_values;
-    
+    printf("%s", data->location);
     // Dynamic size for the location string (including null terminator)
     size_t location_len = strlen(data->location) + 1;
     

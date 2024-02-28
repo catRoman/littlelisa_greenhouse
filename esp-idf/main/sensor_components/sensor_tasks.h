@@ -12,7 +12,7 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 
-typedef struct __attribute__((packed)){
+typedef struct sensor_data_t{
 	int pin_number;
 	float *value;
     int total_values;

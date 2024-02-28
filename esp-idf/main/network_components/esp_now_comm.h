@@ -23,7 +23,7 @@
 #define ESP_NOW_COMM_DEFAULT_RECIEVER_MAC   {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 
 
-typedef struct {
+typedef struct __attribute__((packed)){
     uint8_t mac_addr;
     void* data;
     size_t len;
