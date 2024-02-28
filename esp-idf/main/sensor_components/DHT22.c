@@ -38,6 +38,7 @@
 #include "task_common.h"
 #include "nvs_components/module_config.h"
 #include "sensor_components/sensor_tasks.h"
+#include "network_components/esp_now_comm.h"
 
 // == global defines =============================================
 
@@ -96,28 +97,41 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 
 //sesnor struct
-
+	
 	sensor_data_t sensor_data = {
 		.pin_number= sensor_t->pin_number,
 		.total_values = 1,
-		.location = sensor_t->TAG,
 		.local_sensor_id = sensor_t->identifier,
 		.module_id = CONFIG_MODULE_IDENTITY
 	};
+
+
+	//TODO: mem error handling
 	sensor_data.value = (float *)malloc(sensor_data.total_values * sizeof(float));
+	sensor_data.location = (char*)malloc(strlen(sensor_t->TAG)+1);
+	strcpy(sensor_data.location, sensor_t->TAG);
 	
+
 	if(sensor_choice == HUMIDITY){
 	sensor_data.value[0] = get_humidity(sensor_t);
 	}else if(sensor_choice == TEMP){
 	sensor_data.value[0] = get_temperature(sensor_t);
 	}
 
-	queue_packet_t packet = {0};
 
-	packet.data = &sensor_data;
+	queue_packet_t queue_packet = {0};
+	uint8_t *temp_data;
+	queue_packet.data = &sensor_data;
+	//printf("%s ->len: %d\n", queue_packet.data->location, strlen(queue_packet.data.location));
+
+	queue_packet.len = calculate_serialized_size(queue_packet.data);
+	temp_data = serialize_sensor_data(queue_packet.data, &queue_packet.len);
+	queue_packet.data = temp_data;
+	esp_now_comm_get_config_reciever_mac_addr(&queue_packet.mac_addr);
+
 
 	extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
-	 if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &packet, portMAX_DELAY) == pdPASS){
+	 if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
             ESP_LOGI(TAG, "data recieved sent to outcoming que");
         }else{
             ESP_LOGE(TAG, "data failed to send to outcoming data que");

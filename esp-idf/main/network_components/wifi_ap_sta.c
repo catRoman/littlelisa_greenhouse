@@ -196,7 +196,7 @@ void wifi_start(void)
         esp_now_comm_start();
 
         //start http and sntp server
-        sntp_service_init();
+        //sntp_service_init();
         http_server_start();
         led_http_server_started();
 

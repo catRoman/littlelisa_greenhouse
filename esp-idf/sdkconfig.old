@@ -1696,7 +1696,7 @@ CONFIG_WIFI_PROV_STA_ALL_CHANNEL_SCAN=y
 #
 
 #
-# Network Configuration
+# Little-Lisa Configuration
 #
 CONFIG_ESP_ENABLE_AP_MODE=y
 CONFIG_ESP_WIFI_AP_MODE_SSID="LittleLisa - Greenhouse"
@@ -1707,7 +1707,8 @@ CONFIG_ESP_MAX_AP_STA_MODE_CONN=4
 CONFIG_ESP_WIFI_INIT_STA_MODE_SSID="Bill Nye the WiFi Guy"
 CONFIG_ESP_WIFI_INIT_STA_MODE_PASSWORD="Westgate1"
 CONFIG_MAX_STA_MODE_RETRY_ATTEMPT=4
-# end of Network Configuration
+CONFIG_ESP_NOW_COMM_RECIEVER_MAC_ADDRESS="AA:BB:CC:DD:EE:FF"
+# end of Little-Lisa Configuration
 
 #
 # NVS Module Info

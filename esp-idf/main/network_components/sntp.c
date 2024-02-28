@@ -82,8 +82,8 @@ void sntp_server_connection_check_task(void *vpParameter){
     }else{
         ESP_LOGI(TAG, "The current date/time on rtc before sync is: %s", ctime(&rtc_time_sec));
     }
-    bool initial_sync = true;
     #endif
+    bool initial_sync = true;
 
     sntp_set_sync_interval(3600000); //one hour sync
     for(;;){
