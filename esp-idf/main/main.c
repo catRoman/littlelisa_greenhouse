@@ -31,7 +31,6 @@
 //TODO: update landing page to retrieve data from db or ram if db down
 
 //--OTHER TODO----
-//TODO mdns setup to allow for garenteed access to node landing pages
 //TODO: add device and system information to debug page to monitor device health
 //TODO dynamicly add link to all available node landing pages based on connected nodes
 //TODO check for time sync between nodes and controller on boot and periodically, updating as neccary ?
@@ -85,7 +84,6 @@
         Battery Level: If the device is battery-powered, showing the current battery level or voltage.
         Power Source: The current source of power (USB, battery, external).
 */
-
 
 
 

@@ -18,7 +18,7 @@
 #include "task_common.h"
 #include "wifi_ap_sta.h"
 
-#include "module_components/DHT22.h"
+#include "sensor_components/DHT22.h"
 
 #include "network_components/http_handlers.h"
 
