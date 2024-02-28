@@ -7,7 +7,7 @@
 #include "esp_ota_ops.h"
 #include "esp_log.h"
 
-#include "module_components/DHT22.h"
+#include "sensor_components/DHT22.h"
 #include "network_components/http_server.h"
 #include "network_components/http_handlers.h"
 #include "nvs_components/nvs_service.h"

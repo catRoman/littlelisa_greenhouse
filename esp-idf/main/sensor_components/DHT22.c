@@ -31,11 +31,13 @@
 #include "driver/gpio.h"
 #include "cJSON.h"
 #include "freertos/semphr.h"
+#include "sdkconfig.h"
 
-
+#include "network_components/esp_now_comm.h"
 #include "DHT22.h"
 #include "task_common.h"
 #include "nvs_components/module_config.h"
+#include "sensor_components/sensor_tasks.h"
 
 // == global defines =============================================
 
@@ -84,6 +86,41 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
 	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
+ }
+
+  void send_sensor_struct(dht22_sensor_t *sensor_t, int sensor_choice){
+	// add sensor data to sensor struct , make queue wrappper and assign sensor data to it, send queue data
+	//dht22 sensor data
+	
+	
+
+
+//sesnor struct
+
+	sensor_data_t sensor_data = {
+		.pin_number= sensor_t->pin_number,
+		.value = (float *)malloc(sensor_data.total_values * sizeof(float)),
+		.total_values = 1,
+		.location = sensor_t->TAG,
+		.local_sensor_id = sensor_t->identifier,
+		.module_id = CONFIG_MODULE_IDENTITY
+	};
+	
+	if(sensor_choice == HUMIDITY){
+	sensor_data.value[0] = get_humidity(sensor_t);
+	}else if(sensor_choice == TEMP){
+	sensor_data.value[0] = get_temperature(sensor_t);
+	}
+
+	queue_packet_t packet = {0};
+
+	packet.data = &sensor_data;
+
+	 if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &packet, portMAX_DELAY) == pdPASS){
+            ESP_LOGI(TAG, "data recieved sent to outcoming que");
+        }else{
+            ESP_LOGE(TAG, "data failed to send to outcoming data que");
+        }
  }
 
 
@@ -312,6 +349,10 @@ void DHT22_task(void *vpParameter)
 		if (ret == DHT_OK){
 			log_sensor_JSON(sensor_t, TEMP);
 			log_sensor_JSON(sensor_t, HUMIDITY);
+			#ifdef CONFIG_MODULE_TYPE_NODE
+			send_sensor_struct(sensor_t, HUMIDITY);
+			send_sensor_struct(sensor_t, TEMP);
+			#endif
 			 //TODO: change either the function name or the function for better focus
 		}else{
 			errorHandler(ret, sensor_t);

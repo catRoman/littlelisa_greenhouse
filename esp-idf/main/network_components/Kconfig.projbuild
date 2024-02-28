@@ -54,5 +54,13 @@ menu "Little-Lisa Configuration"
         default 4
         help
             Max number reconnection attempts of the STA connects to AP.
+
+    config ESP_NOW_COMM_RECIEVER_MAC_ADDRESS
+        string "ESP Now Reciever MAC Address"
+        default "AA:BB:CC:DD:EE:FF"
+        help
+            This configuration option allows setting a default MAC address
+            that nodes will use for sending sensor data to.
+
             
 endmenu

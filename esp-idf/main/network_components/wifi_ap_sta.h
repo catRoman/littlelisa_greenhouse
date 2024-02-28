@@ -50,5 +50,6 @@
 void wifi_init(void *vpParam);
 void wifi_start(void);
 esp_err_t mdns_start(void);
+esp_err_t log_mac_address(bool is_sta);
 
 #endif /* MAIN_WIFI_APP_H_ */

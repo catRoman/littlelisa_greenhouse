@@ -9,7 +9,7 @@
 #include "esp_log.h"
 #include "database_components/sd_card_db.h"
 #include "module_components/spi_sd_card.h"
-#include "module_components/DHT22.h"
+#include "sensor_components/DHT22.h"
 #include "task_common.h"
 
 #include "module_config.h"
@@ -74,20 +74,20 @@ const char TAG [] = "module_config";
 dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
 
 #ifdef CONFIG_MODULE_TYPE_CONTROLLER
-    Module_info_t module_info = {
+    Module_info_t module_info_g = {
         .type = "Controller",
         .location = CONFIG_MODULE_LOCATION,
         .identity = CONFIG_MODULE_IDENTITY
     };
 #elif CONFIG_MODULE_TYPE_NODE
-    Module_info_t module_info = {
+    Module_info_t module_info_g = {
             .type = "Node",
             .location = CONFIG_MODULE_LOCATION,
             .identity = CONFIG_MODULE_IDENTITY
         };
 #else
     ESP_LOGE(TAG, "module type not selected, use menuconfig");
-    Module_info_t module_info = {0};
+    Module_info_t module_info_g = {0};
 #endif
 
 
@@ -105,14 +105,14 @@ void initiate_config(){
     //check for existing module info data change
     if((err=nvs_get_module_info(&temp_info)) != ESP_OK){
         ESP_LOGI(TAG, "%s", esp_err_to_name(err));
-        nvs_set_module(module_info.type, module_info.location, module_info.identity);
+        nvs_set_module(module_info_g.type, module_info_g.location, module_info_g.identity);
     }else if(err == ESP_OK){
-        if((strcmp(temp_info.type, module_info.type) == 0) &&
-            (strcmp(temp_info.location, module_info.location) == 0) &&
-            (temp_info.identity == module_info.identity)){
+        if((strcmp(temp_info.type, module_info_g.type) == 0) &&
+            (strcmp(temp_info.location, module_info_g.location) == 0) &&
+            (temp_info.identity == module_info_g.identity)){
                 ESP_LOGI(TAG, "nvs module info has not changed since last write");
             }else{
-                nvs_set_module(module_info.type, module_info.location, module_info.identity);
+                nvs_set_module(module_info_g.type, module_info_g.location, module_info_g.identity);
             }
     }
 

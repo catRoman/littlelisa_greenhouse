@@ -9,27 +9,38 @@
 #ifndef MAIN_ESP_NOW_COMM_H_
 #define MAIN_ESP_NOW_COMM_H_
 
+#include <inttypes.h>
+#include <stdbool.h>
+
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
-
-typedef enum esp_now_event_type
-{
-    ESP_NOW_INIT,
-    ESP_NOW_COMMUNICATION_SENT,
-    ESP_NOW_COMMUNICATION_RECIEVED,              
-    ESP_NOW_CONTRO_PEER_ADDED,
-    ESP_NOW_PEER_DELETED
-                    
-} esp_now_event_type;
+#include "sensor_components/sensor_tasks.h"
 
 
-typedef struct esp_now_queue_event
-{
-    esp_now_event_type eventID;
-} esp_now_queue_event_t;
+#define ESP_NOW_COMM_PMK                    "pmk1234567890123"
+#define ESP_NOW_COMM_CHANNEL                1
+#define ESP_NOW_COMM_DEFAULT_RECIEVER_MAC   {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 
 
-esp_err_t esp_now_start(void);
+typedef struct {
+    uint8_t mac_addr;
+    void* data;
+    size_t len;
+} queue_packet_t;
 
 
+esp_err_t esp_now_comm_start(void);
+esp_err_t esp_now_comm_get_config_reciever_mac_addr(uint8_t* mac_bytes);
+
+void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len);
+
+void esp_now_comm_on_data_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status);
+
+uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size);
+
+sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size);
+
+size_t calculate_serialized_size(const sensor_data_t *data);
+
+void print_sensor_data(const sensor_data_t* data);
 #endif 
