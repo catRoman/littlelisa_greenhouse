@@ -13,6 +13,7 @@
 #include "nvs_components/nvs_service.h"
 #include "nvs_components/node_info.c"
 #include "nvs_components/module_config.h"
+#include "sensor_components/sensor_tasks.h"
 #include "sdkconfig.h"
 
 #define SQL_ID_SYNC_VAL 1

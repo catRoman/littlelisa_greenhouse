@@ -268,6 +268,7 @@ size_t calculate_serialized_size(const sensor_data_t *data) {
 
 void print_sensor_data(const sensor_data_t* data) {
     printf("Pin Number: %d\n", data->pin_number);
+    printf("Sensor Type: %d\n", data->sensor_type);
     printf("Total Values: %d\n", data->total_values);
     printf("Location: %s\n", data->location);
     printf("Local Sensor ID: %d\n", data->local_sensor_id);

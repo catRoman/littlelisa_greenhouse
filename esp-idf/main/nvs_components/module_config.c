@@ -15,6 +15,7 @@
 #include "module_config.h"
 #include "node_info.h"
 #include "nvs_service.h"
+#include "sensor_components/sensor_tasks.h"
 
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
