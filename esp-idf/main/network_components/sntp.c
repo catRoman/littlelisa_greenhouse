@@ -109,8 +109,8 @@ void sntp_server_connection_check_task(void *vpParameter){
                     ESP_LOGI(TAG, "{==RTC_DS1302==} set to time retrieved from sntp service: %s", asctime(&time_on_rtc));
                     ESP_ERROR_CHECK(ds1302_set_write_protect(&rtc_device, false));
                     ESP_ERROR_CHECK(ds1302_start(&rtc_device, true));
-                    initial_sync = false;
                     #endif
+                    initial_sync = false;
 
                     
                 }else if (initial_sync == true){
