@@ -1,14 +1,5 @@
 
-typedef enum Sensor_List{
-    TEMP,
-    HUMIDITY,
-    SOIL_MOISTURE,
-    LIGHT,
-    SOUND,
-    MOVEMENT,
-    CAMERA,
-    SENSOR_LIST_TOTAL
-}Sensor_List;
+
 
 
 

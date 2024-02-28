@@ -113,9 +113,11 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 	
 
 	if(sensor_choice == HUMIDITY){
-	sensor_data.value[0] = get_humidity(sensor_t);
+		sensor_data.sensor_type = HUMIDITY;
+		sensor_data.value[0] = get_humidity(sensor_t);
 	}else if(sensor_choice == TEMP){
-	sensor_data.value[0] = get_temperature(sensor_t);
+		sensor_data.sensor_type = TEMP;
+		sensor_data.value[0] = get_temperature(sensor_t);
 	}
 
 

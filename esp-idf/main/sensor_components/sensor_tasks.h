@@ -12,8 +12,20 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 
+typedef enum Sensor_List{
+    TEMP,
+    HUMIDITY,
+    SOIL_MOISTURE,
+    LIGHT,
+    SOUND,
+    MOVEMENT,
+    CAMERA,
+    SENSOR_LIST_TOTAL
+}Sensor_List;
+
 typedef struct sensor_data_t{
 	int pin_number;
+    Sensor_List sensor_type;
 	float *value;
     int total_values;
 	char* location;

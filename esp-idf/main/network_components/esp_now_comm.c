@@ -71,6 +71,8 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
 
             //log for test
             print_sensor_data(sensor_data);
+            //pass data to sensor queue
+
             free(queue_packet);
             free(sensor_data);
 
