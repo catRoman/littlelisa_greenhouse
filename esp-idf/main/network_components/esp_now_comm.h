@@ -23,13 +23,8 @@
 #define ESP_NOW_COMM_DEFAULT_RECIEVER_MAC   {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
 
 
-<<<<<<< HEAD
 typedef struct {
     uint8_t mac_addr[ESP_NOW_ETH_ALEN];
-=======
-typedef struct __attribute__((packed)){
-    uint8_t mac_addr;
->>>>>>> origin/esp-now-node-test
     void* data;
     size_t len;
 } queue_packet_t;

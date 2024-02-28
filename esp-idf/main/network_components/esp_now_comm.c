@@ -50,10 +50,10 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
             
 
             esp_err_t result = esp_now_send(&queue_packet.mac_addr, queue_packet.data, queue_packet.len);
-            if (result == ESP_OK){
-                ESP_LOGI(ESP_NOW_COMM_TAG, "data sent successful");
+            if (result != ESP_OK){
+                ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
             }
-                ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful");
+            //vTaskDelay(pdMS_TO_TICKS(500));
         }
     }
 }
@@ -148,7 +148,7 @@ esp_err_t esp_now_comm_get_config_reciever_mac_addr(uint8_t* mac_bytes) {
         for (i = 0; i < 6; ++i) {
             mac_bytes[i] = (uint8_t)values[i];
         }
-        ESP_LOGI(ESP_NOW_COMM_TAG, "Mac address parsing from configuration successful");
+        ESP_LOGV(ESP_NOW_COMM_TAG, "Mac address parsing from configuration successful");
         return ESP_OK; // Success
     }
     ESP_LOGE(ESP_NOW_COMM_TAG, "MAC address parsing from config failed");
@@ -185,14 +185,14 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
         free(packet->data); // Clean up allocated data memory
         free(packet); // Clean up packet memory
     } else {
-        ESP_LOGI(ESP_NOW_COMM_TAG, "Data received and sent to incoming queue");
+        ESP_LOGV(ESP_NOW_COMM_TAG, "Data received and sent to incoming queue");
     }
 }
 
 void esp_now_comm_on_data_send_cb(const uint8_t *mac_addr, esp_now_send_status_t status) {
     // Handle data send acknowledgment
     if(status == ESP_NOW_SEND_SUCCESS)
-        ESP_LOGI(ESP_NOW_COMM_TAG, "data send successes");
+        ESP_LOGV(ESP_NOW_COMM_TAG, "data send -Ack here");
     else    
         ESP_LOGW(ESP_NOW_COMM_TAG, "send failure");
 }
@@ -254,7 +254,7 @@ size_t calculate_serialized_size(const sensor_data_t *data) {
     
     // Dynamic size for the float array
     size_t values_size = sizeof(float) * data->total_values;
-    printf("%s", data->location);
+    //printf("%s", data->location);
     // Dynamic size for the location string (including null terminator)
     size_t location_len = strlen(data->location) + 1;
     
