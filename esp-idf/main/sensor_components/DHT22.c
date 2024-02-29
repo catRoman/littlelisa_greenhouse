@@ -365,8 +365,8 @@ void DHT22_task(void *vpParameter)
 			log_sensor_JSON(sensor_t, TEMP);
 			log_sensor_JSON(sensor_t, HUMIDITY);
 			#ifdef CONFIG_MODULE_TYPE_NODE
-			send_sensor_struct(sensor_t, HUMIDITY);
-			send_sensor_struct(sensor_t, TEMP);
+			dht22_sensor_send_to_sensor_queue(sensor_t, HUMIDITY);
+			dht22_sensor_send_to_sensor_queue(sensor_t, TEMP);
 			#endif
 			 //TODO: change either the function name or the function for better focus
 		}else{

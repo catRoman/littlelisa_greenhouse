@@ -72,7 +72,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             //pass data to sensor queue
 
             //allocate for data_packet
-            sensor_data_t *data_packet = (sensor_data_t*)malloc)sizeof(sensor_data_t);
+            sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
             data_packet->pin_number= sensor_data->pin_number;
             data_packet->sensor_type = sensor_data->sensor_type;
