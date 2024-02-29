@@ -39,11 +39,33 @@
 */
 //TODO make task logic for each task, validation, post_process, to_http, to sd_db, to_ram, to external_db
 //TODO reorganize sensor tasks related between module_config, esp-now_comm, dht22 to focus on que use
-
+//TODO use stack analysiusi to fiugure out apropriate stact sizes
 static const char SENSOR_EVENT_TAG[] = "sensor_tasks";
 
 static QueueHandle_t sensor_queue_handle = NULL;
 static TaskHandle_t sensor_queue_task_handle = NULL;
+
+static QueueHandle_t sensor_preprocessing_handle = NULL;
+static TaskHandle_t  sensor_preprocessing_task_handle = NULL;
+
+static QueueHandle_t sensor_prepare_to_send_handle = NULL;
+static TaskHandle_t sensor_prepare_to_send_task_handle = NULL;
+
+static QueueHandle_t sensor_post_processing_handle = NULL;
+static TaskHandle_t sensor_post_processing_task_handle = NULL;
+
+static QueueHandle_t sensor_send_to_ram_handle = NULL;
+static TaskHandle_t sensor_send_to_ram_task_handle = NULL;
+
+static QueueHandle_t sensor_send_to_sd_db_handle = NULL;
+static TaskHandle_t sensor_send_to_sd_db_task_handle = NULL;
+
+static QueueHandle_t sensor_send_to_server_db_handle = NULL;
+static TaskHandle_t sensor_send_to_server_db_task_handle = NULL;
+
+static QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
+static TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
+
 
 static void sensor_queue_monitor_task(void * pvParameters)
 {
@@ -54,28 +76,146 @@ static void sensor_queue_monitor_task(void * pvParameters)
             switch(event.nextEventID){
 
                 case SENSOR_PREPOCESSING:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in preprocessing",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
-                case SENSOR_ESP_NOW_SEND:
-                    break;
-                case SENSOR_ESP_NOW_REC:
+                case SENSOR_PREPARE_TO_SEND:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s preparing to send",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
                 case SENSOR_POST_PROCESSING:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in postprocessing",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
                 case SENSOR_SEND_TO_RAM:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in ram send process",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
                 case SENSOR_SEND_TO_SD_DB:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in sd db send process",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
                 case SENSOR_SEND_TO_SERVER_DB:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in external db send process",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
                 case SENSOR_QUEUE_MEM_CLEANUP:
+                    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in cleanup process",
+                                                event.sensor_data->module_id,
+                                                event.sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event.sensor_data->sensor_type));
                     break;
             }
         }
     }
 }
 
+
+static void sensor_preprocessing_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
+static void sensor_prepare_to_send_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_prepare_to_send_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
+static void sensor_post_processing_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_post_processing_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
+static void sensor_send_to_ram_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_send_to_ram_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
+static void sensor_send_to_sd_db_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_send_to_sd_db_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
+static void sensor_send_to_server_db_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_send_to_server_db_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
+static void sensor_queue_mem_cleanup_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t event;
+    for(;;){
+        if (xQueueReceive(sensor_queue_mem_cleanup_handle, &event, portMAX_DELAY) == pdTRUE){
+
+
+
+        }
+    }
+}
+
 esp_err_t sensor_queue_start(){
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));
+    sensor_preprocessing_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_prepare_to_send_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_post_processing_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_send_to_ram_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_send_to_sd_db_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_send_to_server_db_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_queue_mem_cleanup_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
 
     xTaskCreatePinnedToCore(
         &sensor_queue_monitor_task,
@@ -85,7 +225,84 @@ esp_err_t sensor_queue_start(){
         SENSOR_QUEUE_PRIORITY,
         &sensor_queue_task_handle,
         SENSOR_QUEUE_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_prepocessing_task,
+        "sensor_prepocessing",
+        SENSOR_PREPROCESSING_STACK_SIZE,
+        NULL,
+        SENSOR_PREPROCESSING_PRIORITY,
+        &sensor_preprocessing_handle,
+        SENSOR_PREPROCESSING_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_prepare_to_send_task,
+        "sensor_prepare_to_send",
+        SENSOR_PREPARE_TO_SEND_STACK_SIZE,
+        NULL,
+        SENSOR_PREPARE_TO_SEND_PRIORITY,
+        &sensor_prepare_to_send_handle,
+        SENSOR_PREPARE_TO_SEND_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_post_processing_task,
+        "sensor_post_processing",
+        SENSOR_POSTPROCESSING_STACK_SIZE,
+        NULL,
+        SENSOR_POSTPROCESSING_PRIORITY,
+        &sensor_postprocessing_task_handle,
+        SENSOR_POSTPROCESSING_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_send_to_ram_task,
+        "sensor_send_to_ram",
+        SENSOR_SEND_TO_RAM_STACK_SIZE,
+        NULL,
+        SENSOR_SEND_TO_RAM_PRIORITY,
+        &sensor_send_to_ram_handle,
+        SENSOR_SEND_TO_RAM_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_send_to_sd_db_task,
+        "sensor_send_to_sd_db",
+        SENSOR_SEND_TO_SD_DB_STACK_SIZE,
+        NULL,
+        SENSOR_SEND_TO_SD_DB_PRIORITY,
+        &sensor_send_to_sd_db_handle,
+        SENSOR_SEND_TO_SD_DB_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_send_to_server_db_task,
+        "sensor_send_to_server_db",
+        SENSOR_SEND_TO_SERVER_DB_STACK_SIZE,
+        NULL,
+        SENSOR_SEND_TO_SERVER_DB_PRIORITY,
+        &sensor_send_to_server_db_handle,
+        SENSOR_SEND_TO_SERVER_DB_CORE_ID);
+
+
+    xTaskCreatePinnedToCore(
+        &sensor_queue_mem_cleanup_task,
+        "sensor_queue_mem_cleanup",
+        SENSOR_QUEUE_MEM_CLEANUP_STACK_SIZE,
+        NULL,
+        SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
+        &sensor_queue_mem_cleanup_handle,
+        SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
 }
+
+
+
+
+
+
+
 
 
 
