@@ -105,9 +105,9 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
 
             extern QueueHandle_t sensor_queue_handle;
             if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-                    ESP_LOGI(TAG, "sensor data communicated and sent to sensor que for postprocessing");
+                    ESP_LOGI(ESP_NOW_COMM_TAG, "sensor data communicated and sent to sensor que for postprocessing");
                 }else{
-                    ESP_LOGE(TAG, "data communicated failed to transfer to sensor que");
+                    ESP_LOGE(ESP_NOW_COMM_TAG, "data communicated failed to transfer to sensor que");
                 }
 
         }

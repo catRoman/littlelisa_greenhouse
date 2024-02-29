@@ -9,7 +9,7 @@
 #include "freertos/task.h"
 
 #include "sensor_tasks.h"
-#include "esp_now_comm.h"
+#include "network_components/esp_now_comm.h"
 #include "task_common.h"
 #include "sdkconfig.h"
 #include "cJSON.h"
@@ -69,7 +69,7 @@ QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
 TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
 
-static void sensor_queue_monitor_task(void * pvParameters)
+void sensor_queue_monitor_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -83,7 +83,7 @@ static void sensor_queue_monitor_task(void * pvParameters)
                         ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to preprocessing",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event.sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type));
                     }else{
                         ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to preprocessing",
                                                 event->sensor_data->module_id,
@@ -190,7 +190,7 @@ static void sensor_queue_monitor_task(void * pvParameters)
 }
 
 
-static void sensor_preprocessing_task(void * pvParameters)
+void sensor_preprocessing_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -204,9 +204,9 @@ static void sensor_preprocessing_task(void * pvParameters)
             //sensor_validation();
 
             #ifdef CONFIG_MODULUE_TYPE_NODE
-                event.nextEventID=SENSOR_PREPARE_TO_SEND;
+                event->nextEventID=SENSOR_PREPARE_TO_SEND;
             #elif  CONFIG_MODULE_TYPE_CONTROLLER
-                event.nextEventID=SENSOR_POST_PROCESSING;
+                event->nextEventID=SENSOR_POST_PROCESSING;
             #else
                 ESP_LOGE(SENSOR_EVENT_TAG, "Module type error in preprocessing");
             #endif
@@ -216,7 +216,7 @@ static void sensor_preprocessing_task(void * pvParameters)
     }
 }
 
-static void sensor_prepare_to_send_task(void * pvParameters)
+void sensor_prepare_to_send_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -240,12 +240,12 @@ static void sensor_prepare_to_send_task(void * pvParameters)
 
             extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
             if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-                    ESP_LOGV(TAG, "mod:%d-id:%d-%s sent to esp_now outgoing que",
+                    ESP_LOGV(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s sent to esp_now outgoing que",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
                 }else{
-                    ESP_LOGE(TAG, "mod:%d-id:%d-%s failed to pass to outcoming data que",
+                    ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to outcoming data que",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
@@ -258,7 +258,7 @@ static void sensor_prepare_to_send_task(void * pvParameters)
     }
 }
 
-static void sensor_post_processing_task(void * pvParameters)
+void sensor_post_processing_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -294,10 +294,10 @@ static void sensor_post_processing_task(void * pvParameters)
 
             cJSON_Delete(json_data);
 
-            ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",,
+            ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type,
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
                                                  json_string);
 
             free(event->sensor_data);
@@ -309,7 +309,7 @@ static void sensor_post_processing_task(void * pvParameters)
     }
 }
 
-static void sensor_send_to_ram_task(void * pvParameters)
+void sensor_send_to_ram_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -324,7 +324,7 @@ static void sensor_send_to_ram_task(void * pvParameters)
     }
 }
 
-static void sensor_send_to_sd_db_task(void * pvParameters)
+void sensor_send_to_sd_db_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -339,7 +339,7 @@ static void sensor_send_to_sd_db_task(void * pvParameters)
     }
 }
 
-static void sensor_send_to_server_db_task(void * pvParameters)
+void sensor_send_to_server_db_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -354,7 +354,7 @@ static void sensor_send_to_server_db_task(void * pvParameters)
     }
 }
 
-static void sensor_queue_mem_cleanup_task(void * pvParameters)
+void sensor_queue_mem_cleanup_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
@@ -363,7 +363,7 @@ static void sensor_queue_mem_cleanup_task(void * pvParameters)
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in cleanup process",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type))
+                                                sensor_type_to_string(event->sensor_data->sensor_type));
 
         }
     }
@@ -457,11 +457,13 @@ esp_err_t initiate_sensor_queue(){
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
         &sensor_queue_mem_cleanup_handle,
         SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
+
+        return ESP_OK;
 }
 
 char *sensor_type_to_string(Sensor_List sensor_type){
-
-    switch(sensor_type){
+    int type = sensor_type;
+    switch(type){
         case TEMP:
             return "temp";
             break;
@@ -469,4 +471,5 @@ char *sensor_type_to_string(Sensor_List sensor_type){
             return "humidity";
             break;
     }
+    return "";
 }

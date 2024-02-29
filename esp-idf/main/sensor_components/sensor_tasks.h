@@ -58,7 +58,13 @@ typedef struct sensor_queue_wrapper_t
 
 
 esp_err_t initiate_sensor_queue(void);
-char *sensor_type_to_string(void);
-
+char *sensor_type_to_string(Sensor_List sensor_type);
+void sensor_preprocessing_task(void * pvParameters);
+void sensor_prepare_to_send_task(void * pvParameters);
+void sensor_post_processing_task(void * pvParameters);
+void sensor_send_to_ram_task(void * pvParameters);
+void sensor_send_to_sd_db_task(void * pvParameters);
+void sensor_send_to_server_db_task(void * pvParameters);
+void sensor_queue_mem_cleanup_task(void * pvParameters);
 
 #endif

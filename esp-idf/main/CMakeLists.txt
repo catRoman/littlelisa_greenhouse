@@ -1,6 +1,6 @@
 idf_component_register(
     SRCS
-        sensor_components/sensor_tasks.h
+        sensor_components/sensor_tasks.c
         sensor_components/DHT22.c
         network_components/wifi_ap_sta.c
         network_components/http_server.c
