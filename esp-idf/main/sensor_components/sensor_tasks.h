@@ -40,8 +40,7 @@ typedef struct sensor_data_t{
 typedef enum sensor_event_type
 {
     SENSOR_PREPOCESSING, //validation and routing (controller/node)
-    SENSOR_ESP_NOW_SEND, //sent in struct
-    SENSOR_ESP_NOW_REC, //sent in struct
+    SENSOR_PREPARE_TO_SEND, //sent in struct
     SENSOR_POST_PROCESSING, //routing, packet addition(based on sensor) and jsonify (controller/node)-timestamp
     SENSOR_SEND_TO_RAM, //sent in struct
     SENSOR_SEND_TO_SD_DB,   //json? or direct to db
