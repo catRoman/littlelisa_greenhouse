@@ -57,7 +57,8 @@ typedef struct sensor_queue_wrapper_t
 } sensor_queue_wrapper_t;
 
 
-esp_err_t sensor_queue_start(void);
+esp_err_t initiate_sensor_queue(void);
+char *sensor_type_to_string(void);
 
 
 #endif
