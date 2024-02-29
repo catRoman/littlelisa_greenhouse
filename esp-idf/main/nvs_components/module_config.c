@@ -72,6 +72,7 @@ const char TAG [] = "module_config";
                         };
 
 //one more as list start at index 1 with 0=null for sql sync
+//TODO: roll into generic sensor_struct_t and sensor queue
 dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
 
 #ifdef CONFIG_MODULE_TYPE_CONTROLLER
@@ -98,6 +99,7 @@ void initiate_config(){
     //set node info and log
     esp_err_t err;
 
+    //TODO: change name to not confuse with temperature/temporary
     Module_info_t temp_info = {0};
     
     int8_t tempArr[SENSOR_LIST_TOTAL];
@@ -137,7 +139,10 @@ void initiate_config(){
     }
 
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
-
+    
+    //TODO: roll this into sensor queue
+    //TODO: since sensor_struct will be generic for all sensors, initiate for all 
+    //          of the different config_sensors
     //starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
     for(int i = 1; i <= CONFIG_SENSOR_TEMP; i++){
         dht22_sensor_arr[i].pin_number = dht22_pin_number[i];
@@ -156,15 +161,18 @@ void initiate_config(){
 
 
     #ifdef CONFIG_MODULE_TYPE_NODE
-        initiate_sensor_tasks();
+        //node only;
     #elif CONFIG_MODULE_TYPE_CONTROLLER
         //sd and db_init
         spi_sd_card_init();
         //sd_db_init();
-        initiate_sensor_tasks();
     #else
         ESP_LOGE(TAG, "module type not selected, use menuconfig");
     #endif
+
+    //common to both node and controller
+    //initiate_sensor_queue();
+    initiate_sensor_tasks();
 }
 
 void initiate_sensor_tasks(){
@@ -173,8 +181,9 @@ void initiate_sensor_tasks(){
         for(int sensor = 1; sensor < sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor++){
             switch(sensor_type){
                 case TEMP:
-	                ESP_LOGI(TAG, "Started Temp Sensor: Id: #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
+	                ESP_LOGI(TAG, "Started Internal Temp Sensor: Id: #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
                     char sensor_task_name[20];
+                    //TODO: add internal keyword to taskname
                     snprintf(sensor_task_name, sizeof(sensor_task_name), "temp_sensor_%d", dht22_sensor_arr[sensor].identifier);
                     xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&dht22_sensor_arr[sensor], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
                     break;

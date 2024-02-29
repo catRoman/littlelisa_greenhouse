@@ -47,8 +47,6 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
             
-            
-
             esp_err_t result = esp_now_send(&queue_packet.mac_addr, queue_packet.data, queue_packet.len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));

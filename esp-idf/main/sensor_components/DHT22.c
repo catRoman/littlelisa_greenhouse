@@ -89,13 +89,10 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 	free(json_string);
  }
 
-  void send_sensor_struct(dht22_sensor_t *sensor_t, int sensor_choice){
+void send_sensor_struct(dht22_sensor_t *sensor_t, int sensor_choice){
 	// add sensor data to sensor struct , make queue wrappper and assign sensor data to it, send queue data
 	//dht22 sensor data
 	
-	
-
-
 //sesnor struct
 	
 	sensor_data_t sensor_data = {

@@ -47,11 +47,12 @@ typedef enum sensor_event_type
 
 } sensor_event_type;
 
-
-typedef struct sensor_event_type_t
+typedef struct sensor_queue_wrapper_t
 {
     sensor_event_type eventID;
-} sensor_event_type_t;
+    sensor_data_t *sensor_data;
+    int semphoreCount;
+} sensor_queue_wrapper_t;
 
 
 esp_err_t sensor_queue_start(void);
