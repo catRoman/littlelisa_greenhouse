@@ -11,6 +11,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
+#include <time.h>
 
 typedef enum Sensor_List{
     TEMP,
@@ -31,6 +32,7 @@ typedef struct sensor_data_t{
 	char* location;
 	int local_sensor_id;
     int module_id;
+    time_t timestamp;
 
 } sensor_data_t;
 
@@ -40,16 +42,17 @@ typedef enum sensor_event_type
     SENSOR_PREPOCESSING, //validation and routing (controller/node)
     SENSOR_ESP_NOW_SEND, //sent in struct
     SENSOR_ESP_NOW_REC, //sent in struct
-    SENSOR_POST_PROCESS, //routing, packet addition(based on sensor) and jsonify (controller/node)
+    SENSOR_POST_PROCESSING, //routing, packet addition(based on sensor) and jsonify (controller/node)-timestamp
     SENSOR_SEND_TO_RAM, //sent in struct
     SENSOR_SEND_TO_SD_DB,   //json? or direct to db
     SENSOR_SEND_TO_SERVER_DB,   //json? or direct to db
+    SENSOR_QUEUE_MEM_CLEANUP,
 
 } sensor_event_type;
 
 typedef struct sensor_queue_wrapper_t
 {
-    sensor_event_type eventID;
+    sensor_event_type nextEventID;
     sensor_data_t *sensor_data;
     int semphoreCount;
 } sensor_queue_wrapper_t;
@@ -58,4 +61,4 @@ typedef struct sensor_queue_wrapper_t
 esp_err_t sensor_queue_start(void);
 
 
-#endif 
+#endif
