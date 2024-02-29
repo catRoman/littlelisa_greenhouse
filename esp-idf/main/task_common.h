@@ -4,7 +4,7 @@
  *
  * @author		Catlin Roman
  * @date 		created on: 2024-01-10
- * 
+ *
  * Detailed desciption (optional)
  */
 
@@ -25,7 +25,6 @@
 #define HTTP_SERVER_MONITOR_STACK_SIZE  4096
 #define HTTP_SERVER_MONITOR_PRIORITY    3
 #define HTTP_SERVER_MONITOR_CORE_ID     0
-
 
 // DHT22 Sesor Task
 #define DHT22_TASK_STACK_SIZE           4096
