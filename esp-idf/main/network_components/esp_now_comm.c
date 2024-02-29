@@ -29,7 +29,7 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
  *       -> data is serialized and assigned to data_wrapper object with serialized size
  *       -> wrapped data is past to esp_now send queue
  *       -> wrapped data size and serialized data is used to send data
- * 
+ *
  * (recv) -> send data struct to incoming queue, log, deserialize and send sensor_data_t
  *        -> to sensor queue for further processing
 */
@@ -46,7 +46,7 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
 
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
-            
+
             esp_err_t result = esp_now_send(&queue_packet.mac_addr, queue_packet.data, queue_packet.len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
@@ -71,11 +71,45 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             print_sensor_data(sensor_data);
             //pass data to sensor queue
 
-            free(queue_packet);
+            //allocate for data_packet
+            sensor_data_t *data_packet = (sensor_data_t*)malloc)sizeof(sensor_data_t);
+
+            data_packet->pin_number= sensor_data->pin_number;
+            data_packet->sensor_type = sensor_data->sensor_type;
+            data_packet->total_values = sensor_data->total_values;
+            data_packet->local_sensor_id = sensor_data->local_sensor_id;
+            data_packet->module_id = sensor_data->module_id;
+            data_packet->timestamp = sensor_data->timestamp;
+
+            //TODO: mem error handling
+            data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+            data_packet->location = (char*)malloc(strlen(sensor_data->location)+1);
+            strcpy(data_packet->location, sensor_data->location);
+
+            for(int i = 0; i < data_packet->total_values; i++){
+                data_packet->value[i] = sensor_data->value[i];
+            }
+
+            //sensor queue wrapper mem allocation
+            sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+
+            queue_packet->nextEventID = SENSOR_POST_PROCESSING;
+            queue_packet->sensor_data = data_packet;
+            queue_packet->semphoreCount = 0;
+
+
             free(sensor_data);
 
-                   
+
             //process the recieved message -> pass the sensor event queue
+
+            extern QueueHandle_t sensor_queue_handle;
+            if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+                    ESP_LOGI(TAG, "sensor data communicated and sent to sensor que for postprocessing");
+                }else{
+                    ESP_LOGE(TAG, "data communicated failed to transfer to sensor que");
+                }
+
         }
     }
 }
@@ -92,7 +126,7 @@ esp_err_t esp_now_comm_start(){
         "esp_now_comm_outgoing_data",
         ESP_NOW_COMM_OUTGOING_STACK_SIZE,
         NULL, ESP_NOW_COMM_OUTGOING_PRIORITY,
-        &esp_now_comm_outgoing_data_task_handle, 
+        &esp_now_comm_outgoing_data_task_handle,
         ESP_NOW_COMM_OUTGOING_CORE_ID);
 
     //incoming messages
@@ -101,9 +135,9 @@ esp_err_t esp_now_comm_start(){
         "esp_now_comm_incoming_data",
         ESP_NOW_COMM_INCOMING_STACK_SIZE,
         NULL, ESP_NOW_COMM_INCOMING_PRIORITY,
-        &esp_now_comm_incoming_data_task_handle, 
+        &esp_now_comm_incoming_data_task_handle,
         ESP_NOW_COMM_INCOMING_CORE_ID);
-    
+
     // Initialize ESP-NOW
     if (esp_now_init() != ESP_OK) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "ESP-NOW initialization failed");
@@ -120,7 +154,7 @@ esp_err_t esp_now_comm_start(){
 
     esp_now_peer_info_t peerInfo = {};
     memcpy(peerInfo.peer_addr, &peer_addr, ESP_NOW_ETH_ALEN);
-    peerInfo.channel = 0;  
+    peerInfo.channel = 0;
     peerInfo.encrypt = false;
 
     if (esp_now_add_peer(&peerInfo) != ESP_OK) {
@@ -141,8 +175,8 @@ esp_err_t esp_now_comm_get_config_reciever_mac_addr(uint8_t* mac_bytes) {
 
     int values[6]; // Temporary array to hold sscanf results
     int i;
-    if (6 == sscanf(mac_str, "%x:%x:%x:%x:%x:%x", 
-                    &values[0], &values[1], &values[2], 
+    if (6 == sscanf(mac_str, "%x:%x:%x:%x:%x:%x",
+                    &values[0], &values[1], &values[2],
                     &values[3], &values[4], &values[5])) {
         // Convert to uint8_t
         for (i = 0; i < 6; ++i) {
@@ -174,7 +208,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
 
     // Copy MAC address
     memcpy(packet->mac_addr, recv_info->src_addr, ESP_NOW_ETH_ALEN);
-    
+
     // Copy received data
     memcpy(packet->data, data, len);
     packet->len = len;
@@ -193,7 +227,7 @@ void esp_now_comm_on_data_send_cb(const uint8_t *mac_addr, esp_now_send_status_t
     // Handle data send acknowledgment
     if(status == ESP_NOW_SEND_SUCCESS)
         ESP_LOGV(ESP_NOW_COMM_TAG, "data send -Ack here");
-    else    
+    else
         ESP_LOGW(ESP_NOW_COMM_TAG, "send failure");
 }
 
@@ -202,10 +236,11 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Calculate size needed for serialization
     size_t location_len = strlen(data->location) + 1; // +1 for null terminator
     size_t values_size = sizeof(float) * data->total_values;
-    
-    *size = sizeof(data->pin_number) + sizeof(data->sensor_type) 
-            + sizeof(data->total_values) + sizeof(data->local_sensor_id) 
-            + sizeof(data->module_id) + values_size + location_len;
+
+    *size = sizeof(data->pin_number) + sizeof(data->sensor_type)
+            + sizeof(data->total_values) + sizeof(data->local_sensor_id)
+            + sizeof(data->module_id) + sizeof(data->timestamp)
+            + values_size + location_len;
 
     uint8_t *buffer = malloc(*size);
     if (!buffer) {
@@ -220,6 +255,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     memcpy(ptr, data->value, values_size); ptr += values_size;
     memcpy(ptr, &data->local_sensor_id, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
     memcpy(ptr, &data->module_id, sizeof(data->module_id)); ptr += sizeof(data->module_id);
+    memcpy(ptr, &data->timestamp, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
     memcpy(ptr, data->location, location_len); // ptr += location_len; // Not needed as this is the last item
 
     return buffer;
@@ -243,6 +279,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
 
     memcpy(&data->local_sensor_id, ptr, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
     memcpy(&data->module_id, ptr, sizeof(data->module_id)); ptr += sizeof(data->module_id);
+    memcpy(&data->timestamp, ptr, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
 
     size_t location_len = strlen((const char *)ptr) + 1;
     data->location = malloc(location_len);
@@ -256,14 +293,14 @@ size_t calculate_serialized_size(const sensor_data_t *data) {
     // Fixed size for int and int fields
     size_t fixed_size = sizeof(data->pin_number) + sizeof(data->total_values) +
                         sizeof(data->local_sensor_id) + sizeof(data->module_id)
-                        + sizeof(data->sensor_type);
-    
+                        + sizeof(data->timestamp) + sizeof(data->sensor_type);
+
     // Dynamic size for the float array
     size_t values_size = sizeof(float) * data->total_values;
     //printf("%s", data->location);
     // Dynamic size for the location string (including null terminator)
     size_t location_len = strlen(data->location) + 1;
-    
+
     // Total size
     size_t total_size = fixed_size + values_size + location_len;
 
@@ -277,7 +314,16 @@ void print_sensor_data(const sensor_data_t* data) {
     printf("Location: %s\n", data->location);
     printf("Local Sensor ID: %d\n", data->local_sensor_id);
     printf("Module ID: %d\n", data->module_id);
-    
+
+    // Convert to local time format
+    struct tm *tmLocal = localtime(&data->timestamp);
+
+    // Buffer to hold the formatted date and time
+    char dateTimeStr[100];
+
+    strftime(dateTimeStr, sizeof(dateTimeStr), "%a %b %d %H:%M:%S %Y", tmLocal);
+    printf("timestamp: %s\n", dateTimeStr);
+
     // Assuming 'value' points to an array of 'float', print each value
     printf("Values: ");
     for (int i = 0; i < data->total_values; ++i) {

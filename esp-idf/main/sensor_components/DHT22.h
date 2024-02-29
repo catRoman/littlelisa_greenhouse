@@ -16,6 +16,7 @@
 #define DHT_OUTSIDE_GPIO		26
 
 
+//TODO: refactor to only use sensor_data_t
 
 typedef struct dht22_sensor_t {
 	int pin_number;
@@ -44,6 +45,8 @@ int 	readDHT(dht22_sensor_t *sensor_t);
 float 	get_humidity(dht22_sensor_t *sensor_t);
 float 	get_temperature(dht22_sensor_t *sensor_t);
 int 	getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t);
-void DHT22_task(void *vpParameter);
+void 	DHT22_task(void *vpParameter);
+
+void 	dht22_sensor_send_to_sensor_queue(void);
 
 #endif
