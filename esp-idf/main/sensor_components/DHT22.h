@@ -47,6 +47,6 @@ float 	get_temperature(dht22_sensor_t *sensor_t);
 int 	getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t);
 void 	DHT22_task(void *vpParameter);
 
-void 	dht22_sensor_send_to_sensor_queue(void);
+void dht22_sensor_send_to_sensor_queue(dht22_sensor_t *sensor_t, int sensor_choice);
 
 #endif
