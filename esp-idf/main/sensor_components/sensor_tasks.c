@@ -12,6 +12,7 @@
 #include "esp_now_comm.h"
 #include "task_common.h"
 #include "sdkconfig.h"
+#include "cJSON.h"
 
 //TODO: make queue wrapper for passing genic sensor struct with state to que        -DONE
 //      -->alocate memory at sensor source for sensor_struct_t and queue wrapper
@@ -43,29 +44,29 @@
 //TODO use stack analysiusi to fiugure out apropriate stact sizes
 static const char SENSOR_EVENT_TAG[] = "sensor_tasks";
 
-static QueueHandle_t sensor_queue_handle = NULL;
-static TaskHandle_t sensor_queue_task_handle = NULL;
+QueueHandle_t sensor_queue_handle = NULL;
+TaskHandle_t sensor_queue_task_handle = NULL;
 
-static QueueHandle_t sensor_preprocessing_handle = NULL;
-static TaskHandle_t  sensor_preprocessing_task_handle = NULL;
+QueueHandle_t sensor_preprocessing_handle = NULL;
+TaskHandle_t  sensor_preprocessing_task_handle = NULL;
 
-static QueueHandle_t sensor_prepare_to_send_handle = NULL;
-static TaskHandle_t sensor_prepare_to_send_task_handle = NULL;
+QueueHandle_t sensor_prepare_to_send_handle = NULL;
+TaskHandle_t sensor_prepare_to_send_task_handle = NULL;
 
-static QueueHandle_t sensor_post_processing_handle = NULL;
-static TaskHandle_t sensor_post_processing_task_handle = NULL;
+QueueHandle_t sensor_post_processing_handle = NULL;
+TaskHandle_t sensor_post_processing_task_handle = NULL;
 
-static QueueHandle_t sensor_send_to_ram_handle = NULL;
-static TaskHandle_t sensor_send_to_ram_task_handle = NULL;
+QueueHandle_t sensor_send_to_ram_handle = NULL;
+TaskHandle_t sensor_send_to_ram_task_handle = NULL;
 
-static QueueHandle_t sensor_send_to_sd_db_handle = NULL;
-static TaskHandle_t sensor_send_to_sd_db_task_handle = NULL;
+QueueHandle_t sensor_send_to_sd_db_handle = NULL;
+TaskHandle_t sensor_send_to_sd_db_task_handle = NULL;
 
-static QueueHandle_t sensor_send_to_server_db_handle = NULL;
-static TaskHandle_t sensor_send_to_server_db_task_handle = NULL;
+QueueHandle_t sensor_send_to_server_db_handle = NULL;
+TaskHandle_t sensor_send_to_server_db_task_handle = NULL;
 
-static QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
-static TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
+QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
+TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
 
 static void sensor_queue_monitor_task(void * pvParameters)
@@ -199,6 +200,9 @@ static void sensor_preprocessing_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
+            //TODO:check values are within range if not send to cleanup
+            //sensor_validation();
+
             #ifdef CONFIG_MODULUE_TYPE_NODE
                 event.nextEventID=SENSOR_PREPARE_TO_SEND;
             #elif  CONFIG_MODULE_TYPE_CONTROLLER
@@ -265,6 +269,42 @@ static void sensor_post_processing_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
+
+
+            time_t currentTime;
+            time(&currentTime);
+            event->sensor_data->timestamp = currentTime;
+
+            //temp for logging testing
+
+            cJSON *json_data = cJSON_CreateObject();
+
+            cJSON_AddNumberToObject(json_data, "mod id", event->sensor_data->module_id);
+            cJSON_AddNumberToObject(json_data, "sensor id", event->sensor_data->local_sensor_id);
+            cJSON_AddStringToObject(json_data, "timestamp", ctime(event->sensor_data->timestamp));
+            cJSON_AddStringToObject(json_data, "location", event->sensor_data->location);
+            cJSON_AddNumberToObject(json_data, "pin", event->sensor_data->pin_number);
+            if(event->sensor_data->sensor_type == HUMIDITY){
+                cJSON_AddNumberToObject(json_data, "value", event->sensor_data->value[0]);
+            }else if(event->sensor_data->sensor_type == TEMP){
+                cJSON_AddNumberToObject(json_data, "value", event->sensor_data->value[0]);
+            }
+
+            char *json_string = cJSON_Print(json_data);
+
+            cJSON_Delete(json_data);
+
+            ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",,
+                                                event->sensor_data->module_id,
+                                                event->sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event->sensor_data->sensor_type,
+                                                 json_string);
+
+            free(event->sensor_data);
+            free(event);
+
+            //end temp for loggin and testing
+
         }
     }
 }
@@ -329,7 +369,7 @@ static void sensor_queue_mem_cleanup_task(void * pvParameters)
     }
 }
 
-esp_err_t sensor_queue_start(){
+esp_err_t initiate_sensor_queue(){
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));
     sensor_preprocessing_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_prepare_to_send_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
@@ -417,4 +457,16 @@ esp_err_t sensor_queue_start(){
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
         &sensor_queue_mem_cleanup_handle,
         SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
+}
+
+char *sensor_type_to_string(Sensor_List sensor_type){
+
+    switch(sensor_type){
+        case TEMP:
+            return "temp";
+            break;
+        case HUMIDITY:
+            return "humidity";
+            break;
+    }
 }
