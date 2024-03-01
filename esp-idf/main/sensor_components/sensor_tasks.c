@@ -71,6 +71,10 @@ TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
 void sensor_queue_monitor_task(void * pvParameters)
 {
+    ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s entered sensor que",
+                                                event->sensor_data->module_id,
+                                                event->sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event->sensor_data->sensor_type));
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_queue_handle, &event, portMAX_DELAY) == pdTRUE){

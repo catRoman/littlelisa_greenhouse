@@ -171,7 +171,7 @@ void initiate_config(){
     #endif
 
     //common to both node and controller
-    //initiate_sensor_queue();
+    initiate_sensor_queue();
     initiate_sensor_tasks();
 }
 
