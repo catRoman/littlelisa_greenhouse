@@ -171,7 +171,7 @@ void wifi_start(void)
         log_mac_address(true);
 
         mdns_start();
-        esp_now_comm_start();
+        //esp_now_comm_start();
      //   start http and sntp server
         sntp_service_init();
         http_server_start();
@@ -193,7 +193,7 @@ void wifi_start(void)
         log_mac_address(false);
        
         mdns_start();
-        esp_now_comm_start();
+        //esp_now_comm_start();
 
         //start http and sntp server
         //sntp_service_init();

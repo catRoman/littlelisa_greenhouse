@@ -10,6 +10,7 @@
 #include "database_components/sd_card_db.h"
 #include "module_components/spi_sd_card.h"
 #include "sensor_components/DHT22.h"
+#include "network_components/esp_now_comm.h"
 #include "task_common.h"
 
 #include "module_config.h"
@@ -173,6 +174,10 @@ void initiate_config(){
     //common to both node and controller
     initiate_sensor_queue();
     initiate_sensor_tasks();
+    esp_now_comm_start();
+
+
+
 }
 
 void initiate_sensor_tasks(){

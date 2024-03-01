@@ -32,12 +32,12 @@
 // esp now outgoing data task
 #define ESP_NOW_COMM_OUTGOING_STACK_SIZE    8192
 #define ESP_NOW_COMM_OUTGOING_PRIORITY      5
-#define ESP_NOW_COMM_OUTGOING_CORE_ID       1
+#define ESP_NOW_COMM_OUTGOING_CORE_ID       0
 
 // esp now incoming data task
 #define ESP_NOW_COMM_INCOMING_STACK_SIZE    8192
 #define ESP_NOW_COMM_INCOMING_PRIORITY      5
-#define ESP_NOW_COMM_INCOMING_CORE_ID       1
+#define ESP_NOW_COMM_INCOMING_CORE_ID       0
 
 //SENSOR RELATED
 
