@@ -63,13 +63,13 @@ const int dht22_pin_number[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
 
 const char TAG [] = "module_config";
 
- const int8_t sensor_arr[SENSOR_LIST_TOTAL] = {CONFIG_SENSOR_TEMP,  
-                        CONFIG_SENSOR_HUMIDITY,  
-                        CONFIG_SENSOR_SOIL_MOISTURE,  
-                        CONFIG_SENSOR_LIGHT,  
-                        CONFIG_SENSOR_SOUND,  
-                        CONFIG_SENSOR_MOVEMENT, 
-                        CONFIG_SENSOR_CAMERA,  
+ const int8_t sensor_arr[SENSOR_LIST_TOTAL] = {CONFIG_SENSOR_TEMP,
+                        CONFIG_SENSOR_HUMIDITY,
+                        CONFIG_SENSOR_SOIL_MOISTURE,
+                        CONFIG_SENSOR_LIGHT,
+                        CONFIG_SENSOR_SOUND,
+                        CONFIG_SENSOR_MOVEMENT,
+                        CONFIG_SENSOR_CAMERA,
                         };
 
 //one more as list start at index 1 with 0=null for sql sync
@@ -96,13 +96,13 @@ dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
 
 void initiate_config(){
 
-   
+
     //set node info and log
     esp_err_t err;
 
     //TODO: change name to not confuse with temperature/temporary
     Module_info_t temp_info = {0};
-    
+
     int8_t tempArr[SENSOR_LIST_TOTAL];
     int8_t tempArrLength = 0;
 
@@ -127,7 +127,7 @@ void initiate_config(){
     }else if(err == ESP_OK){
         if(tempArrLength != SENSOR_LIST_TOTAL){
             ESP_LOGE(TAG, "nvs retrieved sensor length mismatch");
-            
+
         }else{
             for(int i =0; i < SENSOR_LIST_TOTAL; i++){
                 if(tempArr[i] != sensor_arr[i]){
@@ -140,9 +140,9 @@ void initiate_config(){
     }
 
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
-    
+
     //TODO: roll this into sensor queue
-    //TODO: since sensor_struct will be generic for all sensors, initiate for all 
+    //TODO: since sensor_struct will be generic for all sensors, initiate for all
     //          of the different config_sensors
     //starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
     for(int i = 1; i <= CONFIG_SENSOR_TEMP; i++){
@@ -176,12 +176,24 @@ void initiate_config(){
     initiate_sensor_tasks();
     esp_now_comm_start();
 
+// Allocate a buffer for the task list. Adjust the size as needed based on your application.
+#define TASK_LIST_BUFFER_SIZE (40 * uxTaskGetNumberOfTasks())
+char taskListBuffer[TASK_LIST_BUFFER_SIZE];
+ vTaskList(taskListBuffer);
+
+    // Print the task list. Replace this with your preferred print method.
+    printf("Task Name    State   Prio    Stack    Num\n");
+    printf("****************************************\n");
+    printf("%s", taskListBuffer);
+
+
+
 
 
 }
 
 void initiate_sensor_tasks(){
-    
+
     for(Sensor_List sensor_type = TEMP; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
         for(int sensor = 1; sensor < sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor++){
             switch(sensor_type){

@@ -92,11 +92,11 @@
 */
 void app_main(void)
 {
-    static const char TAG[] = "main_app";
+    static char TAG[] = "main_app";
 
      //wifi crediental storage and retrieval
     nvs_initiate();
-   
+
     // Start Wifi
     wifi_start();
 

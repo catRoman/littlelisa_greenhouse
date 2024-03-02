@@ -7,6 +7,8 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
+#include "esp_task_wdt.h"
 
 #include "sensor_tasks.h"
 #include "network_components/esp_now_comm.h"
@@ -69,129 +71,102 @@ QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
 TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
 
+
 void sensor_queue_monitor_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
-   
+
     for(;;){
-        if (xQueueReceive(sensor_queue_handle, &event, portMAX_DELAY) == pdTRUE){
-            ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s entered sensor que",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,  
-                                              sensor_type_to_string(event->sensor_data->sensor_type));
-            
-            
+        if (xQueueReceive(sensor_queue_handle, &event, portMAX_DELAY)){
+
+               char logMsg[25];
+
+    // Use snprintf to format the string
+             snprintf(logMsg, sizeof(logMsg), "mod:%d-id:%d-%s",
+             event->sensor_data->module_id,
+             event->sensor_data->local_sensor_id,
+             sensor_type_to_string(event->sensor_data->sensor_type));
+
+
+
+            ESP_LOGI(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
+
             switch(event->nextEventID){
 
                 case SENSOR_PREPOCESSING:
-
-                    if(xQueueSend(sensor_preprocessing_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to preprocessing",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_preprocessing_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to preprocessing",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to preprocessing",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to preprocessing",logMsg);
                     }
+
+                    taskYIELD();
                     break;
 
                 case SENSOR_PREPARE_TO_SEND:
 
-                    if(xQueueSend(sensor_prepare_to_send_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to prepare to send",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_prepare_to_send_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to prepare to send",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to prepare to send",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to prepare to send",
+                                                logMsg);
                     }
+
+                    taskYIELD();
                     break;
 
                 case SENSOR_POST_PROCESSING:
 
-                    if(xQueueSend(sensor_post_processing_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to post processing",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_post_processing_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to post processing",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to post processing",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to post processing",logMsg);
                     }
+
+                    taskYIELD();
                     break;
 
                 case SENSOR_SEND_TO_RAM:
 
-                    if(xQueueSend(sensor_send_to_ram_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to send to ram",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_send_to_ram_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to send to ram",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to send to ram",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to send to ram",logMsg);
                     }
                     break;
 
                 case SENSOR_SEND_TO_SD_DB:
 
 
-                    if(xQueueSend(sensor_send_to_sd_db_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed tosend to sd db",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_send_to_sd_db_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed tosend to sd db",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to send to sd db",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to send to sd db",logMsg);
                     }
                     break;
 
                 case SENSOR_SEND_TO_SERVER_DB:
 
 
-                    if(xQueueSend(sensor_send_to_server_db_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to send to server db",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_send_to_server_db_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to send to server db",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to send to server db",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to send to server db",logMsg);
                     }
                     break;
 
                 case SENSOR_QUEUE_MEM_CLEANUP:
 
 
-                    if(xQueueSend(sensor_queue_mem_cleanup_handle, &event, portMAX_DELAY) == pdPASS){
-                        ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s passed to queue mem cleanup",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                    if(xQueueSend(sensor_queue_mem_cleanup_handle, &event, portMAX_DELAY)){
+                        ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to queue mem cleanup",logMsg);
                     }else{
-                        ESP_LOGE(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s failed to pass to queue mem cleanup",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to queue mem cleanup",logMsg);
                     }
                     break;
             }
-            
+
+
         }
     }
 }
@@ -201,25 +176,36 @@ void sensor_preprocessing_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
-        if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY) == pdTRUE){
-            ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in preprocessing",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+        if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY)){
+            printf("in preprocessing\n");
+
+            // ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in preprocessing",
+            //                                     event.sensor_data->module_id,
+            //                                     event.sensor_data->local_sensor_id,
+            //                                     sensor_type_to_string(event.sensor_data->sensor_type));
 
             //TODO:check values are within range if not send to cleanup
             //sensor_validation();
 
-            #ifdef CONFIG_MODULUE_TYPE_NODE
+            #ifdef CONFIG_MODULE_TYPE_NODE
                 event->nextEventID=SENSOR_PREPARE_TO_SEND;
             #elif  CONFIG_MODULE_TYPE_CONTROLLER
                 event->nextEventID=SENSOR_POST_PROCESSING;
             #else
                 ESP_LOGE(SENSOR_EVENT_TAG, "Module type error in preprocessing");
+                continue;
             #endif
 
-            xQueueSend(sensor_queue_monitor_task, &event, portMAX_DELAY);
+            if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
+                printf("sent\n");
+            }
+
+
+
+        taskYIELD();
         }
+
+
     }
 }
 
@@ -227,7 +213,7 @@ void sensor_prepare_to_send_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
     for(;;){
-        if (xQueueReceive(sensor_prepare_to_send_handle, &event, portMAX_DELAY) == pdTRUE){
+        if (xQueueReceive(sensor_prepare_to_send_handle, &event, portMAX_DELAY)){
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s preparing to send",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
@@ -261,15 +247,19 @@ void sensor_prepare_to_send_task(void * pvParameters)
             //free the wrapper as its changed hands to the esp_now_comm wrapper
             free(event);
 
+        taskYIELD();
         }
+
+
     }
 }
 
 void sensor_post_processing_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
+
     for(;;){
-        if (xQueueReceive(sensor_post_processing_handle, &event, portMAX_DELAY) == pdTRUE){
+        if (xQueueReceive(sensor_post_processing_handle, &event, portMAX_DELAY)){
 
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in postprocessing",
                                                 event->sensor_data->module_id,
@@ -288,7 +278,7 @@ void sensor_post_processing_task(void * pvParameters)
 
             cJSON_AddNumberToObject(json_data, "mod id", event->sensor_data->module_id);
             cJSON_AddNumberToObject(json_data, "sensor id", event->sensor_data->local_sensor_id);
-            cJSON_AddStringToObject(json_data, "timestamp", ctime(event->sensor_data->timestamp));
+            cJSON_AddStringToObject(json_data, "timestamp", ctime(&(event->sensor_data->timestamp)));
             cJSON_AddStringToObject(json_data, "location", event->sensor_data->location);
             cJSON_AddNumberToObject(json_data, "pin", event->sensor_data->pin_number);
             if(event->sensor_data->sensor_type == HUMIDITY){
@@ -310,8 +300,7 @@ void sensor_post_processing_task(void * pvParameters)
             free(event->sensor_data);
             free(event);
 
-            //end temp for loggin and testing
-
+        taskYIELD();
         }
     }
 }
@@ -319,6 +308,7 @@ void sensor_post_processing_task(void * pvParameters)
 void sensor_send_to_ram_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
+
     for(;;){
         if (xQueueReceive(sensor_send_to_ram_handle, &event, portMAX_DELAY) == pdTRUE){
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in ram send process",
@@ -327,13 +317,16 @@ void sensor_send_to_ram_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
+
         }
+
     }
 }
 
 void sensor_send_to_sd_db_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
+
     for(;;){
         if (xQueueReceive(sensor_send_to_sd_db_handle, &event, portMAX_DELAY) == pdTRUE){
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in sd db send process",
@@ -342,13 +335,16 @@ void sensor_send_to_sd_db_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
+
         }
+
     }
 }
 
 void sensor_send_to_server_db_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
+
     for(;;){
         if (xQueueReceive(sensor_send_to_server_db_handle, &event, portMAX_DELAY) == pdTRUE){
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in external db send process",
@@ -357,13 +353,16 @@ void sensor_send_to_server_db_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
+
         }
+
     }
 }
 
 void sensor_queue_mem_cleanup_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
+
     for(;;){
         if (xQueueReceive(sensor_queue_mem_cleanup_handle, &event, portMAX_DELAY) == pdTRUE){
 
@@ -372,24 +371,40 @@ void sensor_queue_mem_cleanup_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
+
         }
+
     }
 }
 
 esp_err_t initiate_sensor_queue(){
     ESP_LOGI(SENSOR_EVENT_TAG, "sensor queue init started");
-    
+
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));
+    if (sensor_queue_handle == NULL){
+        ESP_LOGE(SENSOR_EVENT_TAG, "queue not created");
+    }
     sensor_preprocessing_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    if (sensor_preprocessing_handle == NULL){
+        ESP_LOGE(SENSOR_EVENT_TAG, "queue not created");
+    }
     sensor_prepare_to_send_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    if (sensor_prepare_to_send_handle == NULL){
+        ESP_LOGE(SENSOR_EVENT_TAG, "queue not created");
+    }
     sensor_post_processing_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+if (sensor_post_processing_handle == NULL){
+        ESP_LOGE(SENSOR_EVENT_TAG, "queue not created");
+    }
+
     sensor_send_to_ram_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_send_to_sd_db_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_send_to_server_db_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_queue_mem_cleanup_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
 
+
     xTaskCreatePinnedToCore(
-        &sensor_queue_monitor_task,
+        sensor_queue_monitor_task,
         "sensor_queue_monitor",
         SENSOR_QUEUE_STACK_SIZE,
         NULL,
@@ -399,75 +414,77 @@ esp_err_t initiate_sensor_queue(){
 
 
     xTaskCreatePinnedToCore(
-        &sensor_preprocessing_task,
+        sensor_preprocessing_task,
         "sensor_prepocessing",
         SENSOR_PREPROCESSING_STACK_SIZE,
         NULL,
         SENSOR_PREPROCESSING_PRIORITY,
-        &sensor_preprocessing_handle,
+        &sensor_preprocessing_task_handle,
         SENSOR_PREPROCESSING_CORE_ID);
 
 
     xTaskCreatePinnedToCore(
-        &sensor_prepare_to_send_task,
+        sensor_prepare_to_send_task,
         "sensor_prepare_to_send",
         SENSOR_PREPARE_TO_SEND_STACK_SIZE,
         NULL,
         SENSOR_PREPARE_TO_SEND_PRIORITY,
-        &sensor_prepare_to_send_handle,
+        &sensor_prepare_to_send_task_handle,
         SENSOR_PREPARE_TO_SEND_CORE_ID);
 
 
     xTaskCreatePinnedToCore(
-        &sensor_post_processing_task,
+        sensor_post_processing_task,
         "sensor_post_processing",
         SENSOR_POSTPROCESSING_STACK_SIZE,
         NULL,
         SENSOR_POSTPROCESSING_PRIORITY,
-        &sensor_post_processing_handle,
+        &sensor_post_processing_task_handle,
         SENSOR_POSTPROCESSING_CORE_ID);
 
 
     xTaskCreatePinnedToCore(
-        &sensor_send_to_ram_task,
+        sensor_send_to_ram_task,
         "sensor_send_to_ram",
         SENSOR_SEND_TO_RAM_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_RAM_PRIORITY,
-        &sensor_send_to_ram_handle,
+        &sensor_send_to_ram_task_handle,
         SENSOR_SEND_TO_RAM_CORE_ID);
 
 
     xTaskCreatePinnedToCore(
-        &sensor_send_to_sd_db_task,
+        sensor_send_to_sd_db_task,
         "sensor_send_to_sd_db",
         SENSOR_SEND_TO_SD_DB_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_SD_DB_PRIORITY,
-        &sensor_send_to_sd_db_handle,
+        &sensor_send_to_sd_db_task_handle,
         SENSOR_SEND_TO_SD_DB_CORE_ID);
 
 
     xTaskCreatePinnedToCore(
-        &sensor_send_to_server_db_task,
+        sensor_send_to_server_db_task,
         "sensor_send_to_server_db",
         SENSOR_SEND_TO_SERVER_DB_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_SERVER_DB_PRIORITY,
-        &sensor_send_to_server_db_handle,
+        &sensor_send_to_server_db_task_handle,
         SENSOR_SEND_TO_SERVER_DB_CORE_ID);
 
 
     xTaskCreatePinnedToCore(
-        &sensor_queue_mem_cleanup_task,
+        sensor_queue_mem_cleanup_task,
         "sensor_queue_mem_cleanup",
         SENSOR_QUEUE_MEM_CLEANUP_STACK_SIZE,
         NULL,
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
-        &sensor_queue_mem_cleanup_handle,
+        &sensor_queue_mem_cleanup_task_handle,
         SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
 
-      
+
+
+
         return ESP_OK;
 }
 
