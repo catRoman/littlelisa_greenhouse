@@ -16,20 +16,21 @@
 #include "sdkconfig.h"
 #include "cJSON.h"
 
-//TODO: make queue wrapper for passing genic sensor struct with state to que        -DONE
-//      -->alocate memory at sensor source for sensor_struct_t and queue wrapper
-//              (sesnor task-outgoing/esp_now_com_recv-incoming?)   -DONE
-//      -->wrap in sensor_queue_event_t, pass pointer   -DONE
+// COMPLETED -make queue wrapper for passing genic sensor struct with state to que
+// COMNPLETED-     -->alocate memory at sensor source for sensor_struct_t and queue wrapper
+// COMPLETED-             (sesnor task-outgoing/esp_now_com_recv-incoming?)
+// COMPLETED    -->wrap in sensor_queue_event_t, pass pointer   -DONE
 //TODO: if fail push back to esp_now_comm_outgoing-retry attempt-datapersistance problem with que to resolve?
 //
-//TODO:   -->cleanup sensor event using a semaphore given during postprocessing depending on how
+//TODO:   -->cleanup sensor event and using a semaphore given during postprocessing depending on how
 //      -->tasks it was sent to-->sensor_event_queue has metadata for semaphore count?,
 //      -->clean waits for completion before freeing memory
-//TODO: make tasks for each step including routing to the next step and passing back to the queue
+// COMPLETED -make tasks for each step including routing to the next step and passing back to the queue
 /**
- * -preprocessing ->recieved from sensor task - validation -move to process_for_outgoing
- *                   or to postprocessing depending on module(node/controler)
- * -process_for_outgoing-> recieved from preprocessing - allocate esp_now_queue
+ * COMPLETED -preprocessing ->recieved from sensor task
+ *TODO:: validation - verify sensor data is within range
+ * COMPLETED -move to process_for_outgoing or to postprocessing depending on module(node/controler)
+ * COMPLETED -process_for_outgoing-> recieved from preprocessing - allocate esp_now_queue
  *              wrapper, free sensor wrapper, get serialized size, serialize data
  *              send to esp_now_comm_outgoing queue
  *              (function in dht22.c basicly already written turned into task)
@@ -41,9 +42,9 @@
  * -cleanup -> recieved from _http_process, sd-db_process, external_db_process -
  *              based on semphore count clean up wrapper and sensor struct
 */
-//TODO make task logic for each task, validation, post_process, to_http, to sd_db, to_ram, to external_db
-//TODO reorganize sensor tasks related between module_config, esp-now_comm, dht22 to focus on que use
-//TODO use stack analysiusi to fiugure out apropriate stact sizes
+//TODO: make task logic for each task, validation, post_process, to_http, to sd_db, to_ram, to external_db
+//TODO: reorganize sensor tasks related between module_config, esp-now_comm, dht22 to focus on que use
+//TODO: use stack analysiusi to fiugure out apropriate stact sizes
 static const char SENSOR_EVENT_TAG[] = "sensor_tasks";
 
 QueueHandle_t sensor_queue_handle = NULL;
