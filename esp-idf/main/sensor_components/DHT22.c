@@ -79,10 +79,10 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 	char *json_string = cJSON_Print(json_data);
 
 	cJSON_Delete(json_data);
-
 	return json_string;
 
 }
+
  void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
 	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
@@ -92,6 +92,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 //TODO: rewrite module_config and this to work on sensor types
 // thuis tansfering both temp and humidity at once
 void dht22_sensor_send_to_sensor_queue(dht22_sensor_t *sensor_t, int sensor_choice){
+
 
 
 	//allocate for data_packet
@@ -125,11 +126,19 @@ void dht22_sensor_send_to_sensor_queue(dht22_sensor_t *sensor_t, int sensor_choi
 	queue_packet->semphoreCount = 0;
 
 
+    char logMsg[50];
+
+    // Use snprintf to format the string
+	snprintf(logMsg, sizeof(logMsg), "mod:%d-id:%d-%s",
+	queue_packet->sensor_data->module_id,
+	queue_packet->sensor_data->local_sensor_id,
+	sensor_type_to_string(queue_packet->sensor_data->sensor_type));
+
 	extern QueueHandle_t sensor_queue_handle;
 	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-			ESP_LOGI(TAG, "data recieved from internal sensor and sent to sensor que for processing");
+			ESP_LOGI(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
 		}else{
-			ESP_LOGE(TAG, "data recieved from internal sensor failed to transfer to sensor que");
+			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
 		}
 
 
@@ -364,10 +373,10 @@ void DHT22_task(void *vpParameter)
 		if (ret == DHT_OK){
 			log_sensor_JSON(sensor_t, TEMP);
 			log_sensor_JSON(sensor_t, HUMIDITY);
-			#ifdef CONFIG_MODULE_TYPE_NODE
+			//#ifdef CONFIG_MODULE_TYPE_NODE
 			dht22_sensor_send_to_sensor_queue(sensor_t, HUMIDITY);
 			dht22_sensor_send_to_sensor_queue(sensor_t, TEMP);
-			#endif
+			//#endif
 			 //TODO: change either the function name or the function for better focus
 		}else{
 			errorHandler(ret, sensor_t);
