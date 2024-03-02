@@ -177,15 +177,15 @@ void sensor_preprocessing_task(void * pvParameters)
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY)){
-            printf("in preprocessing\n");
+          //  printf("in preprocessing\n");
 
-            // ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in preprocessing",
-            //                                     event.sensor_data->module_id,
-            //                                     event.sensor_data->local_sensor_id,
-            //                                     sensor_type_to_string(event.sensor_data->sensor_type));
+            ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in preprocessing",
+                                                event->sensor_data->module_id,
+                                                event->sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event->sensor_data->sensor_type));
 
-            //TODO:check values are within range if not send to cleanup
-            //sensor_validation();
+           // TODO:check values are within range if not send to cleanup
+           // sensor_validation();
 
             #ifdef CONFIG_MODULE_TYPE_NODE
                 event->nextEventID=SENSOR_PREPARE_TO_SEND;
@@ -197,8 +197,20 @@ void sensor_preprocessing_task(void * pvParameters)
             #endif
 
             if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
-                printf("sent\n");
+                #ifdef CONFIG_MODULE_TYPE_NODE
+                ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s preparing to send",
+                            event->sensor_data->module_id,
+                            event->sensor_data->local_sensor_id,
+                            sensor_type_to_string(event->sensor_data->sensor_type));
+
+                #elif  CONFIG_MODULE_TYPE_CONTROLLER
+                ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s sent to post processing",
+                            event->sensor_data->module_id,
+                            event->sensor_data->local_sensor_id,
+                            sensor_type_to_string(event->sensor_data->sensor_type));
+                #endif
             }
+
 
 
 
