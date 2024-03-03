@@ -22,13 +22,15 @@
 #define SQL_ID_SYNC_VAL 1
 
 //COMPLETED - make state in kconfig to allow for nvs update
-//TODO: if state is changed to update write data to nvs blob
+// check if enable_nvs_update is enabled if it is write config files to nvs by additionally serializing each sensor loc array and adding it to nvs
+// add sensor arr ot global mmodule info, get and desialize one list at a time if it exists, store to temp **arr loop through getting string length, adding total length to sum, add \0 allocate memorary
+// copy in place to struct
 //TODO: create dynamical allocated global struct that has all config data and use in rest of project
 /**
  * this allows for ota update based without having to explicitly set each sdkconfig for each different setting
  * k config file will allow for dynamic size arrays in nvs based on config settings for sensor locations
 */
-//TODO: update code base to reflect use of using global variable 
+//TODO: update code base to reflect use of using global variable
 
 //to match sql table id with sensor
 const char* dht22_sensor_locations[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
