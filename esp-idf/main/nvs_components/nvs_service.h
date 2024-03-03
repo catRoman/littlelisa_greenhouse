@@ -9,28 +9,57 @@
 
 
 
-#define NVS_WIFI_NAMESPACE              "wifi"
-#define NVS_WIFI_SSID_INDEX             "ssid"
-#define NVS_WIFI_PWD_INDEX              "pwd"
+#define NVS_WIFI_NAMESPACE                      "wifi"
+#define NVS_WIFI_SSID_INDEX                     "ssid"
+#define NVS_WIFI_PWD_INDEX                      "pwd"
 
-#define NVS_MODULE_NAMESPACE            "module_info"
-#define NVS_MODULE_TYPE_INDEX           "module_type"
-#define NVS_MODULE_LOCATION_INDEX       "module_location"
-#define NVS_MODULE_IDENTIFIER_INDEX     "module_ident"
+#define NVS_MODULE_NAMESPACE                    "module_info"
+#define NVS_MODULE_TYPE_INDEX                   "module_type"
+#define NVS_MODULE_LOCATION_INDEX               "module_location"
+#define NVS_MODULE_IDENTIFIER_INDEX             "module_ident"
 
-#define NVS_NODE_ARR_NAMESPACE          "node_list"
-#define NVS_NODE_ARR_INDEX              "node_arr"
-#define NVS_NODE_TOTAL_INDEX            "node_total"
+#define NVS_NODE_ARR_NAMESPACE                  "node_list"
+#define NVS_NODE_ARR_INDEX                      "node_arr"
+#define NVS_NODE_TOTAL_INDEX                    "node_total"
 
-#define NVS_SENSOR_ARR_NAMESPACE        "sensor_list"
-#define NVS_SENSOR_ARR_INDEX            "sensor_list"
-#define NVS_SENSOR_TOTAL_INDEX          "sensor_total"
+#define NVS_SENSOR_ARR_NAMESPACE                "sensor_list"
+#define NVS_SENSOR_ARR_INDEX                    "sensor_arr"
+#define NVS_SENSOR_TOTAL_INDEX                  "sensor_total"
 
+
+#define NVS_TEMP_SENSOR_LOC_NAMESPACE           "temp_sensor_loc_list"
+#define NVS_TEMP_SENSOR_LOC_ARR_INDEX           "temp_sensor_loc_arr"
+
+#define NVS_HUMIDITY_SENSOR_LOC_NAMESPACE       "humidity_sensor_list"
+#define NVS_HUMIDITY_SENSOR_LOC_ARR_INDEX       "humidity_sensor_loc_arr"
+
+#define NVS_SOIL_MOISTURE_SENSOR_LOC_NAMESPACE  "soil_moisture_sensor_loc_list"
+#define NVS_SOIL_MOISTURE_SENSOR_LOC_ARR_INDEX  "soil_moisture_sensor_loc_arr"
+
+#define NVS_LIGHT_SENSOR_LOC_NAMESPACE          "light_sensor_loc_list"
+#define NVS_LIGHT_SENSOR_LOC_ARR_INDEX          "light_sensor_loc_arr_arr"
+
+#define NVS_SOUND_SENSOR_LOC_NAMESPACE          "sound_sensor_loc_list"
+#define NVS_SOUND_SENSOR_LOC_ARR_INDEX          "sound_sensor_loc_arr"
+
+#define NVS_MOVEMENT_SENSOR_LOC_NAMESPACE       "movement_sensor_loc_list"
+#define NVS_MOVEMENT_SENSOR_LOC_ARR_INDEX       "movement_sensor_loc_arr"
+
+#define NVS_CAMERA_SENSOR_LOC_NAMESPACE         "camera_sensor_loc_list"
+#define NVS_CAMERA_SENSOR_LOC_ARR_INDEX         "camera_sensor_arr"
 
 typedef struct Module_info_t{
     char *type;
     char *location;
     int8_t identity;
+    int8_t *sensor_arr;
+    char **temp_sensor_loc_arr;
+    char **humidity_sensor_loc_arr;
+    char **soil_moisture_sensor_loc_arr;
+    char **light_sensor_loc_Arr;
+    char **sound_sensor_loc_arr;
+    char **movement_sensor_loc_arr;
+    char **camera_sensor_loc_arr;
 }Module_info_t;
 
 /**
