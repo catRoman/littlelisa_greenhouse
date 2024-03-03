@@ -21,6 +21,15 @@
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
 
+//COMPLETED - make state in kconfig to allow for nvs update
+//TODO: if state is changed to update write data to nvs blob
+//TODO: create dynamical allocated global struct that has all config data and use in rest of project
+/**
+ * this allows for ota update based without having to explicitly set each sdkconfig for each different setting
+ * k config file will allow for dynamic size arrays in nvs based on config settings for sensor locations
+*/
+//TODO: update code base to reflect use of using global variable 
+
 //to match sql table id with sensor
 const char* dht22_sensor_locations[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
     "Intentialy Empty",

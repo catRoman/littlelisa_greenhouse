@@ -17,6 +17,7 @@ nvs_handle_t nvs_wifi_handle;
 nvs_handle_t nvs_module_handle;
 nvs_handle_t nvs_sensor_arr_handle;
 nvs_handle_t nvs_node_arr_handle;
+nvs_handle_t nvs_sensor_loc_arr_handle;
 
 
 esp_err_t nvs_initiate(void){
@@ -251,3 +252,139 @@ void nvs_erase(void){
 
 }
 
+
+/**
+ * 
+*/
+
+#define SERIAL_DELIMITER ";"
+
+// Example serialization function
+char* serialize_strings(char* strings[], int count) {
+    // Calculate total length needed
+    size_t totalLength = 1; // Start with 1 for the terminating null byte
+    for (int i = 0; i < count; i++) {
+        totalLength += strlen(strings[i]) + strlen(SERIAL_DELIMITER);
+    }
+
+    // Allocate memory for the serialized string
+    char* serialized = malloc(totalLength);
+    if (serialized == NULL) {
+        return NULL;
+    }
+    serialized[0] = '\0'; // Start with an empty string
+
+    // Concatenate strings with delimiter
+    for (int i = 0; i < count; i++) {
+        strcat(serialized, strings[i]);
+        if (i < count - 1) {
+            strcat(serialized, SERIAL_DELIMITER);
+        }
+    }
+
+    return serialized;
+}
+
+// Deserialization function
+char** deserialize_strings(const char* serialized, int* count) {
+    // First, count the number of strings (delimiters + 1)
+    *count = 1;
+    const char* tmp = serialized;
+    while ((tmp = strstr(tmp, SERIAL_DELIMITER)) != NULL) {
+        (*count)++;
+        tmp += strlen(SERIAL_DELIMITER);
+    }
+
+    // Allocate memory for the pointer array
+    char** strings = malloc(*count * sizeof(char*));
+    if (strings == NULL) {
+        *count = 0;
+        return NULL;
+    }
+
+    // Copy and split the serialized string
+    char* toSplit = strdup(serialized);
+    char* token = strtok(toSplit, SERIAL_DELIMITER);
+    int i = 0;
+    while (token != NULL && i < *count) {
+        strings[i] = strdup(token);
+        token = strtok(NULL, SERIAL_DELIMITER);
+        i++;
+    }
+    
+    // Cleanup
+    free(toSplit);
+
+    return strings;
+}
+
+esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr, 
+    nvs_handle_t loc_arr_handle, 
+    char* loc_arr_namespace, 
+    char* loc_arr_index) 
+    {
+
+    // Open
+    
+    esp_err_t err = nvs_open(loc_arr_namespace, NVS_READWRITE, &loc_arr_handle);
+    if (err == ESP_OK) {
+        // Write
+        err = nvs_set_str(loc_arr_handle, loc_arr_index, serialized_loc_arr);
+        if (err == ESP_OK) {
+            // Commit
+            err = nvs_commit(loc_arr_handle);
+        }
+        // Close
+        nvs_close(loc_arr_handle);
+    }
+
+    if (err != ESP_OK) {
+        // Handle error
+        ESP_LOGE(TAG, "Error saving serialized string to NVS- %s", esp_err_to_name(err));
+        
+    }
+
+    return err;
+}
+
+char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
+        char* loc_arr_namespace,
+        char* loc_arr_index) {
+    
+    esp_err_t err = nvs_open(loc_arr_namespace, NVS_READONLY, &loc_arr_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Error opening NVS handle - %s", esp_err_to_name(err));
+        return NULL;
+    }
+
+    // Read the size of the stored string
+    size_t required_size = 0;
+    err = nvs_get_str(loc_arr_handle, loc_arr_index, NULL, &required_size);
+    if (err != ESP_OK) {
+        nvs_close(loc_arr_handle);
+        printf("Error reading size of serialized string from NVS - %s", esp_err_to_name(err));
+        return NULL;
+    }
+
+    // Allocate memory for the string
+    char* serialized_loc_arr = malloc(required_size);
+    if (serialized_loc_arr == NULL) {
+        nvs_close(loc_arr_handle);
+        ESP_LOGE(TAG, "Failed to allocate memory for serialized string.");
+        return NULL;
+    }
+
+    // Read the stored string
+    err = nvs_get_str(loc_arr_handle, loc_arr_index, serialized_loc_arr, &required_size);
+    if (err != ESP_OK) {
+        free(serialized_loc_arr);
+        nvs_close(loc_arr_handle);
+        printf("Error reading serialized string from NVS - %s", esp_err_to_name(err));
+        return NULL;
+    }
+
+    // Clean up
+    nvs_close(loc_arr_handle);
+
+    return serialized_loc_arr; // Caller is responsible for freeing this memory
+}
