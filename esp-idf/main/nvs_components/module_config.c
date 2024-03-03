@@ -32,49 +32,75 @@
 */
 //TODO: update code base to reflect use of using global variable
 
-//to match sql table id with sensor
-const char* dht22_sensor_locations[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
-    "Intentialy Empty",
-    #ifdef CONFIG_SENSOR_TEMP_1_LOCATION
-    CONFIG_SENSOR_TEMP_1_LOCATION,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_2_LOCATION
-    CONFIG_SENSOR_TEMP_2_LOCATION,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_3_LOCATION
-    CONFIG_SENSOR_TEMP_3_LOCATION,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_4_LOCATION
-    CONFIG_SENSOR_TEMP_4_LOCATION,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_5_LOCATION
-    CONFIG_SENSOR_TEMP_5_LOCATION,
-    #endif
-};
 
-//to match sql table id with sensor
-const int dht22_pin_number[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
-    0, //initaly empty
-    #ifdef CONFIG_SENSOR_TEMP_1_PIN
-    CONFIG_SENSOR_TEMP_1_PIN,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_2_PIN
-    CONFIG_SENSOR_TEMP_2_PIN,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_3_PIN
-    CONFIG_SENSOR_TEMP_3_PIN,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_4_PIN
-    CONFIG_SENSOR_TEMP_4_PIN,
-    #endif
-    #ifdef CONFIG_SENSOR_TEMP_5_PIN
-    CONFIG_SENSOR_TEMP_5_PIN,
-    #endif
-};
+
+#ifdef CONFIG_ENABLE_NVS_UPDATE
+const bool UPDATE_NVS = true;
+#else
+const bool UPDATE_NVS = false;
+#endif
 
 const char TAG [] = "module_config";
 
- const int8_t sensor_arr[SENSOR_LIST_TOTAL] = {CONFIG_SENSOR_TEMP,
+void initiate_config(){
+
+
+    //set node info and log
+    esp_err_t err;
+
+
+    //TODO: change name to not confuse with temperature/temporary
+    Module_info_t temp_info = {0};
+
+    int8_t tempArr[SENSOR_LIST_TOTAL];
+    int8_t tempArrLength = 0;
+
+    
+
+    if(UPDATE_NVS){
+        //to match sql table id with sensor
+        const char* dht22_sensor_locations[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
+            "Intentialy Empty",
+            #ifdef CONFIG_SENSOR_TEMP_1_LOCATION
+            CONFIG_SENSOR_TEMP_1_LOCATION,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_2_LOCATION
+            CONFIG_SENSOR_TEMP_2_LOCATION,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_3_LOCATION
+            CONFIG_SENSOR_TEMP_3_LOCATION,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_4_LOCATION
+            CONFIG_SENSOR_TEMP_4_LOCATION,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_5_LOCATION
+            CONFIG_SENSOR_TEMP_5_LOCATION,
+            #endif
+        };
+
+        //to match sql table id with sensor
+        const int dht22_pin_number[MAX_TEMP_SENSORS + SQL_ID_SYNC_VAL] = {
+            0, //initaly empty
+            #ifdef CONFIG_SENSOR_TEMP_1_PIN
+            CONFIG_SENSOR_TEMP_1_PIN,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_2_PIN
+            CONFIG_SENSOR_TEMP_2_PIN,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_3_PIN
+            CONFIG_SENSOR_TEMP_3_PIN,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_4_PIN
+            CONFIG_SENSOR_TEMP_4_PIN,
+            #endif
+            #ifdef CONFIG_SENSOR_TEMP_5_PIN
+            CONFIG_SENSOR_TEMP_5_PIN,
+            #endif
+        };
+
+
+        const int8_t sensor_arr[SENSOR_LIST_TOTAL] = {
+                        CONFIG_SENSOR_TEMP,
                         CONFIG_SENSOR_HUMIDITY,
                         CONFIG_SENSOR_SOIL_MOISTURE,
                         CONFIG_SENSOR_LIGHT,
@@ -83,123 +109,110 @@ const char TAG [] = "module_config";
                         CONFIG_SENSOR_CAMERA,
                         };
 
-//one more as list start at index 1 with 0=null for sql sync
-//TODO: roll into generic sensor_struct_t and sensor queue
-dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
-
-#ifdef CONFIG_MODULE_TYPE_CONTROLLER
-    Module_info_t module_info_g = {
-        .type = "Controller",
-        .location = CONFIG_MODULE_LOCATION,
-        .identity = CONFIG_MODULE_IDENTITY
-    };
-#elif CONFIG_MODULE_TYPE_NODE
-    Module_info_t module_info_g = {
-            .type = "Node",
-            .location = CONFIG_MODULE_LOCATION,
-            .identity = CONFIG_MODULE_IDENTITY
-        };
-#else
-    ESP_LOGE(TAG, "module type not selected, use menuconfig");
-    Module_info_t module_info_g = {0};
-#endif
 
 
-void initiate_config(){
+        //one more as list start at index 1 with 0=null for sql sync
+        //TODO: roll into generic sensor_struct_t and sensor queue
+        dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
 
+        #ifdef CONFIG_MODULE_TYPE_CONTROLLER
+            Module_info_t module_info_g = {
+                .type = "Controller",
+                .location = CONFIG_MODULE_LOCATION,
+                .identity = CONFIG_MODULE_IDENTITY
+            };
+        #elif CONFIG_MODULE_TYPE_NODE
+            Module_info_t module_info_g = {
+                    .type = "Node",
+                    .location = CONFIG_MODULE_LOCATION,
+                    .identity = CONFIG_MODULE_IDENTITY
+                };
+        #else
+            ESP_LOGE(TAG, "module type not selected, use menuconfig");
+            Module_info_t module_info_g = {0};
+        #endif
 
-    //set node info and log
-    esp_err_t err;
-
-    //TODO: change name to not confuse with temperature/temporary
-    Module_info_t temp_info = {0};
-
-    int8_t tempArr[SENSOR_LIST_TOTAL];
-    int8_t tempArrLength = 0;
-
-    //check for existing module info data change
-    if((err=nvs_get_module_info(&temp_info)) != ESP_OK){
-        ESP_LOGI(TAG, "%s", esp_err_to_name(err));
-        nvs_set_module(module_info_g.type, module_info_g.location, module_info_g.identity);
-    }else if(err == ESP_OK){
-        if((strcmp(temp_info.type, module_info_g.type) == 0) &&
-            (strcmp(temp_info.location, module_info_g.location) == 0) &&
-            (temp_info.identity == module_info_g.identity)){
-                ESP_LOGI(TAG, "nvs module info has not changed since last write");
-            }else{
-                nvs_set_module(module_info_g.type, module_info_g.location, module_info_g.identity);
-            }
-    }
-
-    //check for existing senor array data change
-    if((err = nvs_get_sensor_arr(&tempArr, &tempArrLength)) != ESP_OK){
-        ESP_LOGI(TAG, "%s", esp_err_to_name(err));
-        nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
-    }else if(err == ESP_OK){
-        if(tempArrLength != SENSOR_LIST_TOTAL){
-            ESP_LOGE(TAG, "nvs retrieved sensor length mismatch");
-
-        }else{
-            for(int i =0; i < SENSOR_LIST_TOTAL; i++){
-                if(tempArr[i] != sensor_arr[i]){
-                    nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
-                    break;
+        if((err=nvs_get_module_info(&temp_info)) != ESP_OK){
+            ESP_LOGI(TAG, "%s", esp_err_to_name(err));
+            nvs_set_module(module_info_g.type, module_info_g.location, module_info_g.identity);
+        }else if(err == ESP_OK){
+            if((strcmp(temp_info.type, module_info_g.type) == 0) &&
+                (strcmp(temp_info.location, module_info_g.location) == 0) &&
+                (temp_info.identity == module_info_g.identity)){
+                    ESP_LOGI(TAG, "nvs module info has not changed since last write");
+                }else{
+                    nvs_set_module(module_info_g.type, module_info_g.location, module_info_g.identity);
                 }
-                ESP_LOGI(TAG, "sensor list info has not changed since last write");
+        }
+
+        //check for existing senor array data change
+        if((err = nvs_get_sensor_arr(&tempArr, &tempArrLength)) != ESP_OK){
+            ESP_LOGI(TAG, "%s", esp_err_to_name(err));
+            nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
+        }else if(err == ESP_OK){
+            if(tempArrLength != SENSOR_LIST_TOTAL){
+                ESP_LOGE(TAG, "nvs retrieved sensor length mismatch");
+
+            }else{
+                for(int i =0; i < SENSOR_LIST_TOTAL; i++){
+                    if(tempArr[i] != sensor_arr[i]){
+                        nvs_set_sensor_arr(&sensor_arr, SENSOR_LIST_TOTAL);
+                        break;
+                    }
+                    ESP_LOGI(TAG, "sensor list info has not changed since last write");
+                }
             }
         }
-    }
 
-    ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
+        //check for existing module info data change
+    
 
-    //TODO: roll this into sensor queue
-    //TODO: since sensor_struct will be generic for all sensors, initiate for all
-    //          of the different config_sensors
-    //starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
-    for(int i = 1; i <= CONFIG_SENSOR_TEMP; i++){
-        dht22_sensor_arr[i].pin_number = dht22_pin_number[i];
-        dht22_sensor_arr[i].temperature = 0.0f;
-        dht22_sensor_arr[i].temp_unit = "C";
-        dht22_sensor_arr[i].humidity = 0.0f;
-        dht22_sensor_arr[i].humidity_unit = "%";
-        dht22_sensor_arr[i].TAG = malloc(strlen(dht22_sensor_locations[i]) + 1);
-        if (dht22_sensor_arr[i].TAG != NULL){
-            strcpy(dht22_sensor_arr[i].TAG, dht22_sensor_locations[i]);
-        }else{
-            ESP_LOGE(TAG, "Error allocation memory for sensor location tag");
+        ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
+
+        //TODO: roll this into sensor queue
+        //TODO: since sensor_struct will be generic for all sensors, initiate for all
+        //          of the different config_sensors
+        //starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
+        for(int i = 1; i <= CONFIG_SENSOR_TEMP; i++){
+            dht22_sensor_arr[i].pin_number = dht22_pin_number[i];
+            dht22_sensor_arr[i].temperature = 0.0f;
+            dht22_sensor_arr[i].temp_unit = "C";
+            dht22_sensor_arr[i].humidity = 0.0f;
+            dht22_sensor_arr[i].humidity_unit = "%";
+            dht22_sensor_arr[i].TAG = malloc(strlen(dht22_sensor_locations[i]) + 1);
+            if (dht22_sensor_arr[i].TAG != NULL){
+                strcpy(dht22_sensor_arr[i].TAG, dht22_sensor_locations[i]);
+            }else{
+                ESP_LOGE(TAG, "Error allocation memory for sensor location tag");
+            }
+            dht22_sensor_arr[i].identifier = i;
         }
-        dht22_sensor_arr[i].identifier = i;
+
+
+        #ifdef CONFIG_MODULE_TYPE_NODE
+            //node only;
+        #elif CONFIG_MODULE_TYPE_CONTROLLER
+            //sd and db_init
+            spi_sd_card_init();
+            //sd_db_init();
+        #else
+            ESP_LOGE(TAG, "module type not selected, use menuconfig");
+        #endif
+
+        //common to both node and controller
+        initiate_sensor_queue();
+        initiate_sensor_tasks();
+        esp_now_comm_start();
+
+
+    }else{
+
     }
 
 
-    #ifdef CONFIG_MODULE_TYPE_NODE
-        //node only;
-    #elif CONFIG_MODULE_TYPE_CONTROLLER
-        //sd and db_init
-        spi_sd_card_init();
-        //sd_db_init();
-    #else
-        ESP_LOGE(TAG, "module type not selected, use menuconfig");
-    #endif
+    
 
-    //common to both node and controller
-    initiate_sensor_queue();
-    initiate_sensor_tasks();
-    esp_now_comm_start();
-
-// Allocate a buffer for the task list. Adjust the size as needed based on your application.
-#define TASK_LIST_BUFFER_SIZE (40 * uxTaskGetNumberOfTasks())
-char taskListBuffer[TASK_LIST_BUFFER_SIZE];
- vTaskList(taskListBuffer);
-
-    // Print the task list. Replace this with your preferred print method.
-    printf("Task Name    State   Prio    Stack    Num\n");
-    printf("****************************************\n");
-    printf("%s", taskListBuffer);
-
-
-
-
+  
 
 }
 
