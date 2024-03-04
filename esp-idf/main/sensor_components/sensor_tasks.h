@@ -14,8 +14,7 @@
 #include <time.h>
 
 typedef enum Sensor_List{
-    TEMP,
-    HUMIDITY,
+    DHT22,
     SOIL_MOISTURE,
     LIGHT,
     SOUND,

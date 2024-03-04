@@ -41,6 +41,9 @@ const bool UPDATE_NVS = true;
 const bool UPDATE_NVS = false;
 #endif
 
+
+
+
 const char TAG [] = "module_config";
 
 Module_info_t *module_info_gt = NULL;
@@ -77,94 +80,50 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        const char* temp_sensor_locations[sensor_arr[TEMP] + SQL_ID_SYNC_VAL] = {
+        const char* dht22_sensor_locations[sensor_arr[TEMP] + SQL_ID_SYNC_VAL] = {
             "Intentialy Empty",
-            #ifdef CONFIG_SENSOR_TEMP_1_LOCATION
-            CONFIG_SENSOR_TEMP_1_LOCATION,
+            #ifdef CONFIG_SENSOR_DHT22_1_LOCATION
+            CONFIG_SENSOR_DHT22_1_LOCATION,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_2_LOCATION
-            CONFIG_SENSOR_TEMP_2_LOCATION,
+            #ifdef CONFIG_SENSOR_DHT22_2_LOCATION
+            CONFIG_SENSOR_DHT22_2_LOCATION,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_3_LOCATION
-            CONFIG_SENSOR_TEMP_3_LOCATION,
+            #ifdef CONFIG_SENSOR_DHT22_3_LOCATION
+            CONFIG_SENSOR_DHT22_3_LOCATION,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_4_LOCATION
-            CONFIG_SENSOR_TEMP_4_LOCATION,
+            #ifdef CONFIG_SENSOR_DHT22_4_LOCATION
+            CONFIG_SENSOR_DHT22_4_LOCATION,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_5_LOCATION
-            CONFIG_SENSOR_TEMP_5_LOCATION,
+            #ifdef CONFIG_SENSOR_DHT22_5_LOCATION
+            CONFIG_SENSOR_DHT22_5_LOCATION,
             #endif
         };
 
         //to match sql table id with sensor
-        const uint_t *temp_pin_number[sensor_arr[TEMP] + SQL_ID_SYNC_VAL] = {
+        const uint_t *dht22_sensor_pin_number[sensor_arr[DHT22] + SQL_ID_SYNC_VAL] = {
             0, //initaly empty
-            #ifdef CONFIG_SENSOR_TEMP_1_PIN
-            CONFIG_SENSOR_TEMP_1_PIN,
+            #ifdef CONFIG_SENSOR_DHT22_1_PIN
+            CONFIG_SENSOR_DHT22_1_PIN,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_2_PIN
-            CONFIG_SENSOR_TEMP_2_PIN,
+            #ifdef CONFIG_SENSOR_DHT22_2_PIN
+            CONFIG_SENSOR_DHT22_2_PIN,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_3_PIN
-            CONFIG_SENSOR_TEMP_3_PIN,
+            #ifdef CONFIG_SENSOR_DHT22_3_PIN
+            CONFIG_SENSOR_DHT22_3_PIN,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_4_PIN
-            CONFIG_SENSOR_TEMP_4_PIN,
+            #ifdef CONFIG_SENSOR_DHT22_4_PIN
+            CONFIG_SENSOR_DHT22_4_PIN,
             #endif
-            #ifdef CONFIG_SENSOR_TEMP_5_PIN
-            CONFIG_SENSOR_TEMP_5_PIN,
+            #ifdef CONFIG_SENSOR_DHT22_5_PIN
+            CONFIG_SENSOR_DHT22_5_PIN,
             #endif
         };
         const Module_sensor_config_t *temp_sensor_config =
         createModuleSensorConfig(
-                temp_sensor_locations,
-                temp_sensor_pin_number,
+                dht22_sensor_locations,
+                dht22_sensor_pin_number,
                 sensor_arr[TEMP]);
 
-        //to match sql table id with sensor
-        const char* humidity_sensor_locations[sensor_arr[HUMIDITY] + SQL_ID_SYNC_VAL] = {
-            "Intentialy Empty",
-            #ifdef CONFIG_SENSOR_HUMIDITY_1_LOCATION
-            CONFIG_SENSOR_HUMIDITY_1_LOCATION,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_2_LOCATION
-            CONFIG_SENSOR_HUMIDITY_2_LOCATION,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_3_LOCATION
-            CONFIG_SENSOR_HUMIDITY_3_LOCATION,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_4_LOCATION
-            CONFIG_SENSOR_HUMIDITY_4_LOCATION,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_5_LOCATION
-            CONFIG_SENSOR_HUMIDITY_5_LOCATION,
-            #endif
-        };
-
-        //to match sql table id with sensor
-        const uint8_t *humidity_sensor_pin_number[sensor_arr[HUMIDITY] + SQL_ID_SYNC_VAL] = {
-            0, //initaly empty
-            #ifdef CONFIG_SENSOR_HUMIDITY_1_PIN
-            CONFIG_SENSOR_HUMIDITY_1_PIN,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_2_PIN
-            CONFIG_SENSOR_HUMIDITY_2_PIN,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_3_PIN
-            CONFIG_SENSOR_HUMIDITY_3_PIN,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_4_PIN
-            CONFIG_SENSOR_HUMIDITY_4_PIN,
-            #endif
-            #ifdef CONFIG_SENSOR_HUMIDITY_5_PIN
-            CONFIG_SENSOR_HUMIDITY_5_PIN,
-            #endif
-        };
-        const Module_sensor_config_t *humidity_sensor_config =
-        createModuleSensorConfig(
-                humidity_sensor_locations,
-                humidity_sensor_pin_number,
-                sensor_arr[HUMIDITY]);
 
            //to match sql table id with sensor
         const char* soil_moisture_sensor_locations[sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL] = {
@@ -453,8 +412,7 @@ void initiate_config(){
     }else{//retrive from nvs only
 
           Module_sensor_config_t sensor_config_arr[]={
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[TEMP]->sensor_loc_arr, module_info_gt->sensor_config_arr[TEMP]->sensor_pin_arr, sensor_arr[TEMP]),
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[HUMIDITY]->sensor_loc_arr, module_info_gt->sensor_config_arr[HUMIDITY]->sensor_pin_arr, sensor_arr[HUMIDITY]),
+            createModuleSensorConfig(module_info_gt->sensor_config_arr[DHT22]->sensor_loc_arr, module_info_gt->sensor_config_arr[DHT22]->sensor_pin_arr, sensor_arr[DHT22]),
             createModuleSensorConfig(module_info_gt->sensor_config_arr[SOIL_MOISTURE]->sensor_loc_arr, module_info_gt->sensor_config_arr[SOIL_MOISTURE]->sensor_pin_arr, sensor_arr[SOIL_MOISTURE]),
             createModuleSensorConfig(module_info_gt->sensor_config_arr[LIGHT]->sensor_loc_arr, module_info_gt->sensor_config_arr[LIGHT]->sensor_pin_arr, sensor_arr[LIGHT]),
             createModuleSensorConfig(module_info_gt->sensor_config_arr[SOUND]->sensor_loc_arr, module_info_gt->sensor_config_arr[SOUND]->sensor_pin_arr, sensor_arr[SOUND]),
@@ -474,43 +432,35 @@ void initiate_config(){
 
     ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
 
-        //TODO: roll into generic sensor_struct_t and sensor queue
-        sensor_data_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL] = {0};
-
-
-        //TODO: roll this into sensor queue
-        //TODO: since sensor_struct will be generic for all sensors, initiate for all
-        //          of the different config_sensors
-        //starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
 
 
 
 
-        //TODO: config this to work
-        for(int i = 1; i <= CONFIG_SENSOR_TEMP; i++){
-            Sensor_List sensor_type;
-            float *value;
-            int total_values;
-            char* location;
-            int local_sensor_id;
-            int module_id;
-            time_t timestamp;OGE(TAG, "Error allocation memory for sensor location tag");
-            }
+
+
+
+
+
 
 
         // Start Wifi
         wifi_start();
-        #ifdef CONFIG_MODULE_TYPE_NODE
-            //node only;
-        #elif CONFIG_MODULE_TYPE_CONTROLLER
+
+        if (strcmp(module_info_gt->type, "controller") == 0) {
+            ESP_LOGI(TAG, "Starting Controller only services");
             //sd and db_init
             spi_sd_card_init();
             //sd_db_init();
-        #else
+        } else if(strcmp(module_info_gt->type, "node") == 0){
+            ESP_LOGI(TAG, "Starting Node only services");
+           //node only;
+        }else{
             ESP_LOGE(TAG, "module type not selected, use menuconfig");
-        #endif
+
+        }
 
         //common to both node and controller
+        ESP_LOGI(TAG, "Starting common services");
         initiate_sensor_queue();
         initiate_sensor_tasks();
         esp_now_comm_start();
@@ -520,19 +470,29 @@ void initiate_config(){
 
 void initiate_sensor_tasks(){
 
-    for(Sensor_List sensor_type = TEMP; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
-        for(int sensor = 1; sensor < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor++){
+    for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
+        //sensor_id starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
+        for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
+
+            sensor_data_t sensor_data={
+                    .pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id],
+                    .sensor_type = sensor_type,
+                    .total_values = module_info_gt->sensor_arr[sensor_type],
+                    .location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id],
+                    .local_sensor_id = sensor_id,
+                    .module_id = module_info_gt->identity,
+                    .timestamp = 0,
+            };
+
             switch(sensor_type){
-                case TEMP:
-	                ESP_LOGI(TAG, "Started Internal Temp Sensor: Id: #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
+                case DHT22:
+
+
+	                ESP_LOGI(TAG, "Started Internal DHT22 Sensor: Id: #%d, Location: %s", sensor, sensor_data[sensor].TAG);
                     char sensor_task_name[20];
                     //TODO: add internal keyword to taskname
-                    snprintf(sensor_task_name, sizeof(sensor_task_name), "temp_sensor_%d", dht22_sensor_arr[sensor].identifier);
-                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&dht22_sensor_arr[sensor], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-                    break;
-                case HUMIDITY:
-                    //current using dht22 which is dual temp/humidity no extra task needed
-	                ESP_LOGI(TAG, "Started Humidity Sensor: Id #%d, Location: %s", sensor, dht22_sensor_arr[sensor].TAG);
+                    snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", sensor_data.local_sensor_id);
+                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&sensor_data, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
                     break;
                 case SOIL_MOISTURE:
 	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
