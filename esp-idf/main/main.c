@@ -94,15 +94,11 @@ void app_main(void)
 {
     static char TAG[] = "main_app";
 
-     //wifi crediental storage and retrieval
-    nvs_initiate();
 
-    // Start Wifi
-    wifi_start();
 
     initiate_config();
 
-    // start DHT22 Sensor task
+    //enviroment controls?
 
 
     //DHT22_sensor_task_start();

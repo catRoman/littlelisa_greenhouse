@@ -7,6 +7,7 @@
 
 #include "nvs_service.h"
 #include "node_info.h"
+#include "module_config.h"
 
 static const char TAG[] = "nvs_service";
 
@@ -65,7 +66,7 @@ esp_err_t nvs_get_wifi_info(char *curr_saved_wifi_ssid_out, char *curr_saved_wif
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
     }
-    
+
     if((err = nvs_get_str(nvs_wifi_handle, NVS_WIFI_PWD_INDEX, curr_saved_wifi_pwd_out, &pwd_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
@@ -73,7 +74,7 @@ esp_err_t nvs_get_wifi_info(char *curr_saved_wifi_ssid_out, char *curr_saved_wif
     nvs_close(nvs_wifi_handle);
 
     return err;
-    
+
     }
 
 void nvs_set_wifi_info(char *new_wifi_ssid, char *new_wifi_pwd){
@@ -109,7 +110,7 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
     }
 
     size_t module_type_required_size;
-  
+
 
 
     if((err = nvs_get_str(nvs_module_handle, NVS_MODULE_TYPE_INDEX, NULL, &module_type_required_size)) != ESP_OK){
@@ -158,7 +159,7 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
     nvs_close(nvs_module_handle);
 
     return err;
-    
+
     }
 
 void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum){
@@ -169,7 +170,7 @@ void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum){
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_TYPE_INDEX, module_type));
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_LOCATION_INDEX, module_location));
     ESP_ERROR_CHECK(nvs_set_i8(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, moduleNum));
-   
+
     if (nvs_commit(nvs_module_handle) == ESP_OK){
         ESP_LOGI(TAG, "{==module set==} changes succeffully commited-> module set to %s, unit num: %d", module_type, moduleNum);
     }
@@ -187,7 +188,7 @@ esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength){
     }
 
     size_t sensor_arr_required_size;
-  
+
     if((err = nvs_get_blob(nvs_sensor_arr_handle, NVS_SENSOR_ARR_INDEX, NULL, &sensor_arr_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
@@ -212,11 +213,11 @@ esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength){
         return err;
     }
 
-    
+
     nvs_close(nvs_sensor_arr_handle);
 
     return err;
-    
+
     }
 
 void nvs_set_sensor_arr(const int8_t *sensor_arr, int8_t arrLength){
@@ -227,7 +228,7 @@ void nvs_set_sensor_arr(const int8_t *sensor_arr, int8_t arrLength){
 
     ESP_ERROR_CHECK(nvs_set_blob(nvs_sensor_arr_handle, NVS_SENSOR_ARR_INDEX, sensor_arr, arrLength));
     ESP_ERROR_CHECK(nvs_set_i8(nvs_sensor_arr_handle, NVS_SENSOR_TOTAL_INDEX, arrLength));
-   
+
     if (nvs_commit(nvs_sensor_arr_handle) == ESP_OK){
         ESP_LOGI(TAG, "{==sensor list==} changes succeffully commited-> sensor list added");
     }
@@ -254,78 +255,153 @@ void nvs_erase(void){
 
 
 /**
- * 
+ *
 */
 
 #define SERIAL_DELIMITER ";"
 
-// Example serialization function
-char* serialize_strings(char* strings[], int count) {
-    // Calculate total length needed
-    size_t totalLength = 1; // Start with 1 for the terminating null byte
-    for (int i = 0; i < count; i++) {
-        totalLength += strlen(strings[i]) + strlen(SERIAL_DELIMITER);
-    }
+void int8ToString(int8_t num, char *str) {
+    sprintf(str, "%d", num);
+}
+// Serializes an array of Module_sensor_config_t
+char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numConfigs) {
+    // Assuming each serialized config is less than 256 characters
+    // Adjust the size based on your needs
+    char *serializedString = malloc(numConfigs * 256);
+    if (!serializedString) return NULL;
+    serializedString[0] = '\0';
 
-    // Allocate memory for the serialized string
-    char* serialized = malloc(totalLength);
-    if (serialized == NULL) {
-        return NULL;
-    }
-    serialized[0] = '\0'; // Start with an empty string
-
-    // Concatenate strings with delimiter
-    for (int i = 0; i < count; i++) {
-        strcat(serialized, strings[i]);
-        if (i < count - 1) {
-            strcat(serialized, SERIAL_DELIMITER);
+    for (int c = 0; c < numConfigs; c++) {
+        // Serialize sensor_loc_arr
+        for (int i = 0; configs[c].sensor_loc_arr[i] != NULL; i++) {
+            strcat(serializedString, configs[c].sensor_loc_arr[i]);
+            strcat(serializedString, ";");
         }
+
+        // Replace last semicolon with pipe
+        serializedString[strlen(serializedString) - 1] = '|';
+
+        // Serialize sensor_pin_arr
+        char pinBuffer[5]; // Buffer for pin number as string
+        for (int i = 0; configs[c].sensor_pin_arr[i] != -1; i++) { // Assuming -1 as end marker
+            int8ToString(configs[c].sensor_pin_arr[i], pinBuffer);
+            strcat(serializedString, pinBuffer);
+            strcat(serializedString, ";");
+        }
+
+        // Replace the last semicolon with a newline character to separate configs
+        serializedString[strlen(serializedString) - 1] = '\n';
     }
 
-    return serialized;
+    // Remove the last newline character
+    serializedString[strlen(serializedString) - 1] = '\0';
+
+    return serializedString;
 }
 
-// Deserialization function
-char** deserialize_strings(const char* serialized, int* count) {
-    // First, count the number of strings (delimiters + 1)
-    *count = 1;
-    const char* tmp = serialized;
-    while ((tmp = strstr(tmp, SERIAL_DELIMITER)) != NULL) {
-        (*count)++;
-        tmp += strlen(SERIAL_DELIMITER);
+char** splitString(const char* str, char delimiter, int* count) {
+    char **result = 0;
+    size_t count = 0;
+    char* tmp = (char*)str;
+    char* last_comma = 0;
+    char delim[2];
+    delim[0] = delimiter;
+    delim[1] = 0;
+
+    // Count how many elements will be extracted
+    while (*tmp) {
+        if (delimiter == *tmp) {
+            count++;
+            last_comma = tmp;
+        }
+        tmp++;
     }
 
-    // Allocate memory for the pointer array
-    char** strings = malloc(*count * sizeof(char*));
-    if (strings == NULL) {
-        *count = 0;
-        return NULL;
+    // Add space for trailing token
+    count += last_comma < (str + strlen(str) - 1);
+
+    // Add space for terminating null string
+    count++;
+
+    result = malloc(sizeof(char*) * *count);
+
+    if (result) {
+        size_t idx = 0;
+        char* token = strtok((char*)str, delim);
+
+        while (token) {
+            *(result + idx++) = strdup(token);
+            token = strtok(0, delim);
+        }
+        *(result + idx) = 0;
     }
 
-    // Copy and split the serialized string
-    char* toSplit = strdup(serialized);
-    char* token = strtok(toSplit, SERIAL_DELIMITER);
-    int i = 0;
-    while (token != NULL && i < *count) {
-        strings[i] = strdup(token);
-        token = strtok(NULL, SERIAL_DELIMITER);
-        i++;
-    }
-    
-    // Cleanup
-    free(toSplit);
-
-    return strings;
+    *count = count - 1;
+    return result;
 }
 
-esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr, 
-    nvs_handle_t loc_arr_handle, 
-    char* loc_arr_namespace, 
-    char* loc_arr_index) 
+// Helper function to convert a string to int8_t
+int8_t stringToInt8(const char* str) {
+    return (int8_t)atoi(str);
+}
+
+
+// Deserializes a string to an array of Module_sensor_config_t
+Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int *numConfigs) {
+    int configsCount = 0;
+    char **configsStrings = splitString(serialized, '\n', &configsCount);
+    Module_sensor_config_t *configs = malloc(sizeof(Module_sensor_config_t) * configsCount);
+    if (!configs) return NULL;
+
+    for (int i = 0; i < configsCount; i++) {
+        int partsCount = 0;
+        char **parts = splitString(configsStrings[i], '|', &partsCount);
+        if (partsCount != 2) continue; // Error handling
+
+        // Deserialize sensor_loc_arr
+        int locCount = 0;
+        char **locations = splitString(parts[0], ';', &locCount);
+        configs[i].sensor_loc_arr = malloc(sizeof(char*) * (locCount + 1));
+        for (int loc = 0; loc < locCount; loc++) {
+            configs[i].sensor_loc_arr[loc] = strdup(locations[loc]);
+        }
+        configs[i].sensor_loc_arr[locCount] = NULL;
+
+        // Deserialize sensor_pin_arr
+        int pinCount = 0;
+        char **pins = splitString(parts[1], ';', &pinCount);
+        configs[i].sensor_pin_arr = malloc(sizeof(int8_t) * (pinCount + 1));
+        for (int pin = 0; pin < pinCount; pin++) {
+            configs[i].sensor_pin_arr[pin] = (int8_t)atoi(pins[pin]);
+        }
+        configs[i].sensor_pin_arr[pinCount] = -1; // Assuming -1 as end marker
+
+        // Free temporary arrays
+        for (int j = 0; j < locCount; j++) free(locations[j]);
+        free(locations);
+        for (int j = 0; j < pinCount; j++) free(pins[j]);
+        free(pins);
+        free(parts[0]);
+        free(parts[1]);
+        free(parts);
+    }
+
+    for (int i = 0; i < configsCount; i++) free(configsStrings[i]);
+    free(configsStrings);
+
+    *numConfigs = configsCount;
+    return configs;
+}
+
+
+esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
+    nvs_handle_t loc_arr_handle,
+    char* loc_arr_namespace,
+    char* loc_arr_index)
     {
 
     // Open
-    
+
     esp_err_t err = nvs_open(loc_arr_namespace, NVS_READWRITE, &loc_arr_handle);
     if (err == ESP_OK) {
         // Write
@@ -341,7 +417,7 @@ esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
     if (err != ESP_OK) {
         // Handle error
         ESP_LOGE(TAG, "Error saving serialized string to NVS- %s", esp_err_to_name(err));
-        
+
     }
 
     return err;
@@ -350,7 +426,7 @@ esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
 char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
         char* loc_arr_namespace,
         char* loc_arr_index) {
-    
+
     esp_err_t err = nvs_open(loc_arr_namespace, NVS_READONLY, &loc_arr_handle);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Error opening NVS handle - %s", esp_err_to_name(err));

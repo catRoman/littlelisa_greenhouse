@@ -27,42 +27,28 @@
 #define NVS_SENSOR_TOTAL_INDEX                  "sensor_total"
 
 
-#define NVS_TEMP_SENSOR_LOC_NAMESPACE           "temp_sensor_loc_list"
-#define NVS_TEMP_SENSOR_LOC_ARR_INDEX           "temp_sensor_loc_arr"
+#define NVS_SENSOR_CONFIG_NAMESPACE           "sensor_config_list"
+#define NVS_SENSOR_CONFIG_ARR_INDEX           "sensor_config_arr"
 
-#define NVS_HUMIDITY_SENSOR_LOC_NAMESPACE       "humidity_sensor_list"
-#define NVS_HUMIDITY_SENSOR_LOC_ARR_INDEX       "humidity_sensor_loc_arr"
-
-#define NVS_SOIL_MOISTURE_SENSOR_LOC_NAMESPACE  "soil_moisture_sensor_loc_list"
-#define NVS_SOIL_MOISTURE_SENSOR_LOC_ARR_INDEX  "soil_moisture_sensor_loc_arr"
-
-#define NVS_LIGHT_SENSOR_LOC_NAMESPACE          "light_sensor_loc_list"
-#define NVS_LIGHT_SENSOR_LOC_ARR_INDEX          "light_sensor_loc_arr_arr"
-
-#define NVS_SOUND_SENSOR_LOC_NAMESPACE          "sound_sensor_loc_list"
-#define NVS_SOUND_SENSOR_LOC_ARR_INDEX          "sound_sensor_loc_arr"
-
-#define NVS_MOVEMENT_SENSOR_LOC_NAMESPACE       "movement_sensor_loc_list"
-#define NVS_MOVEMENT_SENSOR_LOC_ARR_INDEX       "movement_sensor_loc_arr"
-
-#define NVS_CAMERA_SENSOR_LOC_NAMESPACE         "camera_sensor_loc_list"
-#define NVS_CAMERA_SENSOR_LOC_ARR_INDEX         "camera_sensor_arr"
-
-typedef struct Module_info_t{
-    char *type;
-    char *location;
-    int8_t identity;
-    int8_t *sensor_arr;
-    char **temp_sensor_loc_arr;
-    char **humidity_sensor_loc_arr;
-    char **soil_moisture_sensor_loc_arr;
-    char **light_sensor_loc_Arr;
-    char **sound_sensor_loc_arr;
-    char **movement_sensor_loc_arr;
-    char **camera_sensor_loc_arr;
-}Module_info_t;
 
 /**
+ *
+ * char **temp_sensor_loc_arr;
+    int8_t *temp_sensor_pin_arr;
+    char **humidity_sensor_loc_arr;
+    int8_t *humidity_sensor_pin_arr;
+    char **soil_moisture_sensor_loc_arr;
+    int8_t *soil_moisture_pin_arr;
+    char **light_sensor_loc_Arr;
+    int8_t light_sensor_pin_arr;
+    char **sound_sensor_loc_arr;
+    int8_t sound_sensor_pin_arr;
+    char **movement_sensor_loc_arr;
+    int8_t movement_sensor_pin_arr;
+    char **camera_sensor_loc_arr;
+    int8_t camera_sensor_pin_arr;
+ *
+ *
  * sensor list
  *
  * 0 - temp
@@ -102,10 +88,6 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info);
 
 void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum);
 
-esp_err_t nvs_get_node_arr(int8_t **node_arr, int8_t *arrLength);
-
-void nvs_set_node_arr(const int8_t *node_arr, int8_t arrLength);
-
 esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength);
 
 void nvs_set_sensor_arr(const int8_t *sensor_arr, int8_t arrLength);
@@ -121,5 +103,18 @@ esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
 
 char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
         char* loc_arr_namespace,
-        char* loc_arr_index);
+        char* loc_arr_index);\
+
+
+void int8ToString(int8_t num, char *str);
+
+char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numConfigs);
+
+char** splitString(const char* str, char delimiter, int* count);
+
+int8_t stringToInt8(const char* str);
+
+Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int *numConfigs);
+
+
 #endif
