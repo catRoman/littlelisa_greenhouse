@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "esp_now.h"
 #include "esp_system.h"
@@ -294,11 +295,14 @@ void sensor_post_processing_task(void * pvParameters)
             cJSON_AddStringToObject(json_data, "timestamp", ctime(&(event->sensor_data->timestamp)));
             cJSON_AddStringToObject(json_data, "location", event->sensor_data->location);
             cJSON_AddNumberToObject(json_data, "pin", event->sensor_data->pin_number);
-            if(event->sensor_data->sensor_type == HUMIDITY){
-                cJSON_AddNumberToObject(json_data, "value", event->sensor_data->value[0]);
-            }else if(event->sensor_data->sensor_type == TEMP){
-                cJSON_AddNumberToObject(json_data, "value", event->sensor_data->value[0]);
-            }
+           char i_str[5];
+           char name[20] = "value-";
+           for(int i = 0; i < event->sensor_data->total_values; i++){
+            sprintf(i_str, "%d", i);
+            strcat(name, i_str);
+                cJSON_AddNumberToObject(json_data, name, event->sensor_data->value[i]);
+           }
+
 
             char *json_string = cJSON_Print(json_data);
 
@@ -504,11 +508,8 @@ if (sensor_post_processing_handle == NULL){
 char *sensor_type_to_string(Sensor_List sensor_type){
 
     switch(sensor_type){
-        case TEMP:
-            return "temp";
-            break;
-        case HUMIDITY:
-            return "humidity";
+        case DHT22:
+            return "DHT22";
             break;
         case SOIL_MOISTURE:
             return "soil moisture";
@@ -524,6 +525,8 @@ char *sensor_type_to_string(Sensor_List sensor_type){
             break;
         case CAMERA:
             return "camera";
+            break;
+        case SENSOR_LIST_TOTAL:
             break;
 
     }

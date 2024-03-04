@@ -1,4 +1,6 @@
 
+#include <string.h>
+
 #include "esp_err.h"
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -301,7 +303,7 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
 
 char** splitString(const char* str, char delimiter, int* count) {
     char **result = 0;
-    size_t count = 0;
+    int count_i = 0;
     char* tmp = (char*)str;
     char* last_comma = 0;
     char delim[2];
@@ -318,7 +320,7 @@ char** splitString(const char* str, char delimiter, int* count) {
     }
 
     // Add space for trailing token
-    count += last_comma < (str + strlen(str) - 1);
+    count_i += last_comma < (str + strlen(str) - 1);
 
     // Add space for terminating null string
     count++;
@@ -336,7 +338,7 @@ char** splitString(const char* str, char delimiter, int* count) {
         *(result + idx) = 0;
     }
 
-    *count = count - 1;
+    *count = count_i - 1;
     return result;
 }
 
