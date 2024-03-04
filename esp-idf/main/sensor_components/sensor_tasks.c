@@ -502,14 +502,30 @@ if (sensor_post_processing_handle == NULL){
 }
 
 char *sensor_type_to_string(Sensor_List sensor_type){
-    int type = sensor_type;
-    switch(type){
+
+    switch(sensor_type){
         case TEMP:
             return "temp";
             break;
         case HUMIDITY:
             return "humidity";
             break;
+        case SOIL_MOISTURE:
+            return "soil moisture";
+            break;
+        case LIGHT:
+            return "light";
+            break;
+        case SOUND:
+            return "sound";
+            break;
+        case MOVEMENT:
+            return "movement";
+            break;
+        case CAMERA:
+            return "camera";
+            break;
+
     }
     return "";
 }
