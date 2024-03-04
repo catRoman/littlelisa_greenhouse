@@ -7,7 +7,9 @@
 #ifndef MAIN_NVS_SERVICE_H_
 #define MAIN_NVS_SERVICE_H_
 
-
+#include "nvs_components/module_config.h"
+#include "nvs.h"
+#include "nvs_flash.h"
 
 #define NVS_WIFI_NAMESPACE                      "wifi"
 #define NVS_WIFI_SSID_INDEX                     "ssid"

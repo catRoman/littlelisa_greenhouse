@@ -41,15 +41,14 @@
 #include "network_components/esp_now_comm.h"
 
 
-#define TEMP 0
-#define HUMIDITY 1
+
 // == global defines =============================================
 
 
 static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
 static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
-extern Module_info_t module_info_gt;
+extern Module_info_t *module_info_gt;
 
 
 
@@ -89,7 +88,7 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 
  void log_sensor_JSON(sensor_data_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
-	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->location, json_string);
 	free(json_string);
  }
 
@@ -156,18 +155,18 @@ void errorHandler(int response, sensor_data_t *sensor_t)
 	switch(response) {
 
 		case DHT_TIMEOUT_ERROR :
-			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->local_sensor_id);
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
 			break;
 
 		case DHT_CHECKSUM_ERROR:
-			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->local_sensor_id );
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
 			break;
 
 		case DHT_OK:
 			break;
 
 		default :
-			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->local_sensor_id);
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
 	}
 }
 
@@ -357,8 +356,8 @@ void DHT22_task(void *vpParameter)
 {
 	sensor_data_t *sensor_t;
 	sensor_t = (sensor_data_t *)vpParameter;
-	sensor_t->total_values = 2;
-	int8_t values[sensor_t->total_values] = {0,0};
+	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
+	float values[sensor_t->total_values];
 	sensor_t->value = &values;
 
 

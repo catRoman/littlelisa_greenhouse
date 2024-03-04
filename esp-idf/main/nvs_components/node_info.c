@@ -8,7 +8,7 @@
 
 #include "node_info.h"
 #include "nvs_service.h"
-#include "sensor_tasks.h"
+#include "sensor_components/sensor_tasks.h"
 
 static const char NODE_INFO_TAG[] = "node_info";
 
@@ -25,31 +25,7 @@ void node_info_log_module_info(void){
     }
 }
 
-void node_info_log_node_list(void){
-    int8_t *node_list = NULL;
-    int8_t nodeLength = 0xff;
 
-    esp_err_t err;
-
-    err = nvs_get_node_arr(&node_list, &nodeLength);
-
-
-    char node_info_str[200] = "Node List:\n";
-    if(err == ESP_OK && node_list != NULL){
-        for(int i = 0; i < nodeLength; i++){
-            if(i == 0){
-                snprintf(node_info_str + strlen(node_info_str), sizeof(node_info_str) - strlen(node_info_str), "\tLocal-> # %d:\n", node_list[i]);
-            }else{
-                snprintf(node_info_str + strlen(node_info_str), sizeof(node_info_str) - strlen(node_info_str), "\tNode-> # %d:\n", node_list[i]);
-
-            } //TODO: add node info here
-            }
-        ESP_LOGI(NODE_INFO_TAG, "%s", node_info_str);
-    }else{
-        ESP_LOGE(NODE_INFO_TAG, "%s", esp_err_to_name(err));
-    }
-
-}
 
 char *node_info_get_module_info_json(void){
 
@@ -103,14 +79,15 @@ char *node_info_get_module_info_json(void){
      cJSON *sensor_type_list;
      cJSON *sensor_type_pin_list;
 
-    for(Sensor_List sensor = TEMP; sensor < SENSOR_LISt_TOTAL; sensor++){
+    for(Sensor_List sensor = DHT22; sensor < SENSOR_LIST_TOTAL; sensor++){
         sensor_type_list = cJSON_CreateObject();
         char i_str[5];
 
-        sprintf(str, "%d", i)
-        for(int i = 0; i < module_info_gt->sensor_arr[sensor]; i++){
 
-            cJSON_AddStringToObject(sensor_type_list,i_str,module_info_gt->sensor_loc_arr[i]);
+        for(int i = 0; i < module_info_gt->sensor_arr[sensor]; i++){
+            sprintf(i_str, "%d", i);
+            cJSON_AddStringToObject(sensor_type_list,i_str,
+                module_info_gt->sensor_config_arr[i]->sensor_loc_arr[i]);
         }
 
         cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_list);
@@ -118,7 +95,8 @@ char *node_info_get_module_info_json(void){
 
         sensor_type_pin_list = cJSON_CreateObject();
         for(int i = 0; i < module_info_gt->sensor_arr[sensor]; i++){
-             cJSON_AddNumberToObject(sensor_type_pin_list, i_str, module_info_gt->sensor_pin_arr[i]);
+             cJSON_AddNumberToObject(sensor_type_pin_list, i_str,
+                module_info_gt->sensor_config_arr[i]->sensor_pin_arr[i]);
         }
 
         cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_pin_list);

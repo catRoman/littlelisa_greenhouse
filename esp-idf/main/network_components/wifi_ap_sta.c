@@ -191,7 +191,7 @@ void wifi_start(void)
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
         log_mac_address(false);
-       
+
         mdns_start();
         //esp_now_comm_start();
 
@@ -200,13 +200,13 @@ void wifi_start(void)
         http_server_start();
         led_http_server_started();
 
-    
+
 
 
     }else{
         ESP_LOGE(WIFI_TAG, "Error in ap/sta selection mode");
     }
-    
+
 }
 
 esp_err_t log_mac_address(bool is_sta){
@@ -230,37 +230,28 @@ esp_err_t log_mac_address(bool is_sta){
 }
 
 esp_err_t mdns_start(){
-     //start mdns server 
-        Module_info_t module_info = {0};
-        
-
-        esp_err_t err;
-
-        if ((err = nvs_get_module_info(&module_info)) != ESP_OK){
-            ESP_LOGE("mdns", "NVS module info retreive failed %s", esp_err_to_name(err));
-            return err;
-
-        }
+    extern Module_info_t *module_info_gt;
+    esp_err_t err;
         //"littlelisa-controller-099" - example 26 char w/o terminator
         char module_id[12];
-        snprintf(module_id, sizeof(module_id), "%d", module_info.identity);
+        snprintf(module_id, sizeof(module_id), "%d", module_info_gt->identity);
         char mdns_host_name[50] = "littlelisa-";
 
         size_t current_length = strlen(mdns_host_name);
         size_t remaining_space = sizeof(mdns_host_name) - current_length - 1;
 
-        strncat(mdns_host_name, module_info.type, remaining_space);
+        strncat(mdns_host_name, module_info_gt->type, remaining_space);
 
         current_length = strlen(mdns_host_name);
         remaining_space = sizeof(mdns_host_name) - current_length -1;
 
         strncat(mdns_host_name, "-", remaining_space);
-        
+
         current_length = strlen(mdns_host_name);
         remaining_space = sizeof(mdns_host_name) - current_length -1;
 
         strncat(mdns_host_name, module_id, remaining_space);
-        
+
 
         if ((err = mdns_init()) != ESP_OK) {
             ESP_LOGE("mdns", "MDNS Init fail: %s", esp_err_to_name(err));
@@ -281,7 +272,7 @@ esp_err_t mdns_start(){
 
         char service_instance[50];
         strcpy(service_instance, mdns_host_name);
-        
+
         remaining_space = sizeof(service_instance) - strlen(service_instance) - 1;
         strncat(service_instance, " Debug Web Server", remaining_space);
 

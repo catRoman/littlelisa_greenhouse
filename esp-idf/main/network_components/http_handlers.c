@@ -8,6 +8,8 @@
 #include "esp_log.h"
 
 #include "sensor_components/DHT22.h"
+#include "nvs_components/module_config.h"
+#include "sensor_components/sensor_tasks.h"
 #include "network_components/http_server.h"
 #include "network_components/http_handlers.h"
 #include "nvs_components/nvs_service.h"
@@ -15,12 +17,11 @@
 #include "nvs_components/module_config.h"
 #include "sensor_components/sensor_tasks.h"
 #include "sdkconfig.h"
+#include "nvs_components/module_config.h"
 
 #define SQL_ID_SYNC_VAL 1
 
-// sensor data instances
-extern dht22_sensor_t dht22_sensor_arr[CONFIG_SENSOR_TEMP + SQL_ID_SYNC_VAL];
-
+extern Module_info_t *module_info_gt;
 extern int g_fw_update_status;
 extern int g_wifi_connect_status;
 
@@ -186,95 +187,95 @@ esp_err_t index_js_handler(httpd_req_t *req)
 esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
 
-    // Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+    // // Add CORS headers to the response
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
 
 
-    ESP_LOGV(HTTP_HANDLER_TAG, "dhtSensor.json requested");
-    char * dhtSensorJSON;
-    dht22_sensor_t sensor;
-    int sensor_choice;
-    char log_str [100] = "dht22-";
+    // ESP_LOGV(HTTP_HANDLER_TAG, "dhtSensor.json requested");
+    // char * dhtSensorJSON;
+    // dht22_sensor_t sensor;
+    // int sensor_choice;
+    // char log_str [100] = "dht22-";
 
-    char* buf;
-    size_t buf_len;
-    // First, get the length of the query string
-    buf_len = httpd_req_get_url_query_len(req) + 1;
-    if (buf_len > 1) {
-        buf = malloc(buf_len);
-        if(!buf){
-            httpd_resp_send_500(req);
-            ESP_LOGE(HTTP_HANDLER_TAG, "memory allocation error");
-        }
-        if(httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
-            char ident[3];
-            char type[16];
+    // char* buf;
+    // size_t buf_len;
+    // // First, get the length of the query string
+    // buf_len = httpd_req_get_url_query_len(req) + 1;
+    // if (buf_len > 1) {
+    //     buf = malloc(buf_len);
+    //     if(!buf){
+    //         httpd_resp_send_500(req);
+    //         ESP_LOGE(HTTP_HANDLER_TAG, "memory allocation error");
+    //     }
+    //     if(httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+    //         char ident[3];
+    //         char type[16];
 
-            // Extract 'location' parameter
-            if (httpd_query_key_value(buf, "identity", ident, sizeof(ident)) == ESP_OK) {
-                int identNum = atoi(ident);
+    //         // Extract 'location' parameter
+    //         if (httpd_query_key_value(buf, "identity", ident, sizeof(ident)) == ESP_OK) {
+    //             int identNum = atoi(ident);
 
-                if (identNum >= 1 && identNum < (CONFIG_SENSOR_TEMP+SQL_ID_SYNC_VAL)){
-                    sensor = dht22_sensor_arr[identNum];
-                    size_t log_buf_size = sizeof(log_str) - strlen(log_str) - 1;
-                    snprintf(log_str + strlen(log_str), log_buf_size, "%d-", identNum);
-                }else {
-                    ESP_LOGE(HTTP_HANDLER_TAG, "Invalid location parameter");
-                    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Location Parameter");
+    //             if (identNum >= 1 && identNum < ((module_info_gt->identity)+SQL_ID_SYNC_VAL)){
+    //                 sensor = dht22_sensor_arr[identNum];
+    //                 size_t log_buf_size = sizeof(log_str) - strlen(log_str) - 1;
+    //                 snprintf(log_str + strlen(log_str), log_buf_size, "%d-", identNum);
+    //             }else {
+    //                 ESP_LOGE(HTTP_HANDLER_TAG, "Invalid location parameter");
+    //                 httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Location Parameter");
 
-                    free(buf);
-                    return ESP_FAIL;
-                }
-            } else {
-                ESP_LOGE(HTTP_HANDLER_TAG, "Location parameter not found");
-                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
+    //                 free(buf);
+    //                 return ESP_FAIL;
+    //             }
+    //         } else {
+    //             ESP_LOGE(HTTP_HANDLER_TAG, "Location parameter not found");
+    //             httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
 
-                free(buf);
-                return ESP_FAIL;
-            }
+    //             free(buf);
+    //             return ESP_FAIL;
+    //         }
 
-            // Extract 'type' parameter
-            if (httpd_query_key_value(buf, "type", type, sizeof(type)) == ESP_OK) {
-                if (strcmp(type, "temp") == 0){
-                    sensor_choice = TEMP;
-                    strncat(log_str, "TEMP", 5);
-                }else if(strcmp(type, "humidity") == 0) {
-                    sensor_choice = HUMIDITY;
-                    strncat(log_str, "humidity", 9);
-                } else {
-                    ESP_LOGE(HTTP_HANDLER_TAG, "Invalid type parameter");
-                    httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Type Parameters");
+    //         // Extract 'type' parameter
+    //         if (httpd_query_key_value(buf, "type", type, sizeof(type)) == ESP_OK) {
+    //             if (strcmp(type, "temp") == 0){
+    //                 sensor_choice = TEMP;
+    //                 strncat(log_str, "TEMP", 5);
+    //             }else if(strcmp(type, "humidity") == 0) {
+    //                 sensor_choice = HUMIDITY;
+    //                 strncat(log_str, "humidity", 9);
+    //             } else {
+    //                 ESP_LOGE(HTTP_HANDLER_TAG, "Invalid type parameter");
+    //                 httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Invalid Type Parameters");
 
-                    free(buf);
-                    return ESP_FAIL;
-                }
-            } else {
-                ESP_LOGE(HTTP_HANDLER_TAG, "Type parameter not found");
-                httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
+    //                 free(buf);
+    //                 return ESP_FAIL;
+    //             }
+    //         } else {
+    //             ESP_LOGE(HTTP_HANDLER_TAG, "Type parameter not found");
+    //             httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - Parameters Not Found");
 
-                free(buf);
-                return ESP_FAIL;
-            }
-            strncat(log_str, " JSON requested", 16);
-            ESP_LOGV(HTTP_HANDLER_TAG, "%s", log_str);
-            dhtSensorJSON= get_DHT22_SENSOR_JSON_String(&sensor, sensor_choice);
-            httpd_resp_set_type(req, "application/json");
-            httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
-            ESP_LOGV(HTTP_HANDLER_TAG,"%s", dhtSensorJSON);
-            free(dhtSensorJSON);
-        }
-        free(buf);
-    } else {
-        ESP_LOGE(HTTP_HANDLER_TAG, "Query string not found");
-        httpd_resp_send_404(req);
-        return ESP_FAIL;
-    }
+    //             free(buf);
+    //             return ESP_FAIL;
+    //         }
+    //         strncat(log_str, " JSON requested", 16);
+    //         ESP_LOGV(HTTP_HANDLER_TAG, "%s", log_str);
+    //         dhtSensorJSON= get_DHT22_SENSOR_JSON_String(&sensor, sensor_choice);
+    //         httpd_resp_set_type(req, "application/json");
+    //         httpd_resp_send(req, dhtSensorJSON, strlen(dhtSensorJSON));
+    //         ESP_LOGV(HTTP_HANDLER_TAG,"%s", dhtSensorJSON);
+    //         free(dhtSensorJSON);
+    //     }
+    //     free(buf);
+    // } else {
+    //     ESP_LOGE(HTTP_HANDLER_TAG, "Query string not found");
+    //     httpd_resp_send_404(req);
+    //     return ESP_FAIL;
+    // }
 
-    return ESP_OK;
+     return ESP_OK;
 }
 
 esp_err_t get_module_info_json_handler(httpd_req_t *req){
