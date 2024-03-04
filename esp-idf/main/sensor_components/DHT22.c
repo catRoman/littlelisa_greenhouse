@@ -40,6 +40,9 @@
 #include "sensor_components/sensor_tasks.h"
 #include "network_components/esp_now_comm.h"
 
+
+#define TEMP 0
+#define HUMIDITY 1
 // == global defines =============================================
 
 
@@ -51,8 +54,8 @@ static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
 
 // == get temp & hum =============================================
 
-float get_humidity(dht22_sensor_t *sensor_t) { return sensor_t->humidity; }
-float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; }
+float get_humidity(sensor_data_t *sensor_t) { return sensor_t->value[HUMIDITY]; }
+float get_temperature(sensor_data_t *sensor_t) { return sensor_t->value[TEMP]; }
 
 
 //TODO: once more types of sensors are used turn this generic using void * and call value to sensor specific function
@@ -243,7 +246,7 @@ To request data from DHT:
 
 #define MAXdhtData 5	// to complete 40 = 5*8 Bits
 
-int readDHT(dht22_sensor_t *sensor_t)
+int readDHT(sensor_data_t *sensor_t)
 {
 
 
@@ -257,8 +260,8 @@ uint8_t bitInx = 7;
 
 // instance varables
 int DHTgpio = sensor_t->pin_number;
-float humidity = sensor_t->humidity;
-float temperature = sensor_t->temperature;
+float humidity = sensor_t->value[HUMIDITY];
+float temperature = sensor_t->value[TEMP];
 
 	for (int k = 0; k<MAXdhtData; k++)
 		dhtData[k] = 0;
@@ -335,8 +338,8 @@ float temperature = sensor_t->temperature;
 	if( dhtData[2] & 0x80 ) 			// negative temp, brrr it's freezing
 		temperature *= -1;
 
-	sensor_t->temperature = temperature;
-	sensor_t->humidity = humidity;
+	sensor_t->value[TEMP] = temperature;
+	sensor_t->value[HUMIDITY] = humidity;
 	// == verify if checksum is ok ===========================================
 	// Checksum is the sum of Data 8 bits masked out 0xFF
 
@@ -354,8 +357,11 @@ float temperature = sensor_t->temperature;
 */
 void DHT22_task(void *vpParameter)
 {
-	dht22_sensor_t *sensor_t;
-	sensor_t = (dht22_sensor_t *)vpParameter;
+	sensor_data_t *sensor_t;
+	sensor_t = (sensor_data_t *)vpParameter;
+	sensor_t->total_values = 2;
+	int8_t values[sensor_t->total_values] = {0,0};
+	sensor_t->value = &values;
 
 
 	gpio_set_direction(sensor_t->pin_number, GPIO_MODE_INPUT);
@@ -371,11 +377,11 @@ void DHT22_task(void *vpParameter)
 		int ret = readDHT(sensor_t);
 
 		if (ret == DHT_OK){
-			log_sensor_JSON(sensor_t, TEMP);
-			log_sensor_JSON(sensor_t, HUMIDITY);
+			log_sensor_JSON(sensor_t, DHT22);
+
 			//#ifdef CONFIG_MODULE_TYPE_NODE
-			dht22_sensor_send_to_sensor_queue(sensor_t, HUMIDITY);
-			dht22_sensor_send_to_sensor_queue(sensor_t, TEMP);
+
+			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22);
 			//#endif
 			 //TODO: change either the function name or the function for better focus
 		}else{

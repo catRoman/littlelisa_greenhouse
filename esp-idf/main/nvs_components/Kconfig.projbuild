@@ -2,9 +2,9 @@
 
 menu "NVS Module Info"
 
-    choice 
+    choice
         prompt "Select Module Type"
-    
+
         config MODULE_TYPE_NODE
             bool "node"
 
@@ -26,14 +26,14 @@ menu "NVS Module Info"
             add unique module identifier, consult config file for available unit numbers
 
     menu "Sensor List"
-        
+
         config SENSOR_TEMP
             int "Temperature"
             default 0
             range 0 5
 
             menu "Temp Sensor Locations"
-                
+
                 config SENSOR_TEMP_1_LOCATION
                     string "Location of Temp Sensor 1"
                     default "Unknown"
@@ -45,12 +45,12 @@ menu "NVS Module Info"
                         range 0 35
                         depends on SENSOR_TEMP >= 1
 
-                
+
                 config SENSOR_TEMP_2_LOCATION
                     string "Location of Temp Sensor 2"
                     default "Unknown"
                     depends on SENSOR_TEMP >= 2
-                
+
                     config SENSOR_TEMP_2_PIN
                         int "Pin Number of Temp Sensor 2"
                         default 0
@@ -91,70 +91,6 @@ menu "NVS Module Info"
                         depends on SENSOR_TEMP >= 5
 
             endmenu
-            
-        config SENSOR_HUMIDITY
-            int "Humidity"
-            default 0
-            range 0 5
-
-            menu "Humidity Sensor Locations"
-                
-                config SENSOR_HUMIDITY_1_LOCATION
-                    string "Location of Humidity Sensor 1"
-                    default "Unknown"
-                    depends on SENSOR_HUMIDITY >= 1
-
-                    config SENSOR_HUMIDITY_1_PIN
-                        int "Pin Number of Humidity Sensor 1"
-                        default 0
-                        range 0 35
-                        depends on SENSOR_HUMIDITY >= 1
-                
-                config SENSOR_HUMIDITY_2_LOCATION
-                    string "Location of Humidity Sensor 2"
-                    default "Unknown"
-                    depends on SENSOR_HUMIDITY >= 2
-
-                    config SENSOR_HUMIDITY_2_PIN
-                        int "Pin Number of Humidity Sensor 2"
-                        default 0
-                        range 0 35
-                        depends on SENSOR_HUMIDITY >= 2
-                
-                config SENSOR_HUMIDITY_3_LOCATION
-                    string "Location of Humidity Sensor 3"
-                    default "Unknown"
-                    depends on SENSOR_HUMIDITY >= 3
-
-                    config SENSOR_HUMIDITY_3_PIN
-                            int "Pin Number of Humidity Sensor 3"
-                            default 0
-                            range 0 35
-                            depends on SENSOR_HUMIDITY >= 3
-
-                config SENSOR_HUMIDITY_4_LOCATION
-                    string "Location of Humidity Sensor 4"
-                    default "Unknown"
-                    depends on SENSOR_HUMIDITY >= 4
-
-                    config SENSOR_HUMIDITY_4_PIN
-                        int "Pin Number of Humidity Sensor 4"
-                        default 0
-                        range 0 35
-                        depends on SENSOR_HUMIDITY >= 4
-
-                config SENSOR_HUMIDITY_5_LOCATION
-                    string "Location of Humidity Sensor 5"
-                    default "Unknown"
-                    depends on SENSOR_HUMIDITY >= 5
-
-                    config SENSOR_HUMIDITY_5_PIN
-                        int "Pin Number of Humidity Sensor 5"
-                        default 0
-                        range 0 35
-                        depends on SENSOR_HUMIDITY >= 5
-
-            endmenu
 
         config SENSOR_SOIL_MOISTURE
             int "Soil Moisture"
@@ -162,7 +98,7 @@ menu "NVS Module Info"
             range 0 5
 
             menu "Soil Moisture Sensor Locations"
-                
+
                 config SENSOR_SOIL_MOISTURE_1_LOCATION
                     string "Location of Soil Moisture Sensor 1"
                     default "Unknown"
@@ -184,7 +120,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_SOIL_MOISTURE >= 2
-                
+
                 config SENSOR_SOIL_MOISTURE_3_LOCATION
                     string "Location of Soil Moisture Sensor 3"
                     default "Unknown"
@@ -226,7 +162,7 @@ menu "NVS Module Info"
             range 0 5
 
             menu "Light Sensor Locations"
-                
+
                 config SENSOR_LIGHT_1_LOCATION
                     string "Location of Light Sensor 1"
                     default "Unknown"
@@ -237,7 +173,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_LIGHT >= 1
-                
+
                 config SENSOR_LIGHT_2_LOCATION
                     string "Location of Light Sensor 2"
                     default "Unknown"
@@ -248,7 +184,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_LIGHT >= 2
-                
+
                 config SENSOR_LIGHT_3_LOCATION
                     string "Location of Light Sensor 3"
                     default "Unknown"
@@ -286,22 +222,22 @@ menu "NVS Module Info"
 
         config SENSOR_SOUND
             int "Sound"
-            default 0 
+            default 0
             range 0 5
 
             menu "Sound Sensor Locations"
-                
+
                 config SENSOR_SOUND_1_LOCATION
                     string "Location of SOUND Sensor 1"
                     default "Unknown"
                     depends on SENSOR_SOUND >= 1
-                    
+
                      config SENSOR_SOUND_1_PIN
                         int "Pin Number of Sound Sensor 1"
                         default 0
                         range 0 35
                         depends on SENSOR_SOUND >= 1
-                
+
                 config SENSOR_SOUND_2_LOCATION
                     string "Location of SOUND Sensor 2"
                     default "Unknown"
@@ -312,7 +248,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_SOUND >= 2
-                
+
                 config SENSOR_SOUND_3_LOCATION
                     string "Location of SOUND Sensor 3"
                     default "Unknown"
@@ -347,14 +283,14 @@ menu "NVS Module Info"
                         depends on SENSOR_SOUND >= 5
 
             endmenu
-        
+
         config SENSOR_MOVEMENT
             int "Movement"
             default 0
             range 0 5
 
             menu "Movement Sensor Locations"
-                
+
                 config SENSOR_MOVEMENT_1_LOCATION
                     string "Location of Movement Sensor 1"
                     default "Unknown"
@@ -365,7 +301,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_MOVEMENT >= 1
-                
+
                 config SENSOR_MOVEMENT_2_LOCATION
                     string "Location of Movement Sensor 2"
                     default "Unknown"
@@ -376,7 +312,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_MOVEMENT >= 2
-                
+
                 config SENSOR_MOVEMENT_3_LOCATION
                     string "Location of Movement Sensor 3"
                     default "Unknown"
@@ -414,11 +350,11 @@ menu "NVS Module Info"
 
         config SENSOR_CAMERA
             int "Camera"
-            default 0 
+            default 0
             range 0 5
 
             menu "Camera Locations"
-                
+
                 config SENSOR_CAMERA_1_LOCATION
                     string "Location of Camera 1"
                     default "Unknown"
@@ -429,7 +365,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_CAMERA >= 1
-                
+
                 config SENSOR_CAMERA_2_LOCATION
                     string "Location of Camera 2"
                     default "Unknown"
@@ -440,7 +376,7 @@ menu "NVS Module Info"
                         default 0
                         range 0 35
                         depends on SENSOR_CAMERA >= 2
-                
+
                 config SENSOR_CAMERA_3_LOCATION
                     string "Location of Camera 3"
                     default "Unknown"
