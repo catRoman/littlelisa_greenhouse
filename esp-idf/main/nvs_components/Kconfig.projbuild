@@ -27,68 +27,68 @@ menu "NVS Module Info"
 
     menu "Sensor List"
 
-        config SENSOR_TEMP
-            int "Temperature"
+        config SENSOR_DHT22
+            int "DHT22"
             default 0
             range 0 5
 
-            menu "Temp Sensor Locations"
+            menu "DHT22 Sensor Locations"
 
-                config SENSOR_TEMP_1_LOCATION
+                config SENSOR_DHT22_1_LOCATION
                     string "Location of Temp Sensor 1"
                     default "Unknown"
-                    depends on SENSOR_TEMP >= 1
+                    depends on SENSOR_DHT22 >= 1
 
-                    config SENSOR_TEMP_1_PIN
+                    config SENSOR_DHT22_1_PIN
                         int "Pin Number of Temp Sensor 1"
                         default 0
                         range 0 35
-                        depends on SENSOR_TEMP >= 1
+                        depends on SENSOR_DHT22 >= 1
 
 
-                config SENSOR_TEMP_2_LOCATION
+                config SENSOR_DHT22_2_LOCATION
                     string "Location of Temp Sensor 2"
                     default "Unknown"
-                    depends on SENSOR_TEMP >= 2
+                    depends on SENSOR_DHT22 >= 2
 
-                    config SENSOR_TEMP_2_PIN
+                    config SENSOR_DHT22_2_PIN
                         int "Pin Number of Temp Sensor 2"
                         default 0
                         range 0 35
-                        depends on SENSOR_TEMP >= 2
+                        depends on SENSOR_DHT22 >= 2
 
-                config SENSOR_TEMP_3_LOCATION
+                config SENSOR_DHT22_3_LOCATION
                     string "Location of Temp Sensor 3"
                     default "Unknown"
-                    depends on SENSOR_TEMP >= 3
+                    depends on SENSOR_DHT22 >= 3
 
-                    config SENSOR_TEMP_3_PIN
+                    config SENSOR_DHT22_3_PIN
                         int "Pin Number of Temp Sensor 3"
                         default 0
                         range 0 35
-                        depends on SENSOR_TEMP >= 3
+                        depends on SENSOR_DHT22 >= 3
 
-                config SENSOR_TEMP_4_LOCATION
+                config SENSOR_DHT22_4_LOCATION
                     string "Location of Temp Sensor 4"
                     default "Unknown"
-                    depends on SENSOR_TEMP >= 4
+                    depends on SENSOR_DHT22 >= 4
 
-                    config SENSOR_TEMP_4_PIN
+                    config SENSOR_DHT22_4_PIN
                         int "Pin Number of Temp Sensor 4"
                         default 0
                         range 0 35
-                        depends on SENSOR_TEMP >= 4
+                        depends on SENSOR_DHT22 >= 4
 
-                config SENSOR_TEMP_5_LOCATION
+                config SENSOR_DHT22_5_LOCATION
                     string "Location of Temp Sensor 5"
                     default "Unknown"
-                    depends on SENSOR_TEMP >= 5
+                    depends on SENSOR_DHT22 >= 5
 
-                    config SENSOR_TEMP_5_PIN
+                    config SENSOR_DHT22_5_PIN
                         int "Pin Number of Temp Sensor 5"
                         default 0
                         range 0 35
-                        depends on SENSOR_TEMP >= 5
+                        depends on SENSOR_DHT22 >= 5
 
             endmenu
 

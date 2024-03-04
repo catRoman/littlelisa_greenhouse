@@ -49,6 +49,7 @@
 static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
 static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+extern Module_info_t module_info_gt;
 
 
 
@@ -60,23 +61,23 @@ float get_temperature(sensor_data_t *sensor_t) { return sensor_t->value[TEMP]; }
 
 //TODO: once more types of sensors are used turn this generic using void * and call value to sensor specific function
 //== Log JSON of data ============================
-char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
+char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 {
-	time_t currentTime;
-	time(&currentTime);
 
 	cJSON *json_data = cJSON_CreateObject();
 
-	cJSON_AddNumberToObject(json_data, "identity", sensor_t->identifier);
-	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
-	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
+	cJSON_AddNumberToObject(json_data, "module_id", sensor_t->module_id);
+	cJSON_AddNumberToObject(json_data, "sensor_id", sensor_t->local_sensor_id);
+	cJSON_AddStringToObject(json_data, "timestamp", ctime(&sensor_t->timestamp));
+	cJSON_AddStringToObject(json_data, "location", sensor_t->location);
 	cJSON_AddNumberToObject(json_data, "pin", sensor_t->pin_number);
 	if(sensor_choice == HUMIDITY){
 		cJSON_AddNumberToObject(json_data, "value", get_humidity(sensor_t));
-		cJSON_AddStringToObject(json_data, "unit", sensor_t->humidity_unit);
+		cJSON_AddStringToObject(json_data, "unit", "%%");
 	}else if(sensor_choice == TEMP){
 		cJSON_AddNumberToObject(json_data, "value", get_temperature(sensor_t));
-		cJSON_AddStringToObject(json_data, "unit", sensor_t->temp_unit);
+		cJSON_AddStringToObject(json_data, "unit", "°C");
+
 	}
 
 	char *json_string = cJSON_Print(json_data);
@@ -86,7 +87,7 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 }
 
- void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
+ void log_sensor_JSON(sensor_data_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
 	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
 	free(json_string);
@@ -94,32 +95,29 @@ char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
 
 //TODO: rewrite module_config and this to work on sensor types
 // thuis tansfering both temp and humidity at once
-void dht22_sensor_send_to_sensor_queue(dht22_sensor_t *sensor_t, int sensor_choice){
-
+void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice){
 
 
 	//allocate for data_packet
 	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
 	data_packet->pin_number= sensor_t->pin_number;
-	data_packet->total_values = 1;
-	data_packet->local_sensor_id = sensor_t->identifier;
-	data_packet->module_id = CONFIG_MODULE_IDENTITY;
+	data_packet->total_values = 2;
+	data_packet->local_sensor_id = sensor_t->local_sensor_id;
+	data_packet->module_id = module_info_gt->identity;
 	data_packet->timestamp = 0;
 
 	//TODO: mem error handling
 	data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-	data_packet->location = (char*)malloc(strlen(sensor_t->TAG)+1);
-	strcpy(data_packet->location, sensor_t->TAG);
+	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
+	strcpy(data_packet->location, sensor_t->location);
 
 
-	if(sensor_choice == HUMIDITY){
-		data_packet->sensor_type = HUMIDITY;
-		data_packet->value[0] = get_humidity(sensor_t);
-	}else if(sensor_choice == TEMP){
-		data_packet->sensor_type = TEMP;
-		data_packet->value[0] = get_temperature(sensor_t);
-	}
+
+	data_packet->sensor_type = DHT22;
+	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
+	data_packet->value[TEMP] = get_temperature(sensor_t);
+
 
 	//sensor queue wrapper mem allocation
 	sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
@@ -153,23 +151,23 @@ void dht22_sensor_send_to_sensor_queue(dht22_sensor_t *sensor_t, int sensor_choi
 
 // == error handler ===============================================
 
-void errorHandler(int response, dht22_sensor_t *sensor_t)
+void errorHandler(int response, sensor_data_t *sensor_t)
 {
 	switch(response) {
 
 		case DHT_TIMEOUT_ERROR :
-			ESP_LOGE( TAG, "{==%s==}: Sensor Timeout\n",sensor_t->TAG);
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->local_sensor_id);
 			break;
 
 		case DHT_CHECKSUM_ERROR:
-			ESP_LOGE( TAG, "{==%s==}: CheckSum error\n", sensor_t->TAG );
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->local_sensor_id );
 			break;
 
 		case DHT_OK:
 			break;
 
 		default :
-			ESP_LOGE( TAG, "{==%s==}: Unknown error\n",  sensor_t->TAG);
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->local_sensor_id);
 	}
 }
 
@@ -182,7 +180,7 @@ void errorHandler(int response, dht22_sensor_t *sensor_t)
 ;
 ;--------------------------------------------------------------------------------*/
 
-int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
+int getSignalLevel( int usTimeOut, bool state, sensor_data_t *sensor_t )
 {
 
 

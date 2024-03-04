@@ -24,13 +24,13 @@ typedef enum Sensor_List{
 }Sensor_List;
 
 typedef struct sensor_data_t{
-	int pin_number;
+	uint8_t pin_number;
     Sensor_List sensor_type;
 	float *value;
-    int total_values;
+    uint8_t total_values;
 	char* location;
-	int local_sensor_id;
-    int module_id;
+	uint8_t local_sensor_id;
+    uint8_t module_id;
     time_t timestamp;
 
 } sensor_data_t;
