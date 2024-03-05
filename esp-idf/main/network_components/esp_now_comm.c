@@ -47,7 +47,7 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
 
-            esp_err_t result = esp_now_send(&queue_packet.mac_addr, queue_packet.data, queue_packet.len);
+            esp_err_t result = esp_now_send(queue_packet.mac_addr, queue_packet.data, queue_packet.len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
             }
@@ -150,7 +150,7 @@ esp_err_t esp_now_comm_start(){
 
     uint8_t peer_addr[6];
 
-    esp_now_comm_get_config_reciever_mac_addr(&peer_addr);
+    esp_now_comm_get_config_reciever_mac_addr(peer_addr);
 
     esp_now_peer_info_t peerInfo = {};
     memcpy(peerInfo.peer_addr, &peer_addr, ESP_NOW_ETH_ALEN);

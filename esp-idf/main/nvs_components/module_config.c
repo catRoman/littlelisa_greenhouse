@@ -52,10 +52,8 @@ Module_info_t *module_info_gt = NULL;
 void initiate_config(){
 
 
-    //set node info and log
-    esp_err_t err;
 
-    static const int8_t sensor_arr[SENSOR_LIST_TOTAL] = {
+    int8_t sensor_arr[SENSOR_LIST_TOTAL] = {
                         CONFIG_SENSOR_DHT22,
                         CONFIG_SENSOR_SOIL_MOISTURE,
                         CONFIG_SENSOR_LIGHT,
@@ -92,7 +90,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        uint8_t dht22_sensor_pin_number[sensor_arr[DHT22] + SQL_ID_SYNC_VAL];
+        int8_t dht22_sensor_pin_number[sensor_arr[DHT22] + SQL_ID_SYNC_VAL];
             dht22_sensor_pin_number[0] = 0; //initaly empty
             #ifdef CONFIG_SENSOR_DHT22_1_PIN
             dht22_sensor_pin_number[1] = (uint8_t)CONFIG_SENSOR_DHT22_1_PIN;
@@ -110,10 +108,10 @@ void initiate_config(){
             dht22_sensor_pin_number[5] = CONFIG_SENSOR_DHT22_5_PIN;
             #endif
 
-        const Module_sensor_config_t *dht22_sensor_config =
+        Module_sensor_config_t *dht22_sensor_config =
         createModuleSensorConfig(
                 dht22_sensor_locations,
-                &dht22_sensor_pin_number,
+                dht22_sensor_pin_number,
                 sensor_arr[DHT22]);
 
 
@@ -139,7 +137,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        uint8_t soil_moisture_sensor_pin_number[sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL];
+        int8_t soil_moisture_sensor_pin_number[sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL];
             soil_moisture_sensor_pin_number[0] = 0; //initaly empty
             #ifdef CONFIG_SENSOR_SOIL_MOISTURE_1_PIN
             soil_moisture_sensor_pin_number[1] = CONFIG_SENSOR_SOIL_MOISTURE_1_PIN;
@@ -158,10 +156,10 @@ void initiate_config(){
             #endif
 
 
-        const Module_sensor_config_t *soil_moisture_sensor_config =
+        Module_sensor_config_t *soil_moisture_sensor_config =
         createModuleSensorConfig(
                 soil_moisture_sensor_locations,
-                &soil_moisture_sensor_pin_number,
+                soil_moisture_sensor_pin_number,
                 sensor_arr[SOIL_MOISTURE]);
 
 
@@ -187,7 +185,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        uint8_t light_sensor_pin_number[sensor_arr[LIGHT] + SQL_ID_SYNC_VAL];
+        int8_t light_sensor_pin_number[sensor_arr[LIGHT] + SQL_ID_SYNC_VAL];
             light_sensor_pin_number[0] = 0; //initaly empty
             #ifdef CONFIG_SENSOR_LIGHT_1_PIN
             light_sensor_pin_number[1] = CONFIG_SENSOR_LIGHT_1_PIN;
@@ -205,10 +203,10 @@ void initiate_config(){
             light_sensor_pin_number[5] = CONFIG_SENSOR_LIGHT_5_PIN;
             #endif
 
-        const Module_sensor_config_t *light_sensor_config =
+        Module_sensor_config_t *light_sensor_config =
         createModuleSensorConfig(
                 light_sensor_locations,
-                &light_sensor_pin_number,
+                light_sensor_pin_number,
                 sensor_arr[LIGHT]);
 
             //to match sql table id with sensor
@@ -233,7 +231,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        uint8_t sound_sensor_pin_number[sensor_arr[SOUND] + SQL_ID_SYNC_VAL];
+        int8_t sound_sensor_pin_number[sensor_arr[SOUND] + SQL_ID_SYNC_VAL];
             sound_sensor_pin_number[0] = 0; //initaly empty
             #ifdef CONFIG_SENSOR_SOUND_1_PIN
             sound_sensor_pin_number[1] = CONFIG_SENSOR_SOUND_1_PIN;
@@ -251,10 +249,10 @@ void initiate_config(){
             sound_sensor_pin_number[5] = CONFIG_SENSOR_SOUND_5_PIN;
             #endif
 
-        const Module_sensor_config_t *sound_sensor_config =
+        Module_sensor_config_t *sound_sensor_config =
         createModuleSensorConfig(
                 sound_sensor_locations,
-                &sound_sensor_pin_number,
+                sound_sensor_pin_number,
                 sensor_arr[SOUND]);
 
             //to match sql table id with sensor
@@ -279,7 +277,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        uint8_t movement_sensor_pin_number[sensor_arr[MOVEMENT] + SQL_ID_SYNC_VAL];
+        int8_t movement_sensor_pin_number[sensor_arr[MOVEMENT] + SQL_ID_SYNC_VAL];
             movement_sensor_pin_number[0] = 0; //intentialy empty
             #ifdef CONFIG_SENSOR_MOVEMENT_1_PIN
             movement_sensor_pin_number[1] = CONFIG_SENSOR_MOVEMENT_1_PIN;
@@ -297,10 +295,10 @@ void initiate_config(){
             movement_sensor_pin_number[5] = CONFIG_SENSOR_MOVEMENT_5_PIN;
             #endif
 
-        const Module_sensor_config_t *movement_sensor_config =
+        Module_sensor_config_t *movement_sensor_config =
         createModuleSensorConfig(
                 movement_sensor_locations,
-                &movement_sensor_pin_number,
+                movement_sensor_pin_number,
                 sensor_arr[MOVEMENT]);
 
             //to match sql table id with sensor
@@ -325,7 +323,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        uint8_t camera_sensor_pin_number[sensor_arr[CAMERA] + SQL_ID_SYNC_VAL];
+        int8_t camera_sensor_pin_number[sensor_arr[CAMERA] + SQL_ID_SYNC_VAL];
             camera_sensor_pin_number[0] = 0; //initaly empty
             #ifdef CONFIG_SENSOR_CAMERA_1_PIN
             camera_sensor_pin_number[1] = CONFIG_SENSOR_CAMERA_1_PIN;
@@ -344,20 +342,22 @@ void initiate_config(){
             #endif
 
 
-        const Module_sensor_config_t *camera_sensor_config =
+        Module_sensor_config_t *camera_sensor_config =
         createModuleSensorConfig(
                 camera_sensor_locations,
-                &camera_sensor_pin_number,
-                sensor_arr[CAMERA]);
+                camera_sensor_pin_number,
+                sensor_arr[CAMERA]
+                );
 
-        Module_sensor_config_t sensor_config_arr[SENSOR_LIST_TOTAL] = {
-            dht22_sensor_config,
-            soil_moisture_sensor_config,
-            light_sensor_config,
-            sound_sensor_config,
-            movement_sensor_config,
-            camera_sensor_config
-        };
+        Module_sensor_config_t *sensor_config_arr[SENSOR_LIST_TOTAL];
+
+        sensor_config_arr[DHT22] = dht22_sensor_config;
+        sensor_config_arr[SOIL_MOISTURE] = soil_moisture_sensor_config;
+        sensor_config_arr[LIGHT] = light_sensor_config;
+        sensor_config_arr[SOUND] = sound_sensor_config;
+        sensor_config_arr[MOVEMENT] = movement_sensor_config;
+        sensor_config_arr[CAMERA] = camera_sensor_config;
+
 
 
 
@@ -369,8 +369,8 @@ void initiate_config(){
                 "controller",
                 CONFIG_MODULE_LOCATION,
                 CONFIG_MODULE_IDENTITY,
-                &sensor_arr,
-                &sensor_config_arr,
+                sensor_arr,
+                sensor_config_arr,
                 SENSOR_LIST_TOTAL
                 );
 
@@ -391,9 +391,10 @@ void initiate_config(){
         #endif
     //TODO: write to nvs
         extern nvs_handle_t nvs_sensor_loc_arr_handle;
+
         nvs_set_module(module_info_gt->type,module_info_gt->location,module_info_gt->identity);
         nvs_set_sensor_arr(module_info_gt->sensor_arr,SENSOR_LIST_TOTAL);
-        ESP_ERROR_CHECK(save_serialized_sensor_loc_arr_to_nvs(
+        save_serialized_sensor_loc_arr_to_nvs(
             serializeModuleSensorConfigArray(
                 sensor_config_arr,
                 SENSOR_LIST_TOTAL
@@ -401,25 +402,25 @@ void initiate_config(){
             nvs_sensor_loc_arr_handle,
             NVS_SENSOR_CONFIG_NAMESPACE,
             NVS_SENSOR_CONFIG_ARR_INDEX
-        ));
+        );
 
-    }else{//retrive from nvs only
+    }else{//retrive from nvs only---<--
 
-          Module_sensor_config_t sensor_config_arr[SENSOR_LIST_TOTAL]={
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[DHT22]->sensor_loc_arr, module_info_gt->sensor_config_arr[DHT22]->sensor_pin_arr, sensor_arr[DHT22]),
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[SOIL_MOISTURE]->sensor_loc_arr, module_info_gt->sensor_config_arr[SOIL_MOISTURE]->sensor_pin_arr, sensor_arr[SOIL_MOISTURE]),
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[LIGHT]->sensor_loc_arr, module_info_gt->sensor_config_arr[LIGHT]->sensor_pin_arr, sensor_arr[LIGHT]),
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[SOUND]->sensor_loc_arr, module_info_gt->sensor_config_arr[SOUND]->sensor_pin_arr, sensor_arr[SOUND]),
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[MOVEMENT]->sensor_loc_arr, module_info_gt->sensor_config_arr[MOVEMENT]->sensor_pin_arr, sensor_arr[MOVEMENT]),
-            createModuleSensorConfig(module_info_gt->sensor_config_arr[CAMERA]->sensor_loc_arr, module_info_gt->sensor_config_arr[CAMERA]->sensor_pin_arr, sensor_arr[CAMERA])
-        };
+        extern nvs_handle_t nvs_sensor_loc_arr_handle;
+        int count = SENSOR_LIST_TOTAL;
+        Module_info_t *temp_module = NULL;
+        ESP_ERROR_CHECK(nvs_get_module_info(temp_module));
 
         module_info_gt = createModuleInfo(
-            module_info_gt->type,
-            module_info_gt->location,
-            module_info_gt->identity,
-            &sensor_arr,
-            &sensor_config_arr,
+            temp_module->type,
+            temp_module->location,
+            temp_module->identity,
+            sensor_arr,
+            deserializeModuleSensorConfigArray(
+                retrieve_serialized_string_from_nvs(
+                    nvs_sensor_loc_arr_handle,
+                    NVS_SENSOR_CONFIG_NAMESPACE,
+                    NVS_SENSOR_CONFIG_ARR_INDEX), &count),
             SENSOR_LIST_TOTAL);
 
         printf("hi :-)\n");
