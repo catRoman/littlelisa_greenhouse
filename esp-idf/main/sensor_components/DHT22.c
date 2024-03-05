@@ -358,7 +358,7 @@ void DHT22_task(void *vpParameter)
 	sensor_t = (sensor_data_t *)vpParameter;
 	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
 	float values[sensor_t->total_values];
-	sensor_t->value = &values;
+	sensor_t->value = values;
 
 
 	gpio_set_direction(sensor_t->pin_number, GPIO_MODE_INPUT);

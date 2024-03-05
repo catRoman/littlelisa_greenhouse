@@ -292,7 +292,7 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
         }
 
         // Replace the last semicolon with a newline character to separate configs
-        serializedString[strlen(serializedString) - 1] = '\n';
+        serializedString[strlen(serializedString) - 1] = '$';
     }
 
     // Remove the last newline character
@@ -351,7 +351,7 @@ int8_t stringToInt8(const char* str) {
 // Deserializes a string to an array of Module_sensor_config_t
 Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int *numConfigs) {
     int configsCount = 0;
-    char **configsStrings = splitString(serialized, '\n', &configsCount);
+    char **configsStrings = splitString(serialized, '$', &configsCount);
     Module_sensor_config_t *configs = malloc(sizeof(Module_sensor_config_t) * configsCount);
     if (!configs) return NULL;
 

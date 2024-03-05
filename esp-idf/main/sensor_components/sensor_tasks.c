@@ -242,7 +242,7 @@ void sensor_prepare_to_send_task(void * pvParameters)
             queue_packet->len = calculate_serialized_size(queue_packet->data);
             temp_data = serialize_sensor_data(queue_packet->data, &queue_packet->len);
             queue_packet->data = temp_data;
-            esp_now_comm_get_config_reciever_mac_addr(&queue_packet->mac_addr);
+            esp_now_comm_get_config_reciever_mac_addr(queue_packet->mac_addr);
 
 
             extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;

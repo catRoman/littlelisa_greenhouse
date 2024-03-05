@@ -105,7 +105,7 @@ esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
 
 char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
         char* loc_arr_namespace,
-        char* loc_arr_index);\
+        char* loc_arr_index);
 
 
 void int8ToString(int8_t num, char *str);
