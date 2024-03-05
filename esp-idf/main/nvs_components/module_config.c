@@ -70,7 +70,7 @@ void initiate_config(){
 
 
         //to match sql table id with sensor
-        char* dht22_sensor_locations[sensor_arr[TEMP] + SQL_ID_SYNC_VAL];
+        char* dht22_sensor_locations[sensor_arr[DHT22] + SQL_ID_SYNC_VAL];
             dht22_sensor_locations[0]= "Intentialy Empty";
             #ifdef CONFIG_SENSOR_DHT22_1_LOCATION
             dht22_sensor_locations[1]= CONFIG_SENSOR_DHT22_1_LOCATION;
@@ -349,14 +349,14 @@ void initiate_config(){
                 sensor_arr[CAMERA]
                 );
 
-        Module_sensor_config_t *sensor_config_arr[SENSOR_LIST_TOTAL];
+        Module_sensor_config_t sensor_config_arr[SENSOR_LIST_TOTAL];
 
-        sensor_config_arr[DHT22] = dht22_sensor_config;
-        sensor_config_arr[SOIL_MOISTURE] = soil_moisture_sensor_config;
-        sensor_config_arr[LIGHT] = light_sensor_config;
-        sensor_config_arr[SOUND] = sound_sensor_config;
-        sensor_config_arr[MOVEMENT] = movement_sensor_config;
-        sensor_config_arr[CAMERA] = camera_sensor_config;
+        sensor_config_arr[DHT22] = *dht22_sensor_config;
+        sensor_config_arr[SOIL_MOISTURE] = *soil_moisture_sensor_config;
+        sensor_config_arr[LIGHT] = *light_sensor_config;
+        sensor_config_arr[SOUND] = *sound_sensor_config;
+        sensor_config_arr[MOVEMENT] = *movement_sensor_config;
+        sensor_config_arr[CAMERA] = *camera_sensor_config;
 
 
 
@@ -391,6 +391,14 @@ void initiate_config(){
         #endif
     //TODO: write to nvs
         extern nvs_handle_t nvs_sensor_loc_arr_handle;
+        printf("char size: %d\n serialized: %s", sizeof(serializeModuleSensorConfigArray(
+                sensor_config_arr,
+                SENSOR_LIST_TOTAL
+            )), serializeModuleSensorConfigArray(
+                sensor_config_arr,
+                SENSOR_LIST_TOTAL
+            ));
+
 
         nvs_set_module(module_info_gt->type,module_info_gt->location,module_info_gt->identity);
         nvs_set_sensor_arr(module_info_gt->sensor_arr,SENSOR_LIST_TOTAL);

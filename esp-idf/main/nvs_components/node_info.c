@@ -46,25 +46,22 @@ char *node_info_get_module_info_json(void){
 
     for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
         switch(i){
-            case 0:
-                cJSON_AddNumberToObject(sensor_list, "temp", module_info_gt->sensor_arr[i]);
+            case DHT22:
+                cJSON_AddNumberToObject(sensor_list, "DHT22", module_info_gt->sensor_arr[i]);
                 break;
-            case 1:
-                cJSON_AddNumberToObject(sensor_list, "humidity", module_info_gt->sensor_arr[i]);
-                break;
-            case 2:
+            case SOIL_MOISTURE:
                 cJSON_AddNumberToObject(sensor_list, "soil_moisture", module_info_gt->sensor_arr[i]);
                 break;
-            case 3:
+            case LIGHT:
                 cJSON_AddNumberToObject(sensor_list, "light", module_info_gt->sensor_arr[i]);
                 break;
-            case 4:
+            case SOUND:
                 cJSON_AddNumberToObject(sensor_list, "sound", module_info_gt->sensor_arr[i]);
                 break;
-            case 5:
+            case MOVEMENT:
                 cJSON_AddNumberToObject(sensor_list, "movement", module_info_gt->sensor_arr[i]);
                 break;
-            case 6:
+            case CAMERA:
                 cJSON_AddNumberToObject(sensor_list, "cam", module_info_gt->sensor_arr[i]);
                 break;
             default:
@@ -129,25 +126,22 @@ void node_info_log_sensor_list(void){
     if(err == ESP_OK && sensor_list != NULL){
         for(int i = 0; i < sensorLength; i++){
             switch(i){
-                case 0:
-                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tTemp: %d\n", sensor_list[i]);
+                case DHT22:
+                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tDHT22: %d\n", sensor_list[i]);
                     break;
-                case 1:
-                    snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tHumidity: %d\n", sensor_list[i]);
-                    break;
-                case 2:
+                case SOIL_MOISTURE:
                     snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tSoil Moisture: %d\n", sensor_list[i]);
                     break;
-                case 3:
+                case LIGHT:
                     snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tLight: %d\n", sensor_list[i]);
                     break;
-                case 4:
+                case SOUND:
                     snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tSound: %d\n", sensor_list[i]);
                     break;
-                case 5:
+                case MOVEMENT:
                     snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tMovement: %d\n", sensor_list[i]);
                     break;
-                case 6:
+                case CAMERA:
                     snprintf(sensor_info_str + strlen(sensor_info_str), sizeof(sensor_info_str) - strlen(sensor_info_str), "\tCam: %d\n", sensor_list[i]);
                     break;
                 default:
