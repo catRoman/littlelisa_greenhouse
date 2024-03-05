@@ -269,13 +269,15 @@ void int8ToString(int8_t num, char *str) {
 char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numConfigs) {
     // Assuming each serialized config is less than 256 characters
     // Adjust the size based on your needs
+    extern Module_info_t *module_info_gt;
+
     char *serializedString = malloc(numConfigs * 256);
     if (!serializedString) return NULL;
     serializedString[0] = '\0';
 
     for (int c = 0; c < numConfigs; c++) {
         // Serialize sensor_loc_arr
-        for (int i = 0; configs[c].sensor_loc_arr[i] != NULL; i++) {
+        for (int i = 0; i < module_info_gt->sensor_arr[c] && module_info_gt->sensor_arr[c] !=0; i++) {
             strcat(serializedString, configs[c].sensor_loc_arr[i]);
             strcat(serializedString, ";");
         }
@@ -285,7 +287,7 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
 
         // Serialize sensor_pin_arr
         char pinBuffer[5]; // Buffer for pin number as string
-        for (int i = 0; configs[c].sensor_pin_arr[i] != -1; i++) { // Assuming -1 as end marker
+        for (int i = 0; i < module_info_gt->sensor_arr[c] && module_info_gt->sensor_arr[c] !=0 ; i++) { // Assuming -1 as end marker
             int8ToString(configs[c].sensor_pin_arr[i], pinBuffer);
             strcat(serializedString, pinBuffer);
             strcat(serializedString, ";");

@@ -20,17 +20,12 @@
 #define NVS_MODULE_LOCATION_INDEX               "module_location"
 #define NVS_MODULE_IDENTIFIER_INDEX             "module_ident"
 
-#define NVS_NODE_ARR_NAMESPACE                  "node_list"
-#define NVS_NODE_ARR_INDEX                      "node_arr"
-#define NVS_NODE_TOTAL_INDEX                    "node_total"
-
 #define NVS_SENSOR_ARR_NAMESPACE                "sensor_list"
 #define NVS_SENSOR_ARR_INDEX                    "sensor_arr"
 #define NVS_SENSOR_TOTAL_INDEX                  "sensor_total"
 
-
-#define NVS_SENSOR_CONFIG_NAMESPACE           "sensor_config_list"
-#define NVS_SENSOR_CONFIG_ARR_INDEX           "sensor_config_arr"
+#define NVS_SENSOR_CONFIG_NAMESPACE             "s_config_list"
+#define NVS_SENSOR_CONFIG_ARR_INDEX             "s_config_arr"
 
 
 /**
