@@ -80,26 +80,18 @@ char *node_info_get_module_info_json(void){
         sensor_type_list = cJSON_CreateObject();
         char i_str[5];
 
+        if(module_info_gt->sensor_arr[sensor] > 0){
+            
+            sensor_type_pin_list = cJSON_CreateObject();
+            for(int i = 1; i <= module_info_gt->sensor_arr[sensor]; i++){
+                cJSON_AddNumberToObject(sensor_type_pin_list, module_info_gt->sensor_config_arr[sensor].sensor_loc_arr[i],
+                    module_info_gt->sensor_config_arr[sensor].sensor_pin_arr[i]);
+            }
 
-        for(int i = 0; i < module_info_gt->sensor_arr[sensor]; i++){
-            sprintf(i_str, "%d", i);
-            cJSON_AddStringToObject(sensor_type_list,i_str,
-                module_info_gt->sensor_config_arr[i]->sensor_loc_arr[i]);
+            cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_pin_list);
+
         }
-
-        cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_list);
-
-
-        sensor_type_pin_list = cJSON_CreateObject();
-        for(int i = 0; i < module_info_gt->sensor_arr[sensor]; i++){
-             cJSON_AddNumberToObject(sensor_type_pin_list, i_str,
-                module_info_gt->sensor_config_arr[i]->sensor_pin_arr[i]);
-        }
-
-        cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_pin_list);
-
     }
-
     return cJSON_Print(root);
 
 }

@@ -119,6 +119,7 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
     }
+    //printf("mod info size %d\n", sizeof(module_type_required_size));
 
     module_info->type = malloc(module_type_required_size);
     if (module_info->type == NULL) {
@@ -160,6 +161,7 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
 
     nvs_close(nvs_module_handle);
 
+    ESP_LOGI(TAG, "{==module info==} retrieved type, location, idenetity");
     return err;
 
     }
@@ -275,9 +277,9 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
     if (!serializedString) return NULL;
     serializedString[0] = '\0';
 
-    for (int c = 0; c < numConfigs; c++) {
-        // Serialize sensor_loc_arr
-        for (int i = 0; i < module_info_gt->sensor_arr[c] && module_info_gt->sensor_arr[c] !=0; i++) {
+    for (int c = 0; c < numConfigs; c++) {//loop through sensors
+        // Serialize sensor_loc_arr- for each sensor-loop and print location
+        for (int i = 0; i <= module_info_gt->sensor_arr[c]; /*sensor list has total num of sensors*/ i++) {
             strcat(serializedString, configs[c].sensor_loc_arr[i]);
             strcat(serializedString, ";");
         }
@@ -286,8 +288,9 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
         serializedString[strlen(serializedString) - 1] = '|';
 
         // Serialize sensor_pin_arr
-        char pinBuffer[5]; // Buffer for pin number as string
-        for (int i = 0; i < module_info_gt->sensor_arr[c] && module_info_gt->sensor_arr[c] !=0 ; i++) { // Assuming -1 as end marker
+        char pinBuffer[5] = {0}; // Buffer for pin number as string
+        for (int i = 0; i <= module_info_gt->sensor_arr[c]; i++) { 
+            
             int8ToString(configs[c].sensor_pin_arr[i], pinBuffer);
             strcat(serializedString, pinBuffer);
             strcat(serializedString, ";");
@@ -409,10 +412,12 @@ esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
     esp_err_t err = nvs_open(loc_arr_namespace, NVS_READWRITE, &loc_arr_handle);
     if (err == ESP_OK) {
         // Write
+        ESP_LOGI(TAG, "{==sensor loc==} opened");
         err = nvs_set_str(loc_arr_handle, loc_arr_index, serialized_loc_arr);
         if (err == ESP_OK) {
             // Commit
             err = nvs_commit(loc_arr_handle);
+            ESP_LOGI(TAG, "{==sensor loc==} succesfully commited");
         }
         // Close
         nvs_close(loc_arr_handle);
@@ -437,6 +442,7 @@ char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
         return NULL;
     }
 
+        ESP_LOGI(TAG, "{==sensor loc==} opened");
     // Read the size of the stored string
     size_t required_size = 0;
     err = nvs_get_str(loc_arr_handle, loc_arr_index, NULL, &required_size);
@@ -463,6 +469,7 @@ char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
         return NULL;
     }
 
+    ESP_LOGI(TAG, "{==sensor loc==} succesfully retrieved");
     // Clean up
     nvs_close(loc_arr_handle);
 

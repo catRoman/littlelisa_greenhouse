@@ -66,6 +66,8 @@ esp_netif_t *wifi_init_softap(void)
 {
     esp_netif_t *esp_netif_ap = esp_netif_create_default_wifi_ap();
 
+ //   #ifdef CONFIG_ENABLE_NVS_UPDATE
+
     wifi_config_t wifi_ap_config = {
         .ap = {
             .ssid = ESP_WIFI_AP_MODE_SSID,
@@ -77,6 +79,24 @@ esp_netif_t *wifi_init_softap(void)
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
+    // #else
+    // char *nvs_wifi_ssid = "";
+    // char *nvs_wifi_pass = "";
+
+    // ESP_ERROR_CHECK(nvs_get_wifi_info(&nvs_wifi_ssid, &nvs_wifi_pass));
+
+    // wifi_config_t wifi_ap_config = {
+    //     .ap = {
+    //         .ssid = nvs_wifi_ssid,
+    //         .ssid_len = strlen(nvs_wifi_ssid),
+    //         .ssid_hidden = ESP_AP_MODE_HIDE_SSID,
+    //         .channel = ESP_WIFI_AP_MODE_CHANNEL,
+    //         .password = nvs_wifi_pass,
+    //         .max_connection = 5,
+    //         .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    //     },
+    // };
+    // #endif
 
   // Configure DHCP for the AP
     esp_netif_ip_info_t ap_ip_info;
