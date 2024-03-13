@@ -289,8 +289,8 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
 
         // Serialize sensor_pin_arr
         char pinBuffer[5] = {0}; // Buffer for pin number as string
-        for (int i = 0; i <= module_info_gt->sensor_arr[c]; i++) { 
-            
+        for (int i = 0; i <= module_info_gt->sensor_arr[c]; i++) {
+
             int8ToString(configs[c].sensor_pin_arr[i], pinBuffer);
             strcat(serializedString, pinBuffer);
             strcat(serializedString, ";");
@@ -354,8 +354,8 @@ int8_t stringToInt8(const char* str) {
 
 
 // Deserializes a string to an array of Module_sensor_config_t
-Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int *numConfigs) {
-    int configsCount = 0;
+Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int8_t *numConfigs) {
+    int8_t configsCount = 0;
     char **configsStrings = splitString(serialized, '$', &configsCount);
     Module_sensor_config_t *configs = malloc(sizeof(Module_sensor_config_t) * configsCount);
     if (!configs) return NULL;

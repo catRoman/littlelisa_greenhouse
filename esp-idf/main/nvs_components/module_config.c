@@ -53,7 +53,7 @@ void initiate_config(){
 
 
 
-    
+
 
     //initiate
     nvs_initiate();
@@ -68,7 +68,7 @@ void initiate_config(){
                         CONFIG_SENSOR_MOVEMENT,
                         CONFIG_SENSOR_CAMERA,
                         };
-        #else 
+        #else
         int8_t sensor_arr[SENSOR_LIST_TOTAL] = {0};
     #endif
         //to match sql table id with sensor
@@ -367,30 +367,28 @@ void initiate_config(){
 
         #ifdef CONFIG_MODULE_TYPE_CONTROLLER
 
-            module_info_gt = createModuleInfo(
-                "controller",
-                CONFIG_MODULE_LOCATION,
-                CONFIG_MODULE_IDENTITY,
-                sensor_arr,
-                sensor_config_arr,
-                SENSOR_LIST_TOTAL
-                );
+
+               module_info_gt->type = "controller";
+
 
         #elif CONFIG_MODULE_TYPE_NODE
 
-            module_info_gt = modulecreateModuleInfo(
-                "node"
-                CONFIG_MODULE_LOCATION,
-                CONFIG_MODULE_IDENTITY,
-                &sensor_arr,
-                &sensor_config_arr,
-                SENSOR_LIST_TOTAL
-                );
+
+                module_info_gt->type = "node";
 
         #else
             ESP_LOGE(TAG, "module type not selected, use menuconfig");
            // *module_info_gt = {0};
         #endif
+
+
+            module_info_gt->location = CONFIG_MODULE_LOCATION;
+            module_info_gt->identity = CONFIG_MODULE_IDENTITY;
+            module_info_gt->sensor_arr = sensor_arr;
+            for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
+                module_info_gt->sensor_config_arr[i] = sensor_config_arr[i];
+            }
+
     //TODO: write to nvs
         extern nvs_handle_t nvs_sensor_loc_arr_handle;
  //for debug
@@ -414,7 +412,7 @@ void initiate_config(){
 
     }else{//retrive from nvs only---<--
 
-       
+
 
         module_info_gt = create_module_from_NVS();
 
@@ -535,45 +533,43 @@ void freeModuleSensorConfig(Module_sensor_config_t *config) {
 // Function to create a Module_info_t instance
 Module_info_t *create_module_from_NVS() {
     extern nvs_handle_t nvs_sensor_loc_arr_handle;
-    
-    Module_info_t *temp_module;
-    nvs_get_module_info(temp_module);
-    int 
 
-    Module_info_t *created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
+    Module_info_t *temp_module = NULL;
+    Module_info_t *created_module;
+    nvs_get_module_info(temp_module);
+    int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
+
+    created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
     created_module->type = (char *)malloc(sizeof(char) * strlen(temp_module->type));
     created_module->location = (char *)malloc(sizeof(char) * strlen(temp_module->location));
     created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
-    
-    
-    ESP_ERROR_CHECK(nvs_get_sensor_arr(&temp_module, ));
-
-deserializeModuleSensorConfigArray(
-                retrieve_serialized_string_from_nvs(
-                    nvs_sensor_loc_arr_handle,
-                    NVS_SENSOR_CONFIG_NAMESPACE,
-                    NVS_SENSOR_CONFIG_ARR_INDEX), &count)
 
 
-    if (!info) return NULL;
+    strcpy(created_module->type, temp_module->type);
+    strcpy(created_module->location, temp_module->location);
+    created_module->identity = temp_module->identity;
 
-    info->type = strdup(type);
-    info->location = strdup(location);
-    info->identity = identity;
+    ESP_ERROR_CHECK(nvs_get_sensor_arr(&(created_module->sensor_arr), &sensor_arr_total));
 
-  
-    info->sensor_arr = malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL); 
-    memcpy(info->sensor_arr, sensor_arr, sizeof(int8_t) * (SENSOR_LIST_TOTAL)); 
+    char *derserialized_string =
+        retrieve_serialized_string_from_nvs(nvs_sensor_loc_arr_handle,
+            NVS_SENSOR_CONFIG_NAMESPACE, NVS_SENSOR_CONFIG_ARR_INDEX);
+
+
+    Module_sensor_config_t *temp_sensor_config_arr =
+        deserializeModuleSensorConfigArray(derserialized_string,
+                &sensor_arr_total);
+
 
     // Allocate and initialize sensor_config_arr
-    for (int i = 0; i < numConfigs; i++) {
-        info->sensor_config_arr[i] = *(Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
+    for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
+        created_module->sensor_config_arr[i] = *(Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
+        created_module->sensor_config_arr[i] = temp_sensor_config_arr[i];
     }
 
 
 
-        info->sensor_config_arr[i] = sensor_configs[i]; 
-    return info;
+    return created_module;
 }
 
 // // Function to free a Module_info_t instance
