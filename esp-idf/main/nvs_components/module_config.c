@@ -53,7 +53,14 @@ void initiate_config(){
 
 
 
-    int8_t sensor_arr[SENSOR_LIST_TOTAL] = {
+    
+
+    //initiate
+    nvs_initiate();
+
+    if(UPDATE_NVS){
+        #ifdef CONFIG_ENABLE_NVS_UPDATE
+        int8_t sensor_arr[SENSOR_LIST_TOTAL] = {
                         CONFIG_SENSOR_DHT22,
                         CONFIG_SENSOR_SOIL_MOISTURE,
                         CONFIG_SENSOR_LIGHT,
@@ -61,17 +68,12 @@ void initiate_config(){
                         CONFIG_SENSOR_MOVEMENT,
                         CONFIG_SENSOR_CAMERA,
                         };
-
-    //initiate
-    nvs_initiate();
-
-    if(UPDATE_NVS){
-
-
-
+        #else 
+        int8_t sensor_arr[SENSOR_LIST_TOTAL] = {0};
+    #endif
         //to match sql table id with sensor
         char* dht22_sensor_locations[sensor_arr[DHT22] + SQL_ID_SYNC_VAL];
-            dht22_sensor_locations[0]= "Intentialy Empty";
+            dht22_sensor_locations[0]= "DHT22";
             #ifdef CONFIG_SENSOR_DHT22_1_LOCATION
             dht22_sensor_locations[1]= CONFIG_SENSOR_DHT22_1_LOCATION;
             #endif
@@ -93,7 +95,7 @@ void initiate_config(){
         int8_t dht22_sensor_pin_number[sensor_arr[DHT22] + SQL_ID_SYNC_VAL];
             dht22_sensor_pin_number[0] = 0; //initaly empty
             #ifdef CONFIG_SENSOR_DHT22_1_PIN
-            dht22_sensor_pin_number[1] = (uint8_t)CONFIG_SENSOR_DHT22_1_PIN;
+            dht22_sensor_pin_number[1] = CONFIG_SENSOR_DHT22_1_PIN;
             #endif
             #ifdef CONFIG_SENSOR_DHT22_2_PIN
             dht22_sensor_pin_number[2] = CONFIG_SENSOR_DHT22_2_PIN;
@@ -112,12 +114,12 @@ void initiate_config(){
         createModuleSensorConfig(
                 dht22_sensor_locations,
                 dht22_sensor_pin_number,
-                sensor_arr[DHT22]);
+                sensor_arr[DHT22]+ SQL_ID_SYNC_VAL);
 
 
            //to match sql table id with sensor
         char* soil_moisture_sensor_locations[sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL];
-            soil_moisture_sensor_locations[0] = "Intentialy Empty";
+            soil_moisture_sensor_locations[0] = "SOIL_MOISTURE";
             #ifdef CONFIG_SENSOR_SOIL_MOISTURE_1_LOCATION
             soil_moisture_sensor_locations[1] = CONFIG_SENSOR_SOIL_MOISTURE_1_LOCATION;
             #endif
@@ -160,12 +162,12 @@ void initiate_config(){
         createModuleSensorConfig(
                 soil_moisture_sensor_locations,
                 soil_moisture_sensor_pin_number,
-                sensor_arr[SOIL_MOISTURE]);
+                sensor_arr[SOIL_MOISTURE]+ SQL_ID_SYNC_VAL);
 
 
             //to match sql table id with sensor
         char* light_sensor_locations[sensor_arr[LIGHT] + SQL_ID_SYNC_VAL];
-            light_sensor_locations[0] = "Intentialy Empty";
+            light_sensor_locations[0] = "LIGHT";
             #ifdef CONFIG_SENSOR_LIGHT_1_LOCATION
             light_sensor_locations[1] = CONFIG_SENSOR_LIGHT_1_LOCATION;
             #endif
@@ -207,11 +209,11 @@ void initiate_config(){
         createModuleSensorConfig(
                 light_sensor_locations,
                 light_sensor_pin_number,
-                sensor_arr[LIGHT]);
+                sensor_arr[LIGHT]+ SQL_ID_SYNC_VAL);
 
             //to match sql table id with sensor
         char* sound_sensor_locations[sensor_arr[SOUND] + SQL_ID_SYNC_VAL];
-            sound_sensor_locations[0] = "Intentialy Empty";
+            sound_sensor_locations[0] = "SOUND";
             #ifdef CONFIG_SENSOR_SOUND_1_LOCATION
             sound_sensor_locations[1] = CONFIG_SENSOR_SOUND_1_LOCATION;
             #endif
@@ -253,11 +255,11 @@ void initiate_config(){
         createModuleSensorConfig(
                 sound_sensor_locations,
                 sound_sensor_pin_number,
-                sensor_arr[SOUND]);
+                sensor_arr[SOUND]+ SQL_ID_SYNC_VAL);
 
             //to match sql table id with sensor
         char* movement_sensor_locations[sensor_arr[MOVEMENT] + SQL_ID_SYNC_VAL];
-            movement_sensor_locations[0] = "Intentialy Empty";
+            movement_sensor_locations[0] = "MOVEMENT";
             #ifdef CONFIG_SENSOR_MOVEMENT_1_LOCATION
             movement_sensor_locations[1] = CONFIG_SENSOR_MOVEMENT_1_LOCATION;
             #endif
@@ -299,11 +301,11 @@ void initiate_config(){
         createModuleSensorConfig(
                 movement_sensor_locations,
                 movement_sensor_pin_number,
-                sensor_arr[MOVEMENT]);
+                sensor_arr[MOVEMENT]+ SQL_ID_SYNC_VAL);
 
             //to match sql table id with sensor
         char* camera_sensor_locations[sensor_arr[CAMERA] + SQL_ID_SYNC_VAL];
-            camera_sensor_locations[0] = "Intentialy Empty";
+            camera_sensor_locations[0] = "CAMERA";
             #ifdef CONFIG_SENSOR_CAMERA_1_LOCATION
             camera_sensor_locations[1] = CONFIG_SENSOR_CAMERA_1_LOCATION;
             #endif
@@ -346,7 +348,7 @@ void initiate_config(){
         createModuleSensorConfig(
                 camera_sensor_locations,
                 camera_sensor_pin_number,
-                sensor_arr[CAMERA]
+                sensor_arr[CAMERA]+ SQL_ID_SYNC_VAL
                 );
 
         Module_sensor_config_t sensor_config_arr[SENSOR_LIST_TOTAL];
@@ -387,18 +389,16 @@ void initiate_config(){
 
         #else
             ESP_LOGE(TAG, "module type not selected, use menuconfig");
-            *module_info_gt = {0};
+           // *module_info_gt = {0};
         #endif
     //TODO: write to nvs
         extern nvs_handle_t nvs_sensor_loc_arr_handle;
-        printf("char size: %d\n serialized: %s", sizeof(serializeModuleSensorConfigArray(
-                sensor_config_arr,
-                SENSOR_LIST_TOTAL
-            )), serializeModuleSensorConfigArray(
+ //for debug
+        /*printf("serialized: %s\n", serializeModuleSensorConfigArray(
                 sensor_config_arr,
                 SENSOR_LIST_TOTAL
             ));
-
+*/
 
         nvs_set_module(module_info_gt->type,module_info_gt->location,module_info_gt->identity);
         nvs_set_sensor_arr(module_info_gt->sensor_arr,SENSOR_LIST_TOTAL);
@@ -414,39 +414,15 @@ void initiate_config(){
 
     }else{//retrive from nvs only---<--
 
-        extern nvs_handle_t nvs_sensor_loc_arr_handle;
-        int count = SENSOR_LIST_TOTAL;
-        Module_info_t *temp_module = NULL;
-        ESP_ERROR_CHECK(nvs_get_module_info(temp_module));
+       
 
-        module_info_gt = createModuleInfo(
-            temp_module->type,
-            temp_module->location,
-            temp_module->identity,
-            sensor_arr,
-            deserializeModuleSensorConfigArray(
-                retrieve_serialized_string_from_nvs(
-                    nvs_sensor_loc_arr_handle,
-                    NVS_SENSOR_CONFIG_NAMESPACE,
-                    NVS_SENSOR_CONFIG_ARR_INDEX), &count),
-            SENSOR_LIST_TOTAL);
+        module_info_gt = create_module_from_NVS();
 
-        printf("hi :-)\n");
+        printf("hi from nvs :-)\n");
     }
 
-    ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
 
-
-
-
-
-
-
-
-
-
-
-
+        ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
         // Start Wifi
         wifi_start();
 
@@ -465,8 +441,8 @@ void initiate_config(){
 
         //common to both node and controller
         ESP_LOGI(TAG, "Starting common services");
-        initiate_sensor_queue();
-        initiate_sensor_tasks();
+        //initiate_sensor_queue();
+        //initiate_sensor_tasks();
         esp_now_comm_start();
 
 
@@ -479,10 +455,10 @@ void initiate_sensor_tasks(){
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
 
             sensor_data_t sensor_data={
-                    .pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id],
+                    .pin_number = module_info_gt->sensor_config_arr[sensor_type].sensor_pin_arr[sensor_id],
                     .sensor_type = sensor_type,
                     .total_values = module_info_gt->sensor_arr[sensor_type],
-                    .location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id],
+                    .location = module_info_gt->sensor_config_arr[sensor_type].sensor_loc_arr[sensor_id],
                     .local_sensor_id = sensor_id,
                     .module_id = module_info_gt->identity,
                     .timestamp = 0,
@@ -557,43 +533,62 @@ void freeModuleSensorConfig(Module_sensor_config_t *config) {
 }
 
 // Function to create a Module_info_t instance
-Module_info_t *createModuleInfo(char *type, char *location, int8_t identity, int8_t *sensor_arr, Module_sensor_config_t **sensor_configs, int numConfigs) {
-    Module_info_t *info = malloc(sizeof(Module_info_t));
+Module_info_t *create_module_from_NVS() {
+    extern nvs_handle_t nvs_sensor_loc_arr_handle;
+    
+    Module_info_t *temp_module;
+    nvs_get_module_info(temp_module);
+    int 
+
+    Module_info_t *created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
+    created_module->type = (char *)malloc(sizeof(char) * strlen(temp_module->type));
+    created_module->location = (char *)malloc(sizeof(char) * strlen(temp_module->location));
+    created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
+    
+    
+    ESP_ERROR_CHECK(nvs_get_sensor_arr(&temp_module, ));
+
+deserializeModuleSensorConfigArray(
+                retrieve_serialized_string_from_nvs(
+                    nvs_sensor_loc_arr_handle,
+                    NVS_SENSOR_CONFIG_NAMESPACE,
+                    NVS_SENSOR_CONFIG_ARR_INDEX), &count)
+
+
     if (!info) return NULL;
 
     info->type = strdup(type);
     info->location = strdup(location);
     info->identity = identity;
 
-    // Assuming sensor_arr is properly terminated or sized
-    // For demonstration, let's assume it's NULL terminated or fixed size is known
-    int numSensors;
-    for (numSensors = 0; sensor_arr && sensor_arr[numSensors] != -1; numSensors++); // Count sensors
-    info->sensor_arr = malloc(sizeof(int8_t) * (numSensors + 1)); // +1 for sentinel
-    memcpy(info->sensor_arr, sensor_arr, sizeof(int8_t) * (numSensors + 1)); // Copy including sentinel
+  
+    info->sensor_arr = malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL); 
+    memcpy(info->sensor_arr, sensor_arr, sizeof(int8_t) * (SENSOR_LIST_TOTAL)); 
 
     // Allocate and initialize sensor_config_arr
-    info->sensor_config_arr = malloc(sizeof(Module_sensor_config_t *) * numConfigs);
     for (int i = 0; i < numConfigs; i++) {
-        info->sensor_config_arr[i] = sensor_configs[i]; // Assume sensor_configs are already created
+        info->sensor_config_arr[i] = *(Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
     }
 
+
+
+        info->sensor_config_arr[i] = sensor_configs[i]; 
     return info;
 }
 
-// Function to free a Module_info_t instance
-void freeModuleInfo(Module_info_t *info) {
-    if (!info) return;
+// // Function to free a Module_info_t instance
+// void freeModuleInfo(Module_info_t *info) {
+//     if (!info) return;
 
-    free(info->type);
-    free(info->location);
-    free(info->sensor_arr);
+//     free(info->type);
+//     free(info->location);
+//     free(info->sensor_arr);
 
-    // Free each Module_sensor_config_t in the array
-    for (int i = 0; info->sensor_config_arr && info->sensor_config_arr[i] != NULL; i++) {
-        freeModuleSensorConfig(info->sensor_config_arr[i]);
-    }
-    free(info->sensor_config_arr); // Free the array of pointers
+//     // Free each Module_sensor_config_t in the array
+//     for (int i = 0; info->sensor_config_arr && info->sensor_config_arr[i] != NULL; i++) {
+//         freeModuleSensorConfig(info->sensor_config_arr[i]);
+//     }
+//     free(info->sensor_config_arr); // Free the array of pointers
 
-    free(info); // Free the struct itself
-}
+//     free(info); // Free the struct itself
+// }
