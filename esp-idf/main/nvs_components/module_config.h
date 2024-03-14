@@ -31,10 +31,4 @@ Module_info_t *create_module_from_NVS(void);
 
 void freeModuleInfo(Module_info_t *info);
 
-Module_info_t *create_module_from_config(char *type,
-        char *location, 
-        int8_t identity, 
-        int8_t *sensor_arr, 
-        Module_sensor_config_t *sensor_config_arr);
-
 #endif
