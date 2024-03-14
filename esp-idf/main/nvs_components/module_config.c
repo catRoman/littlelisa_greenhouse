@@ -368,13 +368,11 @@ void initiate_config(){
         #ifdef CONFIG_MODULE_TYPE_CONTROLLER
 
 
-               module_info_gt->type = "controller";
-
-
+            module_info_gt = create_module_from_config("controller", CONFIG_MODULE_LOCATION, CONFIG_MODULE_IDENTITY, sensor_arr, sensor_config_arr);
         #elif CONFIG_MODULE_TYPE_NODE
 
+            module_info_gt = create_module_from_config("node", CONFIG_MODULE_LOCATION, CONFIG_MODULE_IDENTITY, sensor_arr, sensor_config_arr);
 
-                module_info_gt->type = "node";
 
         #else
             ESP_LOGE(TAG, "module type not selected, use menuconfig");
@@ -382,12 +380,7 @@ void initiate_config(){
         #endif
 
 
-            module_info_gt->location = CONFIG_MODULE_LOCATION;
-            module_info_gt->identity = CONFIG_MODULE_IDENTITY;
-            module_info_gt->sensor_arr = sensor_arr;
-            for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
-                module_info_gt->sensor_config_arr[i] = sensor_config_arr[i];
-            }
+            
 
     //TODO: write to nvs
         extern nvs_handle_t nvs_sensor_loc_arr_handle;
@@ -568,6 +561,40 @@ Module_info_t *create_module_from_NVS() {
     }
 
 
+
+    return created_module;
+}
+
+
+// Function to create a Module_info_t instance
+Module_info_t *create_module_from_config(char *type,
+        char *location, 
+        int8_t identity, 
+        int8_t *sensor_arr, 
+        Module_sensor_config_t *sensor_config_arr) {
+
+    Module_info_t *created_module;
+    
+    int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
+
+    created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
+    created_module->type = (char *)malloc(sizeof(char) * strlen(type));
+    created_module->location = (char *)malloc(sizeof(char) * strlen(location));
+    created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
+
+
+    strcpy(created_module->type, type);
+    strcpy(created_module->location, location);
+    created_module->identity = identity;
+
+    ESP_ERROR_CHECK(nvs_get_sensor_arr(&(created_module->sensor_arr), &sensor_arr_total));
+
+
+    // Allocate and initialize sensor_config_arr
+    for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
+        created_module->sensor_config_arr[i] = *(Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
+        created_module->sensor_config_arr[i] = sensor_config_arr[i];
+    }
 
     return created_module;
 }

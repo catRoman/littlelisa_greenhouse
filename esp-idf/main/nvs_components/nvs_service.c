@@ -306,9 +306,9 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
     return serializedString;
 }
 
-char** splitString(const char* str, char delimiter, int* count) {
+char** splitString(const char* str, char delimiter, int8_t* count) {
     char **result = 0;
-    int count_i = 0;
+    int8_t count_i = 0;
     char* tmp = (char*)str;
     char* last_comma = 0;
     char delim[2];
@@ -361,12 +361,12 @@ Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialize
     if (!configs) return NULL;
 
     for (int i = 0; i < configsCount; i++) {
-        int partsCount = 0;
+        int8_t partsCount = 0;
         char **parts = splitString(configsStrings[i], '|', &partsCount);
         if (partsCount != 2) continue; // Error handling
 
         // Deserialize sensor_loc_arr
-        int locCount = 0;
+        int8_t locCount = 0;
         char **locations = splitString(parts[0], ';', &locCount);
         configs[i].sensor_loc_arr = malloc(sizeof(char*) * (locCount + 1));
         for (int loc = 0; loc < locCount; loc++) {
@@ -375,7 +375,7 @@ Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialize
         configs[i].sensor_loc_arr[locCount] = NULL;
 
         // Deserialize sensor_pin_arr
-        int pinCount = 0;
+        int8_t pinCount = 0;
         char **pins = splitString(parts[1], ';', &pinCount);
         configs[i].sensor_pin_arr = malloc(sizeof(int8_t) * (pinCount + 1));
         for (int pin = 0; pin < pinCount; pin++) {
