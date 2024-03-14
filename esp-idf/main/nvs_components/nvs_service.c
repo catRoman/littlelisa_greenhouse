@@ -121,7 +121,7 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
     }
     //printf("mod info size %d\n", sizeof(module_type_required_size));
 
-    module_info->type = malloc(module_type_required_size);
+    module_info->type = (char *)malloc(module_type_required_size);
     if (module_info->type == NULL) {
         // Handle memory allocation failure
         ESP_LOGE(TAG, "Memory allocation failed- module type\n");

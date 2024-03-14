@@ -527,20 +527,20 @@ void freeModuleSensorConfig(Module_sensor_config_t *config) {
 Module_info_t *create_module_from_NVS() {
     extern nvs_handle_t nvs_sensor_loc_arr_handle;
 
-    Module_info_t *temp_module = NULL;
+    Module_info_t temp_module = {0};
     Module_info_t *created_module;
-    nvs_get_module_info(temp_module);
+    nvs_get_module_info(&temp_module);
     int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
 
     created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
-    created_module->type = (char *)malloc(sizeof(char) * strlen(temp_module->type));
-    created_module->location = (char *)malloc(sizeof(char) * strlen(temp_module->location));
+    created_module->type = (char *)malloc(sizeof(char) * strlen(temp_module.type));
+    created_module->location = (char *)malloc(sizeof(char) * strlen(temp_module.location));
     created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
 
 
-    strcpy(created_module->type, temp_module->type);
-    strcpy(created_module->location, temp_module->location);
-    created_module->identity = temp_module->identity;
+    strcpy(created_module->type, temp_module.type);
+    strcpy(created_module->location, temp_module.location);
+    created_module->identity = temp_module.identity;
 
     ESP_ERROR_CHECK(nvs_get_sensor_arr(&(created_module->sensor_arr), &sensor_arr_total));
 
@@ -553,15 +553,24 @@ Module_info_t *create_module_from_NVS() {
         deserializeModuleSensorConfigArray(derserialized_string,
                 &sensor_arr_total);
 
+    printf(sizeof(temp))
+
 
     // Allocate and initialize sensor_config_arr
     for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
-        created_module->sensor_config_arr[i] = *(Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
-        created_module->sensor_config_arr[i] = temp_sensor_config_arr[i];
+        // created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
+        // created_module->sensor_config_arr[i] = temp_sensor_config_arr[i];
+//        printf("%s/n",temp_sensor_config_arr->sensor_loc_arr[0]);
+        for(int j = 1; j < temp_sensor_config_arr->total_sensor; j++){
+            printf("\tloc: %s\tPin: %d\n",temp_sensor_config_arr->sensor_loc_arr[j], temp_sensor_config_arr->sensor_pin_arr[j] );
+        }
+        printf("\n");
     }
 
 
-
+    free(temp_module.type);
+    free(temp_module.location);
+    
     return created_module;
 }
 
