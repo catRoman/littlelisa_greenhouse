@@ -306,6 +306,14 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
     return serializedString;
 }
 
+
+
+
+// Helper function to convert a string to int8_t
+int8_t stringToInt8(const char* str) {
+    return (int8_t)atoi(str);
+}
+
 char** splitString(const char* str, char delimiter, int8_t* count) {
     char **result = 0;
     int8_t count_i = 0;
@@ -347,18 +355,14 @@ char** splitString(const char* str, char delimiter, int8_t* count) {
     return result;
 }
 
-// Helper function to convert a string to int8_t
-int8_t stringToInt8(const char* str) {
-    return (int8_t)atoi(str);
-}
-
-
 // Deserializes a string to an array of Module_sensor_config_t
 Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int8_t *numConfigs) {
     int8_t configsCount = 0;
     char **configsStrings = splitString(serialized, '$', &configsCount);
     Module_sensor_config_t *configs = malloc(sizeof(Module_sensor_config_t) * configsCount);
-    if (!configs) return NULL;
+    if (!configs) {
+        printf("mem allocation failed configs");
+    }return NULL;
 
     for (int i = 0; i < configsCount; i++) {
         int8_t partsCount = 0;
@@ -399,6 +403,7 @@ Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialize
     *numConfigs = configsCount;
     return configs;
 }
+
 
 
 esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
