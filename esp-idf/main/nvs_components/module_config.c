@@ -553,7 +553,7 @@ Module_info_t *create_module_from_NVS() {
         deserializeModuleSensorConfigArray(derserialized_string,
                 &sensor_arr_total);
 
-    printf(sizeof(temp))
+    
 
 
     // Allocate and initialize sensor_config_arr
