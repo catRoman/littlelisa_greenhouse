@@ -380,7 +380,7 @@ void initiate_config(){
         #endif
 
 
-            
+
 
     //TODO: write to nvs
         extern nvs_handle_t nvs_sensor_loc_arr_handle;
@@ -420,7 +420,7 @@ void initiate_config(){
         if (strcmp(module_info_gt->type, "controller") == 0) {
             ESP_LOGI(TAG, "Starting Controller only services");
             //sd and db_init
-            spi_sd_card_init();
+            //spi_sd_card_init();
             //sd_db_init();
         } else if(strcmp(module_info_gt->type, "node") == 0){
             ESP_LOGI(TAG, "Starting Node only services");
@@ -544,16 +544,18 @@ Module_info_t *create_module_from_NVS() {
 
     ESP_ERROR_CHECK(nvs_get_sensor_arr(&(created_module->sensor_arr), &sensor_arr_total));
 
-    char *derserialized_string =
+    char *deserialized_string =
         retrieve_serialized_string_from_nvs(nvs_sensor_loc_arr_handle,
             NVS_SENSOR_CONFIG_NAMESPACE, NVS_SENSOR_CONFIG_ARR_INDEX);
 
+    //prevent optimizing out string for debug
+    ESP_LOGI(TAG, "deserialized string: %s", deserialized_string);
 
     Module_sensor_config_t *temp_sensor_config_arr =
-        deserializeModuleSensorConfigArray(derserialized_string,
+        deserializeModuleSensorConfigArray(deserialized_string,
                 &sensor_arr_total);
 
-    
+
 
 
     // Allocate and initialize sensor_config_arr
@@ -570,20 +572,20 @@ Module_info_t *create_module_from_NVS() {
 
     free(temp_module.type);
     free(temp_module.location);
-    
+
     return created_module;
 }
 
 
 // Function to create a Module_info_t instance
 Module_info_t *create_module_from_config(char *type,
-        char *location, 
-        int8_t identity, 
-        int8_t *sensor_arr, 
+        char *location,
+        int8_t identity,
+        int8_t *sensor_arr,
         Module_sensor_config_t *sensor_config_arr) {
 
     Module_info_t *created_module;
-    
+
     int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
 
     created_module = (Module_info_t *)malloc(sizeof(Module_info_t));

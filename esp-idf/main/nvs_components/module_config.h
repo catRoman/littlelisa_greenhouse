@@ -14,7 +14,7 @@ typedef struct Module_info_t{
     char *location;
     int8_t identity;
     int8_t *sensor_arr;
-    Module_sensor_config_t sensor_config_arr[SENSOR_LIST_TOTAL];
+    Module_sensor_config_t *sensor_config_arr;
 
 }Module_info_t;
 
