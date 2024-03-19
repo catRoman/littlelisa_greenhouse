@@ -315,44 +315,44 @@ int8_t stringToInt8(const char* str) {
 }
 
 char** splitString(const char* str, char delimiter, int8_t* count) {
-    char **result = 0;
-    int8_t count_i = 0;
-    char* tmp = (char*)str;
-    char* last_comma = 0;
-    char delim[2];
-    delim[0] = delimiter;
-    delim[1] = 0;
+    int substrings_count = 1;  // Initialize to 1 for the case when the input string is empty
+    const char* ptr = str;
 
-    // Count how many elements will be extracted
-    while (*tmp) {
-        if (delimiter == *tmp) {
-            count++;
-            last_comma = tmp;
+    // Count the number of substrings
+    while (*ptr != '\0') {
+        if (*ptr == delimiter) {
+            substrings_count++;
         }
-        tmp++;
+        ptr++;
     }
 
-    // Add space for trailing token
-    count_i += last_comma < (str + strlen(str) - 1);
-
-    // Add space for terminating null string
-    count++;
-
-    result = malloc(sizeof(char*) * *count);
-
-    if (result) {
-        size_t idx = 0;
-        char* token = strtok((char*)str, delim);
-
-        while (token) {
-            *(result + idx++) = strdup(token);
-            token = strtok(0, delim);
-        }
-        *(result + idx) = 0;
+    // Allocate memory for the array of strings
+    char** substrings = (char**)malloc(substrings_count * sizeof(char*));
+    if (substrings == NULL) {
+        *count = -1;  // Memory allocation failure
+        return NULL;
     }
 
-    *count = count_i - 1;
-    return result;
+    // Copy substrings into the array
+    int substring_index = 0;
+    char* token = strtok((char*)str, &delimiter);
+    while (token != NULL) {
+        substrings[substring_index] = strdup(token);  // Duplicate the token
+        if (substrings[substring_index] == NULL) {
+            *count = -1;  // Memory allocation failure
+            // Free memory allocated so far
+            for (int i = 0; i < substring_index; i++) {
+                free(substrings[i]);
+            }
+            free(substrings);
+            return NULL;
+        }
+        substring_index++;
+        token = strtok(NULL, &delimiter);
+    }
+
+    *count = substrings_count;
+    return substrings;
 }
 
 // Deserializes a string to an array of Module_sensor_config_t
