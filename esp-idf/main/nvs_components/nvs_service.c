@@ -354,54 +354,21 @@ char** splitString(const char* str, char delimiter, int8_t* count) {
     *count = substrings_count;
     return substrings;
 }
-
+//deserialized string example:
+//DHT22;Unknown25;Unknown26;Unknown33|0;25;26;33$SOIL_MOISTURE|0$LIGHT|0$SOUND|0$MOVEMENT|0$CAMERA|0
+//seperate each sensors  by $
+//seperate that by |
 // Deserializes a string to an array of Module_sensor_config_t
-Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int8_t *numConfigs) {
-    int8_t configsCount = 0;
-    char **configsStrings = splitString(serialized, '$', &configsCount);
-    Module_sensor_config_t *configs = malloc(sizeof(Module_sensor_config_t) * configsCount);
-    if (!configs) {
-        printf("mem allocation failed configs");
-    }return NULL;
 
-    for (int i = 0; i < configsCount; i++) {
-        int8_t partsCount = 0;
-        char **parts = splitString(configsStrings[i], '|', &partsCount);
-        if (partsCount != 2) continue; // Error handling
+Module_sensor_config_t* deserializeModuleSensorConfigArray(char *serialized_string, int8_t numConfigs) {
 
-        // Deserialize sensor_loc_arr
-        int8_t locCount = 0;
-        char **locations = splitString(parts[0], ';', &locCount);
-        configs[i].sensor_loc_arr = malloc(sizeof(char*) * (locCount + 1));
-        for (int loc = 0; loc < locCount; loc++) {
-            configs[i].sensor_loc_arr[loc] = strdup(locations[loc]);
-        }
-        configs[i].sensor_loc_arr[locCount] = NULL;
+    //mem for array
+    Module_sensor_config_t *sensor_config_arr = (Module_sensor_config_t*)malloc(sizeof(Module_sensor_config_t) * numConfigs);
+    //parse string
+    for(int i = 0; i < numConfigs; i++){
 
-        // Deserialize sensor_pin_arr
-        int8_t pinCount = 0;
-        char **pins = splitString(parts[1], ';', &pinCount);
-        configs[i].sensor_pin_arr = malloc(sizeof(int8_t) * (pinCount + 1));
-        for (int pin = 0; pin < pinCount; pin++) {
-            configs[i].sensor_pin_arr[pin] = (int8_t)atoi(pins[pin]);
-        }
-        configs[i].sensor_pin_arr[pinCount] = -1; // Assuming -1 as end marker
-
-        // Free temporary arrays
-        for (int j = 0; j < locCount; j++) free(locations[j]);
-        free(locations);
-        for (int j = 0; j < pinCount; j++) free(pins[j]);
-        free(pins);
-        free(parts[0]);
-        free(parts[1]);
-        free(parts);
     }
 
-    for (int i = 0; i < configsCount; i++) free(configsStrings[i]);
-    free(configsStrings);
-
-    *numConfigs = configsCount;
-    return configs;
 }
 
 
