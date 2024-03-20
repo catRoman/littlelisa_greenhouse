@@ -258,12 +258,6 @@ void nvs_erase(void){
 }
 
 
-/**
- *
-*/
-
-#define SERIAL_DELIMITER ";"
-
 void int8ToString(int8_t num, char *str) {
     sprintf(str, "%d", num);
 }
@@ -307,71 +301,97 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
 }
 
 
+Module_sensor_config_t **deserialize_string(char* serialized_string, int8_t numSensors){
 
+    int8_t outer = 0;
+    int8_t inner = 0;
+    int8_t final = 0;
 
-// Helper function to convert a string to int8_t
-int8_t stringToInt8(const char* str) {
-    return (int8_t)atoi(str);
-}
+    char ** serialized_sensor_str_arr = splits_string('$', serialized_string, &outer);
+    Module_sensor_config_t **sensor_config_arr = (Module_sensor_config_t**)malloc(sizeof(Module_sensor_config_t) * outer);
 
-char** splitString(const char* str, char delimiter, int8_t* count) {
-    int substrings_count = 1;  // Initialize to 1 for the case when the input string is empty
-    const char* ptr = str;
+    for(int i =0; i < numSensors; i++){
+       //printf("count: %d\n",count[i]);
+       // printf("%s\n", serialized_sensor_str_arr[i]); //prints whole sensor serialized
+        sensor_config_arr[i] = (Module_sensor_config_t*)malloc(sizeof(Module_sensor_config_t)); //sensor config struct
+        char ** serialized_split_loc = splits_string('|', serialized_sensor_str_arr[i], &inner);
+        for(int j =0; j < inner; j++){
+          //  printf("\t%s\n", serialized_split_loc[j]); //prints locationcombined with pin num serialized
+            char ** serialized_split_arr_data = splits_string(';', serialized_split_loc[j], &final);
+            if(j==0){
+            sensor_config_arr[i]->sensor_loc_arr = (char**)malloc(sizeof(char*) * final);
+            sensor_config_arr[i]->sensor_pin_arr = (int8_t*)malloc(sizeof(int8_t) * final);
+            sensor_config_arr[i]->total_sensor = final;
+            }
+            for(int k =0; k < final; k++){
+                //printf("\t%s\n", serialized_split_arr_data[k]); //prints the values, first loc then pin
+                if(j < 1){
+                    sensor_config_arr[i]->sensor_loc_arr[k] = (char*)malloc(sizeof(char) * strlen(serialized_split_arr_data[k])+ 1);
+                    strcpy(sensor_config_arr[i]->sensor_loc_arr[k], serialized_split_arr_data[k]);
+                }else{
+                    sensor_config_arr[i]->sensor_pin_arr[k] = (int8_t)atoi(serialized_split_arr_data[k]);
+                }
 
-    // Count the number of substrings
-    while (*ptr != '\0') {
-        if (*ptr == delimiter) {
-            substrings_count++;
+                free(serialized_split_arr_data[k]);
+            }
+            free(serialized_split_loc[j]);
+            free(serialized_split_arr_data);
         }
-        ptr++;
+        free(serialized_sensor_str_arr[i]);
+        free(serialized_split_loc);
     }
+    free(serialized_sensor_str_arr);
 
-    // Allocate memory for the array of strings
-    char** substrings = (char**)malloc(substrings_count * sizeof(char*));
-    if (substrings == NULL) {
-        *count = -1;  // Memory allocation failure
+
+
+    return sensor_config_arr;
+}
+ char ** splits_string(char delim, char * serialized_string, int8_t *numStrings){
+
+    int8_t split_count = 1;    //acount fo odd number of string to delim
+
+    for(int i = 0; i < strlen(serialized_string); i++){
+        if(serialized_string[i] == delim){
+            split_count++;
+        }
+    }
+    *numStrings = split_count;
+
+
+    char **serialized_sensor_str_arr = (char**)malloc(sizeof(char *) * split_count);
+    if(serialized_sensor_str_arr == NULL){
+        puts("Memory alloaction error of serialized str arr");
         return NULL;
     }
 
-    // Copy substrings into the array
-    int substring_index = 0;
-    char* token = strtok((char*)str, &delimiter);
-    while (token != NULL) {
-        substrings[substring_index] = strdup(token);  // Duplicate the token
-        if (substrings[substring_index] == NULL) {
-            *count = -1;  // Memory allocation failure
-            // Free memory allocated so far
-            for (int i = 0; i < substring_index; i++) {
-                free(substrings[i]);
+
+    //determine string size and alloact memory
+    int j = 0, k = 0, start_index = 0;
+    for(int i =0; i < strlen(serialized_string) + 1; i++){
+        if(serialized_string[i] == '\0'){
+
+            serialized_sensor_str_arr[j] = (char*)malloc(sizeof(char) * (k + 1));
+
+            memcpy(serialized_sensor_str_arr[j], &serialized_string[start_index ], (k*sizeof(char)));
+            serialized_sensor_str_arr[j][k] = '\0';
+        }else if(serialized_string[i] == delim){
+
+                serialized_sensor_str_arr[j] = (char*)malloc(sizeof(char) * (k + 1));
+                memcpy(serialized_sensor_str_arr[j], &serialized_string[start_index ], (k*sizeof(char)));
+                serialized_sensor_str_arr[j][k] = '\0';
+
+                start_index += k+1;
+                k = 0;
+                j++;
+                continue;
+
             }
-            free(substrings);
-            return NULL;
-        }
-        substring_index++;
-        token = strtok(NULL, &delimiter);
-    }
-
-    *count = substrings_count;
-    return substrings;
-}
-//deserialized string example:
-//DHT22;Unknown25;Unknown26;Unknown33|0;25;26;33$SOIL_MOISTURE|0$LIGHT|0$SOUND|0$MOVEMENT|0$CAMERA|0
-//seperate each sensors  by $
-//seperate that by |
-// Deserializes a string to an array of Module_sensor_config_t
-
-Module_sensor_config_t* deserializeModuleSensorConfigArray(char *serialized_string, int8_t numConfigs) {
-
-    //mem for array
-    Module_sensor_config_t *sensor_config_arr = (Module_sensor_config_t*)malloc(sizeof(Module_sensor_config_t) * numConfigs);
-    //parse string
-    for(int i = 0; i < numConfigs; i++){
+        k++;
 
     }
 
-}
-
-
+    return serialized_sensor_str_arr;
+ }
 
 esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
     nvs_handle_t loc_arr_handle,
