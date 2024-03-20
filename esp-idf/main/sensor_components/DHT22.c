@@ -136,7 +136,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 
 	extern QueueHandle_t sensor_queue_handle;
 	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-			ESP_LOGI(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
+			ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
 		}else{
 			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
 		}
@@ -152,22 +152,22 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 
 void errorHandler(int response, sensor_data_t *sensor_t)
 {
-	switch(response) {
+	// switch(response) {
 
-		case DHT_TIMEOUT_ERROR :
-			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
-			break;
+	// 	case DHT_TIMEOUT_ERROR :
+	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
+	// 		break;
 
-		case DHT_CHECKSUM_ERROR:
-			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
-			break;
+	// 	case DHT_CHECKSUM_ERROR:
+	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
+	// 		break;
 
-		case DHT_OK:
-			break;
+	// 	case DHT_OK:
+	// 		break;
 
-		default :
-			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
-	}
+	// 	default :
+	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
+	// }
 }
 
 /*-------------------------------------------------------------------------------
@@ -361,7 +361,7 @@ void DHT22_task(void *vpParameter)
 	sensor_t->value = values;
 
 
-	gpio_set_direction((gpio_num_t)sensor_t->pin_number, GPIO_MODE_INPUT);
+	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
 	esp_rom_delay_us( 100 );
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
