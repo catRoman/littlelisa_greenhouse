@@ -105,7 +105,7 @@ char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
 
 void int8ToString(int8_t num, char *str);
 
-char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numConfigs);
+char* serializeModuleSensorConfigArray(Module_sensor_config_t **configs, int numConfigs);
 
 Module_sensor_config_t **deserialize_string(char* serialized_string, int8_t numSensors);
 int8_t stringToInt8(const char* str);

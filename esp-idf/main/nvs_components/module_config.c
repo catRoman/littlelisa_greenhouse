@@ -351,14 +351,14 @@ void initiate_config(){
                 sensor_arr[CAMERA]+ SQL_ID_SYNC_VAL
                 );
 
-        Module_sensor_config_t sensor_config_arr[SENSOR_LIST_TOTAL];
+        Module_sensor_config_t **sensor_config_arr=(Module_sensor_config_t**)malloc(sizeof(Module_sensor_config_t*)*SENSOR_LIST_TOTAL);
 
-        sensor_config_arr[DHT22] = *dht22_sensor_config;
-        sensor_config_arr[SOIL_MOISTURE] = *soil_moisture_sensor_config;
-        sensor_config_arr[LIGHT] = *light_sensor_config;
-        sensor_config_arr[SOUND] = *sound_sensor_config;
-        sensor_config_arr[MOVEMENT] = *movement_sensor_config;
-        sensor_config_arr[CAMERA] = *camera_sensor_config;
+        sensor_config_arr[DHT22] = dht22_sensor_config;
+        sensor_config_arr[SOIL_MOISTURE] = soil_moisture_sensor_config;
+        sensor_config_arr[LIGHT] = light_sensor_config;
+        sensor_config_arr[SOUND] = sound_sensor_config;
+        sensor_config_arr[MOVEMENT] = movement_sensor_config;
+        sensor_config_arr[CAMERA] = camera_sensor_config;
 
 
 
@@ -488,25 +488,23 @@ void initiate_sensor_tasks(){
 
 }
 
-//TODO:rewrite
+
 Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins, int numLocations) {
-    Module_sensor_config_t *config = malloc(sizeof(Module_sensor_config_t));
-    if (!config) return NULL;
+    Module_sensor_config_t *sensor_config = malloc(sizeof(Module_sensor_config_t));
+    if (!sensor_config) return NULL;
 
-    // Allocate and initialize sensor_loc_arr
-    config->sensor_loc_arr = malloc(sizeof(char *) * (numLocations + 1)); // +1 for NULL terminator
-    for (int i = 0; i < numLocations; i++) {
-        config->sensor_loc_arr[i] = strdup(locations[i]);
-    }
-    config->sensor_loc_arr[numLocations] = NULL; // NULL terminate the array
+    // Allocate and initialize sensor_config_arr
 
-    // Assuming pins array is properly terminated with a sentinel value, e.g., -1
-    int numPins;
-    for (numPins = 0; pins[numPins] != -1; numPins++); // Count pins
-    config->sensor_pin_arr = malloc(sizeof(int8_t) * (numPins + 1)); // +1 for sentinel
-    memcpy(config->sensor_pin_arr, pins, sizeof(int8_t) * (numPins + 1)); // Copy including sentinel
+    sensor_config->sensor_loc_arr = (char **)malloc(sizeof(char *) * numLocations);
+    sensor_config->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * numLocations);
+        for(int j = 0; j < numLocations; j++){
+            sensor_config->sensor_loc_arr[j] = (char *)malloc(sizeof(char) * (strlen(locations[j]) + 1));
+            strcpy(sensor_config->sensor_loc_arr[j], locations[j]);
 
-    return config;
+            sensor_config->sensor_pin_arr[j] = pins[j];
+        }
+
+   return sensor_config;
 }
 
 // Function to free a Module_sensor_config_t instance
@@ -573,7 +571,7 @@ Module_info_t *create_module_from_config(char *type,
 
     Module_info_t *created_module;
 
-    int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
+    //int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
 
     created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
     created_module->type = (char *)malloc(sizeof(char) * strlen(type));
@@ -588,21 +586,24 @@ Module_info_t *create_module_from_config(char *type,
     for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
         created_module->sensor_arr[i] = sensor_arr[i];
     }
-
-    created_module->sensor_config_arr = (Module_sensor_config_t**)malloc(sizeof(Module_sensor_config_t*) * SENSOR_LIST_TOTAL);
+    created_module->sensor_config_arr = sensor_config_arr;
+    // created_module->sensor_config_arr = (Module_sensor_config_t**)malloc(sizeof(Module_sensor_config_t*) * SENSOR_LIST_TOTAL);
     // Allocate and initialize sensor_config_arr
-    for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
-        created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
-        created_module->sensor_config_arr[i]->total_sensor = sensor_config_arr[i]->total_sensor;
-        created_module->sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * sensor_config_arr[i]->total_sensor);
-        created_module->sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * sensor_config_arr[i]->total_sensor);
-        for(int j = 0; j < sensor_config_arr[i]->total_sensor; j++){
-            created_module->sensor_config_arr[i]->sensor_loc_arr[j] = (char *)malloc(sizeof(char) * (strlen(sensor_config_arr[i]->sensor_loc_arr[j]) + 1));
-            strcpy(created_module->sensor_config_arr[i]->sensor_loc_arr[j], sensor_config_arr[i]->sensor_loc_arr[j]);
+    // for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
+    //     created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
+    //     created_module->sensor_config_arr[i]->total_sensor = sensor_config_arr[i]->total_sensor;
+    //     created_module->sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * sensor_config_arr[i]->total_sensor);
+    //     created_module->sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * sensor_config_arr[i]->total_sensor);
+    //     for(int j = 0; j < sensor_config_arr[i]->total_sensor; j++){
+    //         created_module->sensor_config_arr[i]->sensor_loc_arr[j] = (char *)malloc(sizeof(char) * (strlen(sensor_config_arr[i]->sensor_loc_arr[j]) + 1));
+    //         strcpy(created_module->sensor_config_arr[i]->sensor_loc_arr[j], sensor_config_arr[i]->sensor_loc_arr[j]);
 
-            created_module->sensor_config_arr[i]->sensor_pin_arr = sensor_config_arr[i]->sensor_pin_arr[j];
-        }
-    }
+    //         created_module->sensor_config_arr[i]->sensor_pin_arr = sensor_config_arr[i]->sensor_pin_arr[j];
+    //     }
+    // }
+    // for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
+    //     created_module->sensor_config_arr[i] = sensor_config_arr[i];
+    // }
 
 
     return created_module;

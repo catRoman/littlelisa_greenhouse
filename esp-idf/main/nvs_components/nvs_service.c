@@ -262,7 +262,7 @@ void int8ToString(int8_t num, char *str) {
     sprintf(str, "%d", num);
 }
 // Serializes an array of Module_sensor_config_t
-char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numConfigs) {
+char* serializeModuleSensorConfigArray(Module_sensor_config_t **configs, int numConfigs) {
     // Assuming each serialized config is less than 256 characters
     // Adjust the size based on your needs
     extern Module_info_t *module_info_gt;
@@ -274,7 +274,7 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
     for (int c = 0; c < numConfigs; c++) {//loop through sensors
         // Serialize sensor_loc_arr- for each sensor-loop and print location
         for (int i = 0; i <= module_info_gt->sensor_arr[c]; /*sensor list has total num of sensors*/ i++) {
-            strcat(serializedString, configs[c].sensor_loc_arr[i]);
+            strcat(serializedString, configs[c]->sensor_loc_arr[i]);
             strcat(serializedString, ";");
         }
 
@@ -285,7 +285,7 @@ char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numC
         char pinBuffer[5] = {0}; // Buffer for pin number as string
         for (int i = 0; i <= module_info_gt->sensor_arr[c]; i++) {
 
-            int8ToString(configs[c].sensor_pin_arr[i], pinBuffer);
+            int8ToString(configs[c]->sensor_pin_arr[i], pinBuffer);
             strcat(serializedString, pinBuffer);
             strcat(serializedString, ";");
         }
