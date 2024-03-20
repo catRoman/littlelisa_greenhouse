@@ -14,11 +14,13 @@
 #include "network_components/esp_now_comm.h"
 #include "network_components/wifi_ap_sta.h"
 #include "task_common.h"
+#include "esp_system.h"
 
 #include "module_config.h"
 #include "node_info.h"
 #include "nvs_service.h"
 #include "sensor_components/sensor_tasks.h"
+#include "helper.h"
 
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
@@ -432,38 +434,48 @@ void initiate_config(){
 
         //common to both node and controller
         ESP_LOGI(TAG, "Starting common services");
-        //initiate_sensor_queue();
-        //initiate_sensor_tasks();
+        initiate_sensor_queue();
+        initiate_sensor_tasks();
         esp_now_comm_start();
 
 
 }
 
 void initiate_sensor_tasks(){
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    int8_t total_local_sensors = 0;
+    for (int i =0; i < SENSOR_LIST_TOTAL; i++){
+        total_local_sensors += module_info_gt->sensor_arr[i];
+    }
+    sensor_data_t **local_sensor = (sensor_data_t**)malloc(sizeof(sensor_data_t*) * total_local_sensors);
 
     for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
+
         //sensor_id starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
+            local_sensor[sensor_id-1] = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
-            sensor_data_t sensor_data={
-                    .pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id],
-                    .sensor_type = sensor_type,
-                    .total_values = module_info_gt->sensor_arr[sensor_type],
-                    .location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id],
-                    .local_sensor_id = sensor_id,
-                    .module_id = module_info_gt->identity,
-                    .timestamp = 0,
-            };
+
+                    local_sensor[sensor_id-1]->pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
+                    local_sensor[sensor_id-1]->sensor_type = sensor_type;
+                    local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
+                    local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
+                    local_sensor[sensor_id-1]->location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id];
+                    local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
+                    local_sensor[sensor_id-1]->module_id = module_info_gt->identity;
+                    local_sensor[sensor_id-1]->timestamp = 0;
+
 
             switch(sensor_type){
                 case DHT22:
 
 
-	                ESP_LOGI(TAG, "Started Internal DHT22 Sensor: Id: #%d, Location: %s", sensor_id, sensor_data.location);
+	                ESP_LOGI(TAG, "Started Internal DHT22 Sensor: Id: #%d, Location: %s, Pin: #%d", sensor_id, local_sensor[sensor_id-1]->location, local_sensor[sensor_id-1]->pin_number);
                     char sensor_task_name[20];
                     //TODO: add internal keyword to taskname
-                    snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", sensor_data.local_sensor_id);
-                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&sensor_data, DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+                    snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", local_sensor[sensor_id-1]->local_sensor_id);
+                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&local_sensor[sensor_id -1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+                    if(sensor_id == 3)trigger_panic();
                     break;
                 case SOIL_MOISTURE:
 	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
@@ -587,23 +599,6 @@ Module_info_t *create_module_from_config(char *type,
         created_module->sensor_arr[i] = sensor_arr[i];
     }
     created_module->sensor_config_arr = sensor_config_arr;
-    // created_module->sensor_config_arr = (Module_sensor_config_t**)malloc(sizeof(Module_sensor_config_t*) * SENSOR_LIST_TOTAL);
-    // Allocate and initialize sensor_config_arr
-    // for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
-    //     created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
-    //     created_module->sensor_config_arr[i]->total_sensor = sensor_config_arr[i]->total_sensor;
-    //     created_module->sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * sensor_config_arr[i]->total_sensor);
-    //     created_module->sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * sensor_config_arr[i]->total_sensor);
-    //     for(int j = 0; j < sensor_config_arr[i]->total_sensor; j++){
-    //         created_module->sensor_config_arr[i]->sensor_loc_arr[j] = (char *)malloc(sizeof(char) * (strlen(sensor_config_arr[i]->sensor_loc_arr[j]) + 1));
-    //         strcpy(created_module->sensor_config_arr[i]->sensor_loc_arr[j], sensor_config_arr[i]->sensor_loc_arr[j]);
-
-    //         created_module->sensor_config_arr[i]->sensor_pin_arr = sensor_config_arr[i]->sensor_pin_arr[j];
-    //     }
-    // }
-    // for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
-    //     created_module->sensor_config_arr[i] = sensor_config_arr[i];
-    // }
 
 
     return created_module;

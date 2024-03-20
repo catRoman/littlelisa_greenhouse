@@ -12,6 +12,7 @@
 #include "esp_task_wdt.h"
 
 #include "sensor_tasks.h"
+#include "nvs_components/module_config.h"
 #include "network_components/esp_now_comm.h"
 #include "task_common.h"
 #include "sdkconfig.h"
@@ -47,6 +48,7 @@
 //TODO: reorganize sensor tasks related between module_config, esp-now_comm, dht22 to focus on que use
 //TODO: use stack analysiusi to fiugure out apropriate stact sizes
 static const char SENSOR_EVENT_TAG[] = "sensor_tasks";
+extern Module_info_t *module_info_gt;
 
 QueueHandle_t sensor_queue_handle = NULL;
 TaskHandle_t sensor_queue_task_handle = NULL;
@@ -179,7 +181,7 @@ void sensor_preprocessing_task(void * pvParameters)
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY)){
-          //  printf("in preprocessing\n");
+            printf("in preprocessing\n");
 
             ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s in preprocessing",
                                                 event->sensor_data->module_id,
@@ -189,28 +191,28 @@ void sensor_preprocessing_task(void * pvParameters)
            // TODO:check values are within range if not send to cleanup
            // sensor_validation();
 
-            #ifdef CONFIG_MODULE_TYPE_NODE
+            if(strcmp(module_info_gt->type, "node") == 0){
                 event->nextEventID=SENSOR_PREPARE_TO_SEND;
-            #elif  CONFIG_MODULE_TYPE_CONTROLLER
+            }else if(strcmp(module_info_gt->type, "controller") == 0){
                 event->nextEventID=SENSOR_POST_PROCESSING;
-            #else
+            }else{
                 ESP_LOGE(SENSOR_EVENT_TAG, "Module type error in preprocessing");
                 continue;
-            #endif
+            }
 
             if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
-                #ifdef CONFIG_MODULE_TYPE_NODE
+                if(strcmp(module_info_gt->type, "node") == 0){
                 ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s preparing to send",
                             event->sensor_data->module_id,
                             event->sensor_data->local_sensor_id,
                             sensor_type_to_string(event->sensor_data->sensor_type));
 
-                #elif  CONFIG_MODULE_TYPE_CONTROLLER
+               }else if(strcmp(module_info_gt->type, "controller") == 0){
                 ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s sent to post processing",
                             event->sensor_data->module_id,
                             event->sensor_data->local_sensor_id,
                             sensor_type_to_string(event->sensor_data->sensor_type));
-                #endif
+               }
             }
 
 
