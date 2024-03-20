@@ -28,6 +28,7 @@ void node_info_log_module_info(void){
 
 
 char *node_info_get_module_info_json(void){
+    //name, type,location, sensor arr, sensor config arr
 
     extern Module_info_t *module_info_gt;
 
@@ -81,11 +82,11 @@ char *node_info_get_module_info_json(void){
         char i_str[5];
 
         if(module_info_gt->sensor_arr[sensor] > 0){
-            
+
             sensor_type_pin_list = cJSON_CreateObject();
             for(int i = 1; i <= module_info_gt->sensor_arr[sensor]; i++){
-                cJSON_AddNumberToObject(sensor_type_pin_list, module_info_gt->sensor_config_arr[sensor].sensor_loc_arr[i],
-                    module_info_gt->sensor_config_arr[sensor].sensor_pin_arr[i]);
+                cJSON_AddNumberToObject(sensor_type_pin_list, module_info_gt->sensor_config_arr[sensor]->sensor_loc_arr[i],
+                    module_info_gt->sensor_config_arr[sensor]->sensor_pin_arr[i]);
             }
 
             cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_pin_list);
