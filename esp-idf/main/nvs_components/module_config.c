@@ -474,8 +474,8 @@ void initiate_sensor_tasks(){
                     char sensor_task_name[20];
                     //TODO: add internal keyword to taskname
                     snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", local_sensor[sensor_id-1]->local_sensor_id);
-                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)&local_sensor[sensor_id -1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-                    if(sensor_id == 3)trigger_panic();
+                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)local_sensor[sensor_id -1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+                    //if(sensor_id == 3)trigger_panic();
                     break;
                 case SOIL_MOISTURE:
 	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
