@@ -409,7 +409,7 @@ void initiate_config(){
 
         module_info_gt = create_module_from_NVS();
 
-        printf("hi from nvs :-)\n");
+
     }
 
 
@@ -446,10 +446,10 @@ void initiate_sensor_tasks(){
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
 
             sensor_data_t sensor_data={
-                    .pin_number = module_info_gt->sensor_config_arr[sensor_type].sensor_pin_arr[sensor_id],
+                    .pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id],
                     .sensor_type = sensor_type,
                     .total_values = module_info_gt->sensor_arr[sensor_type],
-                    .location = module_info_gt->sensor_config_arr[sensor_type].sensor_loc_arr[sensor_id],
+                    .location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id],
                     .local_sensor_id = sensor_id,
                     .module_id = module_info_gt->identity,
                     .timestamp = 0,
@@ -488,7 +488,7 @@ void initiate_sensor_tasks(){
 
 }
 
-
+//TODO:rewrite
 Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins, int numLocations) {
     Module_sensor_config_t *config = malloc(sizeof(Module_sensor_config_t));
     if (!config) return NULL;
@@ -551,23 +551,10 @@ Module_info_t *create_module_from_NVS() {
     //prevent optimizing out string for debug
     ESP_LOGI(TAG, "deserialized string: %s", deserialized_string);
 
-    Module_sensor_config_t **temp_sensor_config_arr =
+    //allocates memory inside function
+    created_module->sensor_config_arr =
         deserialize_string(deserialized_string,
                 sensor_arr_total);
-
-
-
-
-    // Allocate and initialize sensor_config_arr
-    for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
-        // created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
-        // created_module->sensor_config_arr[i] = temp_sensor_config_arr[i];
-//        printf("%s/n",temp_sensor_config_arr->sensor_loc_arr[0]);
-        for(int j = 1; j < temp_sensor_config_arr[i]->total_sensor; j++){
-            printf("\tloc: %s\tPin: %d\n",temp_sensor_config_arr[i]->sensor_loc_arr[j], temp_sensor_config_arr[0]->sensor_pin_arr[j] );
-        }
-        printf("\n");
-    }
 
 
     free(temp_module.type);
@@ -582,7 +569,7 @@ Module_info_t *create_module_from_config(char *type,
         char *location,
         int8_t identity,
         int8_t *sensor_arr,
-        Module_sensor_config_t *sensor_config_arr) {
+        Module_sensor_config_t **sensor_config_arr) {
 
     Module_info_t *created_module;
 
@@ -598,14 +585,25 @@ Module_info_t *create_module_from_config(char *type,
     strcpy(created_module->location, location);
     created_module->identity = identity;
 
-    ESP_ERROR_CHECK(nvs_get_sensor_arr(&(created_module->sensor_arr), &sensor_arr_total));
+    for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
+        created_module->sensor_arr[i] = sensor_arr[i];
+    }
 
-
+    created_module->sensor_config_arr = (Module_sensor_config_t**)malloc(sizeof(Module_sensor_config_t*) * SENSOR_LIST_TOTAL);
     // Allocate and initialize sensor_config_arr
     for (int i = 0; i < SENSOR_LIST_TOTAL; i++) {
-        created_module->sensor_config_arr[i] = *(Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
-        created_module->sensor_config_arr[i] = sensor_config_arr[i];
+        created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
+        created_module->sensor_config_arr[i]->total_sensor = sensor_config_arr[i]->total_sensor;
+        created_module->sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * sensor_config_arr[i]->total_sensor);
+        created_module->sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * sensor_config_arr[i]->total_sensor);
+        for(int j = 0; j < sensor_config_arr[i]->total_sensor; j++){
+            created_module->sensor_config_arr[i]->sensor_loc_arr[j] = (char *)malloc(sizeof(char) * (strlen(sensor_config_arr[i]->sensor_loc_arr[j]) + 1));
+            strcpy(created_module->sensor_config_arr[i]->sensor_loc_arr[j], sensor_config_arr[i]->sensor_loc_arr[j]);
+
+            created_module->sensor_config_arr[i]->sensor_pin_arr = sensor_config_arr[i]->sensor_pin_arr[j];
+        }
     }
+
 
     return created_module;
 }
