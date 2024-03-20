@@ -107,11 +107,10 @@ void int8ToString(int8_t num, char *str);
 
 char* serializeModuleSensorConfigArray(Module_sensor_config_t *configs, int numConfigs);
 
-char** splitString(const char* str, char delimiter, int8_t* count);
-
+Module_sensor_config_t **deserialize_string(char* serialized_string, int8_t numSensors);
 int8_t stringToInt8(const char* str);
 
-Module_sensor_config_t* deserializeModuleSensorConfigArray(const char *serialized, int8_t *numConfigs);
 
+ char ** splits_string(char delim, char * serialized_string, int8_t *numStrings);
 
 #endif

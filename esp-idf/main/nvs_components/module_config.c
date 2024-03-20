@@ -551,9 +551,9 @@ Module_info_t *create_module_from_NVS() {
     //prevent optimizing out string for debug
     ESP_LOGI(TAG, "deserialized string: %s", deserialized_string);
 
-    Module_sensor_config_t *temp_sensor_config_arr =
-        deserializeModuleSensorConfigArray(deserialized_string,
-                &sensor_arr_total);
+    Module_sensor_config_t **temp_sensor_config_arr =
+        deserialize_string(deserialized_string,
+                sensor_arr_total);
 
 
 
@@ -563,8 +563,8 @@ Module_info_t *create_module_from_NVS() {
         // created_module->sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t));
         // created_module->sensor_config_arr[i] = temp_sensor_config_arr[i];
 //        printf("%s/n",temp_sensor_config_arr->sensor_loc_arr[0]);
-        for(int j = 1; j < temp_sensor_config_arr->total_sensor; j++){
-            printf("\tloc: %s\tPin: %d\n",temp_sensor_config_arr->sensor_loc_arr[j], temp_sensor_config_arr->sensor_pin_arr[j] );
+        for(int j = 1; j < temp_sensor_config_arr[i]->total_sensor; j++){
+            printf("\tloc: %s\tPin: %d\n",temp_sensor_config_arr[i]->sensor_loc_arr[j], temp_sensor_config_arr[0]->sensor_pin_arr[j] );
         }
         printf("\n");
     }
@@ -609,20 +609,3 @@ Module_info_t *create_module_from_config(char *type,
 
     return created_module;
 }
-
-// // Function to free a Module_info_t instance
-// void freeModuleInfo(Module_info_t *info) {
-//     if (!info) return;
-
-//     free(info->type);
-//     free(info->location);
-//     free(info->sensor_arr);
-
-//     // Free each Module_sensor_config_t in the array
-//     for (int i = 0; info->sensor_config_arr && info->sensor_config_arr[i] != NULL; i++) {
-//         freeModuleSensorConfig(info->sensor_config_arr[i]);
-//     }
-//     free(info->sensor_config_arr); // Free the array of pointers
-
-//     free(info); // Free the struct itself
-// }
