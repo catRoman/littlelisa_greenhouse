@@ -6,5 +6,6 @@
 
 
 char * binary_string( uint8_t decNum );
+void trigger_panic(void);
 
 #endif
