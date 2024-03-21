@@ -68,7 +68,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             sensor_data = deserialize_sensor_data(queue_packet->data,queue_packet->len);
 
             //log for test
-            print_sensor_data(sensor_data);
+            //print_sensor_data(sensor_data);
             //pass data to sensor queue
 
             //allocate for data_packet
