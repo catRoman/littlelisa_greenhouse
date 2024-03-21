@@ -97,32 +97,35 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice){
 
 
-	//allocate for data_packet
-	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+	// //allocate for data_packet
+	// sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
-	data_packet->pin_number= sensor_t->pin_number;
-	data_packet->total_values = 2;
-	data_packet->local_sensor_id = sensor_t->local_sensor_id;
-	data_packet->module_id = module_info_gt->identity;
-	data_packet->timestamp = 0;
+	// data_packet->pin_number= sensor_t->pin_number;
+	// data_packet->total_values = 2;
+	// data_packet->local_sensor_id = sensor_t->local_sensor_id;
+	// data_packet->module_id = module_info_gt->identity;
+	// data_packet->timestamp = 0;
 
-	//TODO: mem error handling
-	data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
-	strcpy(data_packet->location, sensor_t->location);
+	// //TODO: mem error handling
+	// data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+	// data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
+	// strcpy(data_packet->location, sensor_t->location);
 
 
 
-	data_packet->sensor_type = DHT22;
-	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
-	data_packet->value[TEMP] = get_temperature(sensor_t);
-
+	// data_packet->sensor_type = DHT22;
+	// data_packet->value[HUMIDITY] = get_humidity(sensor_t);
+	// data_packet->value[TEMP] = get_temperature(sensor_t);
+		
+		sensor_t->value[HUMIDITY] = get_humidity(sensor_t);
+		sensor_t->value[TEMP] = get_temperature(sensor_t);
 
 	//sensor queue wrapper mem allocation
 	sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
 
 	queue_packet->nextEventID = SENSOR_PREPOCESSING;
-	queue_packet->sensor_data = data_packet;
+	//queue_packet->sensor_data = data_packet;
+	queue_packet->sensor_data = sensor_t;
 	queue_packet->semphoreCount = 0;
 
 

@@ -459,8 +459,13 @@ void initiate_sensor_tasks(){
                     local_sensor[sensor_id-1]->pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
                     local_sensor[sensor_id-1]->sensor_type = sensor_type;
                     local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
+                    local_sensor[sensor_id-1]->value=(float*)malloc(sizeof(float)*module_info_gt->sensor_arr[sensor_type]);
+                    for(int i = 0; i <module_info_gt->sensor_arr[sensor_type];i++){
+                        local_sensor[sensor_id-1]->value[i] = 0;
+                    }
                     local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
-                    local_sensor[sensor_id-1]->location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id];
+                    strcpy(local_sensor[sensor_id-1]->location, module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id]);
+                   //local_sensor[sensor_id-1]->location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id];
                     local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
                     local_sensor[sensor_id-1]->module_id = module_info_gt->identity;
                     local_sensor[sensor_id-1]->timestamp = 0;
