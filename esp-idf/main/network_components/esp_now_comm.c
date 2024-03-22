@@ -49,11 +49,15 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
             esp_err_t result = esp_now_send(queue_packet->mac_addr, queue_packet->data, queue_packet->len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
+            }else{
+                ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
+                    queue_packet->mac_addr[0], queue_packet->mac_addr[1], queue_packet->mac_addr[2],
+                    queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
             }
             //vTaskDelay(pdMS_TO_TICKS(500));
             free(queue_packet->data);
             free(queue_packet);
-          
+
         }
     }
 }
@@ -99,22 +103,27 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             queue_packet->sensor_data = data_packet;
             queue_packet->semphoreCount = 0;
 
-            free(espnow_queue_packet->data);
-            free(espnow_queue_packet);
-            free(sensor_data->value);
-            free(sensor_data->location);
-            free(sensor_data);
+
 
 
             //process the recieved message -> pass the sensor event queue
 
             extern QueueHandle_t sensor_queue_handle;
             if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-                    ESP_LOGI(ESP_NOW_COMM_TAG, "sensor data communicated and sent to sensor que for postprocessing");
+                    ESP_LOGI(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
+                    espnow_queue_packet->mac_addr[0], espnow_queue_packet->mac_addr[1], espnow_queue_packet->mac_addr[2],
+                    espnow_queue_packet->mac_addr[3], espnow_queue_packet->mac_addr[4], espnow_queue_packet->mac_addr[5]);
+
+                    ESP_LOGD(ESP_NOW_COMM_TAG, "sensor data communicated and sent to sensor que for postprocessing");
                 }else{
                     ESP_LOGE(ESP_NOW_COMM_TAG, "data communicated failed to transfer to sensor que");
                 }
 
+            free(espnow_queue_packet->data);
+            free(espnow_queue_packet);
+            free(sensor_data->value);
+            free(sensor_data->location);
+            free(sensor_data);
         }
     }
 }
