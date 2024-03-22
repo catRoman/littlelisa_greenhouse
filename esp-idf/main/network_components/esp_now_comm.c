@@ -39,7 +39,7 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
 //for queue managment
 void esp_now_comm_outgoing_data_task(void * pvParameters)
 {
-    queue_packet_t queue_packet;
+    queue_packet_t *queue_packet;
     uint8_t *temp_data;
 
     ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet queue started");
@@ -47,11 +47,13 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
 
-            esp_err_t result = esp_now_send(queue_packet.mac_addr, queue_packet.data, queue_packet.len);
+            esp_err_t result = esp_now_send(queue_packet->mac_addr, queue_packet->data, queue_packet->len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
             }
             //vTaskDelay(pdMS_TO_TICKS(500));
+            free(queue_packet->data);
+            free(queue_packet);
         }
     }
 }
@@ -59,13 +61,13 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
 //for queue managment
 void esp_now_comm_incoming_data_task(void * pvParameters)
 {
-    queue_packet_t *queue_packet;
+    queue_packet_t *espnow_queue_packet;
     sensor_data_t *sensor_data;
     ESP_LOGI(ESP_NOW_COMM_TAG, "incoming data packet queue started");
 
     for(;;){
-        if (xQueueReceive(esp_now_comm_incoming_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
-            sensor_data = deserialize_sensor_data(queue_packet->data,queue_packet->len);
+        if (xQueueReceive(esp_now_comm_incoming_data_queue_handle, &espnow_queue_packet, portMAX_DELAY) == pdTRUE){
+            sensor_data = deserialize_sensor_data(espnow_queue_packet->data,espnow_queue_packet->len);
 
             //log for test
             //print_sensor_data(sensor_data);
@@ -97,7 +99,10 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             queue_packet->sensor_data = data_packet;
             queue_packet->semphoreCount = 0;
 
-
+            free(espnow_queue_packet->data);
+            free(espnow_queue_packet);
+            free(sensor_data->value);
+            free(sensor_data->location);
             free(sensor_data);
 
 
