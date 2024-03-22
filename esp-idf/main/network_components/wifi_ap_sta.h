@@ -13,6 +13,7 @@
 #define MAIN_WIFI_AP_STA_H
 
 #include <stdbool.h>
+#include "esp_mac.h"
 /**
  *  Network configurations set via project configuration menu.
 */
