@@ -22,3 +22,9 @@ char * binary_string( uint8_t decNum )
 
     return binaryString;
 }
+
+void trigger_panic() {
+    // Access an invalid memory address
+    volatile int *ptr = (volatile int *)0xdeadbeef;
+    *ptr = 0x12345678;  // This will cause a segmentation fault and trigger a panic
+}

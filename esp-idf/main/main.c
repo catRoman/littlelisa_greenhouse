@@ -31,7 +31,6 @@
 //TODO: update landing page to retrieve data from db or ram if db down
 
 //--OTHER TODO----
-//TODO mdns setup to allow for garenteed access to node landing pages
 //TODO: add device and system information to debug page to monitor device health
 //TODO dynamicly add link to all available node landing pages based on connected nodes
 //TODO check for time sync between nodes and controller on boot and periodically, updating as neccary ?
@@ -88,25 +87,19 @@
 
 
 
-
 /**
  * freeRTOS function invocation
 */
 void app_main(void)
 {
-    static const char TAG[] = "main_app";
+    static char TAG[] = "main_app";
 
-     //wifi crediental storage and retrieval
-    nvs_initiate();
-   
-    // Start Wifi
-    wifi_start();
+
 
     initiate_config();
 
-    // start DHT22 Sensor task
+    //enviroment controls?
 
-    vTaskDelay(5000/ portMAX_DELAY);
 
     //DHT22_sensor_task_start();
 

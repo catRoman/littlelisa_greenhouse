@@ -7,35 +7,47 @@
 #ifndef MAIN_NVS_SERVICE_H_
 #define MAIN_NVS_SERVICE_H_
 
+#include "nvs_components/module_config.h"
+#include "nvs.h"
+#include "nvs_flash.h"
 
+#define NVS_WIFI_NAMESPACE                      "wifi"
+#define NVS_WIFI_SSID_INDEX                     "ssid"
+#define NVS_WIFI_PWD_INDEX                      "pwd"
 
-#define NVS_WIFI_NAMESPACE              "wifi"
-#define NVS_WIFI_SSID_INDEX             "ssid"
-#define NVS_WIFI_PWD_INDEX              "pwd"
+#define NVS_MODULE_NAMESPACE                    "module_info"
+#define NVS_MODULE_TYPE_INDEX                   "module_type"
+#define NVS_MODULE_LOCATION_INDEX               "module_location"
+#define NVS_MODULE_IDENTIFIER_INDEX             "module_ident"
 
-#define NVS_MODULE_NAMESPACE            "module_info"
-#define NVS_MODULE_TYPE_INDEX           "module_type"
-#define NVS_MODULE_LOCATION_INDEX       "module_location"
-#define NVS_MODULE_IDENTIFIER_INDEX     "module_ident"
+#define NVS_SENSOR_ARR_NAMESPACE                "sensor_list"
+#define NVS_SENSOR_ARR_INDEX                    "sensor_arr"
+#define NVS_SENSOR_TOTAL_INDEX                  "sensor_total"
 
-#define NVS_NODE_ARR_NAMESPACE          "node_list"
-#define NVS_NODE_ARR_INDEX              "node_arr"
-#define NVS_NODE_TOTAL_INDEX            "node_total"
+#define NVS_SENSOR_CONFIG_NAMESPACE             "s_config_list"
+#define NVS_SENSOR_CONFIG_ARR_INDEX             "s_config_arr"
 
-#define NVS_SENSOR_ARR_NAMESPACE        "sensor_list"
-#define NVS_SENSOR_ARR_INDEX            "sensor_list"
-#define NVS_SENSOR_TOTAL_INDEX          "sensor_total"
-
-
-typedef struct Module_info_t{
-    char *type;
-    char *location;
-    int8_t identity;
-}Module_info_t;
 
 /**
- * sensor list 
- * 
+ *
+ * char **temp_sensor_loc_arr;
+    int8_t *temp_sensor_pin_arr;
+    char **humidity_sensor_loc_arr;
+    int8_t *humidity_sensor_pin_arr;
+    char **soil_moisture_sensor_loc_arr;
+    int8_t *soil_moisture_pin_arr;
+    char **light_sensor_loc_Arr;
+    int8_t light_sensor_pin_arr;
+    char **sound_sensor_loc_arr;
+    int8_t sound_sensor_pin_arr;
+    char **movement_sensor_loc_arr;
+    int8_t movement_sensor_pin_arr;
+    char **camera_sensor_loc_arr;
+    int8_t camera_sensor_pin_arr;
+ *
+ *
+ * sensor list
+ *
  * 0 - temp
  * 1 - humidity
  * 2 - soil moisture
@@ -73,12 +85,32 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info);
 
 void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum);
 
-esp_err_t nvs_get_node_arr(int8_t **node_arr, int8_t *arrLength);
-
-void nvs_set_node_arr(const int8_t *node_arr, int8_t arrLength);
-
 esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength);
 
 void nvs_set_sensor_arr(const int8_t *sensor_arr, int8_t arrLength);
+
+char* serialize_strings(char* strings[], int count);
+
+char** deserialize_strings(const char* serialized, int* count);
+
+esp_err_t save_serialized_sensor_loc_arr_to_nvs(const char* serialized_loc_arr,
+    nvs_handle_t loc_arr_handle,
+    char* loc_arr_namespace,
+    char* loc_arr_index);
+
+char* retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
+        char* loc_arr_namespace,
+        char* loc_arr_index);
+
+
+void int8ToString(int8_t num, char *str);
+
+char* serializeModuleSensorConfigArray(Module_sensor_config_t **configs, int numConfigs);
+
+Module_sensor_config_t **deserialize_string(char* serialized_string, int8_t numSensors);
+int8_t stringToInt8(const char* str);
+
+
+ char ** splits_string(char delim, char * serialized_string, int8_t *numStrings);
 
 #endif

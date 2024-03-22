@@ -31,11 +31,16 @@
 #include "driver/gpio.h"
 #include "cJSON.h"
 #include "freertos/semphr.h"
+#include "sdkconfig.h"
 
-
+#include "network_components/esp_now_comm.h"
 #include "DHT22.h"
 #include "task_common.h"
 #include "nvs_components/module_config.h"
+#include "sensor_components/sensor_tasks.h"
+#include "network_components/esp_now_comm.h"
+
+
 
 // == global defines =============================================
 
@@ -43,70 +48,126 @@
 static const char TAG [] = "dht22_sensor";
 SemaphoreHandle_t xSemaphore = NULL;
 static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+extern Module_info_t *module_info_gt;
 
 
 
 // == get temp & hum =============================================
 
-float get_humidity(dht22_sensor_t *sensor_t) { return sensor_t->humidity; }
-float get_temperature(dht22_sensor_t *sensor_t) { return sensor_t->temperature; }
+float get_humidity(sensor_data_t *sensor_t) { return sensor_t->value[HUMIDITY]; }
+float get_temperature(sensor_data_t *sensor_t) { return sensor_t->value[TEMP]; }
 
 
 //TODO: once more types of sensors are used turn this generic using void * and call value to sensor specific function
 //== Log JSON of data ============================
-char * get_DHT22_SENSOR_JSON_String(dht22_sensor_t *sensor_t, int sensor_choice)
+char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 {
-	time_t currentTime;
-	time(&currentTime);
 
 	cJSON *json_data = cJSON_CreateObject();
 
-	cJSON_AddNumberToObject(json_data, "identity", sensor_t->identifier);
-	cJSON_AddStringToObject(json_data, "timestamp", ctime(&currentTime));
-	cJSON_AddStringToObject(json_data, "location", sensor_t->TAG);
+	cJSON_AddNumberToObject(json_data, "module_id", sensor_t->module_id);
+	cJSON_AddNumberToObject(json_data, "sensor_id", sensor_t->local_sensor_id);
+	cJSON_AddStringToObject(json_data, "timestamp", ctime(&sensor_t->timestamp));
+	cJSON_AddStringToObject(json_data, "location", sensor_t->location);
 	cJSON_AddNumberToObject(json_data, "pin", sensor_t->pin_number);
 	if(sensor_choice == HUMIDITY){
 		cJSON_AddNumberToObject(json_data, "value", get_humidity(sensor_t));
-		cJSON_AddStringToObject(json_data, "unit", sensor_t->humidity_unit);
+		cJSON_AddStringToObject(json_data, "unit", "%%");
 	}else if(sensor_choice == TEMP){
 		cJSON_AddNumberToObject(json_data, "value", get_temperature(sensor_t));
-		cJSON_AddStringToObject(json_data, "unit", sensor_t->temp_unit);
+		cJSON_AddStringToObject(json_data, "unit", "°C");
+
 	}
 
 	char *json_string = cJSON_Print(json_data);
 
 	cJSON_Delete(json_data);
-
 	return json_string;
 
 }
- void log_sensor_JSON(dht22_sensor_t *sensor_t, int sensor_choice){
+
+ void log_sensor_JSON(sensor_data_t *sensor_t, int sensor_choice){
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
-	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->TAG, json_string);
+	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->location, json_string);
 	free(json_string);
  }
+
+//TODO: rewrite module_config and this to work on sensor types
+// thuis tansfering both temp and humidity at once
+void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice){
+
+
+	//allocate for data_packet
+	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+
+	data_packet->pin_number= sensor_t->pin_number;
+	data_packet->total_values = 2;
+	data_packet->local_sensor_id = sensor_t->local_sensor_id;
+	data_packet->module_id = module_info_gt->identity;
+	data_packet->timestamp = 0;
+
+	//TODO: mem error handling
+	data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
+	strcpy(data_packet->location, sensor_t->location);
+
+
+
+	data_packet->sensor_type = DHT22;
+	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
+	data_packet->value[TEMP] = get_temperature(sensor_t);
+
+
+	//sensor queue wrapper mem allocation
+	sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+
+	queue_packet->nextEventID = SENSOR_PREPOCESSING;
+	queue_packet->sensor_data = data_packet;
+	queue_packet->semphoreCount = 0;
+
+
+    char logMsg[50];
+
+    // Use snprintf to format the string
+	snprintf(logMsg, sizeof(logMsg), "mod:%d-id:%d-%s",
+	queue_packet->sensor_data->module_id,
+	queue_packet->sensor_data->local_sensor_id,
+	sensor_type_to_string(queue_packet->sensor_data->sensor_type));
+
+	extern QueueHandle_t sensor_queue_handle;
+	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+			ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
+		}else{
+			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
+		}
+
+
+
+}
+
+
 
 
 // == error handler ===============================================
 
-void errorHandler(int response, dht22_sensor_t *sensor_t)
+void errorHandler(int response, sensor_data_t *sensor_t)
 {
-	switch(response) {
+	// switch(response) {
 
-		case DHT_TIMEOUT_ERROR :
-			ESP_LOGE( TAG, "{==%s==}: Sensor Timeout\n",sensor_t->TAG);
-			break;
+	// 	case DHT_TIMEOUT_ERROR :
+	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
+	// 		break;
 
-		case DHT_CHECKSUM_ERROR:
-			ESP_LOGE( TAG, "{==%s==}: CheckSum error\n", sensor_t->TAG );
-			break;
+	// 	case DHT_CHECKSUM_ERROR:
+	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
+	// 		break;
 
-		case DHT_OK:
-			break;
+	// 	case DHT_OK:
+	// 		break;
 
-		default :
-			ESP_LOGE( TAG, "{==%s==}: Unknown error\n",  sensor_t->TAG);
-	}
+	// 	default :
+	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
+	// }
 }
 
 /*-------------------------------------------------------------------------------
@@ -118,7 +179,7 @@ void errorHandler(int response, dht22_sensor_t *sensor_t)
 ;
 ;--------------------------------------------------------------------------------*/
 
-int getSignalLevel( int usTimeOut, bool state, dht22_sensor_t *sensor_t )
+int getSignalLevel( int usTimeOut, bool state, sensor_data_t *sensor_t )
 {
 
 
@@ -182,7 +243,7 @@ To request data from DHT:
 
 #define MAXdhtData 5	// to complete 40 = 5*8 Bits
 
-int readDHT(dht22_sensor_t *sensor_t)
+int readDHT(sensor_data_t *sensor_t)
 {
 
 
@@ -196,8 +257,8 @@ uint8_t bitInx = 7;
 
 // instance varables
 int DHTgpio = sensor_t->pin_number;
-float humidity = sensor_t->humidity;
-float temperature = sensor_t->temperature;
+float humidity = sensor_t->value[HUMIDITY];
+float temperature = sensor_t->value[TEMP];
 
 	for (int k = 0; k<MAXdhtData; k++)
 		dhtData[k] = 0;
@@ -274,8 +335,8 @@ float temperature = sensor_t->temperature;
 	if( dhtData[2] & 0x80 ) 			// negative temp, brrr it's freezing
 		temperature *= -1;
 
-	sensor_t->temperature = temperature;
-	sensor_t->humidity = humidity;
+	sensor_t->value[TEMP] = temperature;
+	sensor_t->value[HUMIDITY] = humidity;
 	// == verify if checksum is ok ===========================================
 	// Checksum is the sum of Data 8 bits masked out 0xFF
 
@@ -293,11 +354,14 @@ float temperature = sensor_t->temperature;
 */
 void DHT22_task(void *vpParameter)
 {
-	dht22_sensor_t *sensor_t;
-	sensor_t = (dht22_sensor_t *)vpParameter;
+	sensor_data_t *sensor_t;
+	sensor_t = (sensor_data_t *)vpParameter;
+	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
+	float values[sensor_t->total_values];
+	sensor_t->value = values;
 
 
-	gpio_set_direction(sensor_t->pin_number, GPIO_MODE_INPUT);
+	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
 	esp_rom_delay_us( 100 );
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
@@ -310,8 +374,12 @@ void DHT22_task(void *vpParameter)
 		int ret = readDHT(sensor_t);
 
 		if (ret == DHT_OK){
-			log_sensor_JSON(sensor_t, TEMP);
-			log_sensor_JSON(sensor_t, HUMIDITY);
+			log_sensor_JSON(sensor_t, DHT22);
+
+			//#ifdef CONFIG_MODULE_TYPE_NODE
+
+			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22);
+			//#endif
 			 //TODO: change either the function name or the function for better focus
 		}else{
 			errorHandler(ret, sensor_t);
@@ -323,5 +391,3 @@ void DHT22_task(void *vpParameter)
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
 }
-
-

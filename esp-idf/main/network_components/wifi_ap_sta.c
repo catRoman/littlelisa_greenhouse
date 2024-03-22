@@ -15,12 +15,15 @@
 #include "esp_wifi_types.h"
 #include "esp_event.h"
 #include "esp_log.h"
+#include "esp_mac.h"
 #include "nvs_flash.h"
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "sdkconfig.h"
 #include "lwip/netdb.h"
+#include "esp_netif.h"
 
+#include "network_components/esp_now_comm.h"
 #include "nvs_components/nvs_service.c"
 #include "mdns.h"
 #include "wifi_ap_sta.h"
@@ -63,6 +66,8 @@ esp_netif_t *wifi_init_softap(void)
 {
     esp_netif_t *esp_netif_ap = esp_netif_create_default_wifi_ap();
 
+ //   #ifdef CONFIG_ENABLE_NVS_UPDATE
+
     wifi_config_t wifi_ap_config = {
         .ap = {
             .ssid = ESP_WIFI_AP_MODE_SSID,
@@ -74,6 +79,24 @@ esp_netif_t *wifi_init_softap(void)
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
+    // #else
+    // char *nvs_wifi_ssid = "";
+    // char *nvs_wifi_pass = "";
+
+    // ESP_ERROR_CHECK(nvs_get_wifi_info(&nvs_wifi_ssid, &nvs_wifi_pass));
+
+    // wifi_config_t wifi_ap_config = {
+    //     .ap = {
+    //         .ssid = nvs_wifi_ssid,
+    //         .ssid_len = strlen(nvs_wifi_ssid),
+    //         .ssid_hidden = ESP_AP_MODE_HIDE_SSID,
+    //         .channel = ESP_WIFI_AP_MODE_CHANNEL,
+    //         .password = nvs_wifi_pass,
+    //         .max_connection = 5,
+    //         .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    //     },
+    // };
+    // #endif
 
   // Configure DHCP for the AP
     esp_netif_ip_info_t ap_ip_info;
@@ -165,9 +188,10 @@ void wifi_start(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
-
+        log_mac_address(true);
 
         mdns_start();
+        //esp_now_comm_start();
      //   start http and sntp server
         sntp_service_init();
         http_server_start();
@@ -186,56 +210,68 @@ void wifi_start(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
+        log_mac_address(false);
 
-       
         mdns_start();
+        //esp_now_comm_start();
 
         //start http and sntp server
-        sntp_service_init();
+        //sntp_service_init();
         http_server_start();
         led_http_server_started();
 
-    
+
 
 
     }else{
         ESP_LOGE(WIFI_TAG, "Error in ap/sta selection mode");
     }
-    
+
+}
+
+esp_err_t log_mac_address(bool is_sta){
+    int mac_type;
+    if(is_sta == true){
+        mac_type = ESP_MAC_WIFI_STA;
+    }else{
+        mac_type = ESP_MAC_WIFI_SOFTAP;
+    }
+    uint8_t mac[6];
+    // Get MAC address for Wi-Fi Station interface
+    esp_err_t mac_ret = esp_read_mac(mac, mac_type);
+
+    if (mac_ret == ESP_OK) {
+        ESP_LOGI(WIFI_TAG, "MAC Address: %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    } else {
+        ESP_LOGE(WIFI_TAG, "Failed to get MAC address!\n");
+    }
+
+    return mac_ret;
 }
 
 esp_err_t mdns_start(){
-     //start mdns server 
-        Module_info_t module_info = {0};
-        
-
-        esp_err_t err;
-
-        if ((err = nvs_get_module_info(&module_info)) != ESP_OK){
-            ESP_LOGE("mdns", "NVS module info retreive failed %s", esp_err_to_name(err));
-            return err;
-
-        }
+    extern Module_info_t *module_info_gt;
+    esp_err_t err;
         //"littlelisa-controller-099" - example 26 char w/o terminator
         char module_id[12];
-        snprintf(module_id, sizeof(module_id), "%d", module_info.identity);
+        snprintf(module_id, sizeof(module_id), "%d", module_info_gt->identity);
         char mdns_host_name[50] = "littlelisa-";
 
         size_t current_length = strlen(mdns_host_name);
         size_t remaining_space = sizeof(mdns_host_name) - current_length - 1;
 
-        strncat(mdns_host_name, module_info.type, remaining_space);
+        strncat(mdns_host_name, module_info_gt->type, remaining_space);
 
         current_length = strlen(mdns_host_name);
         remaining_space = sizeof(mdns_host_name) - current_length -1;
 
         strncat(mdns_host_name, "-", remaining_space);
-        
+
         current_length = strlen(mdns_host_name);
         remaining_space = sizeof(mdns_host_name) - current_length -1;
 
         strncat(mdns_host_name, module_id, remaining_space);
-        
+
 
         if ((err = mdns_init()) != ESP_OK) {
             ESP_LOGE("mdns", "MDNS Init fail: %s", esp_err_to_name(err));
@@ -256,7 +292,7 @@ esp_err_t mdns_start(){
 
         char service_instance[50];
         strcpy(service_instance, mdns_host_name);
-        
+
         remaining_space = sizeof(service_instance) - strlen(service_instance) - 1;
         strncat(service_instance, " Debug Web Server", remaining_space);
 
