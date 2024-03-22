@@ -40,7 +40,7 @@ char *node_info_get_module_info_json(void){
 
     cJSON_AddStringToObject(module_info, "type", module_info_gt->type);
     cJSON_AddStringToObject(module_info, "location", module_info_gt->location);
-    cJSON_AddNumberToObject(module_info, "identifier", module_info_gt->identity);
+    cJSON_AddStringToObject(module_info, "identifier", module_info_gt->identity);
 
     cJSON_AddItemToObject(root, "module_info", module_info);
 
