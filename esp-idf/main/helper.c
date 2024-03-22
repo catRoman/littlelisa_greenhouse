@@ -28,3 +28,12 @@ void trigger_panic() {
     volatile int *ptr = (volatile int *)0xdeadbeef;
     *ptr = 0x12345678;  // This will cause a segmentation fault and trigger a panic
 }
+
+void find_and_replace(char *str, char find, char replace) {
+    while (*str) {
+        if (*str == find) {
+            *str = replace;
+        }
+        str++;
+    }
+}

@@ -19,7 +19,7 @@ void node_info_log_module_info(void){
     err = nvs_get_module_info(&module_info);
 
     if(err == ESP_OK){
-        ESP_LOGI(NODE_INFO_TAG, "Module info-> Type: %s | Location: %s | Identifier: %d", module_info.type, module_info.location, module_info.identity );
+        ESP_LOGI(NODE_INFO_TAG, "Module info-> Type: %s | Location: %s | Identifier: %s", module_info.type, module_info.location, module_info.identity );
     }else{
         ESP_LOGE(NODE_INFO_TAG, "%s", esp_err_to_name(err));
     }
@@ -40,7 +40,7 @@ char *node_info_get_module_info_json(void){
 
     cJSON_AddStringToObject(module_info, "type", module_info_gt->type);
     cJSON_AddStringToObject(module_info, "location", module_info_gt->location);
-    cJSON_AddNumberToObject(module_info, "identifier", module_info_gt->identity);
+    cJSON_AddStringToObject(module_info, "identifier", module_info_gt->identity);
 
     cJSON_AddItemToObject(root, "module_info", module_info);
 

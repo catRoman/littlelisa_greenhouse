@@ -30,7 +30,7 @@ typedef struct sensor_data_t{
     int8_t total_values;
 	char* location;
 	int8_t local_sensor_id;
-    int8_t module_id;
+    char* module_id;
     time_t timestamp;
 
 } sensor_data_t;

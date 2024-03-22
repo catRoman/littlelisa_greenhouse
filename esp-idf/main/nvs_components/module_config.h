@@ -12,7 +12,7 @@ typedef struct Module_sensor_config_t{
 typedef struct Module_info_t{
     char *type;
     char *location;
-    int8_t identity;
+    char *identity;
     int8_t *sensor_arr;
     Module_sensor_config_t **sensor_config_arr;
 
@@ -29,7 +29,6 @@ void freeModuleSensorConfig(Module_sensor_config_t *config);
 
 Module_info_t *create_module_from_config(char *type,
         char *location,
-        int8_t identity,
         int8_t *sensor_arr,
         Module_sensor_config_t **sensor_config_arr);
 
