@@ -11,6 +11,7 @@
 #include "freertos/queue.h"
 #include "esp_task_wdt.h"
 #include "esp_heap_caps.h"
+#include "esp_heap_trace.h"
 
 #include "sensor_tasks.h"
 #include "nvs_components/module_config.h"
@@ -77,11 +78,14 @@ TaskHandle_t sensor_send_to_server_db_task_handle = NULL;
 QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
 TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
-
+//#define NUM_RECORDS 100
+//static heap_trace_record_t trace_record[NUM_RECORDS];
 
 void sensor_queue_monitor_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
+
+   // ESP_ERROR_CHECK(heap_trace_init_standalone(trace_record, NUM_RECORDS));
 
     for(;;){
         if (xQueueReceive(sensor_queue_handle, &event, portMAX_DELAY)){
@@ -102,6 +106,7 @@ void sensor_queue_monitor_task(void * pvParameters)
 
                 case SENSOR_PREPOCESSING:
                     if(xQueueSend(sensor_preprocessing_handle, &event, portMAX_DELAY)){
+                        //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
                         ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to preprocessing",logMsg);
                     }else{
                         ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to preprocessing",logMsg);
@@ -241,13 +246,13 @@ void sensor_prepare_to_send_task(void * pvParameters)
 
             //TODO:change esp_now_comm struct wrapper name
             queue_packet_t *queue_packet = (queue_packet_t*)malloc(sizeof(queue_packet_t));
-            uint8_t *temp_data;
-            queue_packet->data = event->sensor_data;
+
+            //queue_packet->data = event->sensor_data;
             //printf("%s ->len: %d\n", queue_packet.data->location, strlen(queue_packet.data.location));
 
-            queue_packet->len = calculate_serialized_size(queue_packet->data);
-            temp_data = serialize_sensor_data(queue_packet->data, &queue_packet->len);
-            queue_packet->data = temp_data;
+            queue_packet->len = calculate_serialized_size(event->sensor_data);
+            queue_packet->data = serialize_sensor_data(event->sensor_data, &queue_packet->len);
+
             esp_now_comm_get_config_reciever_mac_addr(queue_packet->mac_addr);
             //trigger_panic();
 
@@ -314,16 +319,20 @@ void sensor_post_processing_task(void * pvParameters)
 
             cJSON_Delete(json_data);
 
-            // ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",
-            //                                     event->sensor_data->module_id,
-            //                                     event->sensor_data->local_sensor_id,
-            //                                     sensor_type_to_string(event->sensor_data->sensor_type),
-            //                                      json_string);
+        //     // ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",
+        //     //                                     event->sensor_data->module_id,
+        //     //                                     event->sensor_data->local_sensor_id,
+        //     //                                     sensor_type_to_string(event->sensor_data->sensor_type),
+        //     //                                      json_string);
+        free(json_string);
 
             free(event->sensor_data->value);
             free(event->sensor_data->location);
             free(event->sensor_data);
             free(event);
+          //  heap_trace_stop();
+           // heap_trace_dump();
+            //trigger_panic();
 
         taskYIELD();
         }
