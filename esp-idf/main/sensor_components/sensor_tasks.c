@@ -78,14 +78,12 @@ TaskHandle_t sensor_send_to_server_db_task_handle = NULL;
 QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
 TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
-//#define NUM_RECORDS 100
-//static heap_trace_record_t trace_record[NUM_RECORDS];
 
 void sensor_queue_monitor_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
 
-   // ESP_ERROR_CHECK(heap_trace_init_standalone(trace_record, NUM_RECORDS));
+   
 
     for(;;){
         if (xQueueReceive(sensor_queue_handle, &event, portMAX_DELAY)){
@@ -106,7 +104,7 @@ void sensor_queue_monitor_task(void * pvParameters)
 
                 case SENSOR_PREPOCESSING:
                     if(xQueueSend(sensor_preprocessing_handle, &event, portMAX_DELAY)){
-                        //ESP_ERROR_CHECK(heap_trace_start(HEAP_TRACE_LEAKS));
+                  
                         ESP_LOGI(SENSOR_EVENT_TAG, "%s passed to preprocessing",logMsg);
                     }else{
                         ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to preprocessing",logMsg);
@@ -257,7 +255,7 @@ void sensor_prepare_to_send_task(void * pvParameters)
             //trigger_panic();
 
             extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
-            if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, queue_packet, portMAX_DELAY) == pdPASS){
+            if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
                     ESP_LOGI(SENSOR_EVENT_TAG, "mod:%d-id:%d-%s sent to esp_now outgoing que",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
@@ -270,8 +268,11 @@ void sensor_prepare_to_send_task(void * pvParameters)
                 }
 
             //free the wrapper as its changed hands to the esp_now_comm wrapper
+            free(event->sensor_data->value);
+            free(event->sensor_data->location);
+            free(event->sensor_data);
             free(event);
-
+        
         taskYIELD();
         }
 

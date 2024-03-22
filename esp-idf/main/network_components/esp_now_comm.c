@@ -11,9 +11,9 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
+
 #include "esp_now_comm.h"
 #include "task_common.h"
-
 
 
 static const char ESP_NOW_COMM_TAG[] = "esp_now";
@@ -40,7 +40,6 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
 void esp_now_comm_outgoing_data_task(void * pvParameters)
 {
     queue_packet_t *queue_packet;
-    uint8_t *temp_data;
 
     ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet queue started");
 
@@ -54,6 +53,7 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
             //vTaskDelay(pdMS_TO_TICKS(500));
             free(queue_packet->data);
             free(queue_packet);
+          
         }
     }
 }
@@ -120,7 +120,6 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
 }
 
 esp_err_t esp_now_comm_start(){
-
     //TODO: verifiy its succesfull
     esp_now_comm_outgoing_data_queue_handle = xQueueCreate(10, sizeof(queue_packet_t));
     esp_now_comm_incoming_data_queue_handle = xQueueCreate(10, sizeof(queue_packet_t));
