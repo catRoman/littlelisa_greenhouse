@@ -103,7 +103,9 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	data_packet->pin_number= sensor_t->pin_number;
 	data_packet->total_values = 2;
 	data_packet->local_sensor_id = sensor_t->local_sensor_id;
-	data_packet->module_id = module_info_gt->identity;
+	data_packet->module_id = (char*)malloc(strlen(sensor_t->module_id)+1);
+	strcpy(data_packet->module_id, sensor_t->module_id);
+
 	data_packet->timestamp = 0;
 
 	//TODO: mem error handling
@@ -129,7 +131,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
     char logMsg[50];
 
     // Use snprintf to format the string
-	snprintf(logMsg, sizeof(logMsg), "mod:%d-id:%d-%s",
+	snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s",
 	queue_packet->sensor_data->module_id,
 	queue_packet->sensor_data->local_sensor_id,
 	sensor_type_to_string(queue_packet->sensor_data->sensor_type));

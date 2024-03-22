@@ -248,11 +248,12 @@ void esp_now_comm_on_data_send_cb(const uint8_t *mac_addr, esp_now_send_status_t
 uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Calculate size needed for serialization
     size_t location_len = strlen(data->location) + 1; // +1 for null terminator
+    size_t module_id_len = strlen(data->module_id) + 1;
     size_t values_size = sizeof(float) * data->total_values;
 
     *size = sizeof(data->pin_number) + sizeof(data->sensor_type)
             + sizeof(data->total_values) + sizeof(data->local_sensor_id)
-            + sizeof(data->module_id) + sizeof(data->timestamp)
+             + sizeof(data->timestamp)
             + values_size + location_len;
 
     uint8_t *buffer = malloc(*size);
@@ -267,7 +268,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     memcpy(ptr, &data->total_values, sizeof(data->total_values)); ptr += sizeof(data->total_values);
     memcpy(ptr, data->value, values_size); ptr += values_size;
     memcpy(ptr, &data->local_sensor_id, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
-    memcpy(ptr, &data->module_id, sizeof(data->module_id)); ptr += sizeof(data->module_id);
+    memcpy(ptr, data->module_id, module_id_len); ptr += module_id_len;
     memcpy(ptr, &data->timestamp, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
     memcpy(ptr, data->location, location_len); // ptr += location_len; // Not needed as this is the last item
 
@@ -291,7 +292,11 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
     memcpy(data->value, ptr, values_size); ptr += values_size;
 
     memcpy(&data->local_sensor_id, ptr, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
-    memcpy(&data->module_id, ptr, sizeof(data->module_id)); ptr += sizeof(data->module_id);
+    
+    size_t module_id_len = strlen((const char *)ptr) + 1;
+    data->module_id = malloc(module_id_len);
+    memcpy(data->module_id, ptr, module_id_len); ptr += module_id_len;
+    
     memcpy(&data->timestamp, ptr, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
 
     size_t location_len = strlen((const char *)ptr) + 1;
@@ -305,7 +310,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
 size_t calculate_serialized_size(const sensor_data_t *data) {
     // Fixed size for int and int fields
     size_t fixed_size = sizeof(data->pin_number) + sizeof(data->total_values) +
-                        sizeof(data->local_sensor_id) + sizeof(data->module_id)
+                        sizeof(data->local_sensor_id) 
                         + sizeof(data->timestamp) + sizeof(data->sensor_type);
 
     // Dynamic size for the float array
@@ -313,6 +318,8 @@ size_t calculate_serialized_size(const sensor_data_t *data) {
     //printf("%s", data->location);
     // Dynamic size for the location string (including null terminator)
     size_t location_len = strlen(data->location) + 1;
+
+    size_t module_id = strlen(data->module_id) + 1;
 
     // Total size
     size_t total_size = fixed_size + values_size + location_len;
