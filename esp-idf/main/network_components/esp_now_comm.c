@@ -39,19 +39,21 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
 //for queue managment
 void esp_now_comm_outgoing_data_task(void * pvParameters)
 {
-    queue_packet_t queue_packet;
-    uint8_t *temp_data;
+    espnow_queue_packet_t *espnow_queue_packet;
+
 
     ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet queue started");
 
     for(;;){
-        if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
+        if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &espnow_queue_packet, portMAX_DELAY) == pdTRUE){
 
-            esp_err_t result = esp_now_send(queue_packet.mac_addr, queue_packet.data, queue_packet.len);
+            esp_err_t result = esp_now_send(espnow_queue_packet->mac_addr, espnow_queue_packet->data, espnow_queue_packet->len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
             }
             //vTaskDelay(pdMS_TO_TICKS(500));
+            // free((uint8_t*)espnow_queue_packet->data);
+            // free(espnow_queue_packet);
         }
     }
 }
@@ -59,52 +61,56 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
 //for queue managment
 void esp_now_comm_incoming_data_task(void * pvParameters)
 {
-    queue_packet_t *queue_packet;
+    espnow_queue_packet_t *espnow_queue_packet;
     sensor_data_t *sensor_data;
     ESP_LOGI(ESP_NOW_COMM_TAG, "incoming data packet queue started");
 
     for(;;){
-        if (xQueueReceive(esp_now_comm_incoming_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
-            sensor_data = deserialize_sensor_data(queue_packet->data,queue_packet->len);
+        if (xQueueReceive(esp_now_comm_incoming_data_queue_handle, &espnow_queue_packet, portMAX_DELAY) == pdTRUE){
+            sensor_data = deserialize_sensor_data(espnow_queue_packet->data,espnow_queue_packet->len);
 
             //log for test
             //print_sensor_data(sensor_data);
             //pass data to sensor queue
 
-            //allocate for data_packet
-            sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+            // //allocate for data_packet
+            // sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
-            data_packet->pin_number= sensor_data->pin_number;
-            data_packet->sensor_type = sensor_data->sensor_type;
-            data_packet->total_values = sensor_data->total_values;
-            data_packet->local_sensor_id = sensor_data->local_sensor_id;
-            data_packet->module_id = sensor_data->module_id;
-            data_packet->timestamp = sensor_data->timestamp;
+            // data_packet->pin_number= sensor_data->pin_number;
+            // data_packet->sensor_type = sensor_data->sensor_type;
+            // data_packet->total_values = sensor_data->total_values;
+            // data_packet->local_sensor_id = sensor_data->local_sensor_id;
+            // data_packet->module_id = sensor_data->module_id;
+            // data_packet->timestamp = sensor_data->timestamp;
 
-            //TODO: mem error handling
-            data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-            data_packet->location = (char*)malloc(strlen(sensor_data->location)+1);
-            strcpy(data_packet->location, sensor_data->location);
+            // //TODO: mem error handling
+            // data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+            // data_packet->location = (char*)malloc(strlen(sensor_data->location)+1);
+            // strcpy(data_packet->location, sensor_data->location);
 
-            for(int i = 0; i < data_packet->total_values; i++){
-                data_packet->value[i] = sensor_data->value[i];
-            }
+            // for(int i = 0; i < data_packet->total_values; i++){
+            //     data_packet->value[i] = sensor_data->value[i];
+            // }
 
             //sensor queue wrapper mem allocation
-            sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+            sensor_queue_wrapper_t *sensor_queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
 
-            queue_packet->nextEventID = SENSOR_POST_PROCESSING;
-            queue_packet->sensor_data = data_packet;
-            queue_packet->semphoreCount = 0;
+            //used for garbage collection
+            sensor_queue_packet->sensor_data->local_sensor = false;
 
+            sensor_queue_packet->nextEventID = SENSOR_POST_PROCESSING;
+            sensor_queue_packet->sensor_data = sensor_data;
+            sensor_queue_packet->semphoreCount = 0;
 
-            free(sensor_data);
+           // free((uint8_t*)espnow_queue_packet->data);
+//            free(espnow_queue_packet);
+            //free(sensor_data);
 
 
             //process the recieved message -> pass the sensor event queue
 
             extern QueueHandle_t sensor_queue_handle;
-            if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+            if(xQueueSend(sensor_queue_handle, &sensor_queue_packet, portMAX_DELAY) == pdPASS){
                     ESP_LOGI(ESP_NOW_COMM_TAG, "sensor data communicated and sent to sensor que for postprocessing");
                 }else{
                     ESP_LOGE(ESP_NOW_COMM_TAG, "data communicated failed to transfer to sensor que");
@@ -117,8 +123,8 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
 esp_err_t esp_now_comm_start(){
 
     //TODO: verifiy its succesfull
-    esp_now_comm_outgoing_data_queue_handle = xQueueCreate(10, sizeof(queue_packet_t));
-    esp_now_comm_incoming_data_queue_handle = xQueueCreate(10, sizeof(queue_packet_t));
+    esp_now_comm_outgoing_data_queue_handle = xQueueCreate(10, sizeof(espnow_queue_packet_t));
+    esp_now_comm_incoming_data_queue_handle = xQueueCreate(10, sizeof(espnow_queue_packet_t));
 
     //outgoing message
     xTaskCreatePinnedToCore(
@@ -193,7 +199,7 @@ extern QueueHandle_t esp_now_comm_incoming_data_queue_handle; // Make sure this 
 
 void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const uint8_t *data, int len) {
     // Allocate memory for the packet and its data
-    queue_packet_t *packet = calloc(1, sizeof(queue_packet_t));
+    espnow_queue_packet_t *packet = calloc(1, sizeof(espnow_queue_packet_t));
     if (packet == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for packet");
         return;
@@ -256,6 +262,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     memcpy(ptr, &data->local_sensor_id, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
     memcpy(ptr, &data->module_id, sizeof(data->module_id)); ptr += sizeof(data->module_id);
     memcpy(ptr, &data->timestamp, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
+    memcpy(ptr, &data->local_sensor, sizeof(data->local_sensor)); ptr += sizeof(data->local_sensor);
     memcpy(ptr, data->location, location_len); // ptr += location_len; // Not needed as this is the last item
 
     return buffer;
@@ -280,6 +287,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
     memcpy(&data->local_sensor_id, ptr, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
     memcpy(&data->module_id, ptr, sizeof(data->module_id)); ptr += sizeof(data->module_id);
     memcpy(&data->timestamp, ptr, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
+    memcpy(&data->local_sensor, ptr, sizeof(data->local_sensor)); ptr += sizeof(data->local_sensor);
 
     size_t location_len = strlen((const char *)ptr) + 1;
     data->location = malloc(location_len);

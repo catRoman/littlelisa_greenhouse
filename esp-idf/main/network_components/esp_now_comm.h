@@ -27,7 +27,7 @@ typedef struct {
     uint8_t mac_addr[ESP_NOW_ETH_ALEN];
     void* data;
     size_t len;
-} queue_packet_t;
+} espnow_queue_packet_t;
 
 
 esp_err_t esp_now_comm_start(void);

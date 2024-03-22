@@ -12,6 +12,7 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 #include <time.h>
+#include <stdbool.h>
 
 typedef enum Sensor_List{
     DHT22,
@@ -32,6 +33,7 @@ typedef struct sensor_data_t{
 	int8_t local_sensor_id;
     int8_t module_id;
     time_t timestamp;
+    bool local_sensor;
 
 } sensor_data_t;
 

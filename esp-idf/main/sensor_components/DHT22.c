@@ -94,51 +94,27 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 
 //TODO: rewrite module_config and this to work on sensor types
 // thuis tansfering both temp and humidity at once
-void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice){
-
-
-	//allocate for data_packet
-	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
-
-	data_packet->pin_number= sensor_t->pin_number;
-	data_packet->total_values = 2;
-	data_packet->local_sensor_id = sensor_t->local_sensor_id;
-	data_packet->module_id = module_info_gt->identity;
-	data_packet->timestamp = 0;
-
-	//TODO: mem error handling
-	data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
-	strcpy(data_packet->location, sensor_t->location);
-
-
-
-	data_packet->sensor_type = DHT22;
-	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
-	data_packet->value[TEMP] = get_temperature(sensor_t);
-		
-		sensor_t->value[HUMIDITY] = get_humidity(sensor_t);
-		sensor_t->value[TEMP] = get_temperature(sensor_t);
+void dht22_sensor_send_to_sensor_queue(sensor_data_t *data_packet, int sensor_choice){
 
 	//sensor queue wrapper mem allocation
-	sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+	sensor_queue_wrapper_t *sensor_queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
 
-	queue_packet->nextEventID = SENSOR_PREPOCESSING;
-	queue_packet->sensor_data = data_packet;
-	//queue_packet->sensor_data = sensor_t;
-	queue_packet->semphoreCount = 0;
+	sensor_queue_packet->nextEventID = SENSOR_PREPOCESSING;
+	//queue_packet->sensor_data = data_packet;
+	sensor_queue_packet->sensor_data = data_packet;
+	sensor_queue_packet->semphoreCount = 0;
 
 
     char logMsg[50];
 
     // Use snprintf to format the string
 	snprintf(logMsg, sizeof(logMsg), "mod:%d-id:%d-%s",
-	queue_packet->sensor_data->module_id,
-	queue_packet->sensor_data->local_sensor_id,
-	sensor_type_to_string(queue_packet->sensor_data->sensor_type));
+	sensor_queue_packet->sensor_data->module_id,
+	sensor_queue_packet->sensor_data->local_sensor_id,
+	sensor_type_to_string(sensor_queue_packet->sensor_data->sensor_type));
 
 	extern QueueHandle_t sensor_queue_handle;
-	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+	if(xQueueSend(sensor_queue_handle, &sensor_queue_packet, portMAX_DELAY) == pdPASS){
 			ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
 		}else{
 			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
@@ -357,35 +333,58 @@ float temperature = sensor_t->value[TEMP];
 */
 void DHT22_task(void *vpParameter)
 {
-	sensor_data_t *sensor_t;
-	sensor_t = (sensor_data_t *)vpParameter;
-	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
-	float values[sensor_t->total_values];
-	sensor_t->value = values;
 
 
-	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
-	esp_rom_delay_us( 100 );
-	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
-	vTaskDelay(pdMS_TO_TICKS(1000));
-	esp_log_level_set(TAG, ESP_LOG_INFO);
+	sensor_data_t *sensor_t = (sensor_data_t *)vpParameter;
+
+
 
 	for(;;)
 	{
+		//deep copy for passing to sensor que
+		sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+
+		data_packet->pin_number= sensor_t->pin_number;
+		data_packet->total_values = DHT22_TOTAL_VALUE_TYPES;
+		data_packet->local_sensor_id = sensor_t->local_sensor_id;
+		data_packet->module_id = module_info_gt->identity;
+		data_packet->timestamp = 0;
+
+		//TODO: mem error handling
+		data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+		data_packet->value[HUMIDITY] = 0;
+		data_packet->value[TEMP] = 0;
+
+		data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
+		strcpy(data_packet->location, sensor_t->location);
+
+		data_packet->sensor_type = DHT22;
+		data_packet->local_sensor = true;
+
+
+		gpio_set_direction((gpio_num_t) data_packet->pin_number, GPIO_MODE_INPUT);
+		esp_rom_delay_us( 100 );
+		gpio_set_pull_mode(data_packet->pin_number, GPIO_PULLUP_ONLY);
+		vTaskDelay(pdMS_TO_TICKS(1000));
+		esp_log_level_set(TAG, ESP_LOG_INFO);
+
+		//free mem for passed sensor_data
+		// free(sensor_t->location);
+		// free(sensor_t);
 
 		//printf("=== Reading DHT ===\n");
-		int ret = readDHT(sensor_t);
+		int ret = readDHT(data_packet);
 
 		if (ret == DHT_OK){
-			log_sensor_JSON(sensor_t, DHT22);
+			//log_sensor_JSON(data_packet, DHT22);
 
 			//#ifdef CONFIG_MODULE_TYPE_NODE
 
-			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22);
+			dht22_sensor_send_to_sensor_queue(data_packet, DHT22);
 			//#endif
 			 //TODO: change either the function name or the function for better focus
 		}else{
-			errorHandler(ret, sensor_t);
+			errorHandler(ret, data_packet);
 		}
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
