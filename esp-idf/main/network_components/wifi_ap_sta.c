@@ -231,7 +231,7 @@ void wifi_start(void)
 
 }
 
-esp_err_t log_mac_address(int mac_type){
+esp_err_t log_mac_address(esp_mac_type_t mac_type){
 
     char *type;
 
