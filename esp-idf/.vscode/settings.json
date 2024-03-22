@@ -1,6 +1,6 @@
 {
     "idf.adapterTargetName": "esp32",
-    "idf.port": "/dev/ttyACM0",
+    "idf.port": "/dev/ttyACM5",
     "idf.flashType": "UART",
     "files.associations": {
         "freertos.h": "c",
@@ -9,6 +9,10 @@
         "http_handlers.h": "c",
         "esp_ota_ops.h": "c",
         "wifi_ap_sta.h": "c",
-        "sdkconfig.h": "c"
+        "sdkconfig.h": "c",
+        "esp_system.h": "c",
+        "sensor_tasks.h": "c",
+        "task_common.h": "c",
+        "task.h": "c"
     }
 }
