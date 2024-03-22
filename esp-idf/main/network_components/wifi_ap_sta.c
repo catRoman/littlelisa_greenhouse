@@ -256,7 +256,7 @@ esp_err_t mdns_start(){
         //"littlelisa-controller-ab:3d:45:a4:2d:ed" - example 26 char w/o terminator
         char module_id[50];
         char mac_addr[20];
-        strpcy(mac_addr, module_info_gt->identity);
+        strcpy(mac_addr, module_info_gt->identity);
         find_and_replace(mac_addr, ':', '_');
         
         snprintf(module_id, sizeof(module_id), "%s", mac_addr);

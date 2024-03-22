@@ -189,7 +189,7 @@ void nvs_set_module(char *module_type, char *module_location, char *moduleNum){
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, moduleNum));
 
     if (nvs_commit(nvs_module_handle) == ESP_OK){
-        ESP_LOGI(TAG, "{==module set==} changes succeffully commited-> module set to %s, unit num: %d", module_type, moduleNum);
+        ESP_LOGI(TAG, "{==module set==} changes succeffully commited-> module set to %s, idenetity: %s", module_type, moduleNum);
     }
     nvs_close(nvs_module_handle);
 

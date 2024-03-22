@@ -16,6 +16,8 @@
 #include "task_common.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
+#include "esp_wifi_types.h"
+#include "esp_mac.h"
 
 #include "module_config.h"
 #include "node_info.h"
