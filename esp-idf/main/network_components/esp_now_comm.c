@@ -84,11 +84,13 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             data_packet->sensor_type = sensor_data->sensor_type;
             data_packet->total_values = sensor_data->total_values;
             data_packet->local_sensor_id = sensor_data->local_sensor_id;
-            data_packet->module_id = sensor_data->module_id;
             data_packet->timestamp = sensor_data->timestamp;
 
             //TODO: mem error handling
             data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+            data_packet->module_id=(char*)malloc(strlen(sensor_data->module_id) +1);
+            strcpy(data_packet->module_id, sensor_data->module_id);
+
             data_packet->location = (char*)malloc(strlen(sensor_data->location)+1);
             strcpy(data_packet->location, sensor_data->location);
 
@@ -123,6 +125,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             free(espnow_queue_packet);
             free(sensor_data->value);
             free(sensor_data->location);
+            free(sensor_data->module_id);
             free(sensor_data);
         }
     }
@@ -296,7 +299,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
     size_t module_id_len = strlen((const char *)ptr) + 1;
     data->module_id = malloc(module_id_len);
     memcpy(data->module_id, ptr, module_id_len); ptr += module_id_len;
-    
+
     memcpy(&data->timestamp, ptr, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
 
     size_t location_len = strlen((const char *)ptr) + 1;
@@ -333,7 +336,7 @@ void print_sensor_data(const sensor_data_t* data) {
     printf("Total Values: %d\n", data->total_values);
     printf("Location: %s\n", data->location);
     printf("Local Sensor ID: %d\n", data->local_sensor_id);
-    printf("Module ID: %d\n", data->module_id);
+    printf("Module ID: %s\n", data->module_id);
 
     // Convert to local time format
     struct tm *tmLocal = localtime(&data->timestamp);
