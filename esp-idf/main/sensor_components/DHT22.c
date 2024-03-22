@@ -65,7 +65,7 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 
 	cJSON *json_data = cJSON_CreateObject();
 
-	cJSON_AddNumberToObject(json_data, "module_id", sensor_t->module_id);
+	cJSON_AddStringToObject(json_data, "module_id", sensor_t->module_id);
 	cJSON_AddNumberToObject(json_data, "sensor_id", sensor_t->local_sensor_id);
 	cJSON_AddStringToObject(json_data, "timestamp", ctime(&sensor_t->timestamp));
 	cJSON_AddStringToObject(json_data, "location", sensor_t->location);

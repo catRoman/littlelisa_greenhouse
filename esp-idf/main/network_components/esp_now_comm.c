@@ -325,7 +325,7 @@ size_t calculate_serialized_size(const sensor_data_t *data) {
     size_t module_id = strlen(data->module_id) + 1;
 
     // Total size
-    size_t total_size = fixed_size + values_size + location_len;
+    size_t total_size = fixed_size + values_size + location_len + module_id;
 
     return total_size;
 }
