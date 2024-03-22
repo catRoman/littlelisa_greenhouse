@@ -19,7 +19,7 @@ void node_info_log_module_info(void){
     err = nvs_get_module_info(&module_info);
 
     if(err == ESP_OK){
-        ESP_LOGI(NODE_INFO_TAG, "Module info-> Type: %s | Location: %s | Identifier: %d", module_info.type, module_info.location, module_info.identity );
+        ESP_LOGI(NODE_INFO_TAG, "Module info-> Type: %s | Location: %s | Identifier: %s", module_info.type, module_info.location, module_info.identity );
     }else{
         ESP_LOGE(NODE_INFO_TAG, "%s", esp_err_to_name(err));
     }
