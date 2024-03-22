@@ -31,6 +31,7 @@
 #include "http_server.h"
 #include "sntp.h"
 #include "task_common.h"
+#include "helper.h"
 
 static const char WIFI_TAG[] = "wifi_ap_sta";
 static int s_retry_num = 0;
@@ -188,7 +189,8 @@ void wifi_start(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
-        log_mac_address(true);
+        log_mac_address(ESP_MAC_WIFI_SOFTAP);
+        log_mac_address(ESP_MAC_WIFI_STA);
 
         mdns_start();
         //esp_now_comm_start();
@@ -210,7 +212,7 @@ void wifi_start(void)
 
         esp_netif_set_default_netif(esp_netif_sta);
         led_wifi_app_started();
-        log_mac_address(false);
+        log_mac_address(ESP_MAC_WIFI_STA);
 
         mdns_start();
         //esp_now_comm_start();
@@ -229,22 +231,29 @@ void wifi_start(void)
 
 }
 
-esp_err_t log_mac_address(bool is_sta){
-    int mac_type;
-    if(is_sta == true){
-        mac_type = ESP_MAC_WIFI_STA;
+esp_err_t log_mac_address(esp_mac_type_t mac_type){
+
+    char *type;
+
+    if(mac_type == ESP_MAC_WIFI_SOFTAP){
+        type = "AP";
     }else{
-        mac_type = ESP_MAC_WIFI_SOFTAP;
+        type = "STA";
     }
+ 
     uint8_t mac[6];
     // Get MAC address for Wi-Fi Station interface
     esp_err_t mac_ret = esp_read_mac(mac, mac_type);
 
     if (mac_ret == ESP_OK) {
-        ESP_LOGI(WIFI_TAG, "MAC Address: %02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        
+        ESP_LOGI(WIFI_TAG, "%s MAC Address: %02x:%02x:%02x:%02x:%02x:%02x\n", type, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+       
     } else {
         ESP_LOGE(WIFI_TAG, "Failed to get MAC address!\n");
     }
+
+    
 
     return mac_ret;
 }
@@ -252,9 +261,13 @@ esp_err_t log_mac_address(bool is_sta){
 esp_err_t mdns_start(){
     extern Module_info_t *module_info_gt;
     esp_err_t err;
-        //"littlelisa-controller-099" - example 26 char w/o terminator
-        char module_id[12];
-        snprintf(module_id, sizeof(module_id), "%d", module_info_gt->identity);
+        //"littlelisa-controller-ab:3d:45:a4:2d:ed" - example 26 char w/o terminator
+        char module_id[50];
+        char mac_addr[20];
+        strcpy(mac_addr, module_info_gt->identity);
+        find_and_replace(mac_addr, ':', '_');
+        
+        snprintf(module_id, sizeof(module_id), "%s", mac_addr);
         char mdns_host_name[50] = "littlelisa-";
 
         size_t current_length = strlen(mdns_host_name);

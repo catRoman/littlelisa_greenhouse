@@ -113,8 +113,6 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
 
     size_t module_type_required_size;
 
-
-
     if((err = nvs_get_str(nvs_module_handle, NVS_MODULE_TYPE_INDEX, NULL, &module_type_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
@@ -153,11 +151,25 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
         return err;
     }
 
+    size_t module_identity_required_size;
 
-     if((err = nvs_get_i8(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, &(module_info->identity))) != ESP_OK){
+    if((err = nvs_get_str(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, NULL, &module_identity_required_size)) != ESP_OK){
         ESP_LOGW(TAG, "%s", esp_err_to_name(err));
         return err;
     }
+
+    module_info->identity = (char *)malloc(module_identity_required_size);
+    if (module_info->identity == NULL) {
+        // Handle memory allocation failure
+        ESP_LOGE(TAG, "Memory allocation failed- module identity\n");
+        return ESP_ERR_NO_MEM;
+    }
+
+    if((err = nvs_get_str(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, module_info->identity, &module_identity_required_size)) != ESP_OK){
+        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+        return err;
+    }
+
 
     nvs_close(nvs_module_handle);
 
@@ -166,17 +178,18 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info){
 
     }
 
-void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum){
+void nvs_set_module(char *module_type, char *module_location, char *moduleNum){
 
     if(nvs_open(NVS_MODULE_NAMESPACE, NVS_READWRITE, &nvs_module_handle) == ESP_OK){
         ESP_LOGI(TAG, "{==module type==} opened");
     }
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_TYPE_INDEX, module_type));
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_LOCATION_INDEX, module_location));
-    ESP_ERROR_CHECK(nvs_set_i8(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, moduleNum));
+
+    ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, moduleNum));
 
     if (nvs_commit(nvs_module_handle) == ESP_OK){
-        ESP_LOGI(TAG, "{==module set==} changes succeffully commited-> module set to %s, unit num: %d", module_type, moduleNum);
+        ESP_LOGI(TAG, "{==module set==} changes succeffully commited-> module set to %s, idenetity: %s", module_type, moduleNum);
     }
     nvs_close(nvs_module_handle);
 

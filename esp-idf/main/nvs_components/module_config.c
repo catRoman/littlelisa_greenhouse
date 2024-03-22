@@ -15,12 +15,16 @@
 #include "network_components/wifi_ap_sta.h"
 #include "task_common.h"
 #include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_wifi_types.h"
+#include "esp_mac.h"
 
 #include "module_config.h"
 #include "node_info.h"
 #include "nvs_service.h"
 #include "sensor_components/sensor_tasks.h"
 #include "helper.h"
+#include "network_components/wifi_ap_sta.h"
 
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
@@ -370,10 +374,10 @@ void initiate_config(){
         #ifdef CONFIG_MODULE_TYPE_CONTROLLER
 
 
-            module_info_gt = create_module_from_config("controller", CONFIG_MODULE_LOCATION, CONFIG_MODULE_IDENTITY, sensor_arr, sensor_config_arr);
+            module_info_gt = create_module_from_config("controller", CONFIG_MODULE_LOCATION, sensor_arr, sensor_config_arr);
         #elif CONFIG_MODULE_TYPE_NODE
 
-            module_info_gt = create_module_from_config("node", CONFIG_MODULE_LOCATION, CONFIG_MODULE_IDENTITY, sensor_arr, sensor_config_arr);
+            module_info_gt = create_module_from_config("node", CONFIG_MODULE_LOCATION, sensor_arr, sensor_config_arr);
 
 
         #else
@@ -460,9 +464,12 @@ void initiate_sensor_tasks(){
                     local_sensor[sensor_id-1]->sensor_type = sensor_type;
                     local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
                     local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
-                    local_sensor[sensor_id-1]->location = module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id];
+                    strcpy( local_sensor[sensor_id-1]->location,module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id] );
+                    
                     local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
-                    local_sensor[sensor_id-1]->module_id = module_info_gt->identity;
+                    local_sensor[sensor_id-1]->module_id = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->identity)));
+                    strcpy(local_sensor[sensor_id-1]->module_id, module_info_gt->identity);
+                    
                     local_sensor[sensor_id-1]->timestamp = 0;
 
 
@@ -542,14 +549,16 @@ Module_info_t *create_module_from_NVS() {
     int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
 
     created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
-    created_module->type = (char *)malloc(sizeof(char) * strlen(temp_module.type));
-    created_module->location = (char *)malloc(sizeof(char) * strlen(temp_module.location));
+    created_module->type = (char *)malloc(sizeof(char) * (strlen(temp_module.type)+1));
+    created_module->location = (char *)malloc(sizeof(char) * (strlen(temp_module.location)+1));
     created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
 
 
     strcpy(created_module->type, temp_module.type);
     strcpy(created_module->location, temp_module.location);
-    created_module->identity = temp_module.identity;
+
+    created_module->identity = (char *)malloc(sizeof(char) * (strlen(temp_module.identity)+1));
+    strcpy(created_module->identity, temp_module.identity);
 
     ESP_ERROR_CHECK(nvs_get_sensor_arr(&(created_module->sensor_arr), &sensor_arr_total));
 
@@ -568,6 +577,8 @@ Module_info_t *create_module_from_NVS() {
 
     free(temp_module.type);
     free(temp_module.location);
+    free(temp_module.identity);
+    
 
     return created_module;
 }
@@ -576,7 +587,6 @@ Module_info_t *create_module_from_NVS() {
 // Function to create a Module_info_t instance
 Module_info_t *create_module_from_config(char *type,
         char *location,
-        int8_t identity,
         int8_t *sensor_arr,
         Module_sensor_config_t **sensor_config_arr) {
 
@@ -585,14 +595,37 @@ Module_info_t *create_module_from_config(char *type,
     //int8_t sensor_arr_total = SENSOR_LIST_TOTAL;
 
     created_module = (Module_info_t *)malloc(sizeof(Module_info_t));
-    created_module->type = (char *)malloc(sizeof(char) * strlen(type));
-    created_module->location = (char *)malloc(sizeof(char) * strlen(location));
+    created_module->type = (char *)malloc(sizeof(char) * strlen(type)+1);
+    created_module->location = (char *)malloc(sizeof(char) * strlen(location)+1);
     created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
 
 
     strcpy(created_module->type, type);
     strcpy(created_module->location, location);
-    created_module->identity = identity;
+
+
+    int mac_type;
+    if(strcmp(type, "node") == 0){
+        mac_type = ESP_MAC_WIFI_STA;
+    }else{
+        mac_type = ESP_MAC_WIFI_SOFTAP;
+    }
+    uint8_t mac[6];
+    // Get MAC address for Wi-Fi Station interface
+    esp_err_t mac_ret = esp_read_mac(mac, mac_type);
+
+    char mac_addr_str[20];
+
+    if (mac_ret == ESP_OK) {
+        sprintf(mac_addr_str, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    } else {
+        sprintf(mac_addr_str, "unknown");
+    }
+
+
+    created_module->identity = (char*)malloc(sizeof(char) * strlen(mac_addr_str)+1);
+    strcpy(created_module->identity, mac_addr_str);
+    
 
     for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
         created_module->sensor_arr[i] = sensor_arr[i];

@@ -83,7 +83,7 @@ void nvs_erase(void);
 
 esp_err_t nvs_get_module_info(Module_info_t *module_info);
 
-void nvs_set_module(char *module_type, char *module_location, int8_t moduleNum);
+void nvs_set_module(char *module_type, char *module_location, char *moduleNum);
 
 esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength);
 

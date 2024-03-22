@@ -19,12 +19,6 @@ menu "NVS Module Info"
         help
             Module location information
 
-    config MODULE_IDENTITY
-        int "Unique module identifier"
-        default 0
-        help
-            add unique module identifier, consult config file for available unit numbers
-
     menu "Sensor List"
 
         config SENSOR_DHT22
