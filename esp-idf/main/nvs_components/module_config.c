@@ -605,7 +605,7 @@ Module_info_t *create_module_from_config(char *type,
 
 
     int mac_type;
-    if(ESP_ENABLE_AP_MODE == false){
+    if(strcmp(type, "node") == 0){
         mac_type = ESP_MAC_WIFI_STA;
     }else{
         mac_type = ESP_MAC_WIFI_SOFTAP;
