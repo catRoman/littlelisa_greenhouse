@@ -190,8 +190,8 @@ void sensor_preprocessing_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
-            heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
-
+            //heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
+            ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
            // TODO:check values are within range if not send to cleanup
            // sensor_validation();
 
@@ -314,12 +314,14 @@ void sensor_post_processing_task(void * pvParameters)
 
             cJSON_Delete(json_data);
 
-            ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type),
-                                                 json_string);
+            // ESP_LOGI(SENSOR_EVENT_TAG, "{mod:%d-id:%d-%s} Logged JSON Data: %s",
+            //                                     event->sensor_data->module_id,
+            //                                     event->sensor_data->local_sensor_id,
+            //                                     sensor_type_to_string(event->sensor_data->sensor_type),
+            //                                      json_string);
 
+            free(event->sensor_data->value);
+            free(event->sensor_data->location);
             free(event->sensor_data);
             free(event);
 
