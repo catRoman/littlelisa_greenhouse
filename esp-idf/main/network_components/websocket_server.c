@@ -246,35 +246,11 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
 
     }
     httpd_ws_frame_t ws_pkt;
-    uint8_t *buf = NULL;
     memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-    /* Set max_len = 0 to get the frame len */
+  
 
-    // esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
-    // if (ret != ESP_OK) {
-    //     ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
-    //     return ret;
-    // }
-    // ESP_LOGI(WEBSOCKET_SERVER_TAG, "frame len is %d", ws_pkt.len);
-    // if (ws_pkt.len) {
-    //     /* ws_pkt.len + 1 is for NULL termination as we are expecting a string */
-    //     buf = calloc(1, ws_pkt.len + 1);
-    //     if (buf == NULL) {
-    //         ESP_LOGE(WEBSOCKET_SERVER_TAG, "Failed to calloc memory for buf");
-    //         return ESP_ERR_NO_MEM;
-    //     }
-    //     ws_pkt.payload = buf;
-    //     /* Set max_len = ws_pkt.len to get the frame payload */
-    //     ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
-    //     if (ret != ESP_OK) {
-    //         ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_recv_frame failed with %d", ret);
-    //         free(buf);
-    //         return ret;
-    //     }
-    //     ESP_LOGI(WEBSOCKET_SERVER_TAG, "Got packet with message: %s", ws_pkt.payload);
-    // }
-
+   
 
    char * buff = "thhis is a test";
 
@@ -282,17 +258,18 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
    ws_pkt.fragmented = false;
    ws_pkt.payload = (uint8_t*)buff;
    ws_pkt.len = strlen(buff) + 1;
- esp_err_t ret;
+    
+    esp_err_t ret;
     for(int i = 0; i< 10; i++){
          ret  = httpd_ws_send_frame(req, &ws_pkt);
             if (ret != ESP_OK) {
                 ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
             }else{
-                ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent");
+                ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",httpd_req_to_sockfd(req));
             }
             vTaskDelay(pdMS_TO_TICKS(1000));
     }
-    free(buf);
+    
     return ret;
 }
 
@@ -300,9 +277,6 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
 esp_err_t register_websocket_server_handlers(void)
 {
     ESP_LOGI(WEBSOCKET_SERVER_TAG, "websocket_server_configure: Registering URI handlers");
-
-
-
 
     static const httpd_uri_t ws_echo = {
             .uri        = "/ws/echo",
