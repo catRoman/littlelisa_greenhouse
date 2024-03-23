@@ -23,7 +23,7 @@ typedef enum websocket_server_message
 */
 typedef enum websocket_server_wifi_connect_status
 {
-    NONE = 0,
+    WEBSOCKET_NONE = 0,
     WEBSOCKET_WIFI_STATUS_CONNECT_FAILED,
     WEBSOCKET_WIFI_STATUS_CONNECT_SUCCESS,
     WEBSOCKET_WIFI_STATUS_CONNECTING,
@@ -55,10 +55,10 @@ void websocket_server_stop(void);
 void websocket_server_start(void);
 
 
-static httpd_handle_t websocket_server_configuration(void);
+httpd_handle_t websocket_server_configuration(void);
 
-static void websocket_server_monitor(void * xTASK_PARAMETERS);
+void websocket_server_monitor(void * xTASK_PARAMETERS);
 
 
-void register_websocket_server_handlers(void);
+esp_err_t register_websocket_server_handlers(void);
 #endif /*WEBSOCKET_SERVER_H*/
