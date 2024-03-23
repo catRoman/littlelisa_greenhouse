@@ -21,7 +21,7 @@
 
 
 //wifi connect status
-int g_wifi_connect_status = WEBSOCKET_NONE;
+int g_wifi_ws_connect_status = WEBSOCKET_NONE;
 
 static const char WEBSOCKET_SERVER_TAG[] = "WEBSOCKET_server";
 httpd_handle_t websocket_server_handle = NULL;
@@ -40,17 +40,17 @@ void websocket_server_monitor(void * xTASK_PARAMETERS)
             {
                 case WEBSOCKET_MSG_WIFI_CONNECT_INIT:
                     ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_CONNECT_INIT");
-                    g_wifi_connect_status = WEBSOCKET_WIFI_STATUS_CONNECTING;
+                    g_wifi_ws_connect_status = WEBSOCKET_WIFI_STATUS_CONNECTING;
                     break;
 
                 case WEBSOCKET_MSG_WIFI_CONNECT_SUCCESS:
                     ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_CONNECT_SUCCESS");
-                    g_wifi_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_SUCCESS;
+                    g_wifi_ws_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_SUCCESS;
                     break;
 
                 case WEBSOCKET_MSG_WIFI_CONNECT_FAIL:
                     ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_WIFI_CONNECT_FAIL");
-                    g_wifi_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_FAILED;
+                    g_wifi_ws_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_FAILED;
                     break;
 
                 default:
