@@ -27,7 +27,6 @@ static const char WEBSOCKET_SERVER_TAG[] = "WEBSOCKET_server";
 httpd_handle_t websocket_server_handle = NULL;
 static TaskHandle_t task_websocket_server_monitor = NULL;
 static QueueHandle_t websocket_server_monitor_queue_handle;
-esp_timer_handle_t fw_update_reset;
 
 void websocket_server_monitor(void * xTASK_PARAMETERS)
 {
