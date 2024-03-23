@@ -137,24 +137,24 @@ void register_http_server_handlers(void)
 
 
 
-            // Create URI (Uniform Resource Identifier)
-            // for the server which is added to default gateway
-            httpd_uri_t ws_uri_handler = {
-                .uri = "/ws",           // URL added to WiFi's default gateway
-                .method = HTTP_GET,
-                .handler = async_get_handler,
-                .user_ctx = NULL,
-            };
-            httpd_register_uri_handler(http_server_handle, &ws_uri_handler);
 
-            static const httpd_uri_t ws = {
-                    .uri        = "/ws1",
+            static const httpd_uri_t ws_echo = {
+                    .uri        = "/ws/echo",
                     .method     = HTTP_GET,
-                    .handler    = echo_handler,
+                    .handler    = ws_echo_handler,
                     .user_ctx   = NULL,
                     .is_websocket = true
             };
-            httpd_register_uri_handler(http_server_handle, &ws);
+            httpd_register_uri_handler(http_server_handle, &ws_echo);
+
+            static const httpd_uri_t ws_sensor = {
+                .uri        = "/ws/sensor",
+                .method     = HTTP_GET,
+                .handler    = ws_sensor_handler,
+                .user_ctx   = NULL,
+                .is_websocket = true
+            };
+            httpd_register_uri_handler(http_server_handle, &ws_sensor);
 }
 
 
@@ -382,22 +382,10 @@ esp_err_t preflight_handler(httpd_req_t *req) {
 
 
 
-// Initialize a queue for asynchronous communication
-esp_err_t async_get_handler(httpd_req_t *req)
-{
-    struct async_resp_arg *resp_arg = malloc(sizeof(struct async_resp_arg));
-    resp_arg->hd = req->handle;
-    resp_arg->fd = httpd_req_to_sockfd(req);
-    ESP_LOGI("WebSocket", "Queuing work fd : %d", resp_arg->fd);
-    httpd_queue_work(req->handle, generate_async_resp, resp_arg);
-    return ESP_OK;
-}
-
-
-esp_err_t echo_handler(httpd_req_t *req)
+esp_err_t ws_echo_handler(httpd_req_t *req)
 {
     if (req->method == HTTP_GET) {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Handshake done, the new connection was opened");
+        ESP_LOGI(HTTP_HANDLER_TAG, "Handshake done, the new echo websocket connection was opened");
         return ESP_OK;
     }
     httpd_ws_frame_t ws_pkt;
@@ -438,6 +426,64 @@ esp_err_t echo_handler(httpd_req_t *req)
     ret = httpd_ws_send_frame(req, &ws_pkt);
     if (ret != ESP_OK) {
         ESP_LOGE(HTTP_HANDLER_TAG, "httpd_ws_send_frame failed with %d", ret);
+    }
+    free(buf);
+    return ret;
+}
+
+
+esp_err_t ws_sensor_handler(httpd_req_t *req)
+{
+    if (req->method == HTTP_GET) {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Handshake done, the new sensor websocket connection was opened");
+
+    }
+    httpd_ws_frame_t ws_pkt;
+    uint8_t *buf = NULL;
+    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+    /* Set max_len = 0 to get the frame len */
+
+    // esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
+    // if (ret != ESP_OK) {
+    //     ESP_LOGE(HTTP_HANDLER_TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
+    //     return ret;
+    // }
+    // ESP_LOGI(HTTP_HANDLER_TAG, "frame len is %d", ws_pkt.len);
+    // if (ws_pkt.len) {
+    //     /* ws_pkt.len + 1 is for NULL termination as we are expecting a string */
+    //     buf = calloc(1, ws_pkt.len + 1);
+    //     if (buf == NULL) {
+    //         ESP_LOGE(HTTP_HANDLER_TAG, "Failed to calloc memory for buf");
+    //         return ESP_ERR_NO_MEM;
+    //     }
+    //     ws_pkt.payload = buf;
+    //     /* Set max_len = ws_pkt.len to get the frame payload */
+    //     ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
+    //     if (ret != ESP_OK) {
+    //         ESP_LOGE(HTTP_HANDLER_TAG, "httpd_ws_recv_frame failed with %d", ret);
+    //         free(buf);
+    //         return ret;
+    //     }
+    //     ESP_LOGI(HTTP_HANDLER_TAG, "Got packet with message: %s", ws_pkt.payload);
+    // }
+
+
+   char * buff = "thhis is a test";
+
+   ws_pkt.final = true;
+   ws_pkt.fragmented = false;
+   ws_pkt.payload = (uint8_t*)buff;
+   ws_pkt.len = strlen(buff) + 1;
+ esp_err_t ret;
+    for(int i = 0; i< 10; i++){
+         ret  = httpd_ws_send_frame(req, &ws_pkt);
+            if (ret != ESP_OK) {
+                ESP_LOGE(HTTP_HANDLER_TAG, "httpd_ws_send_frame failed with %d", ret);
+            }else{
+                ESP_LOGI(HTTP_HANDLER_TAG, "packet sent");
+            }
+            vTaskDelay(pdMS_TO_TICKS(1000));
     }
     free(buf);
     return ret;
