@@ -45,6 +45,7 @@ typedef enum sensor_event_type
     SENSOR_SEND_TO_SD_DB,   //json? or direct to db
     SENSOR_SEND_TO_SERVER_DB,   //json? or direct to db
     SENSOR_QUEUE_MEM_CLEANUP,
+    SENSOR_SEND_TO_WEBSOCKET_SERVER
 
 } sensor_event_type;
 
@@ -65,5 +66,6 @@ void sensor_send_to_ram_task(void * pvParameters);
 void sensor_send_to_sd_db_task(void * pvParameters);
 void sensor_send_to_server_db_task(void * pvParameters);
 void sensor_queue_mem_cleanup_task(void * pvParameters);
+void sensor_send_to_websocket_server_task(void * pvParameters);
 
 #endif

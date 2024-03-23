@@ -79,6 +79,10 @@ QueueHandle_t sensor_queue_mem_cleanup_handle = NULL;
 TaskHandle_t sensor_queue_mem_cleanup_task_handle = NULL;
 
 
+QueueHandle_t sensor_send_to_websocket_server_handle = NULL;
+TaskHandle_t sensor_send_to_websocket_server_task_handle = NULL;
+
+
 void sensor_queue_monitor_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
@@ -174,6 +178,18 @@ void sensor_queue_monitor_task(void * pvParameters)
                         ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to queue mem cleanup",logMsg);
                     }
                     break;
+
+                case SENSOR_SEND_TO_WEBSOCKET_SERVER:
+
+
+                    if(xQueueSend(sensor_send_to_websocket_server_handle, &event, portMAX_DELAY)){
+                        ESP_LOGD(SENSOR_EVENT_TAG, "%s passing to websocket server queue",logMsg);
+                    }else{
+                        ESP_LOGE(SENSOR_EVENT_TAG, "%s failed to pass to websocket server queue",logMsg);
+                    }
+                    break;
+
+                
             }
 
 
@@ -354,7 +370,7 @@ void sensor_send_to_ram_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
-
+           taskYIELD(); 
         }
 
     }
@@ -373,6 +389,7 @@ void sensor_send_to_sd_db_task(void * pvParameters)
 
 
 
+           taskYIELD(); 
         }
 
     }
@@ -391,6 +408,7 @@ void sensor_send_to_server_db_task(void * pvParameters)
 
 
 
+           taskYIELD(); 
         }
 
     }
@@ -409,6 +427,26 @@ void sensor_queue_mem_cleanup_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
+           taskYIELD(); 
+        }
+
+    }
+}
+
+void sensor_send_to_websocket_server_task(void * pvParameters)
+{
+    sensor_queue_wrapper_t *event;
+
+    for(;;){
+        if (xQueueReceive(sensor_send_to_websocket_server_handle, &event, portMAX_DELAY) == pdTRUE){
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in ram send process",
+                                                event->sensor_data->module_id,
+                                                event->sensor_data->local_sensor_id,
+                                                sensor_type_to_string(event->sensor_data->sensor_type));
+
+
+
+           taskYIELD(); 
         }
 
     }
@@ -432,7 +470,7 @@ esp_err_t initiate_sensor_queue(){
         ESP_LOGE(SENSOR_EVENT_TAG, "queue not created");
     }
     sensor_post_processing_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
-if (sensor_post_processing_handle == NULL){
+    if (sensor_post_processing_handle == NULL){
         ESP_LOGE(SENSOR_EVENT_TAG, "queue not created");
     }
 
@@ -440,6 +478,7 @@ if (sensor_post_processing_handle == NULL){
     sensor_send_to_sd_db_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_send_to_server_db_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_queue_mem_cleanup_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
+    sensor_send_to_websocket_server_handle = xQueueCreate(20, sizeof(sensor_queue_wrapper_t));
 
 
     xTaskCreatePinnedToCore(
@@ -520,6 +559,16 @@ if (sensor_post_processing_handle == NULL){
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
         &sensor_queue_mem_cleanup_task_handle,
         SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
+
+     xTaskCreatePinnedToCore(
+        sensor_send_to_websocket_server_task,
+        "sensor_send_to_websocket_server",
+        SENSOR_SEND_TO_WEBSOCKET_SERVER_STACK_SIZE,
+        NULL,
+        SENSOR_SEND_TO_WEBSOCKET_SERVER_PRIORITY,
+        &sensor_send_to_websocket_server_task_handle,
+        SENSOR_SEND_TO_WEBSOCKET_SERVER_CORE_ID);
+
 
 
 
