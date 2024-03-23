@@ -25,6 +25,7 @@
 #include "sensor_components/sensor_tasks.h"
 #include "helper.h"
 #include "network_components/wifi_ap_sta.h"
+#include "network_components/websocket_server.h"
 
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
@@ -422,12 +423,13 @@ void initiate_config(){
         ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
         // Start Wifi
         wifi_start();
-
+        vTaskDelay(pdMS_TO_TICKS(1000));
         if (strcmp(module_info_gt->type, "controller") == 0) {
             ESP_LOGI(TAG, "Starting Controller only services");
             //sd and db_init
             //spi_sd_card_init();
             //sd_db_init();
+
         } else if(strcmp(module_info_gt->type, "node") == 0){
             ESP_LOGI(TAG, "Starting Node only services");
            //node only;
@@ -465,11 +467,11 @@ void initiate_sensor_tasks(){
                     local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
                     local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
                     strcpy( local_sensor[sensor_id-1]->location,module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id] );
-                    
+
                     local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
                     local_sensor[sensor_id-1]->module_id = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->identity)));
                     strcpy(local_sensor[sensor_id-1]->module_id, module_info_gt->identity);
-                    
+
                     local_sensor[sensor_id-1]->timestamp = 0;
 
 
@@ -578,7 +580,7 @@ Module_info_t *create_module_from_NVS() {
     free(temp_module.type);
     free(temp_module.location);
     free(temp_module.identity);
-    
+
 
     return created_module;
 }
@@ -625,7 +627,7 @@ Module_info_t *create_module_from_config(char *type,
 
     created_module->identity = (char*)malloc(sizeof(char) * strlen(mac_addr_str)+1);
     strcpy(created_module->identity, mac_addr_str);
-    
+
 
     for(int i = 0; i < SENSOR_LIST_TOTAL; i++){
         created_module->sensor_arr[i] = sensor_arr[i];

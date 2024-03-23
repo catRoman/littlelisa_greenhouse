@@ -1,6 +1,6 @@
 {
     "idf.adapterTargetName": "esp32",
-    "idf.port": "/dev/ttyUSB0",
+    "idf.port": "/dev/ttyACM5",
     "idf.flashType": "UART",
     "files.associations": {
         "freertos.h": "c",
@@ -13,6 +13,8 @@
         "esp_system.h": "c",
         "sensor_tasks.h": "c",
         "task_common.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "websocket_server.h": "c",
+        "module_config.h": "c"
     }
 }

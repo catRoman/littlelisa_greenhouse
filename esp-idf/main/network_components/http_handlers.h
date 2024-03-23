@@ -47,3 +47,7 @@ esp_err_t preflight_handler(httpd_req_t *req);
  * regester http serevr handler requests
 */
 void register_http_server_handlers(void);
+
+esp_err_t async_get_handler(httpd_req_t *req);
+
+esp_err_t echo_handler(httpd_req_t *req);
