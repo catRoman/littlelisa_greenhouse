@@ -66,7 +66,7 @@ void websocket_server_monitor(void * xTASK_PARAMETERS)
 httpd_handle_t websocket_server_configuration(void)
 {
     // Generate the default configuration
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_config_t ws_config = HTTPD_DEFAULT_CONFIG();
 
     // create the message queue
     websocket_server_monitor_queue_handle = xQueueCreate(3, sizeof(websocket_server_queue_message_t));
@@ -78,18 +78,20 @@ httpd_handle_t websocket_server_configuration(void)
         WEBSOCKET_SERVER_MONITOR_STACK_SIZE, NULL, WEBSOCKET_SERVER_MONITOR_PRIORITY, &task_websocket_server_monitor, WEBSOCKET_SERVER_MONITOR_CORE_ID);
 
     // websocket server config
-    config.core_id = WEBSOCKET_SERVER_TASK_CORE_ID;
-    config.task_priority = WEBSOCKET_SERVER_TASK_PRIORITY;
-    config.stack_size = WEBSOCKET_SERVER_TASK_STACK_SIZE;
-    config.max_uri_handlers = 20;
-    config.recv_wait_timeout = 10;
-    config.send_wait_timeout = 10;
+    ws_config.core_id = WEBSOCKET_SERVER_TASK_CORE_ID;
+    ws_config.task_priority = WEBSOCKET_SERVER_TASK_PRIORITY;
+    ws_config.stack_size = WEBSOCKET_SERVER_TASK_STACK_SIZE;
+    ws_config.server_port = 8080;
+    ws_config.ctrl_port = 32769;
+    ws_config.max_uri_handlers = 20;
+    ws_config.recv_wait_timeout = 10;
+    ws_config.send_wait_timeout = 10;
 
     ESP_LOGI(WEBSOCKET_SERVER_TAG, "http_server_configure: Starting server on port '%d'",
-            config.server_port);
+            ws_config.server_port);
 
     // start the httpd server
-    if(httpd_start(&websocket_server_handle, &config)== ESP_OK)
+    if(httpd_start(&websocket_server_handle, &ws_config)== ESP_OK)
     {
         register_websocket_server_handlers();
         return websocket_server_handle;

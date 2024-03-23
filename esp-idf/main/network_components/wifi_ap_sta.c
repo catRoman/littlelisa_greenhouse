@@ -25,6 +25,7 @@
 
 #include "network_components/esp_now_comm.h"
 #include "nvs_components/nvs_service.c"
+#include "network_components/websocket_server.h"
 #include "mdns.h"
 #include "wifi_ap_sta.h"
 #include "module_components/led.h"
@@ -197,6 +198,7 @@ void wifi_start(void)
      //   start http and sntp server
         sntp_service_init();
         http_server_start();
+        websocket_server_start();
         led_http_server_started();
 
     }else if(ESP_ENABLE_AP_MODE == false){
