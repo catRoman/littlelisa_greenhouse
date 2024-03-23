@@ -6,17 +6,131 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "sys/param.h"
+#include "esp_timer.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
-#include <esp_http_server.h>
+#include "esp_http_server.h"
 
 #include "network_components/websocket_server.h"
+#include "task_common.h"
+#include "network_components/wifi_ap_sta.h"
 
 static const char *TAG = "Websocket Server: ";
 
+
+//wifi connect status
+int g_wifi_connect_status = NONE;
+
+static const char WEBSOCKET_SERVER_TAG[] = "WEBSOCKET_server";
+httpd_handle_t websocket_server_handle = NULL;
+static TaskHandle_t task_websocket_server_monitor = NULL;
+static QueueHandle_t websocket_server_monitor_queue_handle;
+esp_timer_handle_t fw_update_reset;
+
+static void websocket_server_monitor(void * xTASK_PARAMETERS)
+{
+    websocket_server_queue_message_t msg;
+    for(;;)
+    {
+        if (xQueueReceive(websocket_server_monitor_queue_handle, &msg, portMAX_DELAY))
+        {
+            switch(msg.msgID)
+            {
+                case WEBSOCKET_MSG_WIFI_CONNECT_INIT:
+                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_CONNECT_INIT");
+                    g_wifi_connect_status = WEBSOCKET_WIFI_STATUS_CONNECTING;
+                    break;
+
+                case WEBSOCKET_MSG_WIFI_CONNECT_SUCCESS:
+                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_CONNECT_SUCCESS");
+                    g_wifi_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_SUCCESS;
+                    break;
+
+                case WEBSOCKET_MSG_WIFI_CONNECT_FAIL:
+                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_WIFI_CONNECT_FAIL");
+                    g_wifi_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_FAILED;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+
+
+
+static httpd_handle_t websocket_server_configuration(void)
+{
+    // Generate the default configuration
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+
+    // create the message queue
+    websocket_server_monitor_queue_handle = xQueueCreate(3, sizeof(websocket_server_queue_message_t));
+
+    vTaskDelay(pdMS_TO_TICKS(100));
+
+    // create websocket server monitor task
+    xTaskCreatePinnedToCore(&websocket_server_monitor, "websocket_server_monitor",
+        WEBSOCKET_SERVER_MONITOR_STACK_SIZE, NULL, WEBSOCKET_SERVER_MONITOR_PRIORITY, &task_websocket_server_monitor, WEBSOCKET_SERVER_MONITOR_CORE_ID);
+
+    // websocket server config
+    config.core_id = WEBSOCKET_SERVER_TASK_CORE_ID;
+    config.task_priority = WEBSOCKET_SERVER_TASK_PRIORITY;
+    config.stack_size = WEBSOCKET_SERVER_TASK_STACK_SIZE;
+    config.max_uri_handlers = 20;
+    config.recv_wait_timeout = 10;
+    config.send_wait_timeout = 10;
+
+    ESP_LOGI(WEBSOCKET_SERVER_TAG, "http_server_configure: Starting server on port '%d'",
+            config.server_port);
+
+    // start the httpd server
+    if(httpd_start(&websocket_server_handle, &config)== ESP_OK)
+    {
+        register_websocket_server_handlers();
+        return websocket_server_handle;
+    }
+
+    return NULL;
+}
+
+void websocket_server_start(void)
+{
+    if (websocket_server_handle == NULL)
+    {
+        websocket_server_handle = websocket_server_configuration();
+    };
+}
+
+void websocket_server_stop(void)
+{
+    if(websocket_server_handle)
+    {
+        httpd_stop(websocket_server_handle);
+        ESP_LOGI(WEBSOCKET_SERVER_TAG, "websocket_server_stop: stopping websocket server");
+        websocket_server_handle = NULL;
+    }
+    if (task_websocket_server_monitor)
+    {
+        vTaskDelete(task_websocket_server_monitor);
+        ESP_LOGI(WEBSOCKET_SERVER_TAG, "websocket_server_stop: stopping http server monitor");
+        task_websocket_server_monitor = NULL;
+    }
+}
+
+BaseType_t websocket_server_monitor_send_message(websocket_server_message_e msgID)
+{
+    websocket_server_queue_message_t msg;
+    msg.msgID = msgID;
+    //vTaskDelay(5000 / portTICK_PERIOD_MS);
+    return xQueueSend(websocket_server_monitor_queue_handle, &msg, portMAX_DELAY);
+}
 
 
 
@@ -73,4 +187,141 @@ esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
         free(resp_arg);
     }
     return ret;
+}
+
+
+esp_err_t ws_echo_handler(httpd_req_t *req)
+{
+    if (req->method == HTTP_GET) {
+        ESP_LOGI(WEBSOCKET_HANDLER_TAG, "Handshake done, the new echo websocket connection was opened");
+        return ESP_OK;
+    }
+    httpd_ws_frame_t ws_pkt;
+    uint8_t *buf = NULL;
+    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+    /* Set max_len = 0 to get the frame len */
+    esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
+    if (ret != ESP_OK) {
+        ESP_LOGE(WEBSOCKET_HANDLER_TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
+        return ret;
+    }
+    ESP_LOGI(WEBSOCKET_HANDLER_TAG, "frame len is %d", ws_pkt.len);
+    if (ws_pkt.len) {
+        /* ws_pkt.len + 1 is for NULL termination as we are expecting a string */
+        buf = calloc(1, ws_pkt.len + 1);
+        if (buf == NULL) {
+            ESP_LOGE(WEBSOCKET_HANDLER_TAG, "Failed to calloc memory for buf");
+            return ESP_ERR_NO_MEM;
+        }
+        ws_pkt.payload = buf;
+        /* Set max_len = ws_pkt.len to get the frame payload */
+        ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
+        if (ret != ESP_OK) {
+            ESP_LOGE(WEBSOCKET_HANDLER_TAG, "httpd_ws_recv_frame failed with %d", ret);
+            free(buf);
+            return ret;
+        }
+        ESP_LOGI(WEBSOCKET_HANDLER_TAG, "Got packet with message: %s", ws_pkt.payload);
+    }
+    ESP_LOGI(WEBSOCKET_HANDLER_TAG, "Packet type: %d", ws_pkt.type);
+    if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
+        strcmp((char*)ws_pkt.payload,"Trigger async") == 0) {
+        free(buf);
+        return trigger_async_send(req->handle, req);
+    }
+
+    ret = httpd_ws_send_frame(req, &ws_pkt);
+    if (ret != ESP_OK) {
+        ESP_LOGE(WEBSOCKET_HANDLER_TAG, "httpd_ws_send_frame failed with %d", ret);
+    }
+    free(buf);
+    return ret;
+}
+
+
+esp_err_t ws_sensor_handler(httpd_req_t *req)
+{
+    if (req->method == HTTP_GET) {
+        ESP_LOGI(WEBSOCKET_HANDLER_TAG, "Handshake done, the new sensor websocket connection was opened");
+
+    }
+    httpd_ws_frame_t ws_pkt;
+    uint8_t *buf = NULL;
+    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+    /* Set max_len = 0 to get the frame len */
+
+    // esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
+    // if (ret != ESP_OK) {
+    //     ESP_LOGE(WEBSOCKET_HANDLER_TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
+    //     return ret;
+    // }
+    // ESP_LOGI(WEBSOCKET_HANDLER_TAG, "frame len is %d", ws_pkt.len);
+    // if (ws_pkt.len) {
+    //     /* ws_pkt.len + 1 is for NULL termination as we are expecting a string */
+    //     buf = calloc(1, ws_pkt.len + 1);
+    //     if (buf == NULL) {
+    //         ESP_LOGE(WEBSOCKET_HANDLER_TAG, "Failed to calloc memory for buf");
+    //         return ESP_ERR_NO_MEM;
+    //     }
+    //     ws_pkt.payload = buf;
+    //     /* Set max_len = ws_pkt.len to get the frame payload */
+    //     ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
+    //     if (ret != ESP_OK) {
+    //         ESP_LOGE(WEBSOCKET_HANDLER_TAG, "httpd_ws_recv_frame failed with %d", ret);
+    //         free(buf);
+    //         return ret;
+    //     }
+    //     ESP_LOGI(WEBSOCKET_HANDLER_TAG, "Got packet with message: %s", ws_pkt.payload);
+    // }
+
+
+   char * buff = "thhis is a test";
+
+   ws_pkt.final = true;
+   ws_pkt.fragmented = false;
+   ws_pkt.payload = (uint8_t*)buff;
+   ws_pkt.len = strlen(buff) + 1;
+ esp_err_t ret;
+    for(int i = 0; i< 10; i++){
+         ret  = httpd_ws_send_frame(req, &ws_pkt);
+            if (ret != ESP_OK) {
+                ESP_LOGE(WEBSOCKET_HANDLER_TAG, "httpd_ws_send_frame failed with %d", ret);
+            }else{
+                ESP_LOGI(WEBSOCKET_HANDLER_TAG, "packet sent");
+            }
+            vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    free(buf);
+    return ret;
+}
+
+
+void register_websocket_server_handlers(void)
+{
+    ESP_LOGI(WEBSOCKET_HANDLER_TAG, "websocket_server_configure: Registering URI handlers");
+
+
+
+
+    static const httpd_uri_t ws_echo = {
+            .uri        = "/ws/echo",
+            .method     = HTTP_GET,
+            .handler    = ws_echo_handler,
+            .user_ctx   = NULL,
+            .is_websocket = true
+    };
+    httpd_register_uri_handler(websocket_server_handle, &ws_echo);
+
+    static const httpd_uri_t ws_sensor = {
+        .uri        = "/ws/sensor",
+        .method     = HTTP_GET,
+        .handler    = ws_sensor_handler,
+        .user_ctx   = NULL,
+        .is_websocket = true
+    };
+    httpd_register_uri_handler(websocket_server_handle, &ws_sensor);
+
+    return ESP_OK;
 }
