@@ -16,6 +16,7 @@
         "task.h": "c",
         "websocket_server.h": "c",
         "module_config.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "esp_http_server.h": "c"
     }
 }
