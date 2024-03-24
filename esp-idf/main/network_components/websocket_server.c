@@ -289,9 +289,9 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
 
     for(int i = 0; i< 10; i++){
         //for(int j = 0; j < num_websocket_clients; j++){
-
+        ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[0], &ws_pkt);
         // ret  = httpd_ws_send_frame(req, &ws_pkt);
-         ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
+        // ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
             if (ret != ESP_OK) {
                 ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
                 websocket_server_monitor_send_message(WEBSOCKET_CONNECT_FAIL,httpd_req_to_sockfd(req));
