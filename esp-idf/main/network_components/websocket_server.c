@@ -67,7 +67,7 @@ void websocket_server_monitor(void * xTASK_PARAMETERS)
 
                     int index = list_search(websocket_clients, msg.socket_id);
                     list_remove(websocket_clients, index);
-                    num_websocket_clients++;
+                    num_websocket_clients--;
                     break;
 
                 default:
