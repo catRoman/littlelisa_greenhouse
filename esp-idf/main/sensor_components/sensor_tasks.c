@@ -449,7 +449,11 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             
             cJSON_AddItemToObject(root, "sensor_data", sensor_info);
             cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(event->sensor_data->sensor_type));
-            cJSON_AddStringToObject(sensor_info, "timestamp", ctime(&(event->sensor_data->timestamp)));
+            
+            char *timestamp = ctime(&event->sensor_data->timestamp);
+            timestamp[strcspn(timestamp, "\n")] = '\0';
+            
+            cJSON_AddStringToObject(sensor_info, "timestamp", timestamp);
             cJSON_AddStringToObject(sensor_info, "location", event->sensor_data->location);
             cJSON_AddItemToObject(sensor_info, "sensor_data", sensor_data);
             
