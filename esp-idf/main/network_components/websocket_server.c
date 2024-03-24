@@ -288,11 +288,12 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
     for(int i = 0; i < num_websocket_clients; i++){
         printf("socket %d: %d", i, websocket_clients->items[i]);
     }
-    esp_err_t ret;
+    printf("\n");
+    esp_err_t ret = ESP_FAIL;
 
     
         for(int j = 0; j < num_websocket_clients; j++){
-            printf("\tsending to socket %d/%d -> socket # %d", j,num_websocket_clients, websocket_clients->items[j] );
+            printf("\tsending to socket %d/%d -> socket # %d\n", j,num_websocket_clients, websocket_clients->items[j] );
         ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[j], &ws_pkt);
         // ret  = httpd_ws_send_frame(req, &ws_pkt);
         // ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
@@ -303,9 +304,9 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
                 ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",httpd_req_to_sockfd(req));
 
             }
-            return ret;
+            
         }
-    return ESP_OK;
+    return ret;
 
     
 }
