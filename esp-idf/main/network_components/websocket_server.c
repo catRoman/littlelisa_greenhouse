@@ -287,7 +287,7 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
 
     esp_err_t ret;
 
-    for(int i = 0; i< 10; i++){
+    
         for(int j = 0; j < num_websocket_clients; j++){
         ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[j], &ws_pkt);
         // ret  = httpd_ws_send_frame(req, &ws_pkt);
@@ -300,8 +300,7 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
 
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+    
 
     return ret;
 }
