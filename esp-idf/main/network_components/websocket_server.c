@@ -286,7 +286,7 @@ void test_frame_change_task(void *vpParameters){
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
     ws_pkt.final = true;
     ws_pkt.fragmented = false;
-    char *buff = "initial connection test";
+    char buff[100];
     ws_pkt.payload = (uint8_t*)buff;
     ws_pkt.len = strlen(buff) + 1;
 
