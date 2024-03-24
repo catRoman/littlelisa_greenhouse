@@ -278,7 +278,7 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
 
 
 
-   char * buff = "thhis is a test";
+   char * buff = "initial connection test";
 
    ws_pkt.final = true;
    ws_pkt.fragmented = false;
@@ -288,8 +288,8 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
     esp_err_t ret;
 
     for(int i = 0; i< 10; i++){
-        //for(int j = 0; j < num_websocket_clients; j++){
-        ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[0], &ws_pkt);
+        for(int j = 0; j < num_websocket_clients; j++){
+        ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[j], &ws_pkt);
         // ret  = httpd_ws_send_frame(req, &ws_pkt);
         // ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
             if (ret != ESP_OK) {
@@ -299,7 +299,7 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
                 ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",httpd_req_to_sockfd(req));
 
             }
-        //}
+        }
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 
