@@ -18,7 +18,9 @@ typedef enum websocket_server_message
     WEBSOCKET_CONNECT_FAIL,
 } websocket_server_message_e;
 
-
+typedef struct frame_data_t {
+    httpd_ws_frame_t *ws_pkt;
+}websocket_frame_data_t;
 
 /**
  * Structure for the message queue
@@ -50,7 +52,9 @@ void websocket_server_start(void);
 httpd_handle_t websocket_server_configuration(void);
 
 void websocket_server_monitor(void * xTASK_PARAMETERS);
-
-void test_send_task(void *vpParameter);
+void websocket_print_client_sockets(void);
+void websocket_send_data_queue(void *vpParameter);
 esp_err_t register_websocket_server_handlers(void);
+
+void test_frame_change_task(void *vpParameters);
 #endif /*WEBSOCKET_SERVER_H*/
