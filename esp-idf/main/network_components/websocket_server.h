@@ -51,6 +51,6 @@ httpd_handle_t websocket_server_configuration(void);
 
 void websocket_server_monitor(void * xTASK_PARAMETERS);
 
-
+void test_send_task(void *vpParameter);
 esp_err_t register_websocket_server_handlers(void);
 #endif /*WEBSOCKET_SERVER_H*/
