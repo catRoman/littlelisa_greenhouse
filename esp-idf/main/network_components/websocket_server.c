@@ -192,7 +192,7 @@ esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
 esp_err_t ws_echo_handler(httpd_req_t *req)
 {
     if (req->method == HTTP_GET) {
-        ESP_LOGI(WEBSOCKET_SERVER_TAG, "Handshake done, the new echo websocket connection was opened");
+        ESP_LOGI(WEBSOCKET_SERVER_TAG, "Handshake done, the new echo websocket connection was opened on socket %d", httpd_req_to_sockfd(req));
         return ESP_OK;
     }
     httpd_ws_frame_t ws_pkt;
@@ -242,7 +242,7 @@ esp_err_t ws_echo_handler(httpd_req_t *req)
 esp_err_t ws_sensor_handler(httpd_req_t *req)
 {
     if (req->method == HTTP_GET) {
-        ESP_LOGI(WEBSOCKET_SERVER_TAG, "Handshake done, the new sensor websocket connection was opened");
+        ESP_LOGI(WEBSOCKET_SERVER_TAG, "Handshake done, the new sensor websocket connection was opened on secket %d",httpd_req_to_sockfd(req) );
 
     }
     httpd_ws_frame_t ws_pkt;
