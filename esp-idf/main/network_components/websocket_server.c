@@ -299,10 +299,11 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
                 ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",httpd_req_to_sockfd(req));
 
             }
+            return ret;
         }
-    
+    return ESP_OK;
 
-    return ret;
+    
 }
 
 
