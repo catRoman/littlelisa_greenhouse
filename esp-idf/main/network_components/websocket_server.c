@@ -291,7 +291,7 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
     printf("\n");
     esp_err_t ret = ESP_FAIL;
 
-    
+    for(;;){
         for(int j = 0; j < num_websocket_clients; j++){
             printf("\tsending to socket %d/%d -> socket # %d\n", (j+1),num_websocket_clients, websocket_clients->items[j] );
         ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[j], &ws_pkt);
@@ -306,6 +306,8 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
             }
             
         }
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
     return ret;
 
     
