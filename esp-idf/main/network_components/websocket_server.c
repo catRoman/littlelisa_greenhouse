@@ -285,10 +285,14 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
    ws_pkt.payload = (uint8_t*)buff;
    ws_pkt.len = strlen(buff) + 1;
 
+    for(int i = 0; i < num_websocket_clients; i++){
+        printf("socket %d: %d", i, websocket_clients->items[i]);
+    }
     esp_err_t ret;
 
     
         for(int j = 0; j < num_websocket_clients; j++){
+            printf("\tsending to socket %d/%d -> socket # %d"j,num_websocket_clients, websocket_clients->items[j] );
         ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[j], &ws_pkt);
         // ret  = httpd_ws_send_frame(req, &ws_pkt);
         // ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
