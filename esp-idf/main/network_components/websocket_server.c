@@ -326,7 +326,7 @@ void websocket_send_data_queue(void *vpParameter){
                 }
                 
             }
-            free(ws_frame_data.ws_pkt->payload);
+          
             taskYIELD();
         }
         
