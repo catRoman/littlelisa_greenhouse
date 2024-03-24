@@ -300,6 +300,7 @@ void test_frame_change_task(void *vpParameters){
         xQueueSend(websocket_send_data_queue_handle, &ws_frame, portMAX_DELAY);
         i++;
         vTaskDelay(pdMS_TO_TICKS(3000));
+        taskYIELD();
     }
    
 
@@ -327,9 +328,9 @@ void websocket_send_data_queue(void *vpParameter){
                 
             }
           
-            taskYIELD();
+            
         }
-        
+        taskYIELD();
     }
     
 
