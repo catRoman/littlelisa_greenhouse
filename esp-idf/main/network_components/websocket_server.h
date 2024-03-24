@@ -13,27 +13,19 @@ struct async_resp_arg
 };
 typedef enum websocket_server_message
 {
-    WEBSOCKET_MSG_WIFI_CONNECT_INIT = 0,
-    WEBSOCKET_MSG_WIFI_CONNECT_SUCCESS,
-    WEBSOCKET_MSG_WIFI_CONNECT_FAIL,
+    WEBSOCKET_CONNECT_INIT = 0,
+    WEBSOCKET_CONNECT_SUCCESS,
+    WEBSOCKET_CONNECT_FAIL,
 } websocket_server_message_e;
 
-/**
- * Connection status for wifi
-*/
-typedef enum websocket_server_wifi_connect_status
-{
-    WEBSOCKET_NONE = 0,
-    WEBSOCKET_WIFI_STATUS_CONNECT_FAILED,
-    WEBSOCKET_WIFI_STATUS_CONNECT_SUCCESS,
-    WEBSOCKET_WIFI_STATUS_CONNECTING,
-} websocket_server_wifi_connect_status_e;
+
 
 /**
  * Structure for the message queue
 */
 typedef struct websocket_server_queue_message
 {
+    int socket_id;
     websocket_server_message_e msgID;
 } websocket_server_queue_message_t;
 
@@ -48,7 +40,7 @@ esp_err_t ws_echo_handler(httpd_req_t *req);
 
 esp_err_t ws_sensor_handler(httpd_req_t *req);
 
-BaseType_t websocket_server_monitor_send_message(websocket_server_message_e msgID);
+BaseType_t websocket_server_monitor_send_message(websocket_server_message_e msgID, int socket);
 
 void websocket_server_stop(void);
 

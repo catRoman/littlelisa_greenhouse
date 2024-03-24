@@ -18,10 +18,18 @@
 #include "network_components/websocket_server.h"
 #include "task_common.h"
 #include "network_components/wifi_ap_sta.h"
+#include "helper.h"
+
+#define MAX_CLIENTS = 20;
+
+//websocket connect status
 
 
-//wifi connect status
-int g_wifi_ws_connect_status = WEBSOCKET_NONE;
+static int num_websocket_clients = 0;
+
+static List *websocket_clients;
+
+
 
 static const char WEBSOCKET_SERVER_TAG[] = "WEBSOCKET_server";
 httpd_handle_t websocket_server_handle = NULL;
@@ -30,6 +38,9 @@ static QueueHandle_t websocket_server_monitor_queue_handle;
 
 void websocket_server_monitor(void * xTASK_PARAMETERS)
 {
+
+
+
     websocket_server_queue_message_t msg;
     for(;;)
     {
@@ -37,19 +48,26 @@ void websocket_server_monitor(void * xTASK_PARAMETERS)
         {
             switch(msg.msgID)
             {
-                case WEBSOCKET_MSG_WIFI_CONNECT_INIT:
-                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_CONNECT_INIT");
-                    g_wifi_ws_connect_status = WEBSOCKET_WIFI_STATUS_CONNECTING;
+                case WEBSOCKET_CONNECT_INIT:
+                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_CONNECT_INIT");
+
+
+
                     break;
 
-                case WEBSOCKET_MSG_WIFI_CONNECT_SUCCESS:
-                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_CONNECT_SUCCESS");
-                    g_wifi_ws_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_SUCCESS;
+                case WEBSOCKET_CONNECT_SUCCESS:
+                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_SUCCESS");
+
+                    list_append(websocket_clients, msg.socket_id);
+                    num_websocket_clients++;
                     break;
 
-                case WEBSOCKET_MSG_WIFI_CONNECT_FAIL:
-                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_MSG_WIFI_CONNECT_FAIL");
-                    g_wifi_ws_connect_status = WEBSOCKET_WIFI_STATUS_CONNECT_FAILED;
+                case WEBSOCKET_CONNECT_FAIL:
+                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "WEBSOCKET_CONNECT_FAIL");
+
+                    int index = list_search(websocket_clients, msg.socket_id);
+                    list_remove(websocket_clients, index);
+                    num_websocket_clients++;
                     break;
 
                 default:
@@ -64,6 +82,9 @@ void websocket_server_monitor(void * xTASK_PARAMETERS)
 
 httpd_handle_t websocket_server_configuration(void)
 {
+
+    //socket list
+    websocket_clients = list_create();
     // Generate the default configuration
     httpd_config_t ws_config = HTTPD_DEFAULT_CONFIG();
 
@@ -123,10 +144,11 @@ void websocket_server_stop(void)
     }
 }
 
-BaseType_t websocket_server_monitor_send_message(websocket_server_message_e msgID)
+BaseType_t websocket_server_monitor_send_message(websocket_server_message_e msgID, int socket)
 {
     websocket_server_queue_message_t msg;
     msg.msgID = msgID;
+    msg.socket_id = socket;
     //vTaskDelay(5000 / portTICK_PERIOD_MS);
     return xQueueSend(websocket_server_monitor_queue_handle, &msg, portMAX_DELAY);
 }
@@ -241,16 +263,20 @@ esp_err_t ws_echo_handler(httpd_req_t *req)
 
 esp_err_t ws_sensor_handler(httpd_req_t *req)
 {
+
+    websocket_server_monitor_send_message(WEBSOCKET_CONNECT_INIT, -1);
+
     if (req->method == HTTP_GET) {
         ESP_LOGI(WEBSOCKET_SERVER_TAG, "Handshake done, the new sensor websocket connection was opened on secket %d",httpd_req_to_sockfd(req) );
+        websocket_server_monitor_send_message(WEBSOCKET_CONNECT_SUCCESS, httpd_req_to_sockfd(req));
 
     }
     httpd_ws_frame_t ws_pkt;
     memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-  
 
-   
+
+
 
    char * buff = "thhis is a test";
 
@@ -258,18 +284,25 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
    ws_pkt.fragmented = false;
    ws_pkt.payload = (uint8_t*)buff;
    ws_pkt.len = strlen(buff) + 1;
-    
+
     esp_err_t ret;
+
     for(int i = 0; i< 10; i++){
-         ret  = httpd_ws_send_frame(req, &ws_pkt);
+        //for(int j = 0; j < num_websocket_clients; j++){
+
+        // ret  = httpd_ws_send_frame(req, &ws_pkt);
+         ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
             if (ret != ESP_OK) {
                 ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
+                websocket_server_monitor_send_message(WEBSOCKET_CONNECT_FAIL,httpd_req_to_sockfd(req));
             }else{
                 ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",httpd_req_to_sockfd(req));
+
             }
-            vTaskDelay(pdMS_TO_TICKS(1000));
+        //}
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
-    
+
     return ret;
 }
 
