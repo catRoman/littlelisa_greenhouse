@@ -425,16 +425,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
     sensor_queue_wrapper_t *event;
 
     
-    websocket_frame_data_t ws_frame;
-    httpd_ws_frame_t ws_pkt;
-    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-    ws_pkt.final = true;
-    ws_pkt.fragmented = false;
     
-   
-
-    ws_frame.ws_pkt = &ws_pkt;
 
     for(;;){
         if (xQueueReceive(sensor_send_to_websocket_server_handle, &event, portMAX_DELAY) == pdTRUE){
@@ -443,7 +434,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
-    
+          
             //temp for logging testing
 
             cJSON *json_data = cJSON_CreateObject();
@@ -474,6 +465,13 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
         
 
             //add json to fram pacakage and pass to websocket server for transmission
+            websocket_frame_data_t ws_frame;
+            httpd_ws_frame_t ws_pkt;
+            memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+            ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+            ws_pkt.final = true;
+            ws_pkt.fragmented = false;
+            ws_frame.ws_pkt = &ws_pkt;
             ws_pkt.payload = (uint8_t*)sensor_data_json;
             ws_pkt.len = strlen(sensor_data_json) + 1;
             
