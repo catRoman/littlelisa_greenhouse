@@ -117,7 +117,7 @@ httpd_handle_t websocket_server_configuration(void)
         register_websocket_server_handlers();
 
         xTaskCreatePinnedToCore(websocket_send_data_queue, "ws_send_queue", 4096, NULL, 5, &websocket_send_data_task_handle, 1);
-        xTaskCreatePinnedToCore(test_frame_change_task, "test_frame_change", 4096, NULL, 5, &test_frame_change_task_handle, 1);
+       // xTaskCreatePinnedToCore(test_frame_change_task, "test_frame_change", 4096, NULL, 5, &test_frame_change_task_handle, 1);
         return websocket_server_handle;
     }
 
