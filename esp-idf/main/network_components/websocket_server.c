@@ -286,7 +286,7 @@ void test_frame_change_task(void *vpParameters){
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
     ws_pkt.final = true;
     ws_pkt.fragmented = false;
-    char buff[100];
+    char buff[50] = "initalized";
     ws_pkt.payload = (uint8_t*)buff;
     ws_pkt.len = strlen(buff) + 1;
 
@@ -294,7 +294,7 @@ void test_frame_change_task(void *vpParameters){
     int i = 0;
     for(;;){
         
-        sprintf(buff, "test %d", i);
+        snprintf(buff, 50, "test %d", i);
         ws_pkt.len = strlen(buff) + 1;
 
         xQueueSend(websocket_send_data_queue_handle, &ws_frame, portMAX_DELAY);
