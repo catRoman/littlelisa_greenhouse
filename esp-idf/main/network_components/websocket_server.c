@@ -114,6 +114,9 @@ httpd_handle_t websocket_server_configuration(void)
     if(httpd_start(&websocket_server_handle, &ws_config)== ESP_OK)
     {
         register_websocket_server_handlers();
+
+        xTaskCreatePinnedToCore(test_send_task, "websocket_send_test", DHT22_TASK_STACK_SIZE, NULL, 5, NULL, 1);
+
         return websocket_server_handle;
     }
 
@@ -269,14 +272,17 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
     if (req->method == HTTP_GET) {
         ESP_LOGI(WEBSOCKET_SERVER_TAG, "Handshake done, the new sensor websocket connection was opened on secket %d",httpd_req_to_sockfd(req) );
         websocket_server_monitor_send_message(WEBSOCKET_CONNECT_SUCCESS, httpd_req_to_sockfd(req));
-
+        return ESP_OK;
     }
+
+
+
+    return ESP_FAIL;
+}
+void test_send_task(void *vpParameter){
     httpd_ws_frame_t ws_pkt;
     memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
     ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-
-
-
 
    char * buff = "initial connection test";
 
@@ -294,21 +300,23 @@ esp_err_t ws_sensor_handler(httpd_req_t *req)
     for(;;){
         for(int j = 0; j < num_websocket_clients; j++){
             printf("\tsending to socket %d/%d -> socket # %d\n", (j+1),num_websocket_clients, websocket_clients->items[j] );
-        ret = httpd_ws_send_frame_async(req->handle, websocket_clients->items[j], &ws_pkt);
+        ret = httpd_ws_send_frame_async(websocket_server_handle, websocket_clients->items[j], &ws_pkt);
         // ret  = httpd_ws_send_frame(req, &ws_pkt);
         // ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
             if (ret != ESP_OK) {
                 ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
-                websocket_server_monitor_send_message(WEBSOCKET_CONNECT_FAIL,httpd_req_to_sockfd(req));
+                websocket_server_monitor_send_message(WEBSOCKET_CONNECT_FAIL,websocket_clients->items[j]);
+                
             }else{
-                ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",httpd_req_to_sockfd(req));
+                ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",websocket_clients->items[j]);
 
             }
             
         }
-        vTaskDelay(pdMS_TO_TICKS(5000));
+        taskYIELD();
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
-    return ret;
+    
 
     
 }
