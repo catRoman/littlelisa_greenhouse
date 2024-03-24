@@ -15,6 +15,7 @@
         "task_common.h": "c",
         "task.h": "c",
         "websocket_server.h": "c",
-        "module_config.h": "c"
+        "module_config.h": "c",
+        "stdint.h": "c"
     }
 }
