@@ -445,7 +445,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             cJSON_AddItemToObject(root, "module_info", module_info);
             cJSON_AddStringToObject(module_info, "module_id", event->sensor_data->module_id);
             cJSON_AddNumberToObject(module_info, "local_sensor_id", event->sensor_data->local_sensor_id);
-            cJSON_AddNumberToObject(sensor_data, "module_pin", event->sensor_data->pin_number);
+            cJSON_AddNumberToObject(sensor_info, "module_pin", event->sensor_data->pin_number);
             
             cJSON_AddItemToObject(root, "sensor_data", sensor_info);
             cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(event->sensor_data->sensor_type));
@@ -453,11 +453,27 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             cJSON_AddStringToObject(sensor_info, "location", event->sensor_data->location);
             cJSON_AddItemToObject(sensor_info, "sensor_data", sensor_data);
             
-            char i_str[5];
+            char value_name[25];
             for(int i = 0; i < event->sensor_data->total_values; i++){
-                sprintf(i_str, "%d", i);
+                switch (event->sensor_data->sensor_type){
+                    case DHT22:
+                        switch(i){
+                            case 0:
+                                snprintf(value_name, 25, "temp");
+                                break;
+                            case 1:
+                                snprintf(value_name, 25, "humidity");
+                                break;     
+                        }
+                        break;
+                    default:
+                        snprintf(value_name, 25, "%d", i);
+                        break;
+                    //implent other sensors as we go
+                }
+              
                 
-                cJSON_AddNumberToObject(sensor_data, i_str, event->sensor_data->value[i]);
+                cJSON_AddNumberToObject(sensor_data, value_name, event->sensor_data->value[i]);
            }
 
 
