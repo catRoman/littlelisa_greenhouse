@@ -80,7 +80,6 @@ char *node_info_get_module_info_json(void){
     for(Sensor_List sensor = DHT22; sensor < SENSOR_LIST_TOTAL; sensor++){
         cJSON *sensor_type_list = cJSON_CreateObject();
        
-
         if(module_info_gt->sensor_arr[sensor] > 0){
 
             sensor_type_pin_list = cJSON_CreateObject();
