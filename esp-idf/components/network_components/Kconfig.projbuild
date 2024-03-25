@@ -1,0 +1,66 @@
+menu "Little-Lisa Configuration"
+
+    config ESP_ENABLE_AP_MODE
+        bool "Enable Ap"
+        default y
+        help
+            Allow node to act as access point (AP).
+
+    config ESP_WIFI_AP_MODE_SSID
+        string "WiFi AP SSID"
+        default "LittleLisa - Greenhouse"
+        help
+            SSID (network name) for the modules AP.
+
+    config ESP_AP_MODE_HIDE_SSID
+        bool "Hide Ap ssid"
+        default n
+        help
+            Hide modules access point ssid.
+
+    config ESP_WIFI_AP_MODE_PASSWORD
+        string "WiFi AP Password"
+        default "Westgate4@"
+        help
+            WiFi password (WPA or WPA2) for the modules AP.
+
+    config ESP_WIFI_AP_MODE_CHANNEL
+        int "WiFi AP Channel"
+        range 1 13
+        default 1
+        help
+            WiFi channel (network channel) for the modules AP to use.
+
+    config ESP_MAX_AP_STA_MODE_CONN
+        int "Maximal STA connections"
+        default 4
+        help
+            Max number of the STA connects to modules AP.
+
+    config ESP_WIFI_INIT_STA_MODE_SSID
+        string "WiFi Initial STA SSID"
+        default "Bill Nye the WiFi Guy"
+        help
+            SSID (network name) for an inital connection as a station to a specific ap.
+
+    config ESP_WIFI_INIT_STA_MODE_PASSWORD
+        string "WiFi Initial STA Password"
+        default "Westgate1"
+        help
+            WiFi password (WPA or WPA2) for ap as initail station.
+
+    config MAX_STA_MODE_RETRY_ATTEMPT
+        int "Maximimum STA reconnection attempts"
+        default 4
+        help
+            Max number reconnection attempts of the STA connects to AP.
+
+    config ESP_NOW_COMM_RECIEVER_MAC_ADDRESS
+        string "ESP Now Reciever MAC Address"
+        default "AA:BB:CC:DD:EE:FF"
+        help
+            This configuration option allows setting a default MAC address
+            that nodes will use for sending sensor data to.
+
+            
+endmenu
