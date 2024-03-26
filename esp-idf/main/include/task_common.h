@@ -14,6 +14,11 @@
 //NETWORK PROCESSES
 
 // WiFi application task
+#define SNTP_TASK_STACK_SIZE            4096
+#define SNTP_TASK_PRIORITY              5       // 0 is lowest priority in freeRTOS
+#define SNTP_TASK_CORE_ID               0
+
+// WiFi application task
 #define WIFI_APP_TASK_STACK_SIZE            4096
 #define WIFI_APP_TASK_PRIORITY              5       // 0 is lowest priority in freeRTOS
 #define WIFI_APP_TASK_CORE_ID               0
