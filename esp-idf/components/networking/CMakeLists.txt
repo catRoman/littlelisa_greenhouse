@@ -33,3 +33,5 @@ idf_component_register(
         landing_page/assets/index.js
         landing_page/assets/index.css
 )
+
+target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined" "-fno-sanitize=shift-base")

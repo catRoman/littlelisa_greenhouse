@@ -6,7 +6,7 @@ idf_component_register(
         periphials
         esp_timer
         fatfs
-        sqlite3
+        esp32-idf-sqlite3
 
 
     INCLUDE_DIRS "include"
