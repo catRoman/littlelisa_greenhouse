@@ -460,37 +460,37 @@ void initiate_sensor_tasks(){
     for (int i =0; i < SENSOR_LIST_TOTAL; i++){
         total_local_sensors += module_info_gt->sensor_arr[i];
     }
-    sensor_data_t **local_sensor = (sensor_data_t**)malloc(sizeof(sensor_data_t*) * total_local_sensors);
+    sensor_data_t local_sensor[total_local_sensors];
 
     for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
 
         //sensor_id starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
-            local_sensor[sensor_id-1] = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+            
 
 
-                    local_sensor[sensor_id-1]->pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
-                    local_sensor[sensor_id-1]->sensor_type = sensor_type;
-                    local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
-                    local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
-                    strcpy( local_sensor[sensor_id-1]->location,module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id] );
+                    local_sensor[sensor_id-1].pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
+                    local_sensor[sensor_id-1].sensor_type = sensor_type;
+                    local_sensor[sensor_id-1].total_values = module_info_gt->sensor_arr[sensor_type];
+                    local_sensor[sensor_id-1].location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
+                    strcpy( local_sensor[sensor_id-1].location,module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id] );
 
-                    local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
-                    local_sensor[sensor_id-1]->module_id = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->identity)));
-                    strcpy(local_sensor[sensor_id-1]->module_id, module_info_gt->identity);
+                    local_sensor[sensor_id-1].local_sensor_id = sensor_id;
+                    local_sensor[sensor_id-1].module_id = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->identity)));
+                    strcpy(local_sensor[sensor_id-1].module_id, module_info_gt->identity);
 
-                    local_sensor[sensor_id-1]->timestamp = 0;
+                    local_sensor[sensor_id-1].timestamp = 0;
 
 
             switch(sensor_type){
                 case DHT22:
 
 
-	                ESP_LOGI(TAG, "Started Internal DHT22 Sensor: Id: #%d, Location: %s, Pin: #%d", sensor_id, local_sensor[sensor_id-1]->location, local_sensor[sensor_id-1]->pin_number);
+	                ESP_LOGI(TAG, "Started Internal DHT22 Sensor: Id: #%d, Location: %s, Pin: #%d", sensor_id, local_sensor[sensor_id-1].location, local_sensor[sensor_id-1].pin_number);
                     char sensor_task_name[20];
                     //TODO: add internal keyword to taskname
-                    snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", local_sensor[sensor_id-1]->local_sensor_id);
-                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)local_sensor[sensor_id -1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+                    snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", local_sensor[sensor_id-1].local_sensor_id);
+                    xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, &local_sensor[sensor_id -1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
                     break;
                 case SOIL_MOISTURE:
 	                ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");
