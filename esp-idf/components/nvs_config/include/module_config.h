@@ -1,6 +1,7 @@
 
 #ifndef NVS_CONFIG_MODULE_CONFIG_H
 #define NVS_CONFIG_MODULE_CONFIG_H
+#include <inttypes.h>
 
 #include "sensor_tasks.h"
 
