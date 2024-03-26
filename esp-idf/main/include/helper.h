@@ -1,7 +1,7 @@
 #include <stdint.h>
 
-#ifndef HELPER_H_
-#define HELPER_H_
+#ifndef MAIN_HELPER_H_
+#define MAIN_HELPER_H_
 
 typedef struct {
     int *items;

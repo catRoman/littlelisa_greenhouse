@@ -8,10 +8,10 @@ menu "LittleLisa - Config"
 
 endmenu
 
-rsource "network_components/Kconfig.projbuild"
+# rsource "components/networking/Kconfig.projbuild"
 
-if ENABLE_NVS_UPDATE
+# if ENABLE_NVS_UPDATE
 
-rsource "nvs_components/Kconfig.projbuild"
+# rsource "components/nvs_config/Kconfig.projbuild"
 
-endif
+# endif
