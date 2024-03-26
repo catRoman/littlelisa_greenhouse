@@ -8,7 +8,7 @@
 
 typedef struct Module_sensor_config_t{
     char **sensor_loc_arr;
-    int8_t *sensor_pin_arr;
+    int *sensor_pin_arr;
     int8_t total_sensor;
 }Module_sensor_config_t;
 

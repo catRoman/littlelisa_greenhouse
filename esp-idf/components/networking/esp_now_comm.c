@@ -55,7 +55,7 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
                     queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
             }
             //vTaskDelay(pdMS_TO_TICKS(500));
-            free(queue_packet->data);
+          //  free(queue_packet->data);
             free(queue_packet);
 
         }

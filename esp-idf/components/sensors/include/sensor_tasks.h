@@ -27,7 +27,7 @@ typedef enum Sensor_List{
 }Sensor_List;
 
 typedef struct sensor_data_t{
-	int8_t pin_number;
+	int pin_number;
     Sensor_List sensor_type;
 	float *value;
     int8_t total_values;
