@@ -335,7 +335,7 @@ Module_sensor_config_t **deserialize_string(char* serialized_string, int8_t numS
             char ** serialized_split_arr_data = splits_string(';', serialized_split_loc[j], &final);
             if(j==0){
             sensor_config_arr[i]->sensor_loc_arr = (char**)malloc(sizeof(char*) * final);
-            sensor_config_arr[i]->sensor_pin_arr = (int8_t*)malloc(sizeof(int8_t) * final);
+            sensor_config_arr[i]->sensor_pin_arr = (int*)malloc(sizeof(int) * final);
             sensor_config_arr[i]->total_sensor = final;
             }
             for(int k =0; k < final; k++){
