@@ -460,7 +460,7 @@ void initiate_sensor_tasks(){
     for (int i =0; i < SENSOR_LIST_TOTAL; i++){
         total_local_sensors += module_info_gt->sensor_arr[i];
     }
-    sensor_data_t *local_sensor = (sensor_data_t*)malloc(sizeof(sensor_data_t) *total_local_sensors);
+    sensor_data_t local_sensor[total_local_sensors];
 
     for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
 
