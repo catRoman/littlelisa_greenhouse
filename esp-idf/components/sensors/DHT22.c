@@ -101,7 +101,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	//allocate for data_packet
 	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
-	data_packet->pin_number= sensor_t->pin_number;
+	data_packet->pin_number = sensor_t->pin_number;
 	data_packet->total_values = 2;
 	data_packet->local_sensor_id = sensor_t->local_sensor_id;
 	data_packet->module_id = (char*)malloc(strlen(sensor_t->module_id)+1);
@@ -357,14 +357,13 @@ float temperature = sensor_t->value[TEMP];
 */
 void DHT22_task(void *vpParameter)
 {
-	sensor_data_t *sensor_t;
-	sensor_t = (sensor_data_t *)vpParameter;
+	sensor_data_t *sensor_t = (sensor_data_t *)vpParameter;
 	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
 	float values[sensor_t->total_values];
 	sensor_t->value = values;
 
 
-	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
+	gpio_set_direction(sensor_t->pin_number, GPIO_MODE_INPUT);
 	esp_rom_delay_us( 100 );
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
@@ -377,7 +376,7 @@ void DHT22_task(void *vpParameter)
 		int ret = readDHT(sensor_t);
 
 		if (ret == DHT_OK){
-			log_sensor_JSON(sensor_t, DHT22);
+			//log_sensor_JSON(sensor_t, DHT22);
 
 			//#ifdef CONFIG_MODULE_TYPE_NODE
 

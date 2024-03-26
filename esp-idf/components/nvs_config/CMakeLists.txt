@@ -21,4 +21,4 @@ idf_component_register(
 
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined" "-fno-sanitize=shift-base")
+target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined")
