@@ -9,6 +9,8 @@
 #ifndef SENSORS_SENSOR_TASKS_H_
 #define SENSORS_SENSOR_TASKS_H_
 
+#include <inttypes.h>
+
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 #include "esp_err.h"
