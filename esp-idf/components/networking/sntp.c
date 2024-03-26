@@ -15,6 +15,7 @@
 #include "ds1302.h"
 #include "sntp.h"
 #include "rtc_DS1302.h"
+#include "task_common.h"
 
 static const char TAG [] = "sntp";
  esp_sntp_config_t config = {
@@ -119,8 +120,11 @@ void sntp_server_connection_check_task(void *vpParameter){
                     vTaskDelay(5000 / portTICK_PERIOD_MS);
                 }
 
-                if(initial_sync == false)
+                if(initial_sync == false){
+
                     vTaskDelay(pdMS_TO_TICKS(360000));
+                }
+
                 // TODO: set syncing task
         
                 
@@ -130,7 +134,7 @@ void sntp_server_connection_check_task(void *vpParameter){
 
 void sntp_server_connection_check(){
     ESP_LOGI(TAG, "starting time check");
-    xTaskCreatePinnedToCore(sntp_server_connection_check_task, "sntp_connection_check", 2048, NULL, 5,NULL, 1);
+    xTaskCreatePinnedToCore(sntp_server_connection_check_task, "sntp_connection_check", SNTP_TASK_STACK_SIZE, NULL, SNTP_TASK_PRIORITY,NULL, SNTP_TASK_CORE_ID);
 }
 
 

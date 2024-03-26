@@ -23,6 +23,7 @@ idf_component_register(
         nvs_flash
         esp_http_server
         esp_timer
+        main
 
 
     INCLUDE_DIRS "include"
