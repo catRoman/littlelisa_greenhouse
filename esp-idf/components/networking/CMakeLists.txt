@@ -35,4 +35,4 @@ idf_component_register(
         landing_page/assets/index.css
 )
 
-target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined" "-O0")
+target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined")

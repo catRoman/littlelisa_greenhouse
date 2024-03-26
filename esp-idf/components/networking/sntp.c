@@ -17,6 +17,7 @@
 #include "rtc_DS1302.h"
 #include "task_common.h"
 
+
 static const char TAG [] = "sntp";
  esp_sntp_config_t config = {
         .smooth_sync = false,

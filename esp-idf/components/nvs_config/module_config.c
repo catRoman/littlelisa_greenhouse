@@ -29,6 +29,10 @@
 #include "wifi_ap_sta.h"
 #include "task_common.h"
 
+
+
+
+
 #define MAX_TEMP_SENSORS 5  // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
 
@@ -449,6 +453,7 @@ void initiate_config(){
 
 }
 
+__attribute__((optimize("O0")))
 void initiate_sensor_tasks(){
 
     int8_t total_local_sensors = 0;

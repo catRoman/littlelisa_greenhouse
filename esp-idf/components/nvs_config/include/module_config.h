@@ -5,6 +5,7 @@
 
 #include "sensor_tasks.h"
 
+
 typedef struct Module_sensor_config_t{
     char **sensor_loc_arr;
     int8_t *sensor_pin_arr;
