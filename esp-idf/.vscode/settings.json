@@ -1,6 +1,6 @@
 {
     "idf.adapterTargetName": "esp32",
-    "idf.port": "/dev/ttyACM10",
+    "idf.port": "/dev/ttyACM11",
     "idf.flashType": "UART",
     "files.associations": {
         "freertos.h": "c",
