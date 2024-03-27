@@ -12,9 +12,9 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
-#include "network_components/wifi_ap_sta.h"
-#include "nvs_components/nvs_service.h"
-#include "nvs_components/module_config.h"
+#include "wifi_ap_sta.h"
+#include "nvs_service.h"
+#include "module_config.h"
 //---OTA TODOs-----
 //TODO: ota firmwar update
 
