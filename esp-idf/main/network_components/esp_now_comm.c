@@ -39,24 +39,24 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
 //for queue managment
 void esp_now_comm_outgoing_data_task(void * pvParameters)
 {
-    queue_packet_t *queue_packet;
+    queue_packet_t queue_packet;
 
     ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet queue started");
 
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
 
-            esp_err_t result = esp_now_send(queue_packet->mac_addr, queue_packet->data, queue_packet->len);
+            esp_err_t result = esp_now_send(queue_packet.mac_addr, queue_packet.data, queue_packet.len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
             }else{
                 ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
-                    queue_packet->mac_addr[0], queue_packet->mac_addr[1], queue_packet->mac_addr[2],
-                    queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
+                    queue_packet.mac_addr[0], queue_packet.mac_addr[1], queue_packet.mac_addr[2],
+                    queue_packet.mac_addr[3], queue_packet.mac_addr[4], queue_packet.mac_addr[5]);
             }
             //vTaskDelay(pdMS_TO_TICKS(500));
-            free(queue_packet->data);
-            free(queue_packet);
+            // free(queue_packet->data);
+            // free(queue_packet);
 
         }
     }
@@ -295,7 +295,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
     memcpy(data->value, ptr, values_size); ptr += values_size;
 
     memcpy(&data->local_sensor_id, ptr, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
-    
+
     size_t module_id_len = strlen((const char *)ptr) + 1;
     data->module_id = malloc(module_id_len);
     memcpy(data->module_id, ptr, module_id_len); ptr += module_id_len;
@@ -313,7 +313,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
 size_t calculate_serialized_size(const sensor_data_t *data) {
     // Fixed size for int and int fields
     size_t fixed_size = sizeof(data->pin_number) + sizeof(data->total_values) +
-                        sizeof(data->local_sensor_id) 
+                        sizeof(data->local_sensor_id)
                         + sizeof(data->timestamp) + sizeof(data->sensor_type);
 
     // Dynamic size for the float array

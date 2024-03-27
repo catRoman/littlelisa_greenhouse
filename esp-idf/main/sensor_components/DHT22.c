@@ -94,7 +94,7 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 
 //TODO: rewrite module_config and this to work on sensor types
 // thuis tansfering both temp and humidity at once
-void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice){
+void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice, int send_id){
 
 
 	//allocate for data_packet
@@ -126,6 +126,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	queue_packet->nextEventID = SENSOR_PREPOCESSING;
 	queue_packet->sensor_data = data_packet;
 	queue_packet->semphoreCount = 0;
+	queue_packet->current_send_id = send_id;
 
 
     char logMsg[50];
@@ -368,7 +369,7 @@ void DHT22_task(void *vpParameter)
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
 	esp_log_level_set(TAG, ESP_LOG_INFO);
-
+	int send_id = 0;
 	for(;;)
 	{
 
@@ -380,9 +381,10 @@ void DHT22_task(void *vpParameter)
 
 			//#ifdef CONFIG_MODULE_TYPE_NODE
 
-			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22);
+			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22, send_id);
 			//#endif
 			 //TODO: change either the function name or the function for better focus
+			 send_id++;
 		}else{
 			errorHandler(ret, sensor_t);
 		}
