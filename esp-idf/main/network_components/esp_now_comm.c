@@ -17,6 +17,8 @@
 #include "task_common.h"
 #include "esp_heap_caps.h"
 
+#define SERIAL_STR_BUFF     50
+
 
 static const char ESP_NOW_COMM_TAG[] = "esp_now";
 
@@ -33,7 +35,9 @@ static TaskHandle_t esp_now_comm_incoming_data_task_handle = NULL;
  *       -> wrapped data size and serialized data is used to send data
  *
  * (recv) -> send data struct to incoming queue, log, deserialize and send sensor_data_t
- *        -> to sensor queue for further processing
+          -> to sensor queue for further processing
+
+          d4:8a:fc:d0:50:41 <- controller breadboard mac
 */
 
 
@@ -253,11 +257,12 @@ void esp_now_comm_on_data_send_cb(const uint8_t *mac_addr, esp_now_send_status_t
 }
 uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Calculate the size needed for serialization
-    size_t total_size = sizeof(int8_t) * 4 +             // pin_number, total_values, local_sensor_id
+    
+    size_t total_size = sizeof(int8_t) * 3 +             // pin_number, total_values, local_sensor_id
                         sizeof(Sensor_List) +           // sensor_type
                         sizeof(float) * data->total_values +  // value array
-                        strlen(data->location) + 1 +    // location (including null terminator)
-                        strlen(data->module_id) + 1 +   // module_id (including null terminator)
+                        sizeof(char) * SERIAL_STR_BUFF +    // location (including null terminator)
+                        sizeof(char) * SERIAL_STR_BUFF +   // module_id (including null terminator)
                         sizeof(time_t);                // timestamp
 
     // Allocate memory for serialized data
@@ -274,27 +279,28 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     memcpy(serialized_data + offset, &(data->pin_number), sizeof(int8_t));
     offset += sizeof(int8_t);
 
+    memcpy(serialized_data + offset, &(data->total_values), sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    memcpy(serialized_data + offset, &(data->local_sensor_id), sizeof(int8_t));
+    offset += sizeof(int8_t);
+
     memcpy(serialized_data + offset, &(data->sensor_type), sizeof(Sensor_List));
     offset += sizeof(Sensor_List);
+
+    memcpy(serialized_data + offset, &(data->timestamp), sizeof(time_t));
+    offset += sizeof(time_t);
+
+    strcpy((char*)(serialized_data + offset), data->location);
+    offset += (SERIAL_STR_BUFF - (strlen(data->location) + 1));
+
+    strcpy((char*)(serialized_data + offset), data->module_id);
+    offset += (SERIAL_STR_BUFF - (strlen(data->module_id) + 1));
 
     for (int i = 0; i < data->total_values; i++) {
         memcpy(serialized_data + offset, &(data->value[i]), sizeof(float));
         offset += sizeof(float);
     }
-
-    memcpy(serialized_data + offset, &(data->total_values), sizeof(int8_t));
-    offset += sizeof(int8_t);
-
-    strcpy((char*)(serialized_data + offset), data->location);
-    offset += strlen(data->location) + 1;
-
-    memcpy(serialized_data + offset, &(data->local_sensor_id), sizeof(int8_t));
-    offset += sizeof(int8_t);
-
-    strcpy((char*)(serialized_data + offset), data->module_id);
-    offset += strlen(data->module_id) + 1;
-
-    memcpy(serialized_data + offset, &(data->timestamp), sizeof(time_t));
 
     // Set the size and return the serialized data
     *size = total_size;
@@ -383,8 +389,11 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
 // }
 sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t size) {
     // Allocate memory for the deserialized data
+
+    
     sensor_data_t *deserialized_data = (sensor_data_t*)malloc(sizeof(sensor_data_t));
     if (deserialized_data == NULL) {
+        puts("allocation failed for deserialized_data");
         // Memory allocation failed
         return NULL;
     }
@@ -395,16 +404,47 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     memcpy(&(deserialized_data->pin_number), serialized_data + offset, sizeof(int8_t));
     offset += sizeof(int8_t);
 
+    memcpy(&(deserialized_data->total_values), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    memcpy(&(deserialized_data->local_sensor_id), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+
     memcpy(&(deserialized_data->sensor_type), serialized_data + offset, sizeof(Sensor_List));
     offset += sizeof(Sensor_List);
 
-    memcpy(&(deserialized_data->total_values), serialized_data + offset, sizeof(int8_t));
-    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->timestamp), serialized_data + offset, sizeof(time_t));
+    offset += sizeof(time_t);
+
+     // Deserialize the location string
+    deserialized_data->location = strdup((char*)(serialized_data + offset));
+    if (deserialized_data->location == NULL) {
+        // Memory allocation failed
+        puts("allocatoin failed for desearialized_data->location");
+        free(deserialized_data);
+        return NULL;
+    }
+    offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->location) + 1));
+
+    // Deserialize the module_id string
+    deserialized_data->module_id = strdup((char*)(serialized_data + offset));
+    if (deserialized_data->module_id == NULL) {
+        puts("allocation failed for deserialized_data->module_id");
+        // Memory allocation failed
+        free(deserialized_data->location);
+        free(deserialized_data);
+        return NULL;
+    }
+    offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->module_id) + 1));
+
 
     // Allocate memory for the value array
     deserialized_data->value = (float*)malloc(sizeof(float) * deserialized_data->total_values);
     if (deserialized_data->value == NULL) {
         // Memory allocation failed
+        puts("allocation failed for deserialized_data->value");
+        free(deserialized_data->location);
+        free(deserialized_data->module_id);
         free(deserialized_data);
         return NULL;
     }
@@ -415,32 +455,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t si
         offset += sizeof(float);
     }
 
-    // Deserialize the location string
-    deserialized_data->location = strdup((char*)(serialized_data + offset));
-    if (deserialized_data->location == NULL) {
-        // Memory allocation failed
-        free(deserialized_data->value);
-        free(deserialized_data);
-        return NULL;
-    }
-    offset += strlen((char*)(serialized_data + offset)) + 1;
-
-    memcpy(&(deserialized_data->local_sensor_id), serialized_data + offset, sizeof(int8_t));
-    offset += sizeof(int8_t);
-
-    // Deserialize the module_id string
-    deserialized_data->module_id = strdup((char*)(serialized_data + offset));
-    if (deserialized_data->module_id == NULL) {
-        // Memory allocation failed
-        free(deserialized_data->location);
-        free(deserialized_data->value);
-        free(deserialized_data);
-        return NULL;
-    }
-    offset += strlen((char*)(serialized_data + offset)) + 1;
-
-    memcpy(&(deserialized_data->timestamp), serialized_data + offset, sizeof(time_t));
-
+   
     return deserialized_data;
 }
 
