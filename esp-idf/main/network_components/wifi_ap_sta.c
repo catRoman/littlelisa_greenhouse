@@ -223,6 +223,7 @@ void wifi_start(void)
         //sntp_service_init();
         http_server_start();
         led_http_server_started();
+        websocket_server_start();
 
 
 
@@ -242,20 +243,20 @@ esp_err_t log_mac_address(esp_mac_type_t mac_type){
     }else{
         type = "STA";
     }
- 
+
     uint8_t mac[6];
     // Get MAC address for Wi-Fi Station interface
     esp_err_t mac_ret = esp_read_mac(mac, mac_type);
 
     if (mac_ret == ESP_OK) {
-        
+
         ESP_LOGI(WIFI_TAG, "%s MAC Address: %02x:%02x:%02x:%02x:%02x:%02x\n", type, mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-       
+
     } else {
         ESP_LOGE(WIFI_TAG, "Failed to get MAC address!\n");
     }
 
-    
+
 
     return mac_ret;
 }
@@ -268,7 +269,7 @@ esp_err_t mdns_start(){
         char mac_addr[20];
         strcpy(mac_addr, module_info_gt->identity);
         find_and_replace(mac_addr, ':', '_');
-        
+
         snprintf(module_id, sizeof(module_id), "%s", mac_addr);
         char mdns_host_name[50] = "littlelisa-";
 

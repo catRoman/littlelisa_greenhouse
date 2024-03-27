@@ -95,13 +95,14 @@ void sensor_queue_monitor_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(sensor_queue_handle, &event, portMAX_DELAY)){
 
-               char logMsg[25];
+               char logMsg[100];
 
     // Use snprintf to format the string
-             snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s",
+             snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s->send_id:%d",
              event->sensor_data->module_id,
              event->sensor_data->local_sensor_id,
-             sensor_type_to_string(event->sensor_data->sensor_type));
+             sensor_type_to_string(event->sensor_data->sensor_type),
+             event->current_send_id);
 
 
 
@@ -192,7 +193,7 @@ void sensor_queue_monitor_task(void * pvParameters)
                     }
                     break;
 
-                
+
             }
 
 
@@ -207,10 +208,11 @@ void sensor_preprocessing_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY)){
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in preprocessing",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in preprocessing",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
             //heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
             ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
@@ -228,16 +230,18 @@ void sensor_preprocessing_task(void * pvParameters)
 
             if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
                 if(strcmp(module_info_gt->type, "node") == 0){
-                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s preparing to send",
+                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d preparing to send",
                             event->sensor_data->module_id,
                             event->sensor_data->local_sensor_id,
-                            sensor_type_to_string(event->sensor_data->sensor_type));
+                            sensor_type_to_string(event->sensor_data->sensor_type),
+                            event->current_send_id);
 
                }else if(strcmp(module_info_gt->type, "controller") == 0){
-                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s sent to post processing",
+                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sent to post processing",
                             event->sensor_data->module_id,
                             event->sensor_data->local_sensor_id,
-                            sensor_type_to_string(event->sensor_data->sensor_type));
+                            sensor_type_to_string(event->sensor_data->sensor_type),
+                            event->current_send_id);
                }
             }
 
@@ -253,13 +257,15 @@ void sensor_preprocessing_task(void * pvParameters)
 
 void sensor_prepare_to_send_task(void * pvParameters)
 {
+    int loop_count = 0;
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_prepare_to_send_handle, &event, portMAX_DELAY)){
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s preparing to send",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d preparing to send",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
             //TODO:change esp_now_comm struct wrapper name
             queue_packet_t *queue_packet = (queue_packet_t*)malloc(sizeof(queue_packet_t));
@@ -272,26 +278,29 @@ void sensor_prepare_to_send_task(void * pvParameters)
 
             esp_now_comm_get_config_reciever_mac_addr(queue_packet->mac_addr);
             //trigger_panic();
-
+            printf("loop count prepar: %d\n", loop_count);
+            loop_count++;
             extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
             if(xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-                    ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s sent to esp_now outgoing que",
+                    ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sent to esp_now outgoing que",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
                 }else{
-                    ESP_LOGE(SENSOR_EVENT_TAG, "module->%s-id:%d-%s failed to pass to outcoming data que",
+                    ESP_LOGE(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d failed to pass to outcoming data que",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
                 }
 
             //free the wrapper as its changed hands to the esp_now_comm wrapper
-            free(event->sensor_data->value);
-            free(event->sensor_data->location);
-            free(event->sensor_data->module_id);
-            free(event->sensor_data);
-            free(event);
+            // free(event->sensor_data->value);
+            // free(event->sensor_data->location);
+            // free(event->sensor_data->module_id);
+            // free(event->sensor_data);
+            // free(event);
 
         taskYIELD();
         }
@@ -318,12 +327,12 @@ void sensor_post_processing_task(void * pvParameters)
             time(&currentTime);
             event->sensor_data->timestamp = currentTime;
 
-             
+
             event->nextEventID=SENSOR_SEND_TO_WEBSOCKET_SERVER;
-          
+
 
             if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
-                
+
                 ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s sent to websocket server send queue",
                             event->sensor_data->module_id,
                             event->sensor_data->local_sensor_id,
@@ -357,7 +366,7 @@ void sensor_send_to_ram_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
-           taskYIELD(); 
+           taskYIELD();
         }
 
     }
@@ -376,7 +385,7 @@ void sensor_send_to_sd_db_task(void * pvParameters)
 
 
 
-           taskYIELD(); 
+           taskYIELD();
         }
 
     }
@@ -395,7 +404,7 @@ void sensor_send_to_server_db_task(void * pvParameters)
 
 
 
-           taskYIELD(); 
+           taskYIELD();
         }
 
     }
@@ -414,7 +423,7 @@ void sensor_queue_mem_cleanup_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
 
-           taskYIELD(); 
+           taskYIELD();
         }
 
     }
@@ -424,8 +433,8 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 {
     sensor_queue_wrapper_t *event;
 
-    
-    
+
+
 
     for(;;){
         if (xQueueReceive(sensor_send_to_websocket_server_handle, &event, portMAX_DELAY) == pdTRUE){
@@ -434,7 +443,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type));
 
-          
+
             //temp for logging testing
             cJSON *root = cJSON_CreateObject();
             cJSON *module_info = cJSON_CreateObject();
@@ -446,17 +455,17 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             cJSON_AddStringToObject(module_info, "module_id", event->sensor_data->module_id);
             cJSON_AddNumberToObject(module_info, "local_sensor_id", event->sensor_data->local_sensor_id);
             cJSON_AddNumberToObject(sensor_info, "module_pin", event->sensor_data->pin_number);
-            
+
             cJSON_AddItemToObject(root, "sensor_data", sensor_info);
             cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(event->sensor_data->sensor_type));
-            
+
             char *timestamp = ctime(&event->sensor_data->timestamp);
             timestamp[strcspn(timestamp, "\n")] = '\0';
-            
+
             cJSON_AddStringToObject(sensor_info, "timestamp", timestamp);
             cJSON_AddStringToObject(sensor_info, "location", event->sensor_data->location);
             cJSON_AddItemToObject(sensor_info, "sensor_data", sensor_data);
-            
+
             char value_name[25];
             for(int i = 0; i < event->sensor_data->total_values; i++){
                 switch (event->sensor_data->sensor_type){
@@ -467,7 +476,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
                                 break;
                             case 1:
                                 snprintf(value_name, 25, "humidity");
-                                break;     
+                                break;
                         }
                         break;
                     default:
@@ -475,8 +484,8 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
                         break;
                     //implent other sensors as we go
                 }
-              
-                
+
+
                 cJSON_AddNumberToObject(sensor_data, value_name, event->sensor_data->value[i]);
            }
 
@@ -490,7 +499,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type),
                                                 sensor_data_json);
-        
+
 
             //add json to fram pacakage and pass to websocket server for transmission
             websocket_frame_data_t ws_frame;
@@ -502,17 +511,17 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             ws_frame.ws_pkt = &ws_pkt;
             ws_pkt.payload = (uint8_t*)sensor_data_json;
             ws_pkt.len = strlen(sensor_data_json) + 1;
-            
+
 
             xQueueSend(websocket_send_data_queue_handle, &ws_frame, portMAX_DELAY);
-        
 
-            free(event->sensor_data->value);
-            free(event->sensor_data->location);
-            free(event->sensor_data->module_id);
-            free(event->sensor_data);
-            free(event);
-           taskYIELD(); 
+
+            // free(event->sensor_data->value);
+            // free(event->sensor_data->location);
+            // free(event->sensor_data->module_id);
+            // free(event->sensor_data);
+            // free(event);
+           taskYIELD();
         }
 
     }
@@ -520,7 +529,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
 esp_err_t initiate_sensor_queue(){
     ESP_LOGI(SENSOR_EVENT_TAG, "sensor queue init started");
-    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_INFO);
+    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_DEBUG);
 
 
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));

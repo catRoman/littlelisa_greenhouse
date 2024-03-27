@@ -54,6 +54,7 @@ typedef struct sensor_queue_wrapper_t
     sensor_event_type nextEventID;
     sensor_data_t *sensor_data;
     int semphoreCount;
+    int current_send_id;
 } sensor_queue_wrapper_t;
 
 

@@ -616,12 +616,12 @@ Module_info_t *create_module_from_config(char *type,
     // Get MAC address for Wi-Fi Station interface
     esp_err_t mac_ret = esp_read_mac(mac, mac_type);
 
-    char mac_addr_str[20];
+    char mac_addr_str[30];
 
     if (mac_ret == ESP_OK) {
-        sprintf(mac_addr_str, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        snprintf(mac_addr_str,sizeof(mac_addr_str), "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     } else {
-        sprintf(mac_addr_str, "unknown");
+        snprintf(mac_addr_str,sizeof(mac_addr_str), "unknown");
     }
 
 
