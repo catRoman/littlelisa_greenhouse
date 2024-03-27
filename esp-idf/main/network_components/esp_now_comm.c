@@ -51,21 +51,19 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
 
     for(;;){
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE){
-//heap_caps_dump_all();
-vTaskDelay(pdMS_TO_TICKS(5000));
-            heap_caps_check_integrity_all(true);
+
+            //vTaskDelay(pdMS_TO_TICKS(5000));
+            //TODO: add blinky light for every succesful send
             esp_err_t result = esp_now_send(queue_packet->mac_addr, queue_packet->data, queue_packet->len);
             if (result != ESP_OK){
                 ESP_LOGE(ESP_NOW_COMM_TAG, "data send unsuccessful: %s", esp_err_to_name(result));
             }else{
-                ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
+                ESP_LOGD(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
                     queue_packet->mac_addr[0], queue_packet->mac_addr[1], queue_packet->mac_addr[2],
                     queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
             }
-            heap_caps_check_integrity_all(true);
-            //vTaskDelay(pdMS_TO_TICKS(500));
-            // free(queue_packet->data);
-            // free(queue_packet);
+            free(queue_packet->data);
+            free(queue_packet);
 
         }
     }
@@ -306,87 +304,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     *size = total_size;
     return serialized_data;
 }
-// }
-// Function to serialize sensor_data_t
-// uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
-//     // Calculate size needed for serialization
-//     size_t location_len = strlen(data->location) + 1; // +1 for null terminator
-//     size_t module_id_len = strlen(data->module_id) + 1;
-//     size_t values_size = sizeof(float) * data->total_values;
-// heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     *size = sizeof(data->pin_number) + sizeof(data->sensor_type)
-//             + sizeof(data->total_values) + sizeof(data->local_sensor_id)
-//              + sizeof(data->timestamp)
-//             + values_size + location_len;
-// heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     uint8_t *buffer = malloc(*size);
-//     if (!buffer) {
-//         return NULL; // Failed to allocate memory
-//     }
-// heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     uint8_t *ptr = buffer;
-//     // Copy data into the buffer
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, &data->pin_number, sizeof(data->pin_number)); ptr += sizeof(data->pin_number);
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, &data->sensor_type, sizeof(data->sensor_type)); ptr += sizeof(data->sensor_type);
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, &data->total_values, sizeof(data->total_values)); ptr += sizeof(data->total_values);
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, data->value, values_size); ptr += values_size;
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, &data->local_sensor_id, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, data->module_id, module_id_len); ptr += module_id_len;
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, &data->timestamp, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
-//     heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     memcpy(ptr, data->location, location_len); // ptr += location_len; // Not needed as this is the last item
-// heap_caps_check_integrity_all(true);
-//     printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-//     return buffer;
-// }
 
-// // Function to deserialize sensor_data_t from a byte stream
-// sensor_data_t* deserialize_sensor_data(const uint8_t *buffer, size_t size) {
-//     sensor_data_t *data = malloc(sizeof(sensor_data_t));
-//     if (!data) {
-//         return NULL; // Failed to allocate memory
-//     }
-
-//     const uint8_t *ptr = buffer;
-//     memcpy(&data->pin_number, ptr, sizeof(data->pin_number)); ptr += sizeof(data->pin_number);
-//     memcpy(&data->sensor_type, ptr, sizeof(data->sensor_type)); ptr += sizeof(data->sensor_type);
-//     memcpy(&data->total_values, ptr, sizeof(data->total_values)); ptr += sizeof(data->total_values);
-
-//     size_t values_size = sizeof(float) * data->total_values;
-//     data->value = malloc(values_size);
-//     memcpy(data->value, ptr, values_size); ptr += values_size;
-
-//     memcpy(&data->local_sensor_id, ptr, sizeof(data->local_sensor_id)); ptr += sizeof(data->local_sensor_id);
-
-//     size_t module_id_len = strlen((const char *)ptr) + 1;
-//     data->module_id = malloc(module_id_len);
-//     memcpy(data->module_id, ptr, module_id_len); ptr += module_id_len;
-
-//     memcpy(&data->timestamp, ptr, sizeof(data->timestamp)); ptr += sizeof(data->timestamp);
-
-//     size_t location_len = strlen((const char *)ptr) + 1;
-//     data->location = malloc(location_len);
-//     memcpy(data->location, ptr, location_len); // ptr += location_len; // Not needed as this is the last item
-
-//     return data;
-// }
 sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t size) {
     // Allocate memory for the deserialized data
 

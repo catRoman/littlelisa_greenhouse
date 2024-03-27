@@ -96,7 +96,6 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 // thuis tansfering both temp and humidity at once
 void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choice, int send_id){
 
-	heap_caps_check_integrity_all(true);
 	//allocate for data_packet
 	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
@@ -113,7 +112,6 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
 	strcpy(data_packet->location, sensor_t->location);
 
-	heap_caps_check_integrity_all(true);
 
 	data_packet->sensor_type = DHT22;
 	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
@@ -127,7 +125,6 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	queue_packet->sensor_data = data_packet;
 	queue_packet->semphoreCount = 0;
 	queue_packet->current_send_id = send_id;
-	heap_caps_check_integrity_all(true);
 
     char logMsg[50];
 
@@ -137,14 +134,12 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	queue_packet->sensor_data->local_sensor_id,
 	sensor_type_to_string(queue_packet->sensor_data->sensor_type),
 	queue_packet->current_send_id);
-	heap_caps_check_integrity_all(true);
 	extern QueueHandle_t sensor_queue_handle;
 	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-			ESP_LOGI(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
+			ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
 		}else{
 			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
 		}
-	heap_caps_check_integrity_all(true);
 
 
 }
@@ -363,7 +358,6 @@ void DHT22_task(void *vpParameter)
 	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
 	float values[sensor_t->total_values];
 	sensor_t->value = values;
-	heap_caps_check_integrity_all(true);
 
 	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
 	esp_rom_delay_us( 100 );
@@ -376,14 +370,11 @@ void DHT22_task(void *vpParameter)
 
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
-		heap_caps_check_integrity_all(true);
 		if (ret == DHT_OK){
 			//log_sensor_JSON(sensor_t, DHT22);
 
 			//#ifdef CONFIG_MODULE_TYPE_NODE
-			heap_caps_check_integrity_all(true);
 			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22, send_id);
-			heap_caps_check_integrity_all(true);
 			//#endif
 			 //TODO: change either the function name or the function for better focus
 			 send_id++;
