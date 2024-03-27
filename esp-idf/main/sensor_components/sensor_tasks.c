@@ -107,8 +107,10 @@ void sensor_queue_monitor_task(void * pvParameters)
 
 
             ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
+            heap_caps_check_integrity_all(true);
 
             switch(event->nextEventID){
+
 
                 case SENSOR_PREPOCESSING:
                     if(xQueueSend(sensor_preprocessing_handle, &event, portMAX_DELAY)){
@@ -207,7 +209,7 @@ void sensor_preprocessing_task(void * pvParameters)
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_preprocessing_handle, &event, portMAX_DELAY)){
-
+            heap_caps_check_integrity_all(true);
             ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in preprocessing",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
@@ -218,16 +220,16 @@ void sensor_preprocessing_task(void * pvParameters)
             ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
            // TODO:check values are within range if not send to cleanup
            // sensor_validation();
-
+            heap_caps_check_integrity_all(true);
             if(strcmp(module_info_gt->type, "node") == 0){
                 event->nextEventID=SENSOR_PREPARE_TO_SEND;
             }else if(strcmp(module_info_gt->type, "controller") == 0){
                 event->nextEventID=SENSOR_POST_PROCESSING;
             }else{
                 ESP_LOGE(SENSOR_EVENT_TAG, "Module type error in preprocessing");
-                continue;
+                //continue;
             }
-
+            heap_caps_check_integrity_all(true);
             if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
                 if(strcmp(module_info_gt->type, "node") == 0){
                 ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d preparing to send",
@@ -247,7 +249,7 @@ void sensor_preprocessing_task(void * pvParameters)
 
 
 
-
+        heap_caps_check_integrity_all(true);
         taskYIELD();
         }
 
@@ -261,6 +263,8 @@ void sensor_prepare_to_send_task(void * pvParameters)
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_prepare_to_send_handle, &event, portMAX_DELAY)){
+            heap_caps_check_integrity_all(true);
+    printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d preparing to send",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
@@ -269,14 +273,20 @@ void sensor_prepare_to_send_task(void * pvParameters)
 
             //TODO:change esp_now_comm struct wrapper name
             queue_packet_t *queue_packet = (queue_packet_t*)malloc(sizeof(queue_packet_t));
-
+            heap_caps_check_integrity_all(true);
+    printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             //queue_packet->data = event->sensor_data;
             //printf("%s ->len: %d\n", queue_packet.data->location, strlen(queue_packet.data.location));
 
-            queue_packet->len = calculate_serialized_size(event->sensor_data);
+            //queue_packet->len = calculate_serialized_size(event->sensor_data);
+            heap_caps_check_integrity_all(true);
+    printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             queue_packet->data = serialize_sensor_data(event->sensor_data, &queue_packet->len);
-
+            heap_caps_check_integrity_all(true);
+    printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             esp_now_comm_get_config_reciever_mac_addr(queue_packet->mac_addr);
+            heap_caps_check_integrity_all(true);
+    printf("left->%d\n",heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             //trigger_panic();
             printf("loop count prepar: %d\n", loop_count);
             loop_count++;
@@ -301,7 +311,7 @@ void sensor_prepare_to_send_task(void * pvParameters)
             // free(event->sensor_data->module_id);
             // free(event->sensor_data);
             // free(event);
-
+        heap_caps_check_integrity_all(true);
         taskYIELD();
         }
 

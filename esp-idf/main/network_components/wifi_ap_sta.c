@@ -225,6 +225,7 @@ void wifi_start(void)
         led_http_server_started();
         websocket_server_start();
 
+        heap_caps_check_integrity_all(true);
 
 
 
