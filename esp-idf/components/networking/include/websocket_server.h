@@ -3,6 +3,7 @@
 
 #include "esp_http_server.h"
 #include "esp_err.h"
+#include "helper.h"
 
 void generate_async_resp(void *arg);
 
@@ -14,9 +15,12 @@ struct async_resp_arg
 };
 typedef enum websocket_server_message
 {
-    WEBSOCKET_CONNECT_INIT = 0,
-    WEBSOCKET_CONNECT_SUCCESS,
-    WEBSOCKET_CONNECT_FAIL,
+    WEBSOCKET_SENSOR_CONNECT_INIT = 0,
+    WEBSOCKET_SENSOR_CONNECT_SUCCESS,
+    WEBSOCKET_SENSOR_CONNECT_FAIL,
+    WEBSOCKET_LOG_CONNECT_INIT,
+    WEBSOCKET_LOG_CONNECT_SUCCESS,
+    WEBSOCKET_LOG_CONNECT_FAIL,
 } websocket_server_message_e;
 
 typedef struct frame_data_t {
@@ -53,8 +57,11 @@ void websocket_server_start(void);
 httpd_handle_t websocket_server_configuration(void);
 
 void websocket_server_monitor(void * xTASK_PARAMETERS);
-void websocket_print_client_sockets(void);
-void websocket_send_data_queue(void *vpParameter);
+void websocket_print_client_sockets(int num_ws_clients, List *ws_clients);
+void websocket_send_sensor_data_queue(void *vpParameter);
+void websocket_send_log_data_queue(void *vpParameter);
+
+int esp_log_handler(const char* fmt, va_list tag);
 esp_err_t register_websocket_server_handlers(void);
 
 void test_frame_change_task(void *vpParameters);

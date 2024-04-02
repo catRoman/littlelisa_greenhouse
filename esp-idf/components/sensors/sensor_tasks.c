@@ -56,7 +56,7 @@
 static const char SENSOR_EVENT_TAG[] = "sensor_tasks";
 
 extern Module_info_t *module_info_gt;
-extern QueueHandle_t websocket_send_data_queue_handle;
+extern QueueHandle_t websocket_send_sensor_data_queue_handle;
 
 QueueHandle_t sensor_queue_handle = NULL;
 TaskHandle_t sensor_queue_task_handle = NULL;
@@ -505,11 +505,11 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             ws_pkt.len = strlen(sensor_data_json) + 1;
 
 
-            xQueueSend(websocket_send_data_queue_handle, &ws_frame, portMAX_DELAY);
+            xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
 
 
-            
-            
+
+
            taskYIELD();
         }
 
