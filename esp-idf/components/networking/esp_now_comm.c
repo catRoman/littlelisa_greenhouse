@@ -62,8 +62,12 @@ void esp_now_comm_outgoing_data_task(void * pvParameters)
                     queue_packet->mac_addr[0], queue_packet->mac_addr[1], queue_packet->mac_addr[2],
                     queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
             }
+
+
             free(queue_packet->data);
+            queue_packet->data = NULL;
             free(queue_packet);
+            queue_packet = NULL;
 
         }
     }
@@ -129,11 +133,20 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
                 }
 
             free(espnow_queue_packet->data);
+            espnow_queue_packet->data = NULL;
             free(espnow_queue_packet);
+            espnow_queue_packet = NULL;
             free(sensor_data->value);
+            sensor_data->value = NULL;
             free(sensor_data->location);
+            sensor_data->location = NULL;
             free(sensor_data->module_id);
+            sensor_data->module_id = NULL;
             free(sensor_data);
+            sensor_data=NULL;
+
+
+
         }
     }
 }
@@ -226,6 +239,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (packet->data == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for data");
         free(packet); // Clean up previously allocated packet memory
+        packet= NULL;
         return;
     }
 
@@ -255,7 +269,7 @@ void esp_now_comm_on_data_send_cb(const uint8_t *mac_addr, esp_now_send_status_t
 }
 uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Calculate the size needed for serialization
-    
+
     size_t total_size = sizeof(int8_t) * 3 +             // pin_number, total_values, local_sensor_id
                         sizeof(Sensor_List) +           // sensor_type
                         sizeof(float) * data->total_values +  // value array
@@ -308,7 +322,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
 sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t size) {
     // Allocate memory for the deserialized data
 
-    
+
     sensor_data_t *deserialized_data = (sensor_data_t*)malloc(sizeof(sensor_data_t));
     if (deserialized_data == NULL) {
         puts("allocation failed for deserialized_data");
@@ -340,6 +354,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t si
         // Memory allocation failed
         puts("allocatoin failed for desearialized_data->location");
         free(deserialized_data);
+        deserialized_data=NULL;
         return NULL;
     }
     offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->location) + 1));
@@ -350,7 +365,9 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t si
         puts("allocation failed for deserialized_data->module_id");
         // Memory allocation failed
         free(deserialized_data->location);
-        free(deserialized_data);
+        deserialized_data->location=NULL;
+        free(deserialized_data);\
+        deserialized_data = NULL;
         return NULL;
     }
     offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->module_id) + 1));
@@ -362,8 +379,11 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t si
         // Memory allocation failed
         puts("allocation failed for deserialized_data->value");
         free(deserialized_data->location);
+        deserialized_data->location=NULL;
         free(deserialized_data->module_id);
+        deserialized_data->module_id=NULL;
         free(deserialized_data);
+        deserialized_data=NULL;
         return NULL;
     }
 
@@ -373,7 +393,7 @@ sensor_data_t* deserialize_sensor_data(const uint8_t *serialized_data, size_t si
         offset += sizeof(float);
     }
 
-   
+
     return deserialized_data;
 }
 

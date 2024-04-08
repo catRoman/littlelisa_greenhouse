@@ -14,7 +14,7 @@
 //NETWORK PROCESSES
 
 // WiFi application task
-#define SNTP_TASK_STACK_SIZE            4096
+#define SNTP_TASK_STACK_SIZE            8196
 #define SNTP_TASK_PRIORITY              5       // 0 is lowest priority in freeRTOS
 #define SNTP_TASK_CORE_ID               0
 
@@ -71,7 +71,7 @@
 //SENSOR QUEUE PROCESSES
 
 // sensor Monitor task
-#define SENSOR_QUEUE_STACK_SIZE             4096
+#define SENSOR_QUEUE_STACK_SIZE             8196
 #define SENSOR_QUEUE_PRIORITY               6
 #define SENSOR_QUEUE_CORE_ID                1
 

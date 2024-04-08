@@ -209,26 +209,26 @@ BaseType_t websocket_server_monitor_send_message(websocket_server_message_e msgI
     return xQueueSend(websocket_server_monitor_queue_handle, &msg, portMAX_DELAY);
 }
 
-// The asynchronous response
-void generate_async_resp(void *arg)
-{
-    // Data format to be sent from the server as a response to the client
-    char http_string[250];
-    char *data_string = "Hello from ESP32 websocket server ...";
-    sprintf(http_string, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n", strlen(data_string));
+// // The asynchronous response
+// void generate_async_resp(void *arg)
+// {
+//     // Data format to be sent from the server as a response to the client
+//     char http_string[250];
+//     char *data_string = "Hello from ESP32 websocket server ...";
+//     sprintf(http_string, "HTTP/1.1 200 OK\r\nContent-Length: %d\r\n\r\n", strlen(data_string));
 
-    // Initialize asynchronous response data structure
-    struct async_resp_arg *resp_arg = (struct async_resp_arg *)arg;
-    httpd_handle_t hd = resp_arg->hd;
-    int fd = resp_arg->fd;
+//     // Initialize asynchronous response data structure
+//     struct async_resp_arg *resp_arg = (struct async_resp_arg *)arg;
+//     httpd_handle_t hd = resp_arg->hd;
+//     int fd = resp_arg->fd;
 
-    // Send data to the client
-    ESP_LOGI(WEBSOCKET_SERVER_TAG, "Executing queued work fd : %d", fd);
-    httpd_socket_send(hd, fd, http_string, strlen(http_string), 0);
-    httpd_socket_send(hd, fd, data_string, strlen(data_string), 0);
+//     // Send data to the client
+//     ESP_LOGI(WEBSOCKET_SERVER_TAG, "Executing queued work fd : %d", fd);
+//     httpd_socket_send(hd, fd, http_string, strlen(http_string), 0);
+//     httpd_socket_send(hd, fd, data_string, strlen(data_string), 0);
 
-    free(arg);
-}
+//     free(arg);
+// }
 
 void test_frame_change_task(void *vpParameters){
     websocket_frame_data_t ws_frame;
@@ -273,6 +273,7 @@ void ws_async_send(void *arg)
 
     httpd_ws_send_frame_async(hd, fd, &ws_pkt);
     free(resp_arg);
+    resp_arg=NULL;
 }
 
 esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
@@ -286,6 +287,7 @@ esp_err_t trigger_async_send(httpd_handle_t handle, httpd_req_t *req)
     esp_err_t ret = httpd_queue_work(handle, ws_async_send, resp_arg);
     if (ret != ESP_OK) {
         free(resp_arg);
+        resp_arg=NULL;
     }
     return ret;
 }
@@ -321,6 +323,7 @@ esp_err_t ws_echo_handler(httpd_req_t *req)
         if (ret != ESP_OK) {
             ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_recv_frame failed with %d", ret);
             free(buf);
+            buf=NULL;
             return ret;
         }
         ESP_LOGI(WEBSOCKET_SERVER_TAG, "Got packet with message: %s", ws_pkt.payload);
@@ -329,6 +332,7 @@ esp_err_t ws_echo_handler(httpd_req_t *req)
     if (ws_pkt.type == HTTPD_WS_TYPE_TEXT &&
         strcmp((char*)ws_pkt.payload,"Trigger async") == 0) {
         free(buf);
+        buf=NULL;
         return trigger_async_send(req->handle, req);
     }
 
@@ -337,6 +341,7 @@ esp_err_t ws_echo_handler(httpd_req_t *req)
         ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
     }
     free(buf);
+    buf=NULL;
     return ret;
 }
 
@@ -378,10 +383,10 @@ int esp_log_handler(const char* fmt, va_list tag)
 
     esp_err_t ret = httpd_ws_send_frame_async(websocket_server_handle, log_fd, &ws_pkt);
        // xQueueSend(websocket_send_log_data_queue_handle, &ws_frame, portMAX_DELAY);
-    if(ret != ESP_OK){
-        ESP_LOGE(WEBSOCKET_SERVER_TAG, "%s",esp_err_to_name(ret));
-    }
+        // ESP_LOGE(WEBSOCKET_SERVER_TAG, "%s",esp_err_to_name(ret));
+        vTaskDelay(pdMS_TO_TICKS(500));
     free(ws_pkt.payload);
+    ws_pkt.payload=NULL;
     return vprintf(fmt, tag);
 }
 
@@ -430,6 +435,7 @@ void websocket_send_log_data_queue(void *vpParameter){
 
             }
             free(ws_frame_data.ws_pkt->payload);
+            ws_frame_data.ws_pkt->payload=NULL;
            //free frame payload json data?
         }
         taskYIELD();
