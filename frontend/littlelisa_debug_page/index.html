@@ -1,0 +1,123 @@
+<!-- LittleLisa project debug page
+author: Catlin Roman
+date: april 8th 2024
+file: index.html
+
+will be displayed when connecting directly to main controller local wifi
+for diagnosttics, relying more on websocket data rater than database
+api requests. Fetches will be made directly to esp http and ws servers.
+Used for updating and quick diagnostics. -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LittleLisa debug Page</title>
+    <link
+      rel="shortcut icon"
+      href="./public/icons/favicon.png"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="./src/css/index.css" />
+  </head>
+  <body>
+    <header>
+      <svg
+        class="header-menu-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="w-6 h-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
+        />
+      </svg>
+
+      <div class="title-box">
+        <h1>Node Name Here</h1>
+        <p class="title-id-self">ID#: 29_03_38_89_75_75</p>
+        <p class="'title-location">Garage</p>
+      </div>
+      <img src="./public/icons/greenhouse.png" alt="greemhouse-icon" />
+    </header>
+    <main>
+      <section class="section-status">
+        <p class="status-internal-db">Internal DB Status</p>
+        <p class="status-external-db">External DB Status</p>
+        <p class="status-uptime">Uptime: 89672439048 ms</p>
+      </section>
+      <section class="section-online-connections">
+        <button class="online-connection-btn">Node 1</button>
+        <button class="online-connection-btn">Node 2</button>
+        <button class="online-connection-btn">Node 3</button>
+        <button class="online-connection-btn">Node 4</button>
+        <button class="online-connection-btn">Node 5</button>
+      </section>
+      <section class="section-log-output">
+        <textarea class="log-output">
+        {3489575}ESP_LOGI: klriholiksdjfgoilsdjfgioljsdroilgj
+      </textarea
+        >
+      </section>
+      <section class="section-sensor-data">
+        <div class="sensor-data-node-box node1">
+          <h2>Node 1</h2>
+          <ul>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+          </ul>
+        </div>
+
+        <div class="sensor-data-node-box node2">
+          <h2>Node 2</h2>
+          <ul>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+          </ul>
+        </div>
+
+        <div class="sensor-data-node-box node3">
+          <h2>Node 3</h2>
+          <ul>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+            <p>senor 1: garage 13C</p>
+          </ul>
+        </div>
+
+        <div class="sensor-data-node-box node4">
+          <h2>Node 4</h2>
+          <ul>
+            <p>senor 1: garage 13C</p>
+          </ul>
+        </div>
+
+        <div class="sensor-data-node-box node5">
+          <h2>Node 5</h2>
+          <ul>
+            <p>senor 1: garage 13C</p>
+          </ul>
+        </div>
+
+        <div class="sensor-data-node-box node1">
+          <h2>Node 1</h2>
+          <ul>
+            <p>senor 1: garage 13C</p>
+          </ul>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
