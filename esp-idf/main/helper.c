@@ -58,6 +58,7 @@ List *list_create() {
     list->items = (int *)malloc(sizeof(int) * INITIAL_CAPACITY);
     if (list->items == NULL) {
         free(list);
+        list=NULL;
         return NULL; // Memory allocation failed
     }
     list->size = 0;
@@ -106,5 +107,7 @@ void list_remove(List *list, int index) {
 // Function to free the memory allocated for the list
 void list_destroy(List *list) {
     free(list->items);
+    list->items=NULL;
     free(list);
+    list=NULL;
 }

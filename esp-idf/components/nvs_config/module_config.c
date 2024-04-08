@@ -460,6 +460,7 @@ void initiate_sensor_tasks(){
     for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
 
         //sensor_id starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
+        //->TODO check if lop+1 is still valid
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
             local_sensor[sensor_id-1] = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
@@ -529,19 +530,19 @@ Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins,
    return sensor_config;
 }
 
-// Function to free a Module_sensor_config_t instance
-void freeModuleSensorConfig(Module_sensor_config_t *config) {
-    if (!config) return;
+// // Function to free a Module_sensor_config_t instance
+// void freeModuleSensorConfig(Module_sensor_config_t *config) {
+//     if (!config) return;
 
-    // Free each string in sensor_loc_arr
-    for (int i = 0; config->sensor_loc_arr && config->sensor_loc_arr[i] != NULL; i++) {
-        free(config->sensor_loc_arr[i]);
-    }
-    free(config->sensor_loc_arr); // Free the array of strings
+//     // Free each string in sensor_loc_arr
+//     for (int i = 0; config->sensor_loc_arr && config->sensor_loc_arr[i] != NULL; i++) {
+//         free(config->sensor_loc_arr[i]);
+//     }
+//     free(config->sensor_loc_arr); // Free the array of strings
 
-    free(config->sensor_pin_arr); // Free the array of pins
-    free(config); // Free the struct itself
-}
+//     free(config->sensor_pin_arr); // Free the array of pins
+//     free(config); // Free the struct itself
+// }
 
 // Function to create a Module_info_t instance
 Module_info_t *create_module_from_NVS() {
@@ -580,8 +581,11 @@ Module_info_t *create_module_from_NVS() {
 
 
     free(temp_module.type);
+    temp_module.type=NULL;
     free(temp_module.location);
+    temp_module.location=NULL;
     free(temp_module.identity);
+    temp_module.identity=NULL;
 
 
     return created_module;

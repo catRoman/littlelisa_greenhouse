@@ -289,10 +289,16 @@ void sensor_prepare_to_send_task(void * pvParameters)
 
             //free the wrapper as its changed hands to the esp_now_comm wrapper
             free(event->sensor_data->value);
+            event->sensor_data->value=NULL;
             free(event->sensor_data->location);
+            event->sensor_data->location=NULL;
             free(event->sensor_data->module_id);
+            event->sensor_data->module_id=NULL;
+
             free(event->sensor_data);
+            event->sensor_data=NULL;
             free(event);
+            event=NULL;
         taskYIELD();
         }
 
@@ -333,10 +339,15 @@ void sensor_post_processing_task(void * pvParameters)
 
             //temp mem cleanup
             free(event->sensor_data->value);
+            event->sensor_data->value=NULL;
             free(event->sensor_data->location);
+            event->sensor_data->location=NULL;
             free(event->sensor_data->module_id);
+            event->sensor_data->module_id=NULL;
             free(event->sensor_data);
+            event->sensor_data=NULL;
             free(event);
+            event=NULL;
            //  heap_trace_stop();
            // heap_trace_dump();
             //trigger_panic();

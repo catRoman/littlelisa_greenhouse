@@ -91,6 +91,7 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
 	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->location, json_string);
 	free(json_string);
+	json_string=NULL;
  }
 
 //TODO: rewrite module_config and this to work on sensor types
