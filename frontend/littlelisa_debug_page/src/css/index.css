@@ -1,0 +1,96 @@
+/* LittleLisa project debug page
+author: Catlin Roman
+date: april 8th 2024
+file: index.css
+
+styles for main debug page-- mobile first*/
+
+/*
+
+default: 1
+small: 1.05
+paragraph default: 1.6
+
+letter spacing
+0.5px
+0.75px
+
+FONT SIZE SYSTEM (px)
+    10 / 12 / 14 / 16 / 18 / 20 / 24 / 30 / 36 / 44 / 52 / 62 / 74 / 86 / 98
+
+==============02 - colors
+#131516
+#160729
+#171856
+#243771
+#416e8f
+#dbf3f1
+=======05 SHAWDOWS
+
+=======06 BOARDER-RADIUS
+defaul: 8px
+=======07 WITESPACE
+SPACING SYSTEM (px)
+    2 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 80 / 96 / 128
+
+ */
+
+/* =================== */
+/* GENERAL */
+/* =================== */
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+html {
+  /*equivalent to 10%*/
+  font-size: 62.5%;
+}
+body {
+  background-color: #160729;
+  font-family: sans-serif;
+  font-size: 2.4rem;
+  color: #dbf3f1;
+}
+
+/* =================== */
+/* HEADER */
+/* =================== */
+header {
+  display: grid;
+  grid-template-columns: 1fr 10fr;
+  grid-row: 2;
+  margin-bottom: 4.8rem;
+
+  .header-menu-icon {
+    width: 4rem;
+    color: #dbf3f1;
+    margin: 1rem;
+  }
+
+  .title-box {
+    font-size: 1.6rem;
+    margin: 2rem 0;
+    h1 {
+      font-size: 3.2rem;
+    }
+  }
+}
+
+/* =================== */
+/* SECTION_STATUS */
+/* =================== */
+
+/* =================== */
+/* SECTION_ONLINE_CONNECTIONS */
+/* =================== */
+
+/* =================== */
+/* SECTION_LOG_OUTPUT */
+/* =================== */
+
+/* =================== */
+/* SECTION_SENSOR_DATA */
+/* =================== */
