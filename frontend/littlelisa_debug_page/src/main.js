@@ -1,24 +1,56 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+import "./css/general.css";
+import "./css/index.css";
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+//menu-nav elements
+const menuIcon = document.querySelector(".header-menu-icon");
+const menu = document.querySelector(".menu");
+const main = document.querySelector("main");
+const navClose = document.querySelector(".nav-btn.close");
+const menuBtns = document.querySelectorAll(".nav-btn");
 
-setupCounter(document.querySelector('#counter'))
+//sensor-data elements
+const nodeBox = document.querySelector(".sensor-data-node-box");
+
+//=================
+//  Nav
+//===================
+
+//nav menu button handler
+menuBtns.forEach((el) => {
+  el.addEventListener("touchstart", function (e) {
+    const classes = [...this.classList];
+    switch (classes[classes.length - 1]) {
+      case "close":
+        console.log("close");
+        toggleNavMenu();
+        break;
+
+      default:
+        console.log(this.textContent);
+    }
+  });
+});
+
+// menu toggle
+menuIcon.addEventListener("touchstart", () => {
+  toggleNavMenu();
+  console.log(menuBtns);
+});
+
+function toggleNavMenu() {
+  menuIcon.classList.toggle("invisible");
+  main.classList.toggle("invisible");
+  menu.classList.toggle("hidden");
+  document.body.classList.toggle("overflow-hide");
+  document.documentElement.classList.toggle("overflow-hide");
+}
+
+//===========================
+//  Node sensor data display
+//===========================
+
+nodeBox.addEventListener("touchstart", (e) => {
+  e.target
+    .closest(".sensor-data-node-box")
+    .lastElementChild.classList.toggle("hidden");
+});
