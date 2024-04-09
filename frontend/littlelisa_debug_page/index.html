@@ -13,6 +13,13 @@ Used for updating and quick diagnostics. -->
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <title>LittleLisa debug Page</title>
     <link
       rel="shortcut icon"
@@ -20,30 +27,42 @@ Used for updating and quick diagnostics. -->
       type="image/x-icon"
     />
     <link rel="stylesheet" href="./src/css/index.css" />
+    <link rel="stylesheet" href="./src/css/general.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono:ital,wght@0,300..700;1,300..700&display=swap"
       rel="stylesheet"
     />
+    <script defer src="./src/main.js" type="module"></script>
   </head>
   <body>
     <header>
-      <svg
-        class="header-menu-icon"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1.5"
-        stroke="currentColor"
-        class="w-6 h-6"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
-        />
-      </svg>
+      <div class="menu-select">
+        <div class="menu overlay hidden">
+          <button class="nav-btn info">Device Info</button>
+          <button class="nav-btn net">Network Info</button>
+          <button class="nav-btn db">SD DB View</button>
+          <button class="nav-btn sys">System Health</button>
+          <button class="nav-btn ota">OTA Update</button>
+          <button class="nav-btn close">Close</button>
+        </div>
+        <svg
+          class="header-menu-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
+          />
+        </svg>
+      </div>
       <div class="title-box">
         <p class="subheading">LittleLisa Debug</p>
         <h1>Node Name Here</h1>
@@ -72,11 +91,11 @@ Used for updating and quick diagnostics. -->
       <section class="section-online-connections">
         <p class="subheading">Connected Nodes</p>
         <div class="online-connections">
-          <button class="online-connection-btn">Node 1</button>
-          <button class="online-connection-btn">Node 2</button>
-          <button class="online-connection-btn">Node 3</button>
-          <button class="online-connection-btn">Node 4</button>
-          <button class="online-connection-btn">Node 5</button>
+          <button class="online-connection-btn">1s:34:d3:6g:5y:f4</button>
+          <button class="online-connection-btn">1s:34:d3:6g:5y:f4</button>
+          <button class="online-connection-btn">1s:34:d3:6g:5y:f4</button>
+          <button class="online-connection-btn">1s:34:d3:6g:5y:f4</button>
+          <button class="online-connection-btn">1s:34:d3:6g:5y:f4</button>
         </div>
       </section>
       <section class="section-log-output">
@@ -89,34 +108,56 @@ Used for updating and quick diagnostics. -->
       </section>
       <section class="section-sensor-data">
         <p class="subheading">WS Sensor Data Stream</p>
-        <div class="sensor-data-node-box">
-          <div class="sensor-summary">
-            <h2>Node Id</h2>
-            <h3>Node Location</h3>
-            <h4>avg. <span class="sensor-avg">14*C</span></h4>
-          </div>
-          <ul class="sensor-readings-box">
-            <div class="sensor-reading">
-              <p>12:34pm Aug 5th 2024</p>
-              <p>senor 1: garage 13C</p>
-            </div>
-            <div class="sensor-reading">
-              <p>12:34pm Aug 5th 2024</p>
-              <p>senor 1: garage 13C</p>
-            </div>
-            <div class="sensor-reading">
-              <p>12:34pm Aug 5th 2024</p>
-              <p>senor 1: garage 13C</p>
-            </div>
-          </ul>
-        </div>
 
         <div class="sensor-data-node-box">
           <div class="sensor-summary">
-            <h2>Node Id</h2>
-            <h3>Node Location</h3>
-            <h4>avg. <span class="sensor-avg">14*C</span></h4>
+            <div class="sensor-data-info">
+              <h2>Node Id</h2>
+              <p class="location">Module Location</p>
+            </div>
+            <p class="value">avg. <span class="sensor-avg">14*C</span></p>
           </div>
+          <!-- SENSOR_1 -->
+          <ul class="sensor-readings-box hidden">
+            <div class="sensor-reading">
+              <p class="timestamp">Mon Apr 8 20:49:24 2024</p>
+              <p class="sensor-data">
+                Sensor <span class="local-sensor-id">1</span>:
+                <span class="sensor-location">garage</span>
+                <span class="sensor-value">13 C</span>
+              </p>
+            </div>
+            <!-- SENSOR_2 -->
+            <div class="sensor-reading">
+              <p class="timestamp">Mon Apr 8 20:49:24 2024</p>
+              <p class="sensor-data">
+                Sensor <span class="local-sensor-id">1</span>:
+                <span class="sensor-location">garage</span>
+                <span class="sensor-value">13 C</span>
+              </p>
+            </div>
+
+            <!-- SENSOR_3 -->
+            <div class="sensor-reading">
+              <p class="timestamp">Mon Apr 8 20:49:24 2024</p>
+              <p class="sensor-data">
+                Sensor <span class="local-sensor-id">1</span>:
+                <span class="sensor-location">garage</span>
+                <span class="sensor-value">13 C</span>
+              </p>
+            </div>
+          </ul>
+        </div>
+        <!-- SENSOR_2 -->
+        <div class="sensor-data-node-box">
+          <div class="sensor-summary">
+            <div class="sensor-data-info">
+              <h2>Node Id</h2>
+              <p class="location">Module Location</p>
+            </div>
+            <p class="value">avg. <span class="sensor-avg">14*C</span></p>
+          </div>
+          <ul class="sensor-readings-box"></ul>
         </div>
       </section>
     </main>
