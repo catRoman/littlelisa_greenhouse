@@ -20,6 +20,12 @@ Used for updating and quick diagnostics. -->
       type="image/x-icon"
     />
     <link rel="stylesheet" href="./src/css/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Red+Hat+Mono:ital,wght@0,300..700;1,300..700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <header>
@@ -38,84 +44,79 @@ Used for updating and quick diagnostics. -->
           d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
         />
       </svg>
-
       <div class="title-box">
+        <p class="subheading">LittleLisa Debug</p>
         <h1>Node Name Here</h1>
         <p class="title-id-self">ID#: 29_03_38_89_75_75</p>
         <p class="'title-location">Garage</p>
       </div>
-      <img src="./public/icons/greenhouse.png" alt="greemhouse-icon" />
     </header>
+
     <main>
       <section class="section-status">
-        <p class="status-internal-db">Internal DB Status</p>
-        <p class="status-external-db">External DB Status</p>
-        <p class="status-uptime">Uptime: 89672439048 ms</p>
+        <p class="subheading">Status</p>
+        <div class="status">
+          <p class="status-internal-db">
+            Internal DB Status &rarr;
+            <span class="internal-db-status">alive</span>
+          </p>
+          <p class="status-external-db">
+            External DB Status &rarr;
+            <span class="external-db-status">alive</span>
+          </p>
+          <p class="status-uptime">
+            Uptime &rarr; <span class="uptime">89672439048</span> ms
+          </p>
+        </div>
       </section>
       <section class="section-online-connections">
-        <button class="online-connection-btn">Node 1</button>
-        <button class="online-connection-btn">Node 2</button>
-        <button class="online-connection-btn">Node 3</button>
-        <button class="online-connection-btn">Node 4</button>
-        <button class="online-connection-btn">Node 5</button>
+        <p class="subheading">Connected Nodes</p>
+        <div class="online-connections">
+          <button class="online-connection-btn">Node 1</button>
+          <button class="online-connection-btn">Node 2</button>
+          <button class="online-connection-btn">Node 3</button>
+          <button class="online-connection-btn">Node 4</button>
+          <button class="online-connection-btn">Node 5</button>
+        </div>
       </section>
       <section class="section-log-output">
-        <textarea class="log-output">
-        {3489575}ESP_LOGI: klriholiksdjfgoilsdjfgioljsdroilgj
+        <p class="subheading">Websocket Log</p>
+        <textarea class="log-output" readonly>
+{3489575} ESP_LOGI: klriholiksdjfgoilsdjfgioljsdroilgj
+{3489575} ESP_LOGI: klriholiksdjfgoilsdjfgioljsdroilgj
       </textarea
         >
       </section>
       <section class="section-sensor-data">
-        <div class="sensor-data-node-box node1">
-          <h2>Node 1</h2>
-          <ul>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
+        <p class="subheading">WS Sensor Data Stream</p>
+        <div class="sensor-data-node-box">
+          <div class="sensor-summary">
+            <h2>Node Id</h2>
+            <h3>Node Location</h3>
+            <h4>avg. <span class="sensor-avg">14*C</span></h4>
+          </div>
+          <ul class="sensor-readings-box">
+            <div class="sensor-reading">
+              <p>12:34pm Aug 5th 2024</p>
+              <p>senor 1: garage 13C</p>
+            </div>
+            <div class="sensor-reading">
+              <p>12:34pm Aug 5th 2024</p>
+              <p>senor 1: garage 13C</p>
+            </div>
+            <div class="sensor-reading">
+              <p>12:34pm Aug 5th 2024</p>
+              <p>senor 1: garage 13C</p>
+            </div>
           </ul>
         </div>
 
-        <div class="sensor-data-node-box node2">
-          <h2>Node 2</h2>
-          <ul>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-          </ul>
-        </div>
-
-        <div class="sensor-data-node-box node3">
-          <h2>Node 3</h2>
-          <ul>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-            <p>senor 1: garage 13C</p>
-          </ul>
-        </div>
-
-        <div class="sensor-data-node-box node4">
-          <h2>Node 4</h2>
-          <ul>
-            <p>senor 1: garage 13C</p>
-          </ul>
-        </div>
-
-        <div class="sensor-data-node-box node5">
-          <h2>Node 5</h2>
-          <ul>
-            <p>senor 1: garage 13C</p>
-          </ul>
-        </div>
-
-        <div class="sensor-data-node-box node1">
-          <h2>Node 1</h2>
-          <ul>
-            <p>senor 1: garage 13C</p>
-          </ul>
+        <div class="sensor-data-node-box">
+          <div class="sensor-summary">
+            <h2>Node Id</h2>
+            <h3>Node Location</h3>
+            <h4>avg. <span class="sensor-avg">14*C</span></h4>
+          </div>
         </div>
       </section>
     </main>
