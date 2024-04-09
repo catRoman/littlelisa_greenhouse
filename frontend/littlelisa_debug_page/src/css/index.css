@@ -49,30 +49,46 @@ html {
   font-size: 62.5%;
 }
 body {
-  background-color: #160729;
-  font-family: sans-serif;
+  background-color: #1a1a1a;
+  font-family: "Red Hat mono", monospace;
+  /* font-family: monospace; */
   font-size: 2.4rem;
   color: #dbf3f1;
 }
 
+main {
+  padding: 0 2.4rem;
+}
+section,
+header {
+  margin-bottom: 4.4rem;
+}
+.subheading {
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+}
 /* =================== */
 /* HEADER */
 /* =================== */
 header {
   display: grid;
-  grid-template-columns: 1fr 10fr;
-  grid-row: 2;
-  margin-bottom: 4.8rem;
+  grid-template-columns: 10fr 1fr;
 
   .header-menu-icon {
     width: 4rem;
     color: #dbf3f1;
     margin: 1rem;
+    margin-top: 2rem;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .title-box {
     font-size: 1.6rem;
-    margin: 2rem 0;
+    margin: 0 2rem;
+    margin-top: 2rem;
+    grid-column: 1;
+    line-height: 3rem;
     h1 {
       font-size: 3.2rem;
     }
@@ -82,15 +98,74 @@ header {
 /* =================== */
 /* SECTION_STATUS */
 /* =================== */
+.section-status {
+  .status {
+    border: 2px solid #dbf3f1;
+    border-radius: 9px;
+    padding: 1.2rem;
+    padding-left: 2.4rem;
+    line-height: 2rem;
+    font-size: 1.6rem;
+    background-color: #222121;
+    .internal-db-status,
+    .external-db-status,
+    .uptime {
+      color: green;
+    }
+  }
+  .subheading {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+}
 
 /* =================== */
 /* SECTION_ONLINE_CONNECTIONS */
 /* =================== */
+.section-online-connections {
+  .online-connections {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: none;
+    width: 4rem;
+  }
+  .subheading {
+    font-size: 1.8rem;
+    margin-bottom: 0.8rem;
+  }
+  .online-connection-btn {
+    font-family: inherit;
+    padding: 0 2.4rem;
+    background-color: #222121;
+    border: 2px solid #dbf3f1;
+    color: #dbf3f1;
+    font-size: 2.4rem;
+    border-radius: 9px;
+  }
+}
 
 /* =================== */
 /* SECTION_LOG_OUTPUT */
 /* =================== */
+.log-output {
+  width: 100%;
+  height: 25rem;
+  text-align: left;
+  direction: ltr;
+  line-height: 2.4rem;
+  color: green;
+  overflow-y: scroll;
+  resize: none;
+  font-family: monospace;
+  background-color: #222121;
+  border: 2px solid #dbf3f1;
+  padding: 1rem;
+  font-size: 1.2rem;
+}
 
 /* =================== */
 /* SECTION_SENSOR_DATA */
 /* =================== */
+
+.section-sensor-data {
+}
