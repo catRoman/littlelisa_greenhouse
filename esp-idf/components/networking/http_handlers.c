@@ -343,11 +343,11 @@ esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
         httpd_resp_set_type(req, "application/json");
         httpd_resp_sendstr(req, controller_sta_list);
 
+
     }else{
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - requested from node");
 
     }
-
 
 
 

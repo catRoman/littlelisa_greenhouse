@@ -5,6 +5,8 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include "cJSON.h"
+#include "esp_wifi_types.h"
+#include "esp_wifi.h"
 
 //components
 #include "node_info.h"
@@ -27,6 +29,27 @@ void node_info_log_module_info(void){
 }
 
 char *node_info_get_controller_sta_list_json(void){
+    wifi_sta_list_t node_list;
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_ap_get_sta_list(&node_list));
+
+
+    cJSON *root = cJSON_CreateObject();
+    cJSON *sta_list = cJSON_CreateObject();
+
+   cJSON_AddNumberToObject(root, "length", node_list.num);
+
+    cJSON_AddItemToObject(root, "sta_list", sta_list);
+
+
+    char mac_addr[20];
+
+    for(int i = 0; i < node_list.num; i++){
+        snprintf(mac_addr, sizeof(mac_addr), "%02x:%02x:%02x:%02x:%02x:%02x", node_list.sta[i].mac[0], node_list.sta[i].mac[1], node_list.sta[i].mac[2], node_list.sta[i].mac[3], node_list.sta[i].mac[4], node_list.sta[i].mac[5]);
+        cJSON_AddNumberToObject(sta_list, mac_addr,
+                    node_list.sta->rssi);
+    }
+
+    return cJSON_Print(root);
 
 }
 
