@@ -26,7 +26,9 @@ void node_info_log_module_info(void){
     }
 }
 
+char *node_info_get_controller_sta_list_json(void){
 
+}
 
 char *node_info_get_module_info_json(void){
     //name, type,location, sensor arr, sensor config arr
@@ -75,12 +77,12 @@ char *node_info_get_module_info_json(void){
 
     cJSON_AddItemToObject(root, "sensor_list", sensor_list);
 
-     
+
      cJSON *sensor_type_pin_list;
 
     for(Sensor_List sensor = DHT22; sensor < SENSOR_LIST_TOTAL; sensor++){
         cJSON *sensor_type_list = cJSON_CreateObject();
-       
+
         if(module_info_gt->sensor_arr[sensor] > 0){
 
             sensor_type_pin_list = cJSON_CreateObject();
