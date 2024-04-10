@@ -58,4 +58,6 @@ esp_err_t ws_echo_handler(httpd_req_t *req);
 
 esp_err_t ws_sensor_handler(httpd_req_t *req);
 
+esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req);
+
 #endif
