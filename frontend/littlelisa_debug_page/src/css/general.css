@@ -44,6 +44,11 @@ SPACING SYSTEM (px)
   margin: 0;
   box-sizing: border-box;
 }
+body,
+html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 html {
   /*equivalent to 10%*/
   font-size: 62.5%;
@@ -58,6 +63,7 @@ body {
 
 main {
   padding: 0 2.4rem;
+  width: 100vw;
 }
 section,
 header {
