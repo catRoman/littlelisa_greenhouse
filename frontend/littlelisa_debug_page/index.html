@@ -40,13 +40,34 @@ Used for updating and quick diagnostics. -->
     <header>
       <div class="menu-select">
         <div class="menu overlay hidden">
-          <button class="nav-btn info">Device Info</button>
-          <button class="nav-btn net">Network Info</button>
-          <button class="nav-btn db">SD DB View</button>
-          <button class="nav-btn sys">System Health</button>
-          <button class="nav-btn ota">OTA Update</button>
+          <button class="nav-btn dev_btn">Device Info</button>
+          <button class="nav-btn net_btn">Network Info</button>
+          <button class="nav-btn db_btn">SD DB View</button>
+          <button class="nav-btn sys_btn">System Health</button>
+          <button class="nav-btn ota_btn">OTA Update</button>
           <button class="nav-btn close">Close</button>
         </div>
+        <!-- DEVICE INFO -->
+        <div class="device-info overlay hidden">
+          <h2>Device Info:</h2>
+        </div>
+        <!-- NETWORK INFO -->
+        <div class="network-info overlay hidden">
+          <h2>Network Info:</h2>
+        </div>
+        <!-- SD DB INFO -->
+        <div class="sd-db-info overlay hidden">
+          <h2>SD DB view:</h2>
+        </div>
+        <!-- System Health -->
+        <div class="system-health overlay hidden">
+          <h2>System Health:</h2>
+        </div>
+        <!-- OTA Update -->
+        <div class="ota-update overlay hidden">
+          <h2>OTA Update:</h2>
+        </div>
+
         <svg
           class="header-menu-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -63,11 +84,14 @@ Used for updating and quick diagnostics. -->
           />
         </svg>
       </div>
+
       <div class="title-box">
         <p class="subheading">LittleLisa Debug</p>
-        <h1>Node Name Here</h1>
-        <p class="title-id-self">ID#: 29_03_38_89_75_75</p>
-        <p class="'title-location">Garage</p>
+        <h1 class="type">Node Name Here</h1>
+        <p class="title-id-self">
+          ID#: <span class="module_id">29_03_38_89_75_75</span>
+        </p>
+        <p class="title-location">Garage</p>
       </div>
     </header>
 
@@ -108,8 +132,8 @@ Used for updating and quick diagnostics. -->
       </section>
       <section class="section-sensor-data">
         <p class="subheading">WS Sensor Data Stream</p>
-
-        <div class="sensor-data-node-box">
+        <!-- SENSOR_1 -->
+        <div class="sensor-data-node-box self">
           <div class="sensor-summary">
             <div class="sensor-data-info">
               <h2>Node Id</h2>
@@ -117,47 +141,33 @@ Used for updating and quick diagnostics. -->
             </div>
             <p class="value">avg. <span class="sensor-avg">14*C</span></p>
           </div>
-          <!-- SENSOR_1 -->
-          <ul class="sensor-readings-box hidden">
-            <div class="sensor-reading">
-              <p class="timestamp">Mon Apr 8 20:49:24 2024</p>
-              <p class="sensor-data">
-                Sensor <span class="local-sensor-id">1</span>:
-                <span class="sensor-location">garage</span>
-                <span class="sensor-value">13 C</span>
-              </p>
-            </div>
-            <!-- SENSOR_2 -->
-            <div class="sensor-reading">
-              <p class="timestamp">Mon Apr 8 20:49:24 2024</p>
-              <p class="sensor-data">
-                Sensor <span class="local-sensor-id">1</span>:
-                <span class="sensor-location">garage</span>
-                <span class="sensor-value">13 C</span>
-              </p>
-            </div>
-
-            <!-- SENSOR_3 -->
-            <div class="sensor-reading">
-              <p class="timestamp">Mon Apr 8 20:49:24 2024</p>
-              <p class="sensor-data">
-                Sensor <span class="local-sensor-id">1</span>:
-                <span class="sensor-location">garage</span>
-                <span class="sensor-value">13 C</span>
-              </p>
-            </div>
+          <ul class="sensor-types hidden">
+            <li class="sensor-type DHT22">
+              <p class="subheading">DHT22</p>
+              <!-- SENSOR_1 -->
+              <ul class="sensor-readings-box"></ul>
+            </li>
+            <li class="sensor-type hidden soil_moisture">
+              <p class="subheading">Soil Moisture</p>
+              <ul class="sensor-readings-box"></ul>
+            </li>
+            <li class="sensor-type hidden light">
+              <p class="subheading">Light</p>
+              <ul class="sensor-readings-box"></ul>
+            </li>
+            <li class="sensor-type hidden sound">
+              <p class="subheading">Sound</p>
+              <ul class="sensor-readings-box"></ul>
+            </li>
+            <li class="sensor-type hidden movement">
+              <p class="subheading">Movement</p>
+              <ul class="sensor-readings-box"></ul>
+            </li>
+            <li class="sensor-type hidden cam">
+              <p class="subheading">Cam</p>
+              <ul class="sensor-readings-box"></ul>
+            </li>
           </ul>
-        </div>
-        <!-- SENSOR_2 -->
-        <div class="sensor-data-node-box">
-          <div class="sensor-summary">
-            <div class="sensor-data-info">
-              <h2>Node Id</h2>
-              <p class="location">Module Location</p>
-            </div>
-            <p class="value">avg. <span class="sensor-avg">14*C</span></p>
-          </div>
-          <ul class="sensor-readings-box"></ul>
         </div>
       </section>
     </main>

@@ -121,7 +121,7 @@ header {
 .online-connections {
   display: flex;
   gap: 1.6rem;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
 }
 .subheading {
@@ -167,7 +167,8 @@ header {
 
 .section-sensor-data {
 }
-.sensor-data-node-box {
+.sensor-data-node-box .subheading {
+  padding-left: 1rem;
 }
 .sensor-summary {
   display: grid;
@@ -179,6 +180,7 @@ header {
   line-height: 2.4rem;
   font-size: 1.6rem;
   background-color: #222121;
+  margin-bottom: 2rem;
 }
 .sensor-avg {
   font-size: 2.4rem;
@@ -188,14 +190,17 @@ header {
   color: #ee5b5b;
 }
 .sensor-readings-box {
-  padding: 1.6rem;
+  padding: 0 1.6rem;
   font-size: 2rem;
   color: #dbf3f1;
 }
 .sensor-reading {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 1.6rem;
   padding: 1rem;
   border-bottom: 2px solid;
+  gap: 0.2rem;
 }
 ul {
   list-style: none;
@@ -210,4 +215,18 @@ ul {
 
 .sensor-summary:hover {
   color: #ee5b5b;
+}
+.sensor-type .subheading {
+  margin: 0;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+.sensor-location-pin-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.6rem;
+}
+.values {
+  display: flex;
+  justify-content: space-around;
 }
