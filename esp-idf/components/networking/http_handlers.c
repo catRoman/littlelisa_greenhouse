@@ -55,6 +55,19 @@ void register_http_server_handlers(void)
 {
     ESP_LOGI(HTTP_HANDLER_TAG, "http_server_configure: Registering URI handlers");
 
+        /* Register a generic preflight handler */
+            httpd_uri_t options_uri = {
+                .uri       = "*",
+                .method    = HTTP_OPTIONS,
+                .handler   = preflight_handler,
+                .user_ctx  = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &options_uri);
+
+        //=====================
+        // littleLisa Debug content service
+        //=====================
+
         //register index.html handler
         httpd_uri_t index_html = {
             .uri = "/",
@@ -90,6 +103,13 @@ void register_http_server_handlers(void)
             .user_ctx = NULL,
         };
         httpd_register_uri_handler(http_server_handle, &plant3_svg);
+
+        //end of littlelisa content service
+
+        //==========================
+        // littleLisa API
+        //=========================
+
 
         //register dhtSensor.json handler
         httpd_uri_t dht_sensor_json = {
@@ -127,18 +147,20 @@ void register_http_server_handlers(void)
             };
             httpd_register_uri_handler(http_server_handle, &module_info_json);
 
-        /* Register a generic preflight handler */
-            httpd_uri_t options_uri = {
-                .uri       = "*",
-                .method    = HTTP_OPTIONS,
-                .handler   = preflight_handler,
-                .user_ctx  = NULL
+          //register controllerStaList.json handler
+            httpd_uri_t controller_sta_list_json = {
+                .uri = "/api/controllerStaList.json",
+                .method = HTTP_GET,
+                .handler = get_controller_sta_list_json_handler,
+                .user_ctx = NULL
             };
-            httpd_register_uri_handler(http_server_handle, &options_uri);
+            httpd_register_uri_handler(http_server_handle, &controller_sta_list_json);
+
+
 
 
 }
-
+//static debug landing page content serve
 
 esp_err_t index_css_handler(httpd_req_t *req)
 {
@@ -186,7 +208,7 @@ esp_err_t index_js_handler(httpd_req_t *req)
 }
 
 
-
+//api
 esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
 
@@ -285,16 +307,48 @@ esp_err_t get_module_info_json_handler(httpd_req_t *req){
 
     ESP_LOGI(HTTP_HANDLER_TAG, "moduleInfo.json requested");
 
-      // Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+    //   // Add CORS headers to the response
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
     const char *module_json_data = node_info_get_module_info_json();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, module_json_data);
+    //free(module_json_data);
+
+
+    return ESP_OK;
+}
+
+esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "controllerStaList.json requested");
+
+    //   // Add CORS headers to the response
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    // httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
+
+
+    wifi_mode_t mode;
+    esp_wifi_get_mode(&mode);
+
+    if(mode == WIFI_MODE_APSTA || mode == WIFI_MODE_AP){
+        const char *controller_sta_list = node_info_get_controller_sta_list_json();
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_sendstr(req, controller_sta_list);
+
+    }else{
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - requested from node");
+
+    }
+
+
 
 
     return ESP_OK;
@@ -353,6 +407,14 @@ esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
 
     return ESP_OK;
 }
+
+
+
+
+
+
+
+
 
 esp_err_t preflight_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
