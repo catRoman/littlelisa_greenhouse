@@ -8,12 +8,12 @@ idf_component_register(
         websocket_server.c
 
 
-    REQUIRES 
+    REQUIRES
         sensors
         main
         esp_wifi
         app_update
-    
+
 
     PRIV_REQUIRES
         nvs_config
@@ -24,6 +24,7 @@ idf_component_register(
         esp_http_server
         esp_timer
         main
+        freertos
 
 
     INCLUDE_DIRS "include"

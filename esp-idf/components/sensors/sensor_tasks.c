@@ -313,10 +313,11 @@ void sensor_post_processing_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(sensor_post_processing_handle, &event, portMAX_DELAY)){
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in postprocessing",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in postprocessing",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
 
 
@@ -330,10 +331,11 @@ void sensor_post_processing_task(void * pvParameters)
 
             if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
 
-                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s sent to websocket server send queue",
+                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sent to websocket server send queue",
                             event->sensor_data->module_id,
                             event->sensor_data->local_sensor_id,
-                            sensor_type_to_string(event->sensor_data->sensor_type));
+                            sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
             }
             //-->pass to next thing ie db, save to ram etc,
 
@@ -363,10 +365,11 @@ void sensor_send_to_ram_task(void * pvParameters)
 
     for(;;){
         if (xQueueReceive(sensor_send_to_ram_handle, &event, portMAX_DELAY) == pdTRUE){
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in ram send process",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in ram send process",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
 
            taskYIELD();
@@ -381,10 +384,11 @@ void sensor_send_to_sd_db_task(void * pvParameters)
 
     for(;;){
         if (xQueueReceive(sensor_send_to_sd_db_handle, &event, portMAX_DELAY) == pdTRUE){
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in sd db send process",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in sd db send process",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
 
 
@@ -400,10 +404,11 @@ void sensor_send_to_server_db_task(void * pvParameters)
 
     for(;;){
         if (xQueueReceive(sensor_send_to_server_db_handle, &event, portMAX_DELAY) == pdTRUE){
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in external db send process",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in external db send process",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
 
 
@@ -420,10 +425,11 @@ void sensor_queue_mem_cleanup_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(sensor_queue_mem_cleanup_handle, &event, portMAX_DELAY) == pdTRUE){
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in cleanup process",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in cleanup process",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
 
            taskYIELD();
@@ -441,10 +447,11 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
     for(;;){
         if (xQueueReceive(sensor_send_to_websocket_server_handle, &event, portMAX_DELAY) == pdTRUE){
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s in websocket send process",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in websocket send process",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type));
+                                                sensor_type_to_string(event->sensor_data->sensor_type),
+                                                event->current_send_id);
 
 
             //temp for logging testing
@@ -497,11 +504,13 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
             cJSON_Delete(root);
 
-            ESP_LOGV(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s} Logged JSON Data: %s",
+            ESP_LOGV(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s->send_id:%d} Logged JSON Data: %s",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type),
-                                                sensor_data_json);
+                                                event->current_send_id,
+                                                sensor_data_json
+                                                );
 
 
             //add json to fram pacakage and pass to websocket server for transmission

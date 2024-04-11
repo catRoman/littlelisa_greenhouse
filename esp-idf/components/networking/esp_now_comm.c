@@ -9,6 +9,7 @@
 #include "esp_wifi.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
 
@@ -19,6 +20,9 @@
 
 #define SERIAL_STR_BUFF     50
 
+//for sensor que
+extern int send_id;
+extern SemaphoreHandle_t send_id_mutex;
 
 static const char ESP_NOW_COMM_TAG[] = "esp_now";
 
@@ -115,6 +119,17 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             queue_packet->nextEventID = SENSOR_POST_PROCESSING;
             queue_packet->sensor_data = data_packet;
             queue_packet->semphoreCount = 0;
+
+
+              // Protect send_id access with the mutex
+            if (xSemaphoreTake(send_id_mutex, portMAX_DELAY) == pdTRUE) {
+                queue_packet->current_send_id = send_id;
+                send_id++;
+                xSemaphoreGive(send_id_mutex); // Release the mutex after updating send_id
+            } else {
+                ESP_LOGW(ESP_NOW_COMM_TAG, "failed to get semaphore for send_id");
+            }
+
 
 
 

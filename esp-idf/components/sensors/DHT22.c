@@ -46,6 +46,7 @@
 
 // == global defines =============================================
 extern SemaphoreHandle_t send_id_mutex;
+int send_id=0;
 
 static const char TAG [] = "dht22_sensor";
 static portMUX_TYPE signalLevelMutex = portMUX_INITIALIZER_UNLOCKED;
@@ -365,7 +366,7 @@ void DHT22_task(void *vpParameter)
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
 	esp_log_level_set(TAG, ESP_LOG_INFO);
-	static int send_id = 0;
+
 	for(;;)
 	{
 
