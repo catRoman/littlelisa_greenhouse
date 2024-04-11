@@ -7,6 +7,7 @@
 #include "cJSON.h"
 #include "esp_wifi_types.h"
 #include "esp_wifi.h"
+#include "esp_timer.h"
 
 //components
 #include "node_info.h"
@@ -180,5 +181,23 @@ void node_info_log_sensor_list(void){
     }else{
         ESP_LOGE(NODE_INFO_TAG, "%s", esp_err_to_name(err));
     }
+
+}
+
+char *node_info_get_uptime_json(void){
+
+    //milliseconds
+    uint64_t uptimeMS = esp_timer_get_time() / 1000;
+
+      cJSON *root = cJSON_CreateObject();
+
+
+    cJSON_AddNumberToObject(root, "uptime", uptimeMS);
+    cJSON_AddStringToObject(root, "unit", "ms");
+
+    char *uptimeFunk = cJSON_Print(root);
+	cJSON_Delete(root);
+	return uptimeFunk;
+
 
 }

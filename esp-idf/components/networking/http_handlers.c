@@ -156,6 +156,15 @@ void register_http_server_handlers(void)
             };
             httpd_register_uri_handler(http_server_handle, &controller_sta_list_json);
 
+     //register controllerStaList.json handler
+            httpd_uri_t uptimeFunk_json = {
+                .uri = "/api/uptimeFunk.json",
+                .method = HTTP_GET,
+                .handler = get_uptime_json_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &uptimeFunk_json);
+
 
 
 
@@ -370,6 +379,25 @@ esp_err_t wifi_connect_status_json_handler(httpd_req_t *req)
 
     return ESP_OK;
 }
+
+esp_err_t get_uptime_json_handler(httpd_req_t *req)
+{
+
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "uptimeFunk.json requested");
+
+    const char *uptimeFunk = node_info_get_uptime_json();
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_sendstr(req, uptimeFunk);
+
+        free(uptimeFunk);
+    return ESP_OK;
+}
+
 
 esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
 {
