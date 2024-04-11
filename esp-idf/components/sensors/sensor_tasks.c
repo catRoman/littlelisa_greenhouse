@@ -497,7 +497,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
             cJSON_Delete(root);
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s} Logged JSON Data: %s",
+            ESP_LOGV(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s} Logged JSON Data: %s",
                                                 event->sensor_data->module_id,
                                                 event->sensor_data->local_sensor_id,
                                                 sensor_type_to_string(event->sensor_data->sensor_type),
@@ -529,7 +529,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
 esp_err_t initiate_sensor_queue(){
     ESP_LOGI(SENSOR_EVENT_TAG, "sensor queue init started");
-    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_INFO);
+    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_DEBUG);
 
 
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));

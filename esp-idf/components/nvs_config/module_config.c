@@ -477,7 +477,7 @@ void initiate_sensor_tasks(){
 
                     local_sensor[sensor_id-1]->timestamp = 0;
 
-
+//TODO:map local sensor id to unique sensortype id so to better be applyed to debug page
             switch(sensor_type){
                 case DHT22:
 
