@@ -307,17 +307,17 @@ esp_err_t get_module_info_json_handler(httpd_req_t *req){
 
     ESP_LOGI(HTTP_HANDLER_TAG, "moduleInfo.json requested");
 
-    //   // Add CORS headers to the response
-    // httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    // httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    // httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+      // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
     const char *module_json_data = node_info_get_module_info_json();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, module_json_data);
-    //free(module_json_data);
+    free(module_json_data);
 
 
     return ESP_OK;
@@ -327,10 +327,10 @@ esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
 
     ESP_LOGI(HTTP_HANDLER_TAG, "controllerStaList.json requested");
 
-    //   // Add CORS headers to the response
-    // httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    // httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    // httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+      // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
 
@@ -343,7 +343,7 @@ esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
         httpd_resp_set_type(req, "application/json");
         httpd_resp_sendstr(req, controller_sta_list);
 
-
+        free(controller_sta_list);
     }else{
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - requested from node");
 
