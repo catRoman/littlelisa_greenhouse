@@ -72,7 +72,7 @@ void checkWifiConnectionTask(void *vpParams){
 
     int connection_status = esp_wifi_sta_get_ap_info(&ap_info);
     if ( connection_status != ESP_OK) {
-       ESP_LOGW(TAG, "connection lost attempting reconnect....");
+       ESP_LOGW(WIFI_TAG, "connection lost attempting reconnect....");
        ESP_ERROR_CHECK(esp_wifi_start());
     }
 
