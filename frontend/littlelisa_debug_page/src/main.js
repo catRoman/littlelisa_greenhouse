@@ -1,3 +1,5 @@
+"use strict";
+
 import "./css/general.css";
 import "./css/index.css";
 
@@ -14,14 +16,14 @@ const networkInfoTab = document.querySelector(".network-info");
 //sensor-data elements
 const nodeBox = document.querySelector(".sensor-data-node-box");
 const sensorSection = document.querySelector(".section-sensor-data");
-const sensorTypeList = document.querySelector(".sensor-types");
 
 //esp-log elements
 const logTextArea = document.querySelector(".log-output");
 
 //current node list
 
-let nodeListObj;
+let nodeListObj = [];
+const renderedNodeList = [];
 //
 //=================
 //  Nav
@@ -83,22 +85,29 @@ function toggleInfoTab(selectedTab_str) {
 //===========================
 //  Node sensor data display
 //===========================
+function addNodeBoxButtonEvent(nodeNameClass) {
+  const sensorSummary = document.querySelector(
+    `${nodeNameClass} > .sensor-summary`
+  );
+  sensorSummary.addEventListener("click", function (event) {
+    // Check if the clicked element is the parent or one of its children
+    if (event.target === this || this.contains(event.target)) {
+      sensorSummary.nextElementSibling.classList.toggle("hidden");
 
-sensorSection.addEventListener("touchend", (e) => {
-  const sensorList = e.target
-    .closest(".sensor-data-node-box")
-    ?.querySelector(".sensor-types");
+      sensorSummary.querySelector(".node-title").classList.toggle("green");
 
-  if (sensorList !== undefined) {
-    sensorList.classList.toggle("hidden");
-  }
-});
+      // Perform your desired action
+    }
+  });
+}
 
 //=========================
 // api - fetchin`
 //==========================
 
+//+++++++++++++++++++++++++++++++++++
 //+++++++++++++  /api/moduleInfo.json
+//++++++++++++++++++++++++++++++++++++
 
 async function fetchModuleInfo() {
   try {
@@ -113,31 +122,95 @@ async function fetchModuleInfo() {
     console.error("Error:", error);
   }
 }
-function updatePageTitle(moduleInfo) {
+
+//++++++++++++++++++++++++++++++++++++
+//+++++++++++++  /api/moduleInfo.json
+//+++++++++++++++++++++++++++++++++++
+
+async function fetchControllerStaList() {
+  try {
+    const response = await fetch(
+      "http://10.0.0.140/api/controllerStaList.json"
+    );
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    //apply to global
+    nodeListObj = Object.keys(data.sta_list);
+    applyNodeInfo(data);
+  } catch (error) {}
+}
+
+function applyNodeInfo(nodeListObj) {
+  //loop through node list
+  //check if node-box  exists for node, if not render sensor-data-node-box
+  //loop through node list fetch nodes moduleInfo.json and populate
+
+  const { sta_list: nodeList } = nodeListObj;
+  Object.entries(nodeList).forEach(([key, value]) => {
+    const validNodeClass = "node-" + key.replaceAll(":", "_");
+    //ping "key".local/api/moduleInfo.json to get valid resposnse
+    //if not its not a node
+    const applyData = async function () {
+      try {
+        const response = await fetch(
+          `http://littlelisa-${validNodeClass}.local/api/moduleInfo.json`
+        );
+        if (response.ok) {
+          const data = await response.json();
+
+          if (document.querySelector(`.${validNodeClass}`) === null) {
+            renderModuleInfo(validNodeClass, data);
+            renderConnectedDeviceLink(validNodeClass, data, value);
+            console.log(key);
+            renderedNodeList.push(key);
+          }
+          updateRssi(validNodeClass, value);
+        } else {
+          console.error(`${validNodeClass} not a node`, error);
+        }
+      } catch (error) {}
+    };
+
+    applyData();
+  });
+}
+
+//==============
+// RENDERS
+//=============
+function renderConnectedDeviceLink(nodeId, moduleInfoObj, rssiValue) {
   const {
-    module_info: { type, location, identifier },
-  } = moduleInfo;
-  console.log("appling ModuleInfo from controller");
-  //change title
-  document.querySelector(".type").textContent = type;
-  document.querySelector(".module_id").textContent = identifier;
-  document.querySelector(".title-location").textContent = location;
-  //change sensor-summary self
+    module_info: { location, identifier },
+  } = moduleInfoObj;
+
+  const connectionBtns = document.querySelector(
+    ".online-connections > .inside"
+  );
+
+  connectionBtns.insertAdjacentHTML(
+    "beforeend",
+    `<a href="http://littlelisa-${nodeId}.local"
+        ><button class="online-connection-btn ${nodeId}-btn">
+          <h2 class="node-title">${identifier}</h2>
+          <div class="loc-rssi">
+            <p class="location">${location}</p>
+            <p class="rssi">${rssiValue}</p>
+          </div>
+        </button></a
+        >`
+  );
 }
 
 function renderModuleInfo(nodeId, moduleInfo) {
-  console.log("inside + 1");
-
   const {
     module_info: { type, location, identifier },
     sensor_list: sensorList,
   } = moduleInfo;
 
-  console.log(`applying ModuleInfo for ${nodeId}`);
-
   //change sensor-summary self
   if (document.querySelector(`.${nodeId}`) !== null) {
-    console.log(`${nodeId}`, "exists");
     const selfNodeBox = document.querySelector(`.${nodeId}`);
   } else {
     document.querySelector(".section-sensor-data").insertAdjacentHTML(
@@ -146,7 +219,7 @@ function renderModuleInfo(nodeId, moduleInfo) {
       <div class="sensor-data-node-box ${nodeId}">
         <div class="sensor-summary">
           <div class="sensor-data-info">
-            <h2>Node Id</h2>
+            <h2 class="node-title">Node Id</h2>
             <p class="location">Module Location</p>
           </div>
           <p class="value">avg. <span class="sensor-avg">14*C</span></p>
@@ -183,15 +256,15 @@ function renderModuleInfo(nodeId, moduleInfo) {
       </div>`
     );
   }
+
   const selfNodeBox = document.querySelector(`.${nodeId}`);
-  console.log(selfNodeBox);
+
   selfNodeBox.querySelector(".sensor-data-info > h2").textContent = identifier;
   selfNodeBox.querySelector(".sensor-data-info > .location").textContent =
     type.toUpperCase();
   selfNodeBox.querySelector(".sensor-data-info > .location").style.color =
     "#ee5b5b";
 
-  console.log(sensorList);
   try {
     //add # templates of sensors to
     Object.entries(sensorList).forEach(([key, value]) => {
@@ -222,62 +295,60 @@ function renderModuleInfo(nodeId, moduleInfo) {
         );
       }
     });
+
+    addNodeBoxButtonEvent(`.${nodeId}`);
   } catch (error) {
     console.error(error);
   }
   //insert sensor templates for each sensor in
 }
 
-//+++++++++++++  /api/moduleInfo.json
-async function fetchControllerStaList() {
-  try {
-    const response = await fetch(
-      "http://10.0.0.140/api/controllerStaList.json"
-    );
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+//==========================
+// UPDATES
+//=========================
+function updateConnectedDevicesShow() {
+  fetchControllerStaList();
+  checkForNodeRemoval();
+}
+
+function updatePageTitle(moduleInfo) {
+  const {
+    module_info: { type, location, identifier },
+  } = moduleInfo;
+
+  //change title
+  document.querySelector(".type").textContent = type;
+  document.querySelector(".module_id").textContent = identifier;
+  document.querySelector(".title-location").textContent = location;
+  //change sensor-summary self
+}
+
+function updateRssi(nodeId, value) {
+  const rssiBox = document.querySelector(`.${nodeId}-btn .rssi`);
+  if (value > -50) {
+    rssiBox.style.backgroundColor = "green";
+  } else if (value < -50 && value > -70) {
+    rssiBox.style.backgroundColor = "yellow";
+  } else if (value < -70) {
+    rssiBox.style.backgroundColor = "red";
+  } else if (value < -100) {
+    rssiBox.style.backgroundColor = "grey";
+  }
+  rssiBox.textContent = `${value}`;
+}
+function checkForNodeRemoval() {
+  console.log(renderedNodeList);
+  console.log(nodeListObj);
+  nodeListObj.every((node) => {
+    const validNodeClass = "node-" + node.replaceAll(":", "_");
+    if (
+      !renderedNodeList.includes(node) &&
+      document.querySelector(`.${validNodeClass}`) !== undefined
+    ) {
+      document.querySelector(`.${validNodeClass}`).remove();
+      console.log(`removed ${validNodeClass}`);
     }
-    const data = await response.json();
-    //apply to global
-    nodeListObj = data;
-    applyNodeInfo(nodeListObj);
-  } catch (error) {}
-}
-
-function applyNodeInfo(nodeListObj) {
-  //loop through node list
-  //check if node-box  exists for node, if not render sensor-data-node-box
-  //loop through node list fetch nodes moduleInfo.json and populate
-
-  const { sta_list: nodeList } = nodeListObj;
-  Object.entries(nodeList).forEach(([key, value]) => {
-    const validNodeClass = "node-" + key.replaceAll(":", "_");
-    //ping "key".local/api/moduleInfo.json to get valid resposnse
-    //if not its not a node
-    const applyData = async function () {
-      try {
-        const response = await fetch(
-          `http://littlelisa-${validNodeClass}.local/api/moduleInfo.json`
-        );
-        if (response.ok) {
-          const data = await response.json();
-
-          if (document.querySelector(`.${validNodeClass}`) === null) {
-            console.log("inside");
-            renderModuleInfo(validNodeClass, data);
-            renderConnectedDeviceLink(key, value);
-          }
-        } else {
-          console.error(`${validNodeClass} not a node`, error);
-        }
-      } catch (error) {}
-    };
-
-    applyData();
   });
-}
-function renderConnectedDeviceLink(key, value) {
-  console.log("render connected device link here");
 }
 
 //==============
@@ -302,4 +373,4 @@ console.log(
 
 fetchModuleInfo();
 
-setInterval(fetchControllerStaList, 5000);
+setInterval(updateConnectedDevicesShow, 5000);

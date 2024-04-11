@@ -130,15 +130,46 @@ header {
 }
 .online-connection-btn {
   font-family: inherit;
-  padding: 1rem 2.4rem;
+  width: 100%;
+  padding: 0.8rem 1.6rem;
   background-color: #222121;
   border: 2px solid #dbf3f1;
   color: #dbf3f1;
   font-size: 2.4rem;
   border-radius: 9px;
 }
+.online-connection-btn a {
+  color: #dbf3f1;
+  text-decoration: none;
+}
+.online-connection-btn a:focus-visible {
+  outline: none;
+}
+
 .online-connection-btn:hover {
   color: #ee5b5b;
+}
+.online-connection-btn p {
+  color: orange;
+  font-size: 2rem;
+  line-height: 2;
+}
+.loc-rssi {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+}
+.rssi {
+  border: 2px solid white;
+  padding: 0 1rem;
+  border-radius: 9px;
+
+  color: #dbf3f1 !important;
+}
+button:focus,
+a:focus {
+  outline: none !important;
 }
 
 /* =================== */
@@ -213,9 +244,6 @@ ul {
   color: orange;
 }
 
-.sensor-summary:hover {
-  color: #ee5b5b;
-}
 .sensor-type .subheading {
   margin: 0;
   font-weight: 500;
@@ -229,4 +257,9 @@ ul {
 .values {
   display: flex;
   justify-content: space-around;
+}
+.green {
+  color: green;
+}
+.node-title {
 }
