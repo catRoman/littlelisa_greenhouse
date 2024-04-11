@@ -71,5 +71,5 @@ void wifi_init(void *vpParam);
 void wifi_start(void);
 esp_err_t mdns_start(void);
 esp_err_t log_mac_address(esp_mac_type_t mac_type);
-
+void checkWifiConnectionTask(void *vpParams);
 #endif /* NETWORKING_WIFI_APP_H_ */

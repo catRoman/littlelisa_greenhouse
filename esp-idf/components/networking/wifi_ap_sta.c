@@ -65,6 +65,22 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
+void checkWifiConnectionTask(void *vpParams){
+
+    wifi_ap_record_t ap_info;
+    for(;;){
+
+    int connection_status = esp_wifi_sta_get_ap_info(&ap_info);
+    if ( connection_status != ESP_OK) {
+       ESP_LOGW(TAG, "connection lost attempting reconnect....");
+       ESP_ERROR_CHECK(esp_wifi_start());
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(5000));
+     taskYIELD();
+
+    }
+}
 esp_netif_t *wifi_init_softap(void)
 {
     esp_netif_t *esp_netif_ap = esp_netif_create_default_wifi_ap();
@@ -225,6 +241,17 @@ void wifi_start(void)
         http_server_start();
         led_http_server_started();
         websocket_server_start();
+
+
+         xTaskCreatePinnedToCore(
+        checkWifiConnectionTask,
+        "checkWififConnect",
+        WIFI_RECONNECT_STACK_SIZE,
+        NULL,
+        WIFI_RECONNECT_PRIORITY,
+        NULL,
+        WIFI_RECONNECT_CORE_ID);
+
 
         heap_caps_check_integrity_all(true);
 
