@@ -255,7 +255,7 @@ void sensor_preprocessing_task(void * pvParameters)
 
 void sensor_prepare_to_send_task(void * pvParameters)
 {
-    int loop_count = 0;
+
     sensor_queue_wrapper_t *event;
     for(;;){
         if (xQueueReceive(sensor_prepare_to_send_handle, &event, portMAX_DELAY)){
@@ -329,7 +329,7 @@ void sensor_post_processing_task(void * pvParameters)
             event->nextEventID=SENSOR_SEND_TO_WEBSOCKET_SERVER;
 
 
-            if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY)){
+            if(xQueueSend(sensor_queue_handle, &event, portMAX_DELAY) == pdPASS){
 
                 ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sent to websocket server send queue",
                             event->sensor_data->module_id,
@@ -339,7 +339,8 @@ void sensor_post_processing_task(void * pvParameters)
             }
             //-->pass to next thing ie db, save to ram etc,
 
-            //temp mem cleanup
+            // //temp mem cleanup
+            vTaskDelay(pdMS_TO_TICKS(10));
             free(event->sensor_data->value);
             event->sensor_data->value=NULL;
             free(event->sensor_data->location);
@@ -502,7 +503,9 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
             char *sensor_data_json = cJSON_Print(root);
 
+            //json clean up
             cJSON_Delete(root);
+
 
             ESP_LOGV(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s->send_id:%d} Logged JSON Data: %s",
                                                 event->sensor_data->module_id,
@@ -527,7 +530,17 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
             xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
 
-
+            //temp mem cleanup
+            // free(event->sensor_data->value);
+            // event->sensor_data->value=NULL;
+            // free(event->sensor_data->location);
+            // event->sensor_data->location=NULL;
+            // free(event->sensor_data->module_id);
+            // event->sensor_data->module_id=NULL;
+            // free(event->sensor_data);
+            // event->sensor_data=NULL;
+            // free(event);
+            // event=NULL;
 
 
            taskYIELD();
