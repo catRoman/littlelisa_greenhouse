@@ -288,6 +288,7 @@ void sensor_prepare_to_send_task(void * pvParameters)
                 }
 
             //free the wrapper as its changed hands to the esp_now_comm wrapper
+            vTaskDelay(pdMS_TO_TICKS(10));
             free(event->sensor_data->value);
             event->sensor_data->value=NULL;
             free(event->sensor_data->location);
