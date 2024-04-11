@@ -110,7 +110,7 @@ char *node_info_get_module_info_json(void){
      cJSON *sensor_type_pin_list;
 
     for(Sensor_List sensor = DHT22; sensor < SENSOR_LIST_TOTAL; sensor++){
-        cJSON *sensor_type_list = cJSON_CreateObject();
+        // cJSON *sensor_type_list = cJSON_CreateObject();
 
         if(module_info_gt->sensor_arr[sensor] > 0){
 
@@ -125,6 +125,8 @@ char *node_info_get_module_info_json(void){
         }
     }
        char *json_string = cJSON_Print(root);
+ 
+
 
 	cJSON_Delete(root);
 	return json_string;
