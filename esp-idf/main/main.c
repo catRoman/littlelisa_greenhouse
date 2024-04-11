@@ -11,10 +11,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 
 #include "wifi_ap_sta.h"
 #include "nvs_service.h"
 #include "module_config.h"
+
 //---OTA TODOs-----
 //TODO: ota firmwar update
 
@@ -87,6 +89,12 @@
 
 
 
+
+//==============================
+//  GLOBAL MUTEXS AND SEMAPHORES
+//==============================
+SemaphoreHandle_t send_id_mutex;
+
 /**
  * freeRTOS function invocation
 */
@@ -94,13 +102,16 @@ void app_main(void)
 {
     static char TAG[] = "main_app";
 
-
-
+    send_id_mutex = xSemaphoreCreateMutex();
+     if (send_id_mutex == NULL) {
+        // Handle error: Failed to create the mutex
+        ESP_LOGE(TAG, "-------------------Failed to create send_id mutex!----------------");
+        return;
+     }
     initiate_config();
 
     //enviroment controls?
 
-    
-    //DHT22_sensor_task_start();
+
 
 }

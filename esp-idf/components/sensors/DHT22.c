@@ -32,6 +32,7 @@
 #include "cJSON.h"
 #include "freertos/semphr.h"
 #include "sdkconfig.h"
+#include "esp_task_wdt.h"
 
 //componenets
 #include "esp_now_comm.h"
@@ -44,11 +45,10 @@
 
 
 // == global defines =============================================
-
+extern SemaphoreHandle_t send_id_mutex;
 
 static const char TAG [] = "dht22_sensor";
-SemaphoreHandle_t xSemaphore = NULL;
-static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+static portMUX_TYPE signalLevelMutex = portMUX_INITIALIZER_UNLOCKED;
 extern Module_info_t *module_info_gt;
 
 
@@ -186,19 +186,19 @@ int getSignalLevel( int usTimeOut, bool state, sensor_data_t *sensor_t )
 
 	int uSec = 0;
 
-	portENTER_CRITICAL(&myMutex);
+	portENTER_CRITICAL(&signalLevelMutex);
 
 	while( gpio_get_level(sensor_t->pin_number)==state ) {
 
 		if( uSec > usTimeOut ){
-			portEXIT_CRITICAL(&myMutex);
+			portEXIT_CRITICAL(&signalLevelMutex);
 			return -1;
 		}
 
 		++uSec;
 		esp_rom_delay_us(1);		// uSec delay
 	}
-	portEXIT_CRITICAL(&myMutex);
+	portEXIT_CRITICAL(&signalLevelMutex);
 	return uSec;
 }
 
@@ -365,23 +365,27 @@ void DHT22_task(void *vpParameter)
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
 	esp_log_level_set(TAG, ESP_LOG_INFO);
-	int send_id = 0;
+	static int send_id = 0;
 	for(;;)
 	{
 
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
-		if (ret == DHT_OK){
-			//log_sensor_JSON(sensor_t, DHT22);
+		   if (ret == DHT_OK) {
+            // Protect send_id access with the mutex
+            if (xSemaphoreTake(send_id_mutex, portMAX_DELAY) == pdTRUE) {
+                dht22_sensor_send_to_sensor_queue(sensor_t, DHT22, send_id);
+                send_id++;
+                xSemaphoreGive(send_id_mutex); // Release the mutex after updating send_id
+            } else {
+                taskYIELD();
+				vTaskDelay(pdMS_TO_TICKS(100));
+				esp_task_wdt_reset();
+            }
+        } else {
+            errorHandler(ret, sensor_t);
+        }
 
-			//#ifdef CONFIG_MODULE_TYPE_NODE
-			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22, send_id);
-			//#endif
-			 //TODO: change either the function name or the function for better focus
-			 send_id++;
-		}else{
-			errorHandler(ret, sensor_t);
-		}
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
