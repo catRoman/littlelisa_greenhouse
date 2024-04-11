@@ -55,6 +55,16 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             ESP_LOGI(WIFI_TAG, "module joined ap as sta");
             break;
 
+
+        case WIFI_EVENT_STA_DISCONNECTED:
+            
+            ESP_LOGW(WIFI_TAG, "connection lost attempting reconnect....");
+            if(esp_wifi_connect() == ESP_OK){
+            ESP_LOGI(WIFI_TAG, "module joined ap as sta");
+            }
+            break;
+
+
         case IP_EVENT_STA_GOT_IP:
             ip_event_got_ip_t *event = (ip_event_got_ip_t *) event_data;
             ESP_LOGI(WIFI_TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
@@ -65,22 +75,22 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
-void checkWifiConnectionTask(void *vpParams){
+// void checkWifiConnectionTask(void *vpParams){
 
-    wifi_ap_record_t ap_info;
-    for(;;){
+//     wifi_ap_record_t ap_info;
+//     for(;;){
 
-    int connection_status = esp_wifi_sta_get_ap_info(&ap_info);
-    if ( connection_status != ESP_OK) {
-       ESP_LOGW(WIFI_TAG, "connection lost attempting reconnect....");
-       ESP_ERROR_CHECK(esp_wifi_connect());
-    }
+//     int connection_status = esp_wifi_sta_get_ap_info(&ap_info);
+//     if ( connection_status != ESP_OK) {
+//        ESP_LOGW(WIFI_TAG, "connection lost attempting reconnect....%s", esp_err_to_name(connection_status));
+//        esp_wifi_connect();
+//     }
 
-    vTaskDelay(pdMS_TO_TICKS(5000));
-     taskYIELD();
+//     vTaskDelay(pdMS_TO_TICKS(5000));
+//      taskYIELD();
 
-    }
-}
+//     }
+// }
 esp_netif_t *wifi_init_softap(void)
 {
     esp_netif_t *esp_netif_ap = esp_netif_create_default_wifi_ap();
@@ -242,15 +252,15 @@ void wifi_start(void)
         led_http_server_started();
         websocket_server_start();
 
-
-         xTaskCreatePinnedToCore(
-        checkWifiConnectionTask,
-        "checkWififConnect",
-        WIFI_RECONNECT_STACK_SIZE,
-        NULL,
-        WIFI_RECONNECT_PRIORITY,
-        NULL,
-        WIFI_RECONNECT_CORE_ID);
+        // vTaskDelay(pdMS_TO_TICKS(5000));
+        //  xTaskCreatePinnedToCore(
+        // checkWifiConnectionTask,
+        // "checkWififConnect",
+        // WIFI_RECONNECT_STACK_SIZE,
+        // NULL,
+        // WIFI_RECONNECT_PRIORITY,
+        // NULL,
+        // WIFI_RECONNECT_CORE_ID);
 
 
         heap_caps_check_integrity_all(true);
