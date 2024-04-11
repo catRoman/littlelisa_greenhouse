@@ -4,9 +4,9 @@ idf_component_register(
         node_info.c
         module_config.c
 
-    REQUIRES 
+    REQUIRES
         sensors
-    
+
     PRIV_REQUIRES
         networking
         sensors
@@ -16,7 +16,8 @@ idf_component_register(
         esp_http_server
         nvs_flash
         json
-    
+        esp_timer
+
     INCLUDE_DIRS "include"
 
 )
