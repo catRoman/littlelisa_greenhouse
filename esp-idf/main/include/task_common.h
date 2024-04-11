@@ -23,6 +23,10 @@
 #define WIFI_APP_TASK_PRIORITY              5       // 0 is lowest priority in freeRTOS
 #define WIFI_APP_TASK_CORE_ID               0
 
+#define WIFI_RECONNECT_STACK_SIZE            4096
+#define WIFI_RECONNECT_PRIORITY              5       // 0 is lowest priority in freeRTOS
+#define WIFI_RECONNECT_CORE_ID               0
+
 // HTTP Server task
 #define HTTP_SERVER_TASK_STACK_SIZE         8192
 #define HTTP_SERVER_TASK_PRIORITY           5
