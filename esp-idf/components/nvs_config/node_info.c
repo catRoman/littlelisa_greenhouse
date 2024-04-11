@@ -49,7 +49,12 @@ char *node_info_get_controller_sta_list_json(void){
                     node_list.sta->rssi);
     }
 
-    return cJSON_Print(root);
+
+    char *json_string = cJSON_Print(root);
+
+	cJSON_Delete(root);
+	return json_string;
+
 
 }
 
@@ -118,7 +123,11 @@ char *node_info_get_module_info_json(void){
 
         }
     }
-    return cJSON_Print(root);
+       char *json_string = cJSON_Print(root);
+
+	cJSON_Delete(root);
+	return json_string;
+
 
 }
 void node_info_log_sensor_list(void){
