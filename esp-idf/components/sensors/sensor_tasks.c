@@ -341,17 +341,17 @@ void sensor_post_processing_task(void * pvParameters)
             //-->pass to next thing ie db, save to ram etc,
 
             // //temp mem cleanup
-            vTaskDelay(pdMS_TO_TICKS(10));
-            free(event->sensor_data->value);
-            event->sensor_data->value=NULL;
-            free(event->sensor_data->location);
-            event->sensor_data->location=NULL;
-            free(event->sensor_data->module_id);
-            event->sensor_data->module_id=NULL;
-            free(event->sensor_data);
-            event->sensor_data=NULL;
-            free(event);
-            event=NULL;
+            // vTaskDelay(pdMS_TO_TICKS(10));
+            // free(event->sensor_data->value);
+            // event->sensor_data->value=NULL;
+            // free(event->sensor_data->location);
+            // event->sensor_data->location=NULL;
+            // free(event->sensor_data->module_id);
+            // event->sensor_data->module_id=NULL;
+            // free(event->sensor_data);
+            // event->sensor_data=NULL;
+            // free(event);
+            // event=NULL;
            //  heap_trace_stop();
            // heap_trace_dump();
             //trigger_panic();
@@ -532,16 +532,17 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
             xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
 
             //temp mem cleanup
-            // free(event->sensor_data->value);
-            // event->sensor_data->value=NULL;
-            // free(event->sensor_data->location);
-            // event->sensor_data->location=NULL;
-            // free(event->sensor_data->module_id);
-            // event->sensor_data->module_id=NULL;
-            // free(event->sensor_data);
-            // event->sensor_data=NULL;
-            // free(event);
-            // event=NULL;
+            vTaskDelay(pdMS_TO_TICKS(100));
+            free(event->sensor_data->value);
+            event->sensor_data->value=NULL;
+            free(event->sensor_data->location);
+            event->sensor_data->location=NULL;
+            free(event->sensor_data->module_id);
+            event->sensor_data->module_id=NULL;
+            free(event->sensor_data);
+            event->sensor_data=NULL;
+            free(event);
+            event=NULL;
 
 
            taskYIELD();
