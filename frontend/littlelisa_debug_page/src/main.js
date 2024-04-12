@@ -19,11 +19,18 @@ const sensorSection = document.querySelector(".section-sensor-data");
 
 //esp-log elements
 const logTextArea = document.querySelector(".log-output");
+const logRefreshBtn = document.querySelector(".log-refresh");
+let logDataSocket; //socket handler
 
 //current node list
 
 let nodeListObj = [];
 const renderedNodeList = new Set(null);
+
+// module type
+let nodeType = "node";
+let moduleData;
+
 //
 //=================
 //  Nav
@@ -59,7 +66,19 @@ menuBtns.forEach((el) => {
   });
 });
 
-// menu toggle
+//=========================
+//  EVENT LISTNER
+//========================
+
+logRefreshBtn.addEventListener("touchend", (e) => {
+  if (logDataSocket !== undefined) {
+    logDataSocket.close();
+    console.log("refreshing log socket...");
+    logTextArea.value = "Refreshing esp log stream...";
+    setTimeout(() => initiateLogSocket(moduleData), 3000);
+  }
+});
+
 menuIcon.addEventListener("touchend", () => {
   toggleNavMenu();
 });
@@ -136,9 +155,13 @@ async function fetchModuleInfo() {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
+    nodeType = data.module_info.type.toLowerCase();
+    moduleData = data;
     updatePageTitle(data);
     renderModuleInfo(getValidNodeClass(data.module_info.identifier), data);
-    initiateWebSockets(data);
+    initiateLogSocket(data);
+    initiateSensorSocket(data);
+    if (nodeType === "controller") updateConnectedDevicesShow();
   } catch (error) {
     console.error("Error:", error);
   }
@@ -330,7 +353,6 @@ function renderModuleInfo(nodeId, moduleInfo) {
 function updateConnectedDevicesShow() {
   fetchControllerStaList();
   checkForNodeRemoval();
-  getAvgTempReading();
 }
 
 function updatePageTitle(moduleInfo) {
@@ -451,7 +473,7 @@ function getAvgTempReading() {
 //+++++++++++++  /ws/sensor
 //+++++++++++++++++++++++++++++++++++
 // Create WebSocket connection.
-function initiateWebSockets(moduleData) {
+function initiateSensorSocket(moduleData) {
   const {
     module_info: { type, identifier },
   } = moduleData;
@@ -468,14 +490,20 @@ function initiateWebSockets(moduleData) {
   };
 
   // Listen for messages
-  sensorDataSocket.addEventListener("message", (event) => {
+  sensorDataSocket.onmessage = (event) => {
     //remove whitespace from c buffer
     updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
-  });
+  };
+}
+function initiateLogSocket(moduleData) {
+  const {
+    module_info: { type, identifier },
+  } = moduleData;
+  let nodeId = getValidNodeClass(identifier);
+  nodeId = type + nodeId.substring(nodeId.indexOf("-"));
+  console.log(nodeId);
 
-  const logDataSocket = new WebSocket(
-    `ws://littlelisa-${nodeId}.local:8080/ws/log`
-  );
+  logDataSocket = new WebSocket(`ws://littlelisa-${nodeId}.local:8080/ws/log`);
 
   logDataSocket.onopen = function () {
     console.log("log data websocket connection established");
@@ -487,9 +515,9 @@ function initiateWebSockets(moduleData) {
     }, 5000); // 5000 milliseconds = 5 seconds
   };
 
-  logDataSocket.addEventListener("message", (event) => {
+  logDataSocket.onmessage = (event) => {
     updateDataLog(event.data);
-  });
+  };
 
   window.addEventListener("beforeunload", function () {
     logDataSocket.send("stop log");
@@ -557,10 +585,13 @@ console.log(
 
 //initial load
 fetchModuleInfo();
-updateConnectedDevicesShow();
+
 getAvgTempReading();
 fetchUptimeFunk();
 
 //henceforth
-setInterval(updateConnectedDevicesShow, 15000);
+if (nodeType.toLowerCase() === "controller") {
+  setInterval(updateConnectedDevicesShow, 15000);
+}
+setInterval(getAvgTempReading, 5000);
 setInterval(fetchUptimeFunk, 5000);
