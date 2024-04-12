@@ -173,7 +173,7 @@ void register_http_server_handlers(void)
 
 esp_err_t index_css_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "index.css requested");
+    ESP_LOGD(HTTP_HANDLER_TAG, "index.css requested");
 
     httpd_resp_set_type(req, "text/css");
     httpd_resp_send(req, (const char *)index_css_start, index_css_end - index_css_start);
@@ -314,7 +314,7 @@ esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 
 esp_err_t get_module_info_json_handler(httpd_req_t *req){
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "moduleInfo.json requested");
+    ESP_LOGD(HTTP_HANDLER_TAG, "moduleInfo.json requested");
 
       // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -334,7 +334,7 @@ esp_err_t get_module_info_json_handler(httpd_req_t *req){
 
 esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "controllerStaList.json requested");
+    ESP_LOGD(HTTP_HANDLER_TAG, "controllerStaList.json requested");
 
       // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -388,7 +388,7 @@ esp_err_t get_uptime_json_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "uptimeFunk.json requested");
+    ESP_LOGD(HTTP_HANDLER_TAG, "uptimeFunk.json requested");
 
     const char *uptimeFunk = node_info_get_uptime_json();
         httpd_resp_set_type(req, "application/json");
