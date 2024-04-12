@@ -553,7 +553,7 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
 
 esp_err_t initiate_sensor_queue(){
     ESP_LOGI(SENSOR_EVENT_TAG, "sensor queue init started");
-    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_DEBUG);
+    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_INFO);
 
 
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));

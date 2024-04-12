@@ -138,7 +138,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
 
             extern QueueHandle_t sensor_queue_handle;
             if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-                    ESP_LOGI(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
+                    ESP_LOGD(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
                     espnow_queue_packet->mac_addr[0], espnow_queue_packet->mac_addr[1], espnow_queue_packet->mac_addr[2],
                     espnow_queue_packet->mac_addr[3], espnow_queue_packet->mac_addr[4], espnow_queue_packet->mac_addr[5]);
 
