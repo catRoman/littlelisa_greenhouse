@@ -57,11 +57,10 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 
 
         case WIFI_EVENT_STA_DISCONNECTED:
-            
+
             ESP_LOGW(WIFI_TAG, "connection lost attempting reconnect....");
-            if(esp_wifi_connect() == ESP_OK){
-            ESP_LOGI(WIFI_TAG, "module joined ap as sta");
-            }
+            esp_wifi_connect();
+
             break;
 
 
