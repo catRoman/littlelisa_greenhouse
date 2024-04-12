@@ -80,7 +80,8 @@ int websocket_log_handler(const char* fmt, va_list args) {
 
     // Check if the logging to websocket is enabled
     if (g_websocket_ctx.is_logging_to_websocket && g_websocket_ctx.handle) {
-        // Send log over websocket
+        // Send log over websocket with pause
+
         trigger_async_log_send(g_websocket_ctx.handle, g_websocket_ctx.sockfd, log_buffer);
     }
     vprintf(fmt, args);
@@ -535,7 +536,7 @@ void websocket_send_sensor_data_queue(void *vpParameter){
     for(;;){
         if(xQueueReceive(websocket_send_sensor_data_queue_handle, &ws_frame_data, portMAX_DELAY)){
             for(int j = 0; j < num_websocket_sensor_clients; j++){
-                ESP_LOGI(WEBSOCKET_SERVER_TAG, "sending sensor data to socket %d/%d -> socket # %d", (j+1),num_websocket_sensor_clients, websocket_sensor_clients->items[j] );
+                ESP_LOGD(WEBSOCKET_SERVER_TAG, "sending sensor data to socket %d/%d -> socket # %d", (j+1),num_websocket_sensor_clients, websocket_sensor_clients->items[j] );
 
 
 
@@ -569,7 +570,7 @@ void websocket_send_sensor_data_queue(void *vpParameter){
                     websocket_server_monitor_send_message(WEBSOCKET_SENSOR_CONNECT_FAIL,websocket_sensor_clients->items[j]);
 
                 }else{
-                    ESP_LOGI(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",websocket_sensor_clients->items[j]);
+                    ESP_LOGD(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",websocket_sensor_clients->items[j]);
 
                 }
 
