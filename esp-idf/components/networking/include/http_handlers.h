@@ -8,7 +8,9 @@ esp_err_t index_css_handler(httpd_req_t *req);
 
 esp_err_t index_js_handler(httpd_req_t *req);
 
- esp_err_t plant3_svg_handler(httpd_req_t *req);
+ esp_err_t list_svg_handler(httpd_req_t *req);
+
+  esp_err_t favicon_png_handler(httpd_req_t *req);
 
 /**
  * sends theindex.html page

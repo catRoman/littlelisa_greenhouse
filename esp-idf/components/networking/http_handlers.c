@@ -34,8 +34,8 @@ extern httpd_handle_t http_server_handle;
 extern const uint8_t index_html_start[]         asm("_binary_index_html_start");
 extern const uint8_t index_html_end[]         asm("_binary_index_html_end");
 
-extern const uint8_t plant3_svg_start[]         asm("_binary_plant3_svg_start");
-extern const uint8_t plant3_svg_end[]         asm("_binary_plant3_svg_end");
+extern const uint8_t favicon_png_start[]         asm("_binary_favicon_png_start");
+extern const uint8_t favicon_png_end[]         asm("_binary_favicon_png_end");
 
 
 extern const uint8_t index_js_start[]         asm("_binary_index_js_start");
@@ -44,6 +44,11 @@ extern const uint8_t index_js_end[]         asm("_binary_index_js_end");
 
 extern const uint8_t index_css_start[]         asm("_binary_index_css_start");
 extern const uint8_t index_css_end[]         asm("_binary_index_css_end");
+
+extern const uint8_t list_svg_start[]         asm("_binary_list_svg_start");
+extern const uint8_t list_svg_end[]         asm("_binary_list_svg_end");
+
+
 
 
 
@@ -79,7 +84,7 @@ void register_http_server_handlers(void)
 
         //register css handler
         httpd_uri_t index_css = {
-            .uri = "/assets/index.css",
+            .uri = "/index.css",
             .method = HTTP_GET,
             .handler = index_css_handler,
             .user_ctx = NULL,
@@ -88,7 +93,7 @@ void register_http_server_handlers(void)
 
         //register js handler
         httpd_uri_t index_js = {
-            .uri = "/assets/index.js",
+            .uri = "/index.js",
             .method = HTTP_GET,
             .handler = index_js_handler,
             .user_ctx = NULL,
@@ -96,13 +101,22 @@ void register_http_server_handlers(void)
         httpd_register_uri_handler(http_server_handle, &index_js);
 
         //register icon handler
-        httpd_uri_t plant3_svg = {
-            .uri = "/plant3.svg",
+        httpd_uri_t favicon_png = {
+            .uri = "/icons/favicon.png",
             .method = HTTP_GET,
-            .handler = plant3_svg_handler,
+            .handler = favicon_png_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &plant3_svg);
+        httpd_register_uri_handler(http_server_handle, &favicon_png);
+
+           //register icon handler
+        httpd_uri_t list_svg = {
+            .uri = "/icons/list.svg",
+            .method = HTTP_GET,
+            .handler = list_svg_handler,
+            .user_ctx = NULL,
+        };
+        httpd_register_uri_handler(http_server_handle, &list_svg);
 
         //end of littlelisa content service
 
@@ -206,15 +220,26 @@ esp_err_t index_js_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
- esp_err_t plant3_svg_handler(httpd_req_t *req)
+ esp_err_t favicon_png_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "plant3.svg requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "favicon.png requested");
 
     httpd_resp_set_type(req, "image/x-con");
-    httpd_resp_send(req, (const char *)plant3_svg_start, plant3_svg_end - plant3_svg_start);
+    httpd_resp_send(req, (const char *)favicon_png_start, favicon_png_end - favicon_png_start);
 
     return ESP_OK;
 }
+
+ esp_err_t list_svg_handler(httpd_req_t *req)
+{
+    ESP_LOGI(HTTP_HANDLER_TAG, "list.svg requested");
+
+    httpd_resp_set_type(req, "image/x-con");
+    httpd_resp_send(req, (const char *)list_svg_start, list_svg_end - list_svg_start);
+
+    return ESP_OK;
+}
+
 
 
 //api

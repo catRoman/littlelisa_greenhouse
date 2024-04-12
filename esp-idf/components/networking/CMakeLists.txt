@@ -31,9 +31,10 @@ idf_component_register(
 
     EMBED_FILES
         landing_page/index.html
-        landing_page/plant3.svg
-        landing_page/assets/index.js
-        landing_page/assets/index.css
+        landing_page/icons/favicon.png
+        landing_page/icons/list.svg
+        landing_page/index.js
+        landing_page/index.css
 )
 
 # target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined" "-O0")
