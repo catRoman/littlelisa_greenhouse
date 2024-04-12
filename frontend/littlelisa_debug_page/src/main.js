@@ -20,8 +20,9 @@ const sensorSection = document.querySelector(".section-sensor-data");
 //esp-log elements
 const logTextArea = document.querySelector(".log-output");
 const logRefreshBtn = document.querySelector(".log-refresh");
+const sensorRefreshBtn = document.querySelector(".sensor-refresh");
 let logDataSocket; //socket handler
-
+let sensorDataSocket;
 //current node list
 
 let nodeListObj = [];
@@ -76,6 +77,13 @@ logRefreshBtn.addEventListener("touchend", (e) => {
     console.log("refreshing log socket...");
     logTextArea.value = "Refreshing esp log stream...";
     setTimeout(() => initiateLogSocket(moduleData), 3000);
+  }
+});
+
+sensorRefreshBtn.addEventListener("touchend", (e) => {
+  if (sensorDataSocket !== undefined) {
+    sensorDataSocket.close();
+    setTimeout(() => initiateSensorSocket(moduleData), 3000);
   }
 });
 
@@ -155,7 +163,8 @@ async function fetchModuleInfo() {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    nodeType = data.module_info.type.toLowerCase();
+    nodeType = data.module_info.type;
+    console.log(nodeType);
     moduleData = data;
     updatePageTitle(data);
     renderModuleInfo(getValidNodeClass(data.module_info.identifier), data);
@@ -473,20 +482,30 @@ function getAvgTempReading() {
 //+++++++++++++  /ws/sensor
 //+++++++++++++++++++++++++++++++++++
 // Create WebSocket connection.
+let sensorRetryCount = 0;
+
 function initiateSensorSocket(moduleData) {
   const {
     module_info: { type, identifier },
   } = moduleData;
   let nodeId = getValidNodeClass(identifier);
   nodeId = type + nodeId.substring(nodeId.indexOf("-"));
-  console.log(nodeId);
 
-  const sensorDataSocket = new WebSocket(
+  sensorDataSocket = new WebSocket(
     `ws://littlelisa-${nodeId}.local:8080/ws/sensor`
   );
 
+  sensorDataSocket.onclose = (event) => {
+    if (!event.wasClean) {
+      let delay = getExponentialBackoffDelay(sensorRetryCount);
+      setTimeout(initiateSensorSocket, delay);
+      sensorRetryCount++;
+    }
+  };
+
   sensorDataSocket.onopen = function () {
     console.log("sensor Data websocket connection established");
+    sensorRetryCount = 0;
   };
 
   // Listen for messages
@@ -495,24 +514,34 @@ function initiateSensorSocket(moduleData) {
     updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
   };
 }
+let logRetryCount = 0;
+
 function initiateLogSocket(moduleData) {
   const {
     module_info: { type, identifier },
   } = moduleData;
   let nodeId = getValidNodeClass(identifier);
   nodeId = type + nodeId.substring(nodeId.indexOf("-"));
-  console.log(nodeId);
 
   logDataSocket = new WebSocket(`ws://littlelisa-${nodeId}.local:8080/ws/log`);
 
   logDataSocket.onopen = function () {
     console.log("log data websocket connection established");
-    console.log("starting log in  5 seconds");
+    console.log("starting websocket log");
     // Wait for 5 seconds before sending a message
+    logRetryCount = 0;
     setTimeout(function () {
       // Send a message through the WebSocket
       logDataSocket.send("start log");
-    }, 5000); // 5000 milliseconds = 5 seconds
+    }, 1000); // 5000 milliseconds = 5 seconds
+  };
+
+  logDataSocket.onclose = (event) => {
+    if (!event.wasClean) {
+      let delay = getExponentialBackoffDelay(logRetryCount);
+      setTimeout(initiateLogSocket, delay);
+      logRetryCount++;
+    }
   };
 
   logDataSocket.onmessage = (event) => {
@@ -524,6 +553,14 @@ function initiateLogSocket(moduleData) {
     logDataSocket.send("");
     sensorDataSocket.send("");
   });
+}
+
+function getExponentialBackoffDelay(retryCount) {
+  const baseDelay = 1000; // 1 second
+  const maxDelay = 30000; // 30 seconds
+  let delay = Math.min(maxDelay, baseDelay * 2 ** retryCount);
+  console.log(`Reconnecting in ${delay} ms`);
+  return delay;
 }
 //==============
 // Data Logger
@@ -590,7 +627,7 @@ getAvgTempReading();
 fetchUptimeFunk();
 
 //henceforth
-if (nodeType.toLowerCase() === "controller") {
+if (nodeType === "controller") {
   setInterval(updateConnectedDevicesShow, 15000);
 }
 setInterval(getAvgTempReading, 5000);

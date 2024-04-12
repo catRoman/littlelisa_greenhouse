@@ -128,6 +128,7 @@ header {
   font-size: 1.8rem;
   margin-bottom: 0.8rem;
 }
+.sensor-refresh,
 .log-refresh,
 .online-connection-btn {
   font-family: inherit;
@@ -148,6 +149,7 @@ header {
   outline: none;
 }
 
+.sensor-refresh:active,
 .log-refresh:active,
 .online-connection-btn:active {
   color: #ee5b5b;
@@ -194,10 +196,12 @@ a:focus {
   padding: 1rem;
   font-size: 1.1rem;
 }
+.sensor-header,
 .log-header {
   display: flex;
   justify-content: space-between;
 }
+.sensor-refresh,
 .log-refresh {
   font-size: 1.2rem;
   padding: 0.5rem;
