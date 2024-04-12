@@ -473,7 +473,9 @@ function initiateWebSockets(moduleData) {
     updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
   });
 
-  const logDataSocket = new WebSocket("ws://10.0.0.140:8080/ws/log");
+  const logDataSocket = new WebSocket(
+    `ws://littlelisa-${nodeId}.local:8080/ws/log`
+  );
 
   logDataSocket.onopen = function () {
     console.log("log data websocket connection established");

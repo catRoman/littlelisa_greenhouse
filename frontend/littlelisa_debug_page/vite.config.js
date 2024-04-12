@@ -1,5 +1,6 @@
 // vite.config.js
 import { defineConfig } from "vite";
+import { createHtmlPlugin } from "vite-plugin-html";
 
 export default defineConfig({
   build: {
@@ -11,7 +12,13 @@ export default defineConfig({
         assetFileNames: `[name].[ext]`,
       },
     },
+    minify: "esbuild",
   },
+  plugins: [
+    createHtmlPlugin({
+      minify: true,
+    }),
+  ],
   server: {
     proxy: {
       // Use the "/api" key to tell Vite that any requests starting with "/api"
