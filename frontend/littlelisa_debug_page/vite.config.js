@@ -2,6 +2,16 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        // Disable hash in file naming
+        entryFileNames: `[name].js`,
+        chunkFileNames: `[name].js`,
+        assetFileNames: `[name].[ext]`,
+      },
+    },
+  },
   server: {
     proxy: {
       // Use the "/api" key to tell Vite that any requests starting with "/api"

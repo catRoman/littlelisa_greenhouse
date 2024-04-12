@@ -138,6 +138,7 @@ async function fetchModuleInfo() {
     const data = await response.json();
     updatePageTitle(data);
     renderModuleInfo(getValidNodeClass(data.module_info.identifier), data);
+    initiateWebSockets(data);
   } catch (error) {
     console.error("Error:", error);
   }
@@ -450,40 +451,50 @@ function getAvgTempReading() {
 //+++++++++++++  /ws/sensor
 //+++++++++++++++++++++++++++++++++++
 // Create WebSocket connection.
+function initiateWebSockets(moduleData) {
+  const {
+    module_info: { type, identifier },
+  } = moduleData;
+  let nodeId = getValidNodeClass(identifier);
+  nodeId = type + nodeId.substring(nodeId.indexOf("-"));
+  console.log(nodeId);
 
-const sensorDataSocket = new WebSocket("ws://10.0.0.140:8080/ws/sensor");
+  const sensorDataSocket = new WebSocket(
+    `ws://littlelisa-${nodeId}.local:8080/ws/sensor`
+  );
 
-sensorDataSocket.onopen = function () {
-  console.log("sensor Data websocket connection established");
-};
+  sensorDataSocket.onopen = function () {
+    console.log("sensor Data websocket connection established");
+  };
 
-// Listen for messages
-sensorDataSocket.addEventListener("message", (event) => {
-  //remove whitespace from c buffer
-  updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
-});
+  // Listen for messages
+  sensorDataSocket.addEventListener("message", (event) => {
+    //remove whitespace from c buffer
+    updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
+  });
 
-const logDataSocket = new WebSocket("ws://10.0.0.140:8080/ws/log");
+  const logDataSocket = new WebSocket("ws://10.0.0.140:8080/ws/log");
 
-logDataSocket.onopen = function () {
-  console.log("log data websocket connection established");
-  console.log("starting log in  5 seconds");
-  // Wait for 5 seconds before sending a message
-  setTimeout(function () {
-    // Send a message through the WebSocket
-    logDataSocket.send("start log");
-  }, 5000); // 5000 milliseconds = 5 seconds
-};
+  logDataSocket.onopen = function () {
+    console.log("log data websocket connection established");
+    console.log("starting log in  5 seconds");
+    // Wait for 5 seconds before sending a message
+    setTimeout(function () {
+      // Send a message through the WebSocket
+      logDataSocket.send("start log");
+    }, 5000); // 5000 milliseconds = 5 seconds
+  };
 
-logDataSocket.addEventListener("message", (event) => {
-  updateDataLog(event.data);
-});
+  logDataSocket.addEventListener("message", (event) => {
+    updateDataLog(event.data);
+  });
 
-window.addEventListener("beforeunload", function () {
-  logDataSocket.send("stop log");
-  logDataSocket.send("");
-  sensorDataSocket.send("");
-});
+  window.addEventListener("beforeunload", function () {
+    logDataSocket.send("stop log");
+    logDataSocket.send("");
+    sensorDataSocket.send("");
+  });
+}
 //==============
 // Data Logger
 //=============
