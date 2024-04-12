@@ -195,6 +195,12 @@ a:focus {
   border: 2px solid #1d5752;
   padding: 1rem;
   font-size: 1.1rem;
+  cursor: pointer;
+  touch-action: pan-y !important;
+}
+textarea {
+  overflow-y: auto;
+  touch-action: pan-y !important;
 }
 .sensor-header,
 .log-header {

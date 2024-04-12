@@ -596,7 +596,7 @@ function sanitizeConsoleLog(logStr) {
 //==============
 // Finer Adjustmets
 //=============
-logTextArea.addEventListener("touchstart", (e) => e.preventDefault());
+//logTextArea.addEventListener("touchstart", (e) => e.preventDefault());
 
 //==============
 // Helpers
