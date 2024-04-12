@@ -102,7 +102,7 @@ void register_http_server_handlers(void)
 
         //register icon handler
         httpd_uri_t favicon_png = {
-            .uri = "/icons/favicon.png",
+            .uri = "/favicon.png",
             .method = HTTP_GET,
             .handler = favicon_png_handler,
             .user_ctx = NULL,
