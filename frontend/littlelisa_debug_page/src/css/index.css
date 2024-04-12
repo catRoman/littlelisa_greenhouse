@@ -48,7 +48,7 @@ header {
 }
 .overlay {
   position: absolute;
-  z-index: 1;
+  z-index: 1000;
   top: 0;
   left: 0;
   width: 90%;
@@ -103,7 +103,7 @@ header {
   border-radius: 9px;
   padding: 1.2rem;
   padding-left: 2.4rem;
-  line-height: 2rem;
+  line-height: 2.4rem;
   font-size: 1.6rem;
   background-color: #222121;
 }
@@ -137,6 +137,7 @@ header {
   color: #dbf3f1;
   font-size: 2.4rem;
   border-radius: 9px;
+  margin-bottom: 1rem;
 }
 .online-connection-btn a {
   color: #dbf3f1;
@@ -180,15 +181,15 @@ a:focus {
   height: 25rem;
   text-align: left;
   direction: ltr;
-  line-height: 2.4rem;
+  line-height: 1.4rem;
   color: green;
-  overflow-y: scroll;
+  overflow-y: auto;
   resize: none;
   font-family: monospace;
   background-color: #222121;
   border: 2px solid #dbf3f1;
   padding: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   user-select: none;
 }
 
@@ -207,7 +208,7 @@ a:focus {
   border: 2px solid #dbf3f1;
   /* border-radius: 9px; */
   padding: 1.2rem;
-  padding-left: 2.4rem;
+
   line-height: 2.4rem;
   font-size: 1.6rem;
   background-color: #222121;
@@ -250,9 +251,26 @@ ul {
   margin-top: 1rem;
 }
 .sensor-location-pin-header {
-  display: flex;
+  margin: 0.2rem;
+  display: grid;
   justify-content: space-between;
   font-size: 1.6rem;
+  grid-template-columns: 1fr 1fr;
+}
+.pin {
+  justify-self: end;
+  grid-column: 2;
+  grid-row: 1;
+}
+.location-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+.sensor-location {
+  padding-left: 1rem;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row: 2;
 }
 .values {
   display: flex;
@@ -262,4 +280,23 @@ ul {
   color: green;
 }
 .node-title {
+}
+.value-avg-box {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+}
+.status-uptime {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.uptime {
+  align-self: center;
+}
+/* .value-avg-box p {
+  align-self: last baseline;
+} */
+.body-disabled {
+  pointer-events: none;
 }
