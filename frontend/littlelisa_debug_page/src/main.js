@@ -23,7 +23,7 @@ const logTextArea = document.querySelector(".log-output");
 //current node list
 
 let nodeListObj = [];
-const renderedNodeList = [];
+const renderedNodeList = new Set(null);
 //
 //=================
 //  Nav
@@ -32,6 +32,7 @@ const renderedNodeList = [];
 //nav menu button handler
 menuBtns.forEach((el) => {
   el.addEventListener("touchend", function (e) {
+    e.stopPropagation;
     const classes = [...this.classList];
     switch (classes[classes.length - 1]) {
       case "dev_btn":
@@ -51,11 +52,9 @@ menuBtns.forEach((el) => {
         break;
 
       case "close":
-        console.log(this.textContent, " clicked");
         toggleNavMenu();
         break;
       default:
-        console.log(this.textContent);
     }
   });
 });
@@ -63,7 +62,6 @@ menuBtns.forEach((el) => {
 // menu toggle
 menuIcon.addEventListener("touchend", () => {
   toggleNavMenu();
-  console.log(menuBtns);
 });
 
 function toggleNavMenu() {
@@ -72,6 +70,11 @@ function toggleNavMenu() {
   menu.classList.toggle("hidden");
   document.body.classList.toggle("overflow-hide");
   document.documentElement.classList.toggle("overflow-hide");
+  document.querySelector("main").classList.toggle("body-disabled");
+  setTimeout(
+    () => document.querySelector("main").classList.toggle("body-disabled"),
+    100
+  );
 }
 function toggleInfoTab(selectedTab_str) {
   const selectedTab = document.querySelector(selectedTab_str);
@@ -106,18 +109,35 @@ function addNodeBoxButtonEvent(nodeNameClass) {
 //==========================
 
 //+++++++++++++++++++++++++++++++++++
+//+++++++++++++  /api/uptimeFunk.json
+//++++++++++++++++++++++++++++++++++++
+
+async function fetchUptimeFunk() {
+  try {
+    const response = await fetch("/api/uptimeFunk.json");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    updateUptime(data);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++
 //+++++++++++++  /api/moduleInfo.json
 //++++++++++++++++++++++++++++++++++++
 
 async function fetchModuleInfo() {
   try {
-    const response = await fetch("http://10.0.0.140/api/moduleInfo.json");
+    const response = await fetch("/api/moduleInfo.json");
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
     updatePageTitle(data);
-    renderModuleInfo("self", data);
+    renderModuleInfo(getValidNodeClass(data.module_info.identifier), data);
   } catch (error) {
     console.error("Error:", error);
   }
@@ -129,9 +149,7 @@ async function fetchModuleInfo() {
 
 async function fetchControllerStaList() {
   try {
-    const response = await fetch(
-      "http://10.0.0.140/api/controllerStaList.json"
-    );
+    const response = await fetch("/api/controllerStaList.json");
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -149,7 +167,7 @@ function applyNodeInfo(nodeListObj) {
 
   const { sta_list: nodeList } = nodeListObj;
   Object.entries(nodeList).forEach(([key, value]) => {
-    const validNodeClass = "node-" + key.replaceAll(":", "_");
+    const validNodeClass = getValidNodeClass(key);
     //ping "key".local/api/moduleInfo.json to get valid resposnse
     //if not its not a node
     const applyData = async function () {
@@ -163,8 +181,8 @@ function applyNodeInfo(nodeListObj) {
           if (document.querySelector(`.${validNodeClass}`) === null) {
             renderModuleInfo(validNodeClass, data);
             renderConnectedDeviceLink(validNodeClass, data, value);
-            console.log(key);
-            renderedNodeList.push(key);
+
+            renderedNodeList.add(key);
           }
           updateRssi(validNodeClass, value);
         } else {
@@ -215,15 +233,17 @@ function renderModuleInfo(nodeId, moduleInfo) {
   } else {
     document.querySelector(".section-sensor-data").insertAdjacentHTML(
       "beforeend",
-      ` <!-- SENSOR- ${nodeId}-->
+      ` <!-- NODE- ${nodeId}-->
       <div class="sensor-data-node-box ${nodeId}">
         <div class="sensor-summary">
           <div class="sensor-data-info">
             <h2 class="node-title">Node Id</h2>
             <p class="location">Module Location</p>
           </div>
-          <p class="value">avg. <span class="sensor-avg">14*C</span></p>
-        </div>
+          <div class='value-avg-box'>
+          <p>avg.</p> <p><span class="sensor-avg">--</span>°C</p>
+          </div>
+          </div>
         <ul class="sensor-types hidden">
           <li class="sensor-type DHT22">
             <p class="subheading">DHT22</p>
@@ -265,20 +285,22 @@ function renderModuleInfo(nodeId, moduleInfo) {
   selfNodeBox.querySelector(".sensor-data-info > .location").style.color =
     "#ee5b5b";
 
-  try {
-    //add # templates of sensors to
-    Object.entries(sensorList).forEach(([key, value]) => {
-      for (let i = 1; i <= value; i++) {
-        selfNodeBox.querySelector(`.${key} > ul`).insertAdjacentHTML(
-          "beforeend",
-          `<li class="sensor-reading local-sensor-${i}">
+  //add # templates of sensors to
+  Object.entries(sensorList).forEach(([key, value]) => {
+    for (let i = 1; i <= value; i++) {
+      selfNodeBox.querySelector(`.${key} > ul`).insertAdjacentHTML(
+        "beforeend",
+        `<!-- SENSOR-${i}-->
+          <li class="sensor-reading local-sensor-${i}">
     <p class="timestamp">----</p>
     <div class="sensor-location-pin-header">
-      <p class="sub-label">
+
+      <p class="sub-label location-label">
         Location:
+        </p>
         <span class="sensor-location">---</span>
-      </p>
-      <p class="sub-label">
+
+      <p class="sub-label pin">
         Pin:
         <span class="sensor-pin">--</span>
       </p>
@@ -288,18 +310,16 @@ function renderModuleInfo(nodeId, moduleInfo) {
       Sensor <span class="local-sensor-id">${i}</span>:
     </p>
     <div class="values">
-      <span class="sensor-value temp">-- &deg;C</span> &horbar;
-      <span class="sensor-value hum">-- %</span>
+      <p><span class="sensor-value temp">--</span> &deg;C</p> &xhArr;
+      <p><span class="sensor-value hum">--</span> %</p>
     </div>
   </li>`
-        );
-      }
-    });
+      );
+    }
+  });
 
-    addNodeBoxButtonEvent(`.${nodeId}`);
-  } catch (error) {
-    console.error(error);
-  }
+  addNodeBoxButtonEvent(`.${nodeId}`);
+
   //insert sensor templates for each sensor in
 }
 
@@ -309,6 +329,7 @@ function renderModuleInfo(nodeId, moduleInfo) {
 function updateConnectedDevicesShow() {
   fetchControllerStaList();
   checkForNodeRemoval();
+  getAvgTempReading();
 }
 
 function updatePageTitle(moduleInfo) {
@@ -337,24 +358,174 @@ function updateRssi(nodeId, value) {
   rssiBox.textContent = `${value}`;
 }
 function checkForNodeRemoval() {
-  console.log(renderedNodeList);
-  console.log(nodeListObj);
-  nodeListObj.every((node) => {
-    const validNodeClass = "node-" + node.replaceAll(":", "_");
+  renderedNodeList.forEach((node) => {
+    const validNodeClass = getValidNodeClass(node);
+
     if (
-      !renderedNodeList.includes(node) &&
-      document.querySelector(`.${validNodeClass}`) !== undefined
+      !nodeListObj.includes(node) &&
+      document.querySelector(`.${validNodeClass}`) !== null
     ) {
       document.querySelector(`.${validNodeClass}`).remove();
+      document.querySelector(`.${validNodeClass}-btn`).remove();
+
+      renderedNodeList.delete(node);
+
       console.log(`removed ${validNodeClass}`);
     }
   });
+}
+
+// function updateUptime(json_data) {
+//   const { uptime, unit } = json_data;
+
+//   document.querySelector(".uptime").textContent = uptime;
+//   document.querySelector(".uptime-unit").textContent = ` ${unit}`;
+// }
+function updateUptime({ uptime }) {
+  const timeParts = [
+    Math.floor(uptime / 86400000), // Days
+    Math.floor((uptime % 86400000) / 3600000), // Hours
+    Math.floor((uptime % 3600000) / 60000), // Minutes
+    Math.floor((uptime % 60000) / 1000), // Seconds
+  ].map((part) => part.toString().padStart(2, "0"));
+
+  document.querySelector(
+    ".uptime"
+  ).textContent = `${timeParts[0]} : ${timeParts[1]} : ${timeParts[2]} : ${timeParts[3]}`;
+}
+
+function updateSensorData(wsSensorData) {
+  const { module_info: moduleInfoObj, sensor_data: sensorDataObj } =
+    wsSensorData;
+
+  //locate sensor box using module_id
+  //locate sensor using local_sensor_id *double check this is not dependant
+  //locate sensor type using sensor type
+  //change text content
+  //adjust box for variable values
+  const validNodeClass = getValidNodeClass(moduleInfoObj.module_id);
+
+  const nodeSensorData = document.querySelector(`.${validNodeClass}`);
+
+  const sensorType = nodeSensorData.querySelector(
+    `.${sensorDataObj.sensor_type}`
+  );
+
+  const sensorToUpdate = sensorType.querySelector(
+    `.local-sensor-${moduleInfoObj.local_sensor_id}`
+  );
+  sensorToUpdate.querySelector(".timestamp").textContent =
+    sensorDataObj.timestamp;
+  sensorToUpdate.querySelector(".sensor-location").textContent =
+    sensorDataObj.location;
+  sensorToUpdate.querySelector(".sensor-pin").textContent =
+    sensorDataObj.module_pin;
+  sensorToUpdate.querySelector(
+    ".temp"
+  ).textContent = `${sensorDataObj.sensor_data.temp.toFixed(2)}`;
+  sensorToUpdate.querySelector(
+    ".hum"
+  ).textContent = `${sensorDataObj.sensor_data.humidity.toFixed(2)}`;
+}
+
+function getAvgTempReading() {
+  const nodeBoxes = document.querySelectorAll(".sensor-data-node-box");
+  nodeBoxes.forEach((nodeBox) => {
+    const sensorTempReadings = nodeBox.querySelectorAll(".temp");
+
+    const sumTemp = Array.from(sensorTempReadings).reduce(
+      (acc, node) => acc + Number(node.textContent),
+      0
+    );
+    const avgTemp = sumTemp / sensorTempReadings.length;
+    nodeBox.querySelector(".sensor-avg").textContent = avgTemp.toFixed(2); // Assuming you want to limit to two decimal places
+  });
+}
+
+//==============
+// SOCKETS
+//=============
+
+//++++++++++++++++++++++++++++++++++++
+//+++++++++++++  /ws/sensor
+//+++++++++++++++++++++++++++++++++++
+// Create WebSocket connection.
+
+const sensorDataSocket = new WebSocket("ws://10.0.0.140:8080/ws/sensor");
+
+sensorDataSocket.onopen = function () {
+  console.log("sensor Data websocket connection established");
+};
+
+// Listen for messages
+sensorDataSocket.addEventListener("message", (event) => {
+  //remove whitespace from c buffer
+  updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
+});
+
+const logDataSocket = new WebSocket("ws://10.0.0.140:8080/ws/log");
+
+logDataSocket.onopen = function () {
+  console.log("log data websocket connection established");
+  console.log("starting log in  5 seconds");
+  // Wait for 5 seconds before sending a message
+  setTimeout(function () {
+    // Send a message through the WebSocket
+    logDataSocket.send("start log");
+  }, 5000); // 5000 milliseconds = 5 seconds
+};
+
+logDataSocket.addEventListener("message", (event) => {
+  updateDataLog(event.data);
+});
+
+window.addEventListener("beforeunload", function () {
+  logDataSocket.send("stop log");
+  logDataSocket.send("");
+  sensorDataSocket.send("");
+});
+//==============
+// Data Logger
+//=============
+function updateDataLog(logStr) {
+  const MAX_CHARS = 100000;
+  const logBox = document.querySelector(".log-output");
+
+  const isScrolledToBottom =
+    logBox.scrollHeight - logBox.clientHeight <= logBox.scrollTop + 1;
+
+  logBox.value += (logBox.value ? "\n" : "") + sanitizeConsoleLog(logStr);
+
+  if (logBox.value.length > MAX_CHARS) {
+    let excess = logBox.value.length - MAX_CHARS;
+    let newValue = logBox.value.substring(excess);
+    logBox.value = "...[truncated]...\n" + newValue;
+  }
+
+  if (isScrolledToBottom) {
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+}
+function sanitizeConsoleLog(logStr) {
+  let sanitizedStr = logStr.substring(logStr.indexOf("("));
+
+  sanitizedStr = sanitizedStr.substring(0, sanitizedStr.indexOf("[") - 1);
+  return sanitizedStr;
+
+  return logStr;
 }
 
 //==============
 // Finer Adjustmets
 //=============
 logTextArea.addEventListener("touchstart", (e) => e.preventDefault());
+
+//==============
+// Helpers
+//=============
+function getValidNodeClass(macAddr) {
+  return "node-" + macAddr.replaceAll(":", "_");
+}
 
 //================
 //DEBUG help
@@ -371,6 +542,12 @@ console.log(
   `Initial Viewport Width: ${window.innerWidth}, Initial Viewport Height: ${window.innerHeight}`
 );
 
+//initial load
 fetchModuleInfo();
+updateConnectedDevicesShow();
+getAvgTempReading();
+fetchUptimeFunk();
 
-setInterval(updateConnectedDevicesShow, 5000);
+//henceforth
+setInterval(updateConnectedDevicesShow, 15000);
+setInterval(fetchUptimeFunk, 5000);

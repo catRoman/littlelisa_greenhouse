@@ -107,9 +107,10 @@ Used for updating and quick diagnostics. -->
             External DB Status &rarr;
             <span class="external-db-status">alive</span>
           </p>
-          <p class="status-uptime">
-            Uptime &rarr; <span class="uptime">89672439048</span> ms
-          </p>
+          <div class="status-uptime">
+            <p>Uptime &#8628;</p>
+            <span class="uptime">---</span>
+          </div>
         </div>
       </section>
       <section class="section-online-connections">
@@ -121,15 +122,12 @@ Used for updating and quick diagnostics. -->
       <section class="section-log-output">
         <p class="subheading">Websocket Log</p>
         <textarea class="log-output" readonly>
-{3489575} ESP_LOGI: klriholiksdjfgoilsdjfgioljsdroilgj
-{3489575} ESP_LOGI: klriholiksdjfgoilsdjfgioljsdroilgj
-      </textarea
-        >
+Log stream will start in 5 seconds ...
+        </textarea>
       </section>
       <section class="section-sensor-data">
         <p class="subheading">WS Sensor Data Stream</p>
-        <!-- SENSOR_1 -->
-        <div class="sensor-data-node-box self">
+        <!-- <div class="sensor-data-node-box self">
           <div class="sensor-summary">
             <div class="sensor-data-info">
               <h2 class="node-title">Node Id</h2>
@@ -140,7 +138,8 @@ Used for updating and quick diagnostics. -->
           <ul class="sensor-types hidden">
             <li class="sensor-type DHT22">
               <p class="subheading">DHT22</p>
-              <!-- SENSOR_1 -->
+
+
               <ul class="sensor-readings-box"></ul>
             </li>
             <li class="sensor-type hidden soil_moisture">
@@ -164,7 +163,7 @@ Used for updating and quick diagnostics. -->
               <ul class="sensor-readings-box"></ul>
             </li>
           </ul>
-        </div>
+        </div> -->
       </section>
     </main>
   </body>
