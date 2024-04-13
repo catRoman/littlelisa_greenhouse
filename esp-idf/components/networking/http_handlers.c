@@ -143,14 +143,24 @@ void register_http_server_handlers(void)
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_status);
 
-        //register wifiConnectInfo.json handler
-        httpd_uri_t wifi_connect_info_json = {
-            .uri = "/api/wifiConnectInfo.json",
+        //register wifiStaConnectInfo.json handler
+        httpd_uri_t wifi_sta_connect_info_json = {
+            .uri = "/api/wifiStaConnectInfo.json",
             .method = HTTP_GET,
-            .handler = get_wifi_connect_info_json_handler,
+            .handler = get_wifi_sta_connect_info_json_handler,
             .user_ctx = NULL
         };
-        httpd_register_uri_handler(http_server_handle, &wifi_connect_info_json);
+        httpd_register_uri_handler(http_server_handle, &wifi_sta_connect_info_json);
+
+ //register wifiApConnectInfo.json handler
+        httpd_uri_t wifi_ap_connect_info_json = {
+            .uri = "/api/wifiApConnectInfo.json",
+            .method = HTTP_GET,
+            .handler = get_wifi_ap_connect_info_json_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &wifi_ap_connect_info_json);
+
 
         //register moduleInfo.json handler
             httpd_uri_t module_info_json = {
@@ -451,7 +461,7 @@ esp_err_t get_uptime_json_handler(httpd_req_t *req)
 }
 
 
-esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
+esp_err_t get_wifi_sta_connect_info_json_handler(httpd_req_t *req)
 {
 // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -461,13 +471,34 @@ esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
 
     ESP_LOGI(HTTP_HANDLER_TAG, "wifiConnectInfo.json requested");
 
-    char *ipInfoJSON = node_info_get_network_inf_json();
+    char *ipInfoJSON = node_info_get_network_sta_info_json();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, ipInfoJSON, strlen(ipInfoJSON));
 
 
     free(ipInfoJSON);
+
+    return ESP_OK;
+}
+
+esp_err_t get_wifi_ap_connect_info_json_handler(httpd_req_t *req)
+{
+// Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "wifiConnectInfo.json requested");
+
+    char *ap_info = node_info_get_network_ap_info_json();
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, ap_info, strlen(ap_info));
+
+
+    free(ap_info);
 
     return ESP_OK;
 }

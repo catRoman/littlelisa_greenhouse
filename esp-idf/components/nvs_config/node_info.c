@@ -17,6 +17,7 @@
 #include "node_info.h"
 #include "nvs_service.h"
 #include "sensor_tasks.h"
+#include "wifi_ap_sta.h"
 
 
 //static protypes
@@ -293,7 +294,8 @@ char * node_info_get_device_info_json(){
 //connected devices
 //mdns name
 
-char * node_info_get_network_inf_json(){
+char * node_info_get_network_sta_info_json(){
+
 
 
 
@@ -308,6 +310,7 @@ char * node_info_get_network_inf_json(){
     wifi_ap_record_t wifi_data;
     ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
     char *ssid = (char*)wifi_data.ssid;
+    int8_t rssi = wifi_data.rssi;
 
     esp_netif_ip_info_t ip_info;
 
@@ -316,16 +319,48 @@ char * node_info_get_network_inf_json(){
     esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
     esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
 
-    sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
+
+    cJSON *root = cJSON_CreateObject();
+
+    cJSON_AddStringToObject(root, "ip", ip);
+    cJSON_AddStringToObject(root, "netmask", netmask);
+    cJSON_AddStringToObject(root, "gw", gw);
+    cJSON_AddStringToObject(root, "ap", ssid);
+    cJSON_AddNumberToObject(root, "rssi", rssi);
 
 
 
+  char *json_string = cJSON_Print(root);
 
 
+	cJSON_Delete(root);
+	return json_string;
 
 	return ipInfoJSON;
 }
 
+
+char *node_info_get_network_ap_info_json(){
+
+    cJSON *root = cJSON_CreateObject();
+
+
+
+    cJSON_AddStringToObject(root, "ap_ssid", ESP_WIFI_AP_MODE_SSID);
+    cJSON_AddNumberToObject(root, "ap_channel", ESP_WIFI_AP_MODE_CHANNEL);
+    cJSON_AddStringToObject(root, "ap_pass", ESP_WIFI_AP_MODE_PASSWORD);
+    cJSON_AddNumberToObject(root, "ap_max_connect", MAX_AP_STA_MODE_CONN);
+
+
+
+
+    char *json_string = cJSON_Print(root);
+
+
+	cJSON_Delete(root);
+	return json_string;
+
+}
 //-----------------system health
 //available ram at boot
 
