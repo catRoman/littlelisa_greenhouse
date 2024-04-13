@@ -136,6 +136,23 @@ function addNodeBoxButtonEvent(nodeNameClass) {
 //==========================
 
 //+++++++++++++++++++++++++++++++++++
+//+++++++++++++  /api/deviceInfo.json
+//++++++++++++++++++++++++++++++++++++
+async function fetchDeviceMenuTabInfo() {
+  try {
+    const response = await fetch("/api/deviceInfo.json");
+    if (!response.ok) {
+      throw new Error("Network response wasnt very cool");
+    }
+    const data = await response.json();
+
+    updateMenuDeviceInfoTab(data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++
 //+++++++++++++  /api/uptimeFunk.json
 //++++++++++++++++++++++++++++++++++++
 
@@ -168,6 +185,7 @@ async function fetchModuleInfo() {
     moduleData = data;
     updatePageTitle(data);
     renderModuleInfo(getValidNodeClass(data.module_info.identifier), data);
+
     initiateLogSocket(data);
     initiateSensorSocket(data);
     if (nodeType === "controller") updateConnectedDevicesShow();
@@ -192,6 +210,10 @@ async function fetchControllerStaList() {
     applyNodeInfo(data);
   } catch (error) {}
 }
+
+//+++++++++++++++++++++++++++++++++++++++++
+//++++++fetch for connected nodes moduleinfo
+//++++++++++++++++++++++++++++++++++++++
 
 function applyNodeInfo(nodeListObj) {
   //loop through node list
@@ -407,12 +429,6 @@ function checkForNodeRemoval() {
   });
 }
 
-// function updateUptime(json_data) {
-//   const { uptime, unit } = json_data;
-
-//   document.querySelector(".uptime").textContent = uptime;
-//   document.querySelector(".uptime-unit").textContent = ` ${unit}`;
-// }
 function updateUptime({ uptime }) {
   const timeParts = [
     Math.floor(uptime / 86400000), // Days
@@ -474,6 +490,26 @@ function getAvgTempReading() {
   });
 }
 
+function updateMenuDeviceInfoTab(deviceInfo) {
+  const {
+    chip_info: { num_cores, chip_type },
+    app_info: {
+      secure_ver,
+      app_ver,
+      proj_name,
+      compile_info: { time: compileTime, date: compileDate, idf_ver },
+    },
+  } = deviceInfo;
+
+  document.querySelector(".device-info .proj-name").textContent = proj_name;
+  document.querySelector(".device-info .app-ver").textContent = app_ver;
+  document.querySelector(".device-info .sec-ver").textContent = secure_ver;
+  document.querySelector(".device-info .cores").textContent = num_cores;
+  document.querySelector(".device-info .chip").textContent = chip_type;
+  document.querySelector(".device-info .time").textContent = compileTime;
+  document.querySelector(".device-info .date").textContent = compileDate;
+  document.querySelector(".device-info .idf-ver").textContent = idf_ver;
+}
 //==============
 // SOCKETS
 //=============
@@ -622,13 +658,17 @@ console.log(
 
 //initial load
 fetchModuleInfo();
-
+fetchDeviceMenuTabInfo();
 getAvgTempReading();
 fetchUptimeFunk();
 
 //henceforth
-if (nodeType === "controller") {
-  setInterval(updateConnectedDevicesShow, 15000);
-}
+
+setInterval(() => {
+  if (nodeType === "controller") {
+    updateConnectedDevicesShow();
+  }
+}, 15000);
+
 setInterval(getAvgTempReading, 5000);
 setInterval(fetchUptimeFunk, 5000);
