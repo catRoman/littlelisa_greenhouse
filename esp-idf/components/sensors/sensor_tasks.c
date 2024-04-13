@@ -109,6 +109,10 @@ void sensor_queue_monitor_task(void * pvParameters)
 
             ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
             ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
+            ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
+            heap_caps_check_integrity_all(true);
+// heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
 
             switch(event->nextEventID){
 
@@ -287,20 +291,43 @@ void sensor_prepare_to_send_task(void * pvParameters)
                                                 event->current_send_id);
                 }
 
-            //free the wrapper as its changed hands to the esp_now_comm wrapper
-            vTaskDelay(pdMS_TO_TICKS(10));
-            free(event->sensor_data->value);
-            event->sensor_data->value=NULL;
-            free(event->sensor_data->location);
-            event->sensor_data->location=NULL;
-            free(event->sensor_data->module_id);
-            event->sensor_data->module_id=NULL;
 
-            free(event->sensor_data);
-            event->sensor_data=NULL;
-            free(event);
-            event=NULL;
-        taskYIELD();
+
+
+                event->nextEventID=SENSOR_POST_PROCESSING;
+
+            xQueueSend(sensor_queue_handle, &event, portMAX_DELAY);
+
+
+
+                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sent to post processing",
+                            event->sensor_data->module_id,
+                            event->sensor_data->local_sensor_id,
+                            sensor_type_to_string(event->sensor_data->sensor_type),
+                            event->current_send_id);
+
+
+
+
+
+
+
+
+
+        //     //free the wrapper as its changed hands to the esp_now_comm wrapper
+        //     vTaskDelay(pdMS_TO_TICKS(10));
+        //     free(event->sensor_data->value);
+        //     event->sensor_data->value=NULL;
+        //     free(event->sensor_data->location);
+        //     event->sensor_data->location=NULL;
+        //     free(event->sensor_data->module_id);
+        //     event->sensor_data->module_id=NULL;
+
+        //     free(event->sensor_data);
+        //     event->sensor_data=NULL;
+        //     free(event);
+        //     event=NULL;
+        // taskYIELD();
         }
 
 
