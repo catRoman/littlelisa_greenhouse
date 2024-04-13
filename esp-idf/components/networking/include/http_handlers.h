@@ -64,4 +64,6 @@ esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req);
 
 esp_err_t get_uptime_json_handler(httpd_req_t *req);
 
+esp_err_t get_device_info_json_handler(httpd_req_t *req);
+
 #endif

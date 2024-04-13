@@ -251,13 +251,16 @@ char * node_info_get_device_info_json(){
     cJSON *chip_info = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "chip_info", chip_info);
     cJSON_AddNumberToObject(chip_info, "num_cores", this_chip_info.cores);
-    cJSON_AddStringToObject(chip_info, "chip_type", get_chip_model(&this_chip_info));
+    char *chip_model = get_chip_model(&this_chip_info);
+
+    cJSON_AddItemToObject(chip_info, "chip_type",cJSON_CreateString(chip_model) );
+    free(chip_model);
 
     //idf version
     cJSON_AddStringToObject(root,"idf_ver", esp_get_idf_version());
 
     //app descriptiong
-    esp_app_desc_t *app_info = esp_app_get_description();
+    const esp_app_desc_t *app_info = esp_app_get_description();
 
     cJSON *app_desc = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "app_info", app_desc);
@@ -297,8 +300,8 @@ char * node_info_get_network_inf_json(){
 
 
    // cJSON_AddStringToObject(root, "reset_reason", get_reset_reason());
-    char ipInfoJSON[200];
-    memset(ipInfoJSON, 0, sizeof(ipInfoJSON));
+    char *ipInfoJSON =(char*)malloc(sizeof(char) * 200);
+    memset(ipInfoJSON, 0, 200);
 
     char ip[IP4ADDR_STRLEN_MAX];
     char netmask[IP4ADDR_STRLEN_MAX];
@@ -363,7 +366,10 @@ char * node_info_get_system_health_info_json(){
     cJSON_AddStringToObject(uptime, "unit", "ms");
 
     //reset-reason
-    cJSON_AddStringToObject(life_cycle, "reset_reason", get_reset_reason());
+    char *reset_reason =get_reset_reason();
+
+    cJSON_AddItemToObject(life_cycle, "reset_reason",cJSON_CreateString(reset_reason));
+    free(reset_reason);
 
 
 
@@ -378,51 +384,52 @@ char * node_info_get_system_health_info_json(){
 
 
 static char *get_reset_reason(){
-char reset_reason[60];
+    int8_t malloced_str_len = 60;
+char *reset_reason = (char*)malloc(sizeof(char)* malloced_str_len );
 
 switch(esp_reset_reason()){
         case ESP_RST_POWERON:
-            strncpy(reset_reason, "Reset due to power-on event.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset due to power-on event.", malloced_str_len  -1);
             break;
 
         case ESP_RST_EXT:
-            strncpy(reset_reason, "Reset by external pin (not applicable for ESP32)", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset by external pin (not applicable for ESP32)", malloced_str_len  -1);
             break;
 
         case ESP_RST_SW:
-            strncpy(reset_reason, "Software reset via esp_restart.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Software reset via esp_restart.", malloced_str_len  -1);
             break;
 
         case ESP_RST_PANIC:
-            strncpy(reset_reason, "Software reset due to exception/panic.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Software reset due to exception/panic.", malloced_str_len  -1);
             break;
 
         case ESP_RST_INT_WDT:
-            strncpy(reset_reason, "Reset (software or hardware) due to interrupt watchdog.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset (software or hardware) due to interrupt watchdog.", malloced_str_len  -1);
             break;
 
         case ESP_RST_TASK_WDT:
-            strncpy(reset_reason, "Reset due to task watchdog.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset due to task watchdog.", malloced_str_len  -1);
             break;
 
         case ESP_RST_WDT:
-            strncpy(reset_reason, "Reset due to other watchdogs.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset due to other watchdogs.", malloced_str_len  -1);
             break;
 
         case ESP_RST_DEEPSLEEP:
-            strncpy(reset_reason, "Reset after exiting deep sleep mode.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset after exiting deep sleep mode.", malloced_str_len  -1);
             break;
 
         case ESP_RST_BROWNOUT:
-            strncpy(reset_reason, "Brownout reset (software or hardware)", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Brownout reset (software or hardware)", malloced_str_len  -1);
             break;
 
         case ESP_RST_SDIO:
-            strncpy(reset_reason, "Reset over SDIO.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset over SDIO.", malloced_str_len  -1);
             break;
 
         default:
-            strncpy(reset_reason, "Reset reason can not be determined.", sizeof(reset_reason) -1);
+            strncpy(reset_reason, "Reset reason can not be determined.", malloced_str_len  -1);
     }
 
     reset_reason[sizeof(reset_reason) - 1] = '\0';
@@ -431,37 +438,43 @@ switch(esp_reset_reason()){
 }
 
 static char *get_chip_model(esp_chip_info_t *chip_info){
-char chip_model[15];
+    int8_t malloced_str_len = 15;
+char *chip_model =(char*)malloc(sizeof(char)*malloced_str_len);
 
 
     switch(chip_info->model){
 
         case CHIP_ESP32:
-            strncpy(chip_model, "ESP32", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32", malloced_str_len  -1);
+            break;
 
         case CHIP_ESP32S2:
-            strncpy(chip_model, "ESP32-S2", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32-S2", malloced_str_len  -1);
+            break;
 
         case CHIP_ESP32S3:
-            strncpy(chip_model, "ESP32-S3", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32-S3", malloced_str_len  -1);
+            break;
 
         case CHIP_ESP32C3:
-            strncpy(chip_model, "ESP32-C3", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32-C3", malloced_str_len  -1);
+            break;
 
         case CHIP_ESP32C2:
-            strncpy(chip_model, "ESP32-C2", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32-C2", malloced_str_len  -1);
+            break;
 
         case CHIP_ESP32C6:
-            strncpy(chip_model, "ESP32-C6", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32-C6", malloced_str_len  -1);
+            break;
 
         case CHIP_ESP32H2:
-            strncpy(chip_model, "ESP32-H2", sizeof(chip_model) -1);
-
-        case CHIP_ESP32P4:
-            strncpy(chip_model, "ESP32-P4", sizeof(chip_model) -1);
+            strncpy(chip_model, "ESP32-H2", malloced_str_len  -1);
+            break;
 
         case CHIP_POSIX_LINUX:
-            strncpy(chip_model, "POSIX/Linux", sizeof(chip_model) -1);
+            strncpy(chip_model, "POSIX/Linux", malloced_str_len  -1);
+            break;
     }
 
     chip_model[sizeof(chip_model) - 1] = '\0';
