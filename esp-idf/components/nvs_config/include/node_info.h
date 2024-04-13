@@ -19,4 +19,11 @@ char *node_info_get_controller_sta_list_json(void);
 
 char *node_info_get_uptime_json(void);
 
+
+//json- device info
+char * node_info_get_status_info_json();
+char * node_info_get_device_info_json();
+char * node_info_get_network_inf_json();
+char * node_info_get_system_health_info_json();
+
 #endif /*NVS_CONFIG_NODE_INFO_H*/
