@@ -153,6 +153,40 @@ async function fetchDeviceMenuTabInfo() {
 }
 
 //+++++++++++++++++++++++++++++++++++
+//+++++++++++++  /api/wifiApConnectInfo.json
+//++++++++++++++++++++++++++++++++++++
+async function fetchNetworkApMenuTabInfo() {
+  try {
+    const response = await fetch("/api/wifiApConnectInfo.json");
+    if (!response.ok) {
+      throw new Error("Network response wasnt very cool");
+    }
+    const data = await response.json();
+
+    renderWifiApInfo(data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++
+//+++++++++++++  /api/wifiStaConnectInfo.json
+//++++++++++++++++++++++++++++++++++++
+async function fetchNetworkStaMenuTabInfo() {
+  try {
+    const response = await fetch("/api/wifiStaConnectInfo.json");
+    if (!response.ok) {
+      throw new Error("Network response wasnt very cool");
+    }
+    const data = await response.json();
+
+    updateWifiStaInfo(data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++
 //+++++++++++++  /api/uptimeFunk.json
 //++++++++++++++++++++++++++++++++++++
 
@@ -188,7 +222,10 @@ async function fetchModuleInfo() {
 
     initiateLogSocket(data);
     initiateSensorSocket(data);
-    if (nodeType === "controller") updateConnectedDevicesShow();
+    if (nodeType === "controller") {
+      updateConnectedDevicesShow();
+      fetchNetworkApMenuTabInfo();
+    }
   } catch (error) {
     console.error("Error:", error);
   }
@@ -269,7 +306,8 @@ function renderConnectedDeviceLink(nodeId, moduleInfoObj, rssiValue) {
           <h2 class="node-title">${identifier}</h2>
           <div class="loc-rssi">
             <p class="location">${location}</p>
-            <p class="rssi">${rssiValue}</p>
+            <p class="rssi"><span class="rssi-value">${rssiValue}</span><span class="dbm-label">dBm</span></p>
+
           </div>
         </button></a
         >`
@@ -378,11 +416,45 @@ function renderModuleInfo(nodeId, moduleInfo) {
   //insert sensor templates for each sensor in
 }
 
+function renderWifiApInfo(wifiApInfoObj) {
+  const { ap_ssid, ap_channel, ap_pass, ap_max_connect } = wifiApInfoObj;
+  const apSection = document.querySelector(".network-info > ul");
+
+  apSection.insertAdjacentHTML(
+    "beforeend",
+    `
+  <li class="ap-info">
+              <h3 class="subheading">Access Point Info</h3>
+              <ul>
+                <li>SSID:<span class="ap-ssid">${ap_ssid}</span></li>
+                <li>Channel:<span class="channel">${ap_channel}</span></li>
+                <li>Password:<span class="password">${ap_pass}</span></li>
+                <li>Max Connections:<span class="max-connections">${ap_max_connect}</span></li>
+              </ul>
+            </li>
+            <li class="connected-sta">
+              <h3 class="subheading">Connected Stations</h3>
+              <textarea class="connected-devices"></textarea>
+            </li>       `
+  );
+  updateNetworkInfoList();
+}
+
 //==========================
 // UPDATES
 //=========================
+function updateNetworkInfoList() {
+  const connectedDeviceBox = document.querySelector(
+    ".network-info  .connected-devices"
+  );
+  nodeListObj.forEach((obj) => {
+    connectedDeviceBox.value += obj + "\n";
+  });
+}
+
 function updateConnectedDevicesShow() {
   fetchControllerStaList();
+  updateNetworkInfoList();
   checkForNodeRemoval();
 }
 
@@ -400,6 +472,7 @@ function updatePageTitle(moduleInfo) {
 
 function updateRssi(nodeId, value) {
   const rssiBox = document.querySelector(`.${nodeId}-btn .rssi`);
+  const rssiValue = document.querySelector(`.${nodeId}-btn .rssi-value`);
   if (value > -50) {
     rssiBox.style.backgroundColor = "green";
   } else if (value < -50 && value > -70) {
@@ -409,7 +482,7 @@ function updateRssi(nodeId, value) {
   } else if (value < -100) {
     rssiBox.style.backgroundColor = "grey";
   }
-  rssiBox.textContent = `${value}`;
+  rssiValue.textContent = `${value}`;
 }
 function checkForNodeRemoval() {
   renderedNodeList.forEach((node) => {
@@ -481,12 +554,20 @@ function getAvgTempReading() {
   nodeBoxes.forEach((nodeBox) => {
     const sensorTempReadings = nodeBox.querySelectorAll(".temp");
 
-    const sumTemp = Array.from(sensorTempReadings).reduce(
-      (acc, node) => acc + Number(node.textContent),
-      0
+    const { sumTemp, count } = Array.from(sensorTempReadings).reduce(
+      (acc, node) => {
+        const tempValue = Number(node.textContent);
+        if (!Number.isNaN(tempValue)) {
+          acc.sumTemp += tempValue;
+          acc.count++;
+        }
+        return acc;
+      },
+      { sumTemp: 0, count: 0 }
     );
-    const avgTemp = sumTemp / sensorTempReadings.length;
-    nodeBox.querySelector(".sensor-avg").textContent = avgTemp.toFixed(2); // Assuming you want to limit to two decimal places
+
+    const avgTemp = count > 0 ? sumTemp / count : 0;
+    nodeBox.querySelector(".sensor-avg").textContent = avgTemp.toFixed(2);
   });
 }
 
@@ -510,6 +591,16 @@ function updateMenuDeviceInfoTab(deviceInfo) {
   document.querySelector(".device-info .date").textContent = compileDate;
   document.querySelector(".device-info .idf-ver").textContent = idf_ver;
 }
+
+function updateWifiStaInfo(networkStaObj) {
+  const { ip, netmask, gw, ap, rssi } = networkStaObj;
+
+  document.querySelector(".network-info .sta-ssid").textContent = ap;
+  document.querySelector(".network-info .rssi").textContent = rssi;
+  document.querySelector(".network-info .ip").textContent = ip;
+  document.querySelector(".network-info .netmask").textContent = netmask;
+  document.querySelector(".network-info .gateway").textContent = gw;
+}
 //==============
 // SOCKETS
 //=============
@@ -520,10 +611,10 @@ function updateMenuDeviceInfoTab(deviceInfo) {
 // Create WebSocket connection.
 let sensorRetryCount = 0;
 
-function initiateSensorSocket(moduleData) {
+function initiateSensorSocket(moduleDataObj) {
   const {
     module_info: { type, identifier },
-  } = moduleData;
+  } = moduleDataObj;
   let nodeId = getValidNodeClass(identifier);
   nodeId = type + nodeId.substring(nodeId.indexOf("-"));
 
@@ -552,10 +643,10 @@ function initiateSensorSocket(moduleData) {
 }
 let logRetryCount = 0;
 
-function initiateLogSocket(moduleData) {
+function initiateLogSocket(moduleDataObj) {
   const {
     module_info: { type, identifier },
-  } = moduleData;
+  } = moduleDataObj;
   let nodeId = getValidNodeClass(identifier);
   nodeId = type + nodeId.substring(nodeId.indexOf("-"));
 
@@ -658,6 +749,7 @@ console.log(
 
 //initial load
 fetchModuleInfo();
+fetchNetworkStaMenuTabInfo();
 fetchDeviceMenuTabInfo();
 getAvgTempReading();
 fetchUptimeFunk();
