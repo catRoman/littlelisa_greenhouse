@@ -505,6 +505,18 @@ char *chip_model =(char*)malloc(sizeof(char)*malloced_str_len);
             strncpy(chip_model, "ESP32-H2", malloced_str_len  -1);
             break;
 
+
+
+        case CHIP_ESP32P4:
+            strncpy(chip_model, "ESP32-P4.", malloced_str_len  -1);
+            break;
+
+
+
+
+
+
+
         case CHIP_POSIX_LINUX:
             strncpy(chip_model, "POSIX/Linux", malloced_str_len  -1);
             break;
