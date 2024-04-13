@@ -256,8 +256,6 @@ char * node_info_get_device_info_json(){
     cJSON_AddItemToObject(chip_info, "chip_type",cJSON_CreateString(chip_model) );
     free(chip_model);
 
-    //idf version
-    cJSON_AddStringToObject(root,"idf_ver", esp_get_idf_version());
 
     //app descriptiong
     const esp_app_desc_t *app_info = esp_app_get_description();
@@ -267,11 +265,11 @@ char * node_info_get_device_info_json(){
     cJSON_AddNumberToObject(app_desc, "secure_ver", app_info->secure_version);
     cJSON_AddStringToObject(app_desc, "app_ver", app_info->version);
     cJSON_AddStringToObject(app_desc, "proj_name", app_info->project_name);
-    cJSON_AddStringToObject(app_desc, "idf_ver", app_info->idf_ver);
     cJSON *compile_info = cJSON_CreateObject();
     cJSON_AddItemToObject(app_desc, "compile_info", compile_info);
     cJSON_AddStringToObject(compile_info, "time", app_info->time);
     cJSON_AddStringToObject(compile_info, "date", app_info->date);
+    cJSON_AddStringToObject(compile_info, "idf_ver", app_info->idf_ver);
 
 
   //  cJSON_AddStringToObject(root, "reset_reason", get_reset_reason());
