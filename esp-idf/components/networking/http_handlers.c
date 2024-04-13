@@ -181,9 +181,9 @@ void register_http_server_handlers(void)
 
             //register deviceInfo.json handler
             httpd_uri_t device_info_json = {
-                .uri = "/apideviceInfo.json",
+                .uri = "/api/deviceInfo.json",
                 .method = HTTP_GET,
-                .handler = get_device_info_handler,
+                .handler = get_device_info_json_handler,
                 .user_ctx = NULL
             };
             httpd_register_uri_handler(http_server_handle, &device_info_json);
@@ -356,7 +356,7 @@ esp_err_t get_module_info_json_handler(httpd_req_t *req){
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
-    const char *module_json_data = node_info_get_module_info_json();
+    char *module_json_data = node_info_get_module_info_json();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, module_json_data);
@@ -382,7 +382,7 @@ esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
     esp_wifi_get_mode(&mode);
 
     if(mode == WIFI_MODE_APSTA || mode == WIFI_MODE_AP){
-        const char *controller_sta_list = node_info_get_controller_sta_list_json();
+        char *controller_sta_list = node_info_get_controller_sta_list_json();
         httpd_resp_set_type(req, "application/json");
         httpd_resp_sendstr(req, controller_sta_list);
 
@@ -414,7 +414,7 @@ esp_err_t wifi_connect_status_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t get_device_info_handler(httpd_req_t *req)
+esp_err_t get_device_info_json_handler(httpd_req_t *req)
 {
 
     // Add CORS headers to the response
@@ -424,7 +424,7 @@ esp_err_t get_device_info_handler(httpd_req_t *req)
 
     ESP_LOGD(HTTP_HANDLER_TAG, "deviceInfo.json requested");
 
-    const char *deviceInfo = node_info_get_device_info_json();
+   char *deviceInfo = node_info_get_device_info_json();
         httpd_resp_set_type(req, "application/json");
         httpd_resp_sendstr(req, deviceInfo);
 
@@ -442,7 +442,7 @@ esp_err_t get_uptime_json_handler(httpd_req_t *req)
 
     ESP_LOGD(HTTP_HANDLER_TAG, "uptimeFunk.json requested");
 
-    const char *uptimeFunk = node_info_get_uptime_json();
+    char *uptimeFunk = node_info_get_uptime_json();
         httpd_resp_set_type(req, "application/json");
         httpd_resp_sendstr(req, uptimeFunk);
 
