@@ -44,7 +44,7 @@ esp_err_t wifi_connect_status_json_handler(httpd_req_t *req);
  * @param req HTTP request for which the uri needs to be handled
  * @return ESP_OK
 */
-esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req);
+esp_err_t get_wifi_sta_connect_info_json_handler(httpd_req_t *req);
 
 /* Generic Preflight Request Handler */
 esp_err_t preflight_handler(httpd_req_t *req);
@@ -65,5 +65,7 @@ esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req);
 esp_err_t get_uptime_json_handler(httpd_req_t *req);
 
 esp_err_t get_device_info_json_handler(httpd_req_t *req);
+
+esp_err_t get_wifi_ap_connect_info_json_handler(httpd_req_t *req);
 
 #endif
