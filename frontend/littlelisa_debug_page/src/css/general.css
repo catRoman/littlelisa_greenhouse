@@ -64,6 +64,7 @@ body {
 main {
   padding: 0 2.4rem;
   width: 100vw;
+  overflow: auto;
 }
 section,
 header {

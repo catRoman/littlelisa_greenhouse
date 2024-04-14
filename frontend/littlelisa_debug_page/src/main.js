@@ -4,11 +4,6 @@ import "./css/general.css";
 import "./css/index.css";
 
 //menu-nav elements
-const menuIcon = document.querySelector(".header-menu-icon");
-const menu = document.querySelector(".menu");
-const main = document.querySelector("main");
-const navClose = document.querySelector(".nav-btn.close");
-const menuBtns = document.querySelectorAll(".nav-btn");
 
 //Network-info
 const networkInfoTab = document.querySelector(".network-info");
@@ -38,34 +33,6 @@ let moduleData;
 //===================
 
 //nav menu button handler
-menuBtns.forEach((el) => {
-  el.addEventListener("touchend", function (e) {
-    e.stopPropagation;
-    const classes = [...this.classList];
-    switch (classes[classes.length - 1]) {
-      case "dev_btn":
-        toggleInfoTab(".device-info");
-        break;
-      case "net_btn":
-        toggleInfoTab(".network-info");
-        break;
-      case "db_btn":
-        toggleInfoTab(".sd-db-info");
-        break;
-      case "sys_btn":
-        toggleInfoTab(".system-health");
-        break;
-      case "ota_btn":
-        toggleInfoTab(".ota-update");
-        break;
-
-      case "close":
-        toggleNavMenu();
-        break;
-      default:
-    }
-  });
-});
 
 //=========================
 //  EVENT LISTNER
@@ -86,32 +53,75 @@ sensorRefreshBtn.addEventListener("touchend", (e) => {
     setTimeout(() => initiateSensorSocket(moduleData), 3000);
   }
 });
+//=============nav selectors================
+const openButton = document.querySelector(".icon-open");
+const closeButton = document.querySelector(".icon-close");
+const menu = document.querySelector(".menu");
+const main = document.querySelector("main");
+const navClose = document.querySelector(".nav-btn.close");
+const menuBtns = document.querySelectorAll(".nav-btn");
+//========================================
+menuBtns.forEach((el) => {
+  el.addEventListener("touchend", function (e) {
+    e.stopPropagation;
+    const classes = [...this.classList];
+    switch (classes[classes.length - 1]) {
+      case "dev_btn":
+        toggleInfoTab(".device-info");
 
-menuIcon.addEventListener("touchend", () => {
-  toggleNavMenu();
+        break;
+      case "net_btn":
+        toggleInfoTab(".network-info");
+        break;
+      case "db_btn":
+        toggleInfoTab(".sd-db-info");
+        break;
+      case "sys_btn":
+        toggleInfoTab(".system-health");
+        break;
+      case "ota_btn":
+        toggleInfoTab(".ota-update");
+        break;
+      case "close":
+        openButton.classList.toggle("hidden");
+        main.classList.toggle("hidden");
+        menu.classList.toggle("hidden");
+        main.style.pointerEvents = "none";
+
+        setTimeout(() => {
+          main.style.pointerEvents = "auto";
+        }, 100);
+        break;
+      default:
+    }
+  });
 });
 
-function toggleNavMenu() {
-  menuIcon.classList.toggle("invisible");
-  main.classList.toggle("invisible");
+openButton.addEventListener("touchend", () => {
+  openButton.classList.toggle("hidden");
+  main.classList.toggle("hidden");
   menu.classList.toggle("hidden");
-  document.body.classList.toggle("overflow-hide");
-  document.documentElement.classList.toggle("overflow-hide");
-  document.querySelector("main").classList.toggle("body-disabled");
-  setTimeout(
-    () => document.querySelector("main").classList.toggle("body-disabled"),
-    100
-  );
-}
-function toggleInfoTab(selectedTab_str) {
-  const selectedTab = document.querySelector(selectedTab_str);
+});
+function toggleInfoTab(navClass) {
+  console.log(navClass);
   menu.classList.toggle("hidden");
-  selectedTab.classList.toggle("hidden");
-  selectedTab.addEventListener("touchend", () =>
-    toggleInfoTab(selectedTab_str)
-  );
+  document.querySelector(navClass).classList.toggle("hidden");
+  closeButton.classList.toggle("hidden");
 }
+closeButton.addEventListener("touchend", () => {
+  const menuTabs = document.querySelector(".menu-select");
+  Array.from(menuTabs.children).forEach((el) => {
+    if (
+      !el.classList.contains("hidden") &&
+      !el.classList.contains("head-icon")
+    ) {
+      console.log(el.classList[0]);
+      toggleInfoTab(`.${el.classList[0]}`);
+    }
+  });
+});
 
+function toggleNavMenu() {}
 //===========================
 //  Node sensor data display
 //===========================
