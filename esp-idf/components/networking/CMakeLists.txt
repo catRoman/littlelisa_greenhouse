@@ -6,6 +6,7 @@ idf_component_register(
         esp_now_comm.c
         sntp.c
         websocket_server.c
+        http_client.c
 
 
     REQUIRES
@@ -13,6 +14,7 @@ idf_component_register(
         main
         esp_wifi
         app_update
+        
 
 
     PRIV_REQUIRES
@@ -25,6 +27,8 @@ idf_component_register(
         esp_timer
         main
         freertos
+        esp_http_client
+        esp_https_ota
 
 
     INCLUDE_DIRS "include"
