@@ -20,6 +20,7 @@
 #include "sensor_tasks.h"
 #include "module_config.h"
 #include "websocket_server.h"
+#include "spi_sd_card.h"
 
 #define SQL_ID_SYNC_VAL 1
 
@@ -197,6 +198,27 @@ void register_http_server_handlers(void)
                 .user_ctx = NULL
             };
             httpd_register_uri_handler(http_server_handle, &device_info_json);
+
+    //OTA-handlers
+
+              //register upload handler
+            httpd_uri_t upload_ota_sd = {
+                .uri = "/ota/upload",
+                .method = HTTP_POST,
+                .handler = recv_ota_update_save_to_sd_post_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &upload_ota_sd);
+
+
+              //register upload handler
+            httpd_uri_t preform_ota = {
+                .uri = "/ota/update",
+                .method = HTTP_POST,
+                .handler = ota_update_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &preform_ota);
 
 
 
@@ -516,5 +538,131 @@ esp_err_t preflight_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
     httpd_resp_send(req, NULL, 0); // 200 OK with no body
+    return ESP_OK;
+}
+
+
+
+esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req) {
+
+//    spi_sd_card_test();
+
+    const char *file_path = MOUNT_POINT"/ota.bin";
+
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "{==POST WRITE==} Opening file %s", file_path);
+    FILE* fd = fopen(file_path, "w");
+
+
+    if (fd == NULL) {
+        ESP_LOGE("FILE", "Failed to open file for writing");
+        return ESP_FAIL;
+    }
+
+    // Read the content posted by the browser
+    char buf[1024];
+    int received;
+
+    // Content length
+    int remaining = req->content_len;
+    ESP_LOGI(HTTP_HANDLER_TAG, "initial content length -> %d", remaining);
+    while (remaining > 0) {
+        // Calculate how much data to read
+        int to_read = sizeof(buf);
+        if (to_read > remaining) {
+            to_read = remaining;
+        }
+
+        // Read data and write it to the file
+        received = httpd_req_recv(req, buf, to_read);
+        if (received <= 0) {
+            fclose(fd);
+            if (received == HTTPD_SOCK_ERR_TIMEOUT) {
+                ESP_LOGE(HTTP_HANDLER_TAG, "Socket Timeout");
+                return ESP_FAIL;
+            }
+            ESP_LOGE(HTTP_HANDLER_TAG, "Error in receiving file");
+            return ESP_FAIL;
+        }
+
+        // Write the received data to the file
+        fwrite(buf, 1, received, fd);
+        remaining -= received;
+        ESP_LOGI(HTTP_HANDLER_TAG, "content remaining-> %d", remaining);
+    }
+    ESP_LOGI(HTTP_HANDLER_TAG, "recieving finished closing file");
+    fclose(fd);
+    httpd_resp_sendstr(req, "File uploaded successfully");
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "File download succesfully to sd card--> 'ota.bin'");
+    return ESP_OK;
+}
+
+
+esp_err_t ota_update_handler(httpd_req_t *req) {
+    char ota_buff[1024];  // Buffer size adjusted for chunk size
+    int recv_len;
+    bool is_req_body_started = false;
+
+    esp_ota_handle_t ota_handle;
+
+    const esp_partition_t *ota_partition = esp_ota_get_next_update_partition(NULL);
+
+    // Initialize OTA update on this partition
+    esp_err_t err = esp_ota_begin(ota_partition, OTA_SIZE_UNKNOWN, &ota_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE("OTA_UPDATE", "esp_ota_begin failed, error=%d", err);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA begin failed");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI("OTA_UPDATE", "Starting OTA...");
+    int remaining = req->content_len;
+
+    while ((recv_len = httpd_req_recv(req, ota_buff, sizeof(ota_buff))) > 0) {
+        ESP_LOGI("OTA_UPDATE", "content remaining-> %d", remaining);
+
+        if (!is_req_body_started) {
+            is_req_body_started = true;
+            ESP_LOGI("OTA_UPDATE", "Receiving OTA data...");
+        }
+
+        // Write received data to the OTA partition
+        if (esp_ota_write(ota_handle, (const void *)ota_buff, recv_len) != ESP_OK) {
+        ESP_LOG_BUFFER_HEX("OTA Data", ota_buff, recv_len);
+            ESP_LOGE("OTA_UPDATE", "OTA write failed");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA write failed");
+            esp_ota_abort(ota_handle);
+            return ESP_FAIL;
+        }
+        remaining -= recv_len;
+    }
+
+    if (recv_len < 0) {
+        ESP_LOGE("OTA_UPDATE", "Receive error %d", recv_len);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Error receiving data");
+        esp_ota_abort(ota_handle);
+        return ESP_FAIL;
+    }
+
+    // Complete the OTA update
+    if (esp_ota_end(ota_handle) != ESP_OK) {
+        ESP_LOGE("OTA_UPDATE", "OTA end failed");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA end failed");
+        return ESP_FAIL;
+    }
+
+    // Set the new OTA partition as the boot partition
+    if (esp_ota_set_boot_partition(ota_partition) != ESP_OK) {
+        ESP_LOGE("OTA_UPDATE", "OTA set boot partition failed");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA set boot partition failed");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI("OTA_UPDATE", "OTA Update Successful. Rebooting...");
+    httpd_resp_send(req, "OTA Update Successful. Rebooting in 5 seconds...", HTTPD_RESP_USE_STRLEN);
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    esp_restart();  // Restart the system to boot from the updated firmware
+
     return ESP_OK;
 }
