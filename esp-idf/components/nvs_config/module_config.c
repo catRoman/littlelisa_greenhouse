@@ -424,16 +424,16 @@ void initiate_config(){
 
         ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
         // Start Wifi
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(500));
         wifi_start();
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(500));
         if (strcmp(module_info_gt->type, "controller") == 0) {
             ESP_LOGI(TAG, "Starting Controller only services");
             //sd and db_init
             spi_sd_card_init();
            // vTaskDelay(pdMS_TO_TICKS(100));
           // spi_sd_card_test();
-         // ESP_LOGW(TAG, "ota upload succesful~");
+
 
             //sd_db_init();
 
@@ -450,7 +450,7 @@ void initiate_config(){
         initiate_sensor_queue();
         initiate_sensor_tasks();
         esp_now_comm_start();
-
+    // ESP_LOGW(TAG, "ota upload succesful~");
 
 }
 
