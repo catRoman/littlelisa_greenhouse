@@ -85,11 +85,22 @@ static esp_err_t client_event_post_handler(esp_http_client_event_handle_t evt) {
 
 // Example function to send a file in chunks
 void post_file_in_chunks(const char *url, const char *file_path) {
+    esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
     FILE *file = fopen(file_path, "rb");
     if (!file) {
         ESP_LOGE("FILE", "Failed to open file for reading");
         return;
     }
+
+    // Seek to the end of the file to determine the size
+    fseek(file, 0, SEEK_END);
+    size_t file_size = ftell(file);
+    ESP_LOGI("HTTP_CLIENT", "Size of the file is %zu bytes", file_size);
+
+
+    // Rewind to the beginning of the file
+    fseek(file, 0, SEEK_SET);
+
 
     // Initialize the HTTP client
     esp_http_client_config_t config = {
@@ -97,7 +108,9 @@ void post_file_in_chunks(const char *url, const char *file_path) {
         .method = HTTP_METHOD_POST,
         .event_handler = client_event_post_handler,
         .timeout_ms = 100000,
-        .cert_pem=NULL,
+        .keep_alive_enable = true,
+        .skip_cert_common_name_check = true,
+        .cert_pem = NULL,
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (client == NULL) {
@@ -106,19 +119,28 @@ void post_file_in_chunks(const char *url, const char *file_path) {
         return;
     }
 
-    // Indicate that we want to send the data in chunks
+    // Set headers for chunked transfer
     esp_http_client_set_header(client, "Content-Type", "application/octet-stream");
-    esp_http_client_set_header(client, "Transfer-Encoding", "chunked");
+    //esp_http_client_set_header(client, "Transfer-Encoding", "chunked");
 
     // Read and send the file in chunks
-    char buffer[1024]; // Adjust the buffer size according to available memory
+    char buffer[2048]; // Adjust the buffer size according to available memory
     int read_len;
     int total = 0;
-    while ((read_len = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-        esp_http_client_write(client, buffer, read_len);
-        ESP_LOGI("HTTP_CLIENT", "data sent -> %d", total);
 
-        total +=read_len;
+esp_err_t ret = esp_http_client_open(client, file_size);
+if(ret != ESP_OK){
+    ESP_LOGE("HTTP_CLIENT", "error http client open");
+    return;
+}
+
+    while ((read_len = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        if (esp_http_client_write(client, buffer, read_len) < 0) {
+            ESP_LOGE("HTTP_CLIENT", "Failed to send data chunk");
+            break; // Exit loop on failure
+        }
+        total += read_len;
+        ESP_LOGI("HTTP_CLIENT", "Data sent: %d bytes", total);
     }
 
     // Perform the HTTP POST
@@ -153,4 +175,35 @@ esp_err_t do_firmware_upgrade(char *url_str){
         return ESP_FAIL;
     }
     return ESP_OK;
+}
+
+void http_client_get_test(char *url){
+    esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
+  esp_http_client_config_t config = {
+        .url = url,  // Set the initial URL/URI
+        .method = HTTP_METHOD_GET,            // Define the method
+    };
+
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    if (client == NULL) {
+        ESP_LOGE("HTTP_CLIENT", "Failed to initialise HTTP connection");
+    } else {
+        // Perform HTTP request as needed...
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK) {
+            ESP_LOGI("HTTP_CLIENT", "HTTP GET Status = %d, content_length = %d",
+                     (int)esp_http_client_get_status_code(client),
+                     (int)esp_http_client_get_content_length(client));
+        } else {
+            ESP_LOGE("HTTP_CLIENT", "HTTP GET request failed: %s", esp_err_to_name(err));
+        }
+
+        // Cleanup
+        esp_http_client_cleanup(client);
+    }
+
+
+
+
 }

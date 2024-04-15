@@ -558,10 +558,6 @@ esp_err_t preflight_handler(httpd_req_t *req) {
 
 
 esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req) {
-// Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 //    spi_sd_card_test();
     if(recv_ota_update_write_to_sd(req) == ESP_OK){
@@ -577,10 +573,7 @@ esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req) {
 
 esp_err_t ota_update_handler(httpd_req_t *req) {
 
-// Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
 
 
 
@@ -652,11 +645,10 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
 }
 
 esp_err_t propogate_ota_update_handler(httpd_req_t *req){
-
-// Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+
 
     // //download to sd
     // if(recv_ota_update_write_to_sd(req) == ESP_OK){
@@ -679,8 +671,15 @@ taskCreated = xTaskCreatePinnedToCore(
         NULL,
         7,
        &myTaskHandle,
-        0);
-
+        1);
+// taskCreated = xTaskCreatePinnedToCore(
+//         http_test_task,
+//         "test_send",
+//         8000,
+//         NULL,
+//         7,
+//        &myTaskHandle,
+//         1);
 
 if (taskCreated != pdPASS) {
     printf("Task creation failed!\n");
@@ -693,11 +692,6 @@ if (taskCreated != pdPASS) {
 esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
 
 //    spi_sd_card_test();
-// Add CORS headers to the response
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
-    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
-
 
 
     const char *file_path = MOUNT_POINT"/ota.bin";
@@ -751,6 +745,27 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
     return ESP_OK;
 }
 
+// void node_ota_update_send(void *vpParam){
+//     wifi_sta_list_t sta_list;
+
+//     // Get the list of connected stations
+//     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
+//  for(;;){
+//     ESP_LOGI(HTTP_HANDLER_TAG, "INSIDE TASK");
+
+//    for (int i = 0; i < sta_list.num; i++) {
+//         char node_addr[100];
+//         snprintf(node_addr, sizeof(node_addr)-1, "http://littlelisa-node-%02x-%02x-%02x-%02x-%02x-%02x.local/api/moduleInfo.json",
+//              sta_list.sta[i].mac[0], sta_list.sta[i].mac[1], sta_list.sta[i].mac[2], sta_list.sta[i].mac[3], sta_list.sta[i].mac[4], sta_list.sta[i].mac[5]);
+
+//         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
+//         //post_file_in_chunks(node_addr, OTA_FILENAME);
+//         http_client_get_test(node_addr);
+//     }
+//     vTaskDelete(NULL);
+//  }
+// }
+
 void node_ota_update_send(void *vpParam){
     wifi_sta_list_t sta_list;
 
@@ -759,13 +774,27 @@ void node_ota_update_send(void *vpParam){
  for(;;){
     ESP_LOGI(HTTP_HANDLER_TAG, "INSIDE TASK");
 
-   for (int i = 0; i < sta_list.num; i++) {
+   for (int i = 1; i <= sta_list.num; i++) {
         char node_addr[100];
-        snprintf(node_addr, sizeof(node_addr)-1, "http://littlelisa-node-%02x-%02x-%02x-%02x-%02x-%02x.local/ota/update",
-             sta_list.sta[i].mac[0], sta_list.sta[i].mac[1], sta_list.sta[i].mac[2], sta_list.sta[i].mac[3], sta_list.sta[i].mac[4], sta_list.sta[i].mac[5]);
+        snprintf(node_addr, sizeof(node_addr)-1, "http://192.168.0.%d/ota/update",
+              i+1);
 
         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
         post_file_in_chunks(node_addr, OTA_FILENAME);
+   // 0    http_client_get_test(node_addr);
+//         printf("Free heap size: %lu bytes\n", esp_get_free_heap_size());
+// BaseType_t taskCreated;
+//         taskCreated = xTaskCreatePinnedToCore(
+//         http_test_task,
+//         "test_send",
+//         8000,
+//         NULL,
+//         7,
+//        &myTaskHandle,
+//         1);
+//         if (taskCreated != pdPASS) {
+//     printf("Task creation failed!\n");
+// }
     }
     vTaskDelete(NULL);
  }
