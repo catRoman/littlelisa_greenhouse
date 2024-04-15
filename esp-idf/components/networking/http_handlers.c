@@ -21,6 +21,7 @@
 #include "module_config.h"
 #include "websocket_server.h"
 #include "spi_sd_card.h"
+#include "http_client.h"
 
 #define SQL_ID_SYNC_VAL 1
 
@@ -556,55 +557,13 @@ esp_err_t preflight_handler(httpd_req_t *req) {
 esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req) {
 
 //    spi_sd_card_test();
+    if(recv_ota_update_write_to_sd(req) == ESP_OK){
+         httpd_resp_sendstr(req, "File uploaded successfully");
+    }else{
+         httpd_resp_sendstr(req, "Error: File uploaded unsuccessfully");
 
-    const char *file_path = MOUNT_POINT"/ota.bin";
-
-
-    ESP_LOGI(HTTP_HANDLER_TAG, "{==POST WRITE==} Opening file %s", file_path);
-    FILE* fd = fopen(file_path, "w");
-
-
-    if (fd == NULL) {
-        ESP_LOGE("FILE", "Failed to open file for writing");
-        return ESP_FAIL;
     }
 
-    // Read the content posted by the browser
-    char buf[1024];
-    int received;
-
-    // Content length
-    int remaining = req->content_len;
-    ESP_LOGI(HTTP_HANDLER_TAG, "initial content length -> %d", remaining);
-    while (remaining > 0) {
-        // Calculate how much data to read
-        int to_read = sizeof(buf);
-        if (to_read > remaining) {
-            to_read = remaining;
-        }
-
-        // Read data and write it to the file
-        received = httpd_req_recv(req, buf, to_read);
-        if (received <= 0) {
-            fclose(fd);
-            if (received == HTTPD_SOCK_ERR_TIMEOUT) {
-                ESP_LOGE(HTTP_HANDLER_TAG, "Socket Timeout");
-                return ESP_FAIL;
-            }
-            ESP_LOGE(HTTP_HANDLER_TAG, "Error in receiving file");
-            return ESP_FAIL;
-        }
-
-        // Write the received data to the file
-        fwrite(buf, 1, received, fd);
-        remaining -= received;
-        ESP_LOGI(HTTP_HANDLER_TAG, "content remaining-> %d", remaining);
-    }
-    ESP_LOGI(HTTP_HANDLER_TAG, "recieving finished closing file");
-    fclose(fd);
-    httpd_resp_sendstr(req, "File uploaded successfully");
-
-    ESP_LOGI(HTTP_HANDLER_TAG, "File download succesfully to sd card--> 'ota.bin'");
     return ESP_OK;
 }
 
@@ -679,8 +638,89 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
 
 esp_err_t propogate_ota_update_handler(httpd_req_t *req){
 
-    httpd_resp_send(req, "OTA update request recieved successful. Preforming update...", HTTPD_RESP_USE_STRLEN);
+
+    //download to sd
+    if(recv_ota_update_write_to_sd(req) == ESP_OK){
+
+        httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
+    }else{
+        httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
+        return ESP_FAIL;
+    }
+
+
+    wifi_sta_list_t sta_list;
+
+
+    // Get the list of connected stations
+    ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
+
+    // Loop over each connected station
+        char node_addr[100];
+    for (int i = 0; i < sta_list.num; i++) {
+        snprintf(node_addr, sizeof(node_addr)-1, "littlelisa-node-%02x_%02x_%02x_%02x_%02x_%02x.local/ota/update",
+             sta_list.sta->mac[0], sta_list.sta->mac[1], sta_list.sta->mac[2], sta_list.sta->mac[3], sta_list.sta->mac[4], sta_list.sta->mac[5]);
+
+        ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
+        post_file_in_chunks(node_addr, OTA_FILENAME);
+    }
+
     ota_update_from_sd();
+
+    return ESP_OK;
+}
+
+esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
+
+//    spi_sd_card_test();
+
+    const char *file_path = MOUNT_POINT"/ota.bin";
+
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "{==POST WRITE==} Opening file %s", file_path);
+    FILE* fd = fopen(file_path, "w");
+
+
+    if (fd == NULL) {
+        ESP_LOGE("FILE", "Failed to open file for writing");
+        return ESP_FAIL;
+    }
+
+    // Read the content posted by the browser
+    char buf[1024];
+    int received;
+
+    // Content length
+    int remaining = req->content_len;
+    ESP_LOGI(HTTP_HANDLER_TAG, "initial content length -> %d", remaining);
+    while (remaining > 0) {
+        // Calculate how much data to read
+        int to_read = sizeof(buf);
+        if (to_read > remaining) {
+            to_read = remaining;
+        }
+
+        // Read data and write it to the file
+        received = httpd_req_recv(req, buf, to_read);
+        if (received <= 0) {
+            fclose(fd);
+            if (received == HTTPD_SOCK_ERR_TIMEOUT) {
+                ESP_LOGE(HTTP_HANDLER_TAG, "Socket Timeout");
+                return ESP_FAIL;
+            }
+            ESP_LOGE(HTTP_HANDLER_TAG, "Error in receiving file");
+            return ESP_FAIL;
+        }
+
+        // Write the received data to the file
+        fwrite(buf, 1, received, fd);
+        remaining -= received;
+        ESP_LOGI(HTTP_HANDLER_TAG, "content remaining-> %d", remaining);
+    }
+    ESP_LOGI(HTTP_HANDLER_TAG, "recieving finished closing file");
+    fclose(fd);
+
+ ESP_LOGI(HTTP_HANDLER_TAG, "File download succesfully to sd card--> 'ota.bin'");
 
     return ESP_OK;
 }

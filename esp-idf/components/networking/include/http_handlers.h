@@ -76,4 +76,6 @@ char* extract_boundary(const char* content_type);
 
 esp_err_t propogate_ota_update_handler(httpd_req_t *req);
 
+esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req);
+
 #endif
