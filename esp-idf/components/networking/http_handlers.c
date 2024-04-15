@@ -659,7 +659,7 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req){
 
     for (int i = 0; i < sta_list.num; i++) {
         char node_addr[100];
-        snprintf(node_addr, sizeof(node_addr)-1, "http://littlelisa-node-%02x_%02x_%02x_%02x_%02x_%02x.local/ota/update",
+        snprintf(node_addr, sizeof(node_addr)-1, "http://littlelisa-node-%02x-%02x-%02x-%02x-%02x-%02x.local/ota/update",
              sta_list.sta[i].mac[0], sta_list.sta[i].mac[1], sta_list.sta[i].mac[2], sta_list.sta[i].mac[3], sta_list.sta[i].mac[4], sta_list.sta[i].mac[5]);
 
         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);

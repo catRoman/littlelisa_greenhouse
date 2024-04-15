@@ -306,7 +306,7 @@ esp_err_t mdns_start(){
         char module_id[50];
         char mac_addr[20];
         strcpy(mac_addr, module_info_gt->identity);
-        find_and_replace(mac_addr, ':', '_');
+        find_and_replace(mac_addr, ':', '-');
 
         snprintf(module_id, sizeof(module_id), "%s", mac_addr);
         char mdns_host_name[50] = "littlelisa-";
