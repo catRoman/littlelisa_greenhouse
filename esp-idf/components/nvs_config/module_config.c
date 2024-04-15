@@ -429,7 +429,11 @@ void initiate_config(){
         if (strcmp(module_info_gt->type, "controller") == 0) {
             ESP_LOGI(TAG, "Starting Controller only services");
             //sd and db_init
-            //spi_sd_card_init();
+            spi_sd_card_init();
+           // vTaskDelay(pdMS_TO_TICKS(100));
+          // spi_sd_card_test();
+         // ESP_LOGW(TAG, "ota upload succesful~");
+
             //sd_db_init();
 
         } else if(strcmp(module_info_gt->type, "node") == 0){

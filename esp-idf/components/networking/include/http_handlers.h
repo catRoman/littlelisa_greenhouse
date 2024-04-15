@@ -68,4 +68,10 @@ esp_err_t get_device_info_json_handler(httpd_req_t *req);
 
 esp_err_t get_wifi_ap_connect_info_json_handler(httpd_req_t *req);
 
+esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req);
+
+esp_err_t ota_update_handler(httpd_req_t *req);
+
+char* extract_boundary(const char* content_type);
+
 #endif
