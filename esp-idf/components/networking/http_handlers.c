@@ -651,13 +651,13 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req){
 
 
     // //download to sd
-    // if(recv_ota_update_write_to_sd(req) == ESP_OK){
+    if(recv_ota_update_write_to_sd(req) == ESP_OK){
 
-    //     httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
-    // }else{
-    //     httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
-    //     return ESP_FAIL;
-    // }
+        httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
+    }else{
+        httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
+        return ESP_FAIL;
+    }
 
 
 
@@ -684,7 +684,7 @@ taskCreated = xTaskCreatePinnedToCore(
 if (taskCreated != pdPASS) {
     printf("Task creation failed!\n");
 }
-   // ota_update_from_sd();
+
 
     return ESP_OK;
 }
@@ -781,21 +781,11 @@ void node_ota_update_send(void *vpParam){
 
         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
         post_file_in_chunks(node_addr, OTA_FILENAME);
-   // 0    http_client_get_test(node_addr);
-//         printf("Free heap size: %lu bytes\n", esp_get_free_heap_size());
-// BaseType_t taskCreated;
-//         taskCreated = xTaskCreatePinnedToCore(
-//         http_test_task,
-//         "test_send",
-//         8000,
-//         NULL,
-//         7,
-//        &myTaskHandle,
-//         1);
-//         if (taskCreated != pdPASS) {
-//     printf("Task creation failed!\n");
-// }
+
     }
+
+ota_update_from_sd();
+
     vTaskDelete(NULL);
  }
 }
