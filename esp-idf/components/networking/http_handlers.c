@@ -224,7 +224,7 @@ void register_http_server_handlers(void)
                     //register propgate update handler
             httpd_uri_t propagate_ota_update = {
                 .uri = "/ota/update_prop",
-                .method = HTTP_GET,
+                .method = HTTP_POST,
                 .handler = propogate_ota_update_handler,
                 .user_ctx = NULL
             };
@@ -639,14 +639,14 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
 esp_err_t propogate_ota_update_handler(httpd_req_t *req){
 
 
-    //download to sd
-    if(recv_ota_update_write_to_sd(req) == ESP_OK){
+    // //download to sd
+    // if(recv_ota_update_write_to_sd(req) == ESP_OK){
 
-        httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
-    }else{
-        httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
-        return ESP_FAIL;
-    }
+    //     httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
+    // }else{
+    //     httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
+    //     return ESP_FAIL;
+    // }
 
 
     wifi_sta_list_t sta_list;
@@ -656,16 +656,17 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req){
     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
 
     // Loop over each connected station
-        char node_addr[100];
+
     for (int i = 0; i < sta_list.num; i++) {
-        snprintf(node_addr, sizeof(node_addr)-1, "littlelisa-node-%02x_%02x_%02x_%02x_%02x_%02x.local/ota/update",
-             sta_list.sta->mac[0], sta_list.sta->mac[1], sta_list.sta->mac[2], sta_list.sta->mac[3], sta_list.sta->mac[4], sta_list.sta->mac[5]);
+        char node_addr[100];
+        snprintf(node_addr, sizeof(node_addr)-1, "http://littlelisa-node-%02x_%02x_%02x_%02x_%02x_%02x.local/ota/update",
+             sta_list.sta[i].mac[0], sta_list.sta[i].mac[1], sta_list.sta[i].mac[2], sta_list.sta[i].mac[3], sta_list.sta[i].mac[4], sta_list.sta[i].mac[5]);
 
         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
         post_file_in_chunks(node_addr, OTA_FILENAME);
     }
 
-    ota_update_from_sd();
+   // ota_update_from_sd();
 
     return ESP_OK;
 }
