@@ -6,6 +6,7 @@
 #include "sdmmc_cmd.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
+#include "esp_ota_ops.h"
 
 #include "spi_sd_card.h"
 
@@ -56,9 +57,9 @@ void spi_sd_card_init(void){
 
     spi_out_conf = (gpio_config_t){0};
 
-    spi_out_conf.pin_bit_mask = 
-        (1ULL<<PIN_NUM_CLK) |   
-        (1ULL<<PIN_NUM_CS) |     
+    spi_out_conf.pin_bit_mask =
+        (1ULL<<PIN_NUM_CLK) |
+        (1ULL<<PIN_NUM_CS) |
         (1ULL<<PIN_NUM_MOSI);
 
     spi_out_conf.mode = GPIO_MODE_OUTPUT;
@@ -73,7 +74,7 @@ void spi_sd_card_init(void){
     spi_in_conf = (gpio_config_t){0};
 
     // Bit mask of the pins that you want to set,e.g.GPIO18/19
-    spi_in_conf.pin_bit_mask = 
+    spi_in_conf.pin_bit_mask =
         (1UL<<PIN_NUM_MISO);
 
     spi_in_conf.mode = GPIO_MODE_OUTPUT;
@@ -90,10 +91,10 @@ void spi_sd_card_init(void){
         .max_files = 5,
         .allocation_unit_size = 16 * 1024
     };
-    
+
 
     const char mount_point[] = MOUNT_POINT;
-    
+
     ESP_LOGI(TAG, "Initializing SD card");
 
     // Use settings defined above to initialize SD card and mount FAT filesystem.
@@ -116,7 +117,7 @@ void spi_sd_card_init(void){
         .max_transfer_sz = 4000,
     };
 
-  
+
     ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize bus.");
@@ -213,3 +214,76 @@ void spi_sd_card_test(void){
 
 }
 
+
+
+
+esp_err_t ota_update_from_sd(void) {
+    esp_err_t ret;
+    FILE *f;
+    esp_ota_handle_t update_handle = 0;
+
+    const esp_partition_t *update_partition = NULL;
+
+
+
+
+    ESP_LOGI("OTA_SD_UPDATE", "Opening firmware file on SD card");
+    f = fopen(OTA_FILENAME, "rb");
+    if (f == NULL) {
+        ESP_LOGE("OTA_SD_UPDATE", "Failed to open file for reading");
+        return ESP_FAIL;
+    }
+
+    // Get OTA update partition information
+    update_partition = esp_ota_get_next_update_partition(NULL);
+    if (update_partition == NULL) {
+        ESP_LOGE("OTA_SD_UPDATE", "No OTA partition found");
+        fclose(f);
+        return ESP_FAIL;
+    }
+
+    // Begin OTA
+    ESP_LOGI("OTA_SD_UPDATE", "Writing to partition subtype %d at offset 0x%x",
+             update_partition->subtype, (unsigned int)update_partition->address);
+    ret = esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &update_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE("OTA_SD_UPDATE", "esp_ota_begin failed, error=%d", ret);
+        fclose(f);
+
+        return ret;
+    }
+
+    // Read file and write to OTA partition
+    char ota_write_data[1024];
+    int binary_file_len;
+    int written = 0;
+    while ((binary_file_len = fread(ota_write_data, 1, sizeof(ota_write_data), f)) > 0) {
+        ESP_LOGI("OTA_SD_UPDATE", "data written-> %d", written);
+        esp_ota_write(update_handle, (const void *)ota_write_data, binary_file_len);
+        written += binary_file_len;
+    }
+
+    // End OTA
+    ret = esp_ota_end(update_handle);
+    if (ret != ESP_OK) {
+        ESP_LOGE("OTA_SD_UPDATE", "esp_ota_end failed!");
+        fclose(f);
+
+        return ret;
+    }
+
+    // Set new app as bootable
+    ret = esp_ota_set_boot_partition(update_partition);
+    if (ret != ESP_OK) {
+        ESP_LOGE("OTA_SD_UPDATE", "esp_ota_set_boot_partition failed!");
+        fclose(f);
+
+        return ret;
+    }
+
+    fclose(f);
+    ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    esp_restart();
+    return ESP_OK;
+}

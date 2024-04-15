@@ -11,7 +11,7 @@
 #include "ds1302.h"
 
 #include "rtc_DS1302.h"
-#include "sntp.h"
+#include "esp_sntp.h"
 
 extern time_t now;
 extern struct tm timeinfo;

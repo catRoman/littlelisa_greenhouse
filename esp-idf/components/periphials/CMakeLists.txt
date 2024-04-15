@@ -5,11 +5,12 @@ idf_component_register(
         rtc_DS1302.c
         ds1302.c
 
-    REQUIRES 
+    REQUIRES
         driver
 
-    PRIV_REQUIRES 
+    PRIV_REQUIRES
         fatfs
+        app_update
 
     INCLUDE_DIRS "include"
 

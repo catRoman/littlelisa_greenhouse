@@ -74,4 +74,6 @@ esp_err_t ota_update_handler(httpd_req_t *req);
 
 char* extract_boundary(const char* content_type);
 
+esp_err_t propogate_ota_update_handler(httpd_req_t *req);
+
 #endif
