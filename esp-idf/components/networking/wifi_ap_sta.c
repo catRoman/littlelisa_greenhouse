@@ -34,6 +34,9 @@
 #include "sntp.h"
 #include "task_common.h"
 #include "helper.h"
+#include "module_config.h"
+
+extern Module_info_t *module_info_gt;
 
 static const char WIFI_TAG[] = "wifi_ap_sta";
 static int s_retry_num = 0;
@@ -96,14 +99,25 @@ esp_netif_t *wifi_init_softap(void)
 
  //   #ifdef CONFIG_ENABLE_NVS_UPDATE
 
-    wifi_config_t wifi_ap_config = {
+    // wifi_config_t wifi_ap_config = {
+    //     .ap = {
+    //         .ssid = ESP_WIFI_AP_MODE_SSID,
+    //         .ssid_len = strlen(ESP_WIFI_AP_MODE_SSID),
+    //         .ssid_hidden = ESP_AP_MODE_HIDE_SSID,
+    //         .channel = ESP_WIFI_AP_MODE_CHANNEL,
+    //         .password = ESP_WIFI_AP_MODE_PASSWORD,
+    //         .max_connection = MAX_AP_STA_MODE_CONN,
+    //         .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    //     },
+    // };
+       wifi_config_t wifi_ap_config = {
         .ap = {
-            .ssid = ESP_WIFI_AP_MODE_SSID,
-            .ssid_len = strlen(ESP_WIFI_AP_MODE_SSID),
-            .ssid_hidden = ESP_AP_MODE_HIDE_SSID,
-            .channel = ESP_WIFI_AP_MODE_CHANNEL,
-            .password = ESP_WIFI_AP_MODE_PASSWORD,
-            .max_connection = MAX_AP_STA_MODE_CONN,
+            .ssid = "LittleLisa - Greenhouse",
+            .ssid_len = strlen("LittleLisa - Greenhouse"),
+            .ssid_hidden = 0,
+            .channel = 1,
+            .password = "Westgate4@",
+            .max_connection = 10,
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
@@ -137,14 +151,18 @@ esp_netif_t *wifi_init_softap(void)
     ESP_ERROR_CHECK(esp_netif_dhcps_start(esp_netif_ap));                           ///> start the ap dhcp server (for connecting stations eg. mobile device)
 
 
-    if (strlen(ESP_WIFI_AP_MODE_PASSWORD) == 0) {
-            wifi_ap_config.ap.authmode = WIFI_AUTH_OPEN;
-        }
+    // if (strlen(ESP_WIFI_AP_MODE_PASSWORD) == 0) {
+    //         wifi_ap_config.ap.authmode = WIFI_AUTH_OPEN;
+    //     }
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_ap_config));
 
+    // ESP_LOGI(WIFI_TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
+    //         ESP_WIFI_AP_MODE_SSID, ESP_WIFI_AP_MODE_PASSWORD, ESP_WIFI_AP_MODE_CHANNEL);
+
+
     ESP_LOGI(WIFI_TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
-            ESP_WIFI_AP_MODE_SSID, ESP_WIFI_AP_MODE_PASSWORD, ESP_WIFI_AP_MODE_CHANNEL);
+            "LittleLisa - Greenhouse", "Westgate4@", 1);
 
     return esp_netif_ap;
 }
@@ -153,19 +171,63 @@ esp_netif_t *wifi_init_sta(void)
 {
     esp_netif_t *esp_netif_sta = esp_netif_create_default_wifi_sta();
 
+    // wifi_config_t wifi_sta_config = {
+    //     .sta = {
+    //         .ssid = ESP_WIFI_INIT_STA_MODE_SSID,
+    //         .password = ESP_WIFI_INIT_STA_MODE_PASSWORD,
+    //         .scan_method = WIFI_ALL_CHANNEL_SCAN,
+    //         .failure_retry_cnt = MAX_STA_MODE_RETRY_ATTEMPT,
+    //     },
+    // };
+
+// wifi_config_t wifi_sta_config;
+char ssid[32];
+char pass[32];
+
+    if(strcmp(module_info_gt->type,"controller") == 0){
+        strcpy(ssid, "Bill Nye the WiFi Guy");
+        strcpy(pass, "Westgate1");
+    }else{
+ strcpy(ssid, "LittleLisa - Greenhouse");
+        strcpy(pass, "Westgate4@");
+    }
+
     wifi_config_t wifi_sta_config = {
         .sta = {
-            .ssid = ESP_WIFI_INIT_STA_MODE_SSID,
-            .password = ESP_WIFI_INIT_STA_MODE_PASSWORD,
+            .ssid = "",
+            .password = "",
             .scan_method = WIFI_ALL_CHANNEL_SCAN,
-            .failure_retry_cnt = MAX_STA_MODE_RETRY_ATTEMPT,
+            .failure_retry_cnt = 10,
         },
     };
 
+
+
+
+
+
+        // // Correct usage of strncpy to avoid buffer overflow
+        // wifi_sta_config.sta.ssid = "";
+
+        // wifi_sta_config.sta.scan_method = WIFI_ALL_CHANNEL_SCAN;
+        // wifi_sta_config.sta.failure_retry_cnt = 10;
+
+strncpy((char*) wifi_sta_config.sta.ssid, (const char*) ssid, sizeof(wifi_sta_config.sta.ssid) - 1);
+wifi_sta_config.sta.ssid[sizeof(wifi_sta_config.sta.ssid) - 1] = '\0';  // Ensure null termination
+
+strncpy((char*) wifi_sta_config.sta.password, (const char*) pass, sizeof(wifi_sta_config.sta.password) - 1);
+wifi_sta_config.sta.password[sizeof(wifi_sta_config.sta.password) - 1] = '\0';  // Ensure null termination
+
+
+
+
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_sta_config));
 
-    ESP_LOGI(WIFI_TAG, "wifi_init_sta finished. SSID:%s password:%s",
-        ESP_WIFI_INIT_STA_MODE_SSID, ESP_WIFI_INIT_STA_MODE_PASSWORD);
+    // ESP_LOGI(WIFI_TAG, "wifi_init_sta finished. SSID:%s password:%s",
+    //     ESP_WIFI_INIT_STA_MODE_SSID, ESP_WIFI_INIT_STA_MODE_PASSWORD);
+
+            ESP_LOGI(WIFI_TAG, "wifi_init_sta finished. SSID:%s password:%s",
+        ssid, pass);
 
     return esp_netif_sta;
 }
@@ -199,7 +261,7 @@ void wifi_start(void)
     esp_log_level_set("wifi", ESP_LOG_NONE);
 
 
-    if(ESP_ENABLE_AP_MODE == true){
+    if(strcmp(module_info_gt->type, "controller") == 0){
 
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
         ESP_LOGI(WIFI_TAG, "wifi ap and sta mode selected");
@@ -227,7 +289,7 @@ void wifi_start(void)
         websocket_server_start();
         led_http_server_started();
 
-    }else if(ESP_ENABLE_AP_MODE == false){
+    }else {
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_LOGI(WIFI_TAG, "wifi sta only mode selected");
 
@@ -266,8 +328,6 @@ void wifi_start(void)
 
 
 
-    }else{
-        ESP_LOGE(WIFI_TAG, "Error in ap/sta selection mode");
     }
 
 }

@@ -424,6 +424,7 @@ void initiate_config(){
 
         ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
         // Start Wifi
+        vTaskDelay(pdMS_TO_TICKS(1000));
         wifi_start();
         vTaskDelay(pdMS_TO_TICKS(1000));
         if (strcmp(module_info_gt->type, "controller") == 0) {
