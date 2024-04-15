@@ -77,7 +77,7 @@ static esp_err_t client_event_post_handler(esp_http_client_event_handle_t evt) {
         break;
     case HTTP_EVENT_DISCONNECTED:
         ESP_LOGI("HTTP_CLIENT", "HTTP_EVENT_DISCONNECTED");
-      
+
         break;
     }
     return ESP_OK;
@@ -95,7 +95,9 @@ void post_file_in_chunks(const char *url, const char *file_path) {
     esp_http_client_config_t config = {
         .url = url,
         .method = HTTP_METHOD_POST,
-        .event_handler = client_event_post_handler
+        .event_handler = client_event_post_handler,
+        .timeout_ms = 100000,
+        .cert_pem=NULL,
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (client == NULL) {
