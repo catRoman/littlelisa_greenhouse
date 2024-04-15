@@ -113,8 +113,12 @@ void post_file_in_chunks(const char *url, const char *file_path) {
     // Read and send the file in chunks
     char buffer[1024]; // Adjust the buffer size according to available memory
     int read_len;
+    int total = 0;
     while ((read_len = fread(buffer, 1, sizeof(buffer), file)) > 0) {
         esp_http_client_write(client, buffer, read_len);
+        ESP_LOGI("HTTP_CLIENT", "data sent -> %d", total);
+
+        total +=read_len;
     }
 
     // Perform the HTTP POST
