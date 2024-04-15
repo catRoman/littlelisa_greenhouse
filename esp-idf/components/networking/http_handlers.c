@@ -220,6 +220,16 @@ void register_http_server_handlers(void)
             };
             httpd_register_uri_handler(http_server_handle, &preform_ota);
 
+                    //register propgate update handler
+            httpd_uri_t propagate_ota_update = {
+                .uri = "/ota/update_prop",
+                .method = HTTP_GET,
+                .handler = propogate_ota_update_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &propagate_ota_update);
+
+
 
 
 
@@ -620,7 +630,7 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
     int remaining = req->content_len;
 
     while ((recv_len = httpd_req_recv(req, ota_buff, sizeof(ota_buff))) > 0) {
-        ESP_LOGI("OTA_UPDATE", "content remaining-> %d", remaining);
+        ESP_LOGI("OTA_UPDATE", "data remaining-> %d", remaining);
 
         if (!is_req_body_started) {
             is_req_body_started = true;
@@ -663,6 +673,14 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
     httpd_resp_send(req, "OTA Update Successful. Rebooting in 5 seconds...", HTTPD_RESP_USE_STRLEN);
     vTaskDelay(pdMS_TO_TICKS(5000));
     esp_restart();  // Restart the system to boot from the updated firmware
+
+    return ESP_OK;
+}
+
+esp_err_t propogate_ota_update_handler(httpd_req_t *req){
+
+    httpd_resp_send(req, "OTA update request recieved successful. Preforming update...", HTTPD_RESP_USE_STRLEN);
+    ota_update_from_sd();
 
     return ESP_OK;
 }
