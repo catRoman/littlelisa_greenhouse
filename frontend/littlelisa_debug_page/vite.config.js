@@ -28,6 +28,16 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),
       },
+      "/ota": {
+        target: "http://10.0.0.140",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ota/, "/ota"),
+      },
+      // "/ota": {
+      //   target: "http://019dd198-8751-4f4c-ac57-55c314cd3c2d.mock.pstmn.io",
+      //   changeOrigin: true,
+      //   rewrite: (path) => path.replace(/^\/ota/, "/ota"),
+      // },
     },
   },
 });

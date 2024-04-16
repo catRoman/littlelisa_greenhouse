@@ -597,7 +597,7 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
     int remaining = req->content_len;
 
     while ((recv_len = httpd_req_recv(req, ota_buff, sizeof(ota_buff))) > 0) {
-        ESP_LOGI("OTA_UPDATE", "data remaining-> %d", remaining);
+        ESP_LOGI("OTA_UPDATE", "%d bytes remaining...", remaining);
 
         if (!is_req_body_started) {
             is_req_body_started = true;
@@ -669,9 +669,9 @@ taskCreated = xTaskCreatePinnedToCore(
         "node_ota_update_send",
         8000,
         NULL,
-        7,
+        9,
        &myTaskHandle,
-        1);
+        0);
 // taskCreated = xTaskCreatePinnedToCore(
 //         http_test_task,
 //         "test_send",
@@ -697,7 +697,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
     const char *file_path = MOUNT_POINT"/ota.bin";
 
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "{==POST WRITE==} Opening file %s", file_path);
+    ESP_LOGI("SD_DOWNLOAD", "{==POST WRITE==} Opening file %s", file_path);
     FILE* fd = fopen(file_path, "w");
 
 
@@ -712,7 +712,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
 
     // Content length
     int remaining = req->content_len;
-    ESP_LOGI(HTTP_HANDLER_TAG, "initial content length -> %d", remaining);
+    ESP_LOGI("SD_DOWNLOAD", "initial content length -> %d", remaining);
     while (remaining > 0) {
         // Calculate how much data to read
         int to_read = sizeof(buf);
@@ -725,22 +725,22 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
         if (received <= 0) {
             fclose(fd);
             if (received == HTTPD_SOCK_ERR_TIMEOUT) {
-                ESP_LOGE(HTTP_HANDLER_TAG, "Socket Timeout");
+                ESP_LOGE("SD_DOWNLOAD", "Socket Timeout");
                 return ESP_FAIL;
             }
-            ESP_LOGE(HTTP_HANDLER_TAG, "Error in receiving file");
+            ESP_LOGE("SD_DOWNLOAD", "Error in receiving file");
             return ESP_FAIL;
         }
 
         // Write the received data to the file
         fwrite(buf, 1, received, fd);
         remaining -= received;
-        ESP_LOGI(HTTP_HANDLER_TAG, "content remaining-> %d", remaining);
+        ESP_LOGI("SD_DOWNLOAD", "%d bytes remaining", remaining);
     }
-    ESP_LOGI(HTTP_HANDLER_TAG, "recieving finished closing file");
+    ESP_LOGI("SD_DOWNLOAD", "recieving finished closing file");
     fclose(fd);
 
- ESP_LOGI(HTTP_HANDLER_TAG, "File download succesfully to sd card--> 'ota.bin'");
+ ESP_LOGI("SD_DOWNLOAD", "File download succesfully to sd card--> 'ota.bin'");
 
     return ESP_OK;
 }
@@ -768,20 +768,23 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
 
 void node_ota_update_send(void *vpParam){
     wifi_sta_list_t sta_list;
-
+    portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
     // Get the list of connected stations
     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
  for(;;){
-    ESP_LOGI(HTTP_HANDLER_TAG, "INSIDE TASK");
+    ESP_LOGI("OTA_PROP_UDATE", "INSIDE TASK");
 
    for (int i = 1; i <= sta_list.num; i++) {
         char node_addr[100];
+        ESP_LOGI("OTA_PROP_UDATE", "updating node %d", i);
+        vTaskDelay(pdMS_TO_TICKS(3000));
         snprintf(node_addr, sizeof(node_addr)-1, "http://192.168.0.%d/ota/update",
               i+1);
 
         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
+     //   taskENTER_CRITICAL(&myMutex);
         post_file_in_chunks(node_addr, OTA_FILENAME);
-
+   //    taskEXIT_CRITICAL(&myMutex);
     }
 
 ota_update_from_sd();

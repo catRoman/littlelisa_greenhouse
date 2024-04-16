@@ -140,7 +140,7 @@ if(ret != ESP_OK){
             break; // Exit loop on failure
         }
         total += read_len;
-        ESP_LOGI("HTTP_CLIENT", "Data sent: %d bytes", total);
+        ESP_LOGI("OTA_NODE_SEND", "%d bytes", total);
     }
 
     // Perform the HTTP POST

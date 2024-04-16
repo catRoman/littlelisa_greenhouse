@@ -169,6 +169,7 @@ header {
   font-size: 1.8rem;
   margin-bottom: 0.8rem;
 }
+.ota-btn,
 .sensor-refresh,
 .log-refresh,
 .online-connection-btn {
@@ -225,6 +226,7 @@ a:focus {
 /* =================== */
 /* SECTION_LOG_OUTPUT */
 /* =================== */
+.ota-log,
 .log-output {
   height: 25rem;
 }
@@ -232,6 +234,8 @@ a:focus {
   height: 10rem;
   width: 95% !important;
 }
+
+.ota-log,
 .connected-devices,
 .log-output {
   width: 100%;
@@ -371,4 +375,120 @@ ul {
 } */
 .body-disabled {
   pointer-events: none;
+}
+
+/*-------------ota------------*/
+
+.ota-info {
+  margin: 3.2rem 0;
+}
+.ota-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4rem;
+}
+.ota-info {
+  font-size: 1.8rem;
+  color: #8b1e1e;
+  font-weight: 600;
+}
+.ota-input {
+  margin-top: 3rem;
+
+  width: 100%;
+
+  border-color: #1d5752;
+}
+.ota-btn {
+  font-size: 1.6rem;
+  padding: 1rem 0;
+  width: 80%;
+}
+
+input[type="file"] {
+  outline: none;
+  padding: 4px;
+  margin: -4px;
+}
+
+input[type="file"]:focus-within::file-selector-button,
+input[type="file"]:focus::file-selector-button {
+  outline: 2px solid #0964b0;
+  outline-offset: 2px;
+}
+
+input[type="file"]::before {
+  top: 16px;
+}
+
+input[type="file"]::after {
+  top: 14px;
+}
+
+input[type="file"] {
+  position: relative;
+  font-family: inherit;
+}
+
+input[type="file"]::file-selector-button {
+  width: 136px;
+  color: transparent;
+}
+
+/* Faked label styles and icon */
+input[type="file"]::before {
+  position: absolute;
+  pointer-events: none;
+  /*   top: 11px; */
+  left: 40px;
+  color: #0964b0;
+  content: "Upload File";
+}
+
+input[type="file"]::after {
+  position: absolute;
+  pointer-events: none;
+  /*   top: 10px; */
+  left: 16px;
+  height: 20px;
+  width: 20px;
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+}
+
+/* file upload button */
+input[type="file"]::file-selector-button {
+  font-family: inherit;
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+  background-color: #222121;
+  border: 2px solid #1d5752;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+  margin-right: 16px;
+  transition: background-color 200ms;
+}
+
+/* file upload button hover state */
+input[type="file"]::file-selector-button:hover {
+  background-color: #222121;
+}
+
+/* file upload button active state */
+input[type="file"]::file-selector-button:active {
+  background-color: #222121;
+}
+
+.ota-status p {
+  color: green;
+  margin-top: 3.2rem;
+  margin-bottom: 1.4rem;
+  font-weight: 600;
+}
+.ota-status-reset {
+  color: #8b1e1e !important;
+  margin-top: 0 !important;
+  font-size: 1.4rem;
 }
