@@ -28,13 +28,13 @@
 #define WIFI_RECONNECT_CORE_ID               0
 
 // HTTP Server task
-#define HTTP_SERVER_TASK_STACK_SIZE         4096
+#define HTTP_SERVER_TASK_STACK_SIZE         8192
 #define HTTP_SERVER_TASK_PRIORITY           5
 #define HTTP_SERVER_TASK_CORE_ID            0
 
 
 // HTTP Server Monitor task
-#define HTTP_SERVER_MONITOR_STACK_SIZE      3000
+#define HTTP_SERVER_MONITOR_STACK_SIZE      4096
 #define HTTP_SERVER_MONITOR_PRIORITY        6
 #define HTTP_SERVER_MONITOR_CORE_ID         0
 

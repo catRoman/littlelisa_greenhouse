@@ -154,22 +154,22 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 
 void errorHandler(int response, sensor_data_t *sensor_t)
 {
-	// switch(response) {
+	switch(response) {
 
-	// 	case DHT_TIMEOUT_ERROR :
-	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
-	// 		break;
+		case DHT_TIMEOUT_ERROR :
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
+			break;
 
-	// 	case DHT_CHECKSUM_ERROR:
-	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
-	// 		break;
+		case DHT_CHECKSUM_ERROR:
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
+			break;
 
-	// 	case DHT_OK:
-	// 		break;
+		case DHT_OK:
+			break;
 
-	// 	default :
-	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
-	// }
+		default :
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
+	}
 }
 
 /*-------------------------------------------------------------------------------
@@ -360,12 +360,12 @@ void DHT22_task(void *vpParameter)
 	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
 	float values[sensor_t->total_values];
 	sensor_t->value = values;
-
 	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
 	esp_rom_delay_us( 100 );
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
-	esp_log_level_set(TAG, ESP_LOG_INFO);
+	esp_log_level_set(TAG, ESP_LOG_DEBUG);
+	ESP_LOGD(TAG, "Started DHT22_TASK");
 
 	for(;;)
 	{
