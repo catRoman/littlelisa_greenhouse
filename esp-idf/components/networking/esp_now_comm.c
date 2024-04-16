@@ -247,6 +247,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     queue_packet_t *packet = calloc(1, sizeof(queue_packet_t));
     if (packet == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for packet");
+        heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
         return;
     }
 
