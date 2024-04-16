@@ -107,11 +107,11 @@ void sensor_queue_monitor_task(void * pvParameters)
 
 
 
-//             ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
-//             ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-// ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
-//             ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
-//             heap_caps_check_integrity_all(true);
+            ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
+            ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
+            ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
+            heap_caps_check_integrity_all(true);
 // heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
 
             switch(event->nextEventID){
@@ -482,92 +482,95 @@ void sensor_send_to_websocket_server_task(void * pvParameters)
                                                 sensor_type_to_string(event->sensor_data->sensor_type),
                                                 event->current_send_id);
 
+            if(event->sensor_data != NULL){
+                //temp for logging testing
+                cJSON *root = cJSON_CreateObject();
+                cJSON *module_info = cJSON_CreateObject();
+                cJSON *sensor_info = cJSON_CreateObject();
+                cJSON *sensor_data = cJSON_CreateObject();
 
-            //temp for logging testing
-            cJSON *root = cJSON_CreateObject();
-            cJSON *module_info = cJSON_CreateObject();
-            cJSON *sensor_info = cJSON_CreateObject();
-            cJSON *sensor_data = cJSON_CreateObject();
+
+                cJSON_AddItemToObject(root, "module_info", module_info);
+                cJSON_AddStringToObject(module_info, "module_id", event->sensor_data->module_id);
+                cJSON_AddNumberToObject(module_info, "local_sensor_id", event->sensor_data->local_sensor_id);
+                cJSON_AddNumberToObject(sensor_info, "module_pin", event->sensor_data->pin_number);
+
+                cJSON_AddItemToObject(root, "sensor_data", sensor_info);
+                cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(event->sensor_data->sensor_type));
+
+                char *timestamp = ctime(&event->sensor_data->timestamp);
+                timestamp[strcspn(timestamp, "\n")] = '\0';
+
+                cJSON_AddStringToObject(sensor_info, "timestamp", timestamp);
+                cJSON_AddStringToObject(sensor_info, "location", event->sensor_data->location);
+                cJSON_AddItemToObject(sensor_info, "sensor_data", sensor_data);
+
+                char value_name[25];
+                for(int i = 0; i < event->sensor_data->total_values; i++){
+                    switch (event->sensor_data->sensor_type){
+                        case DHT22:
+                            switch(i){
+                                case 0:
+                                    snprintf(value_name, 25, "temp");
+                                    break;
+                                case 1:
+                                    snprintf(value_name, 25, "humidity");
+                                    break;
+                            }
+                            break;
+                        default:
+                            snprintf(value_name, 25, "%d", i);
+                            break;
+                        //implent other sensors as we go
+                    }
 
 
-            cJSON_AddItemToObject(root, "module_info", module_info);
-            cJSON_AddStringToObject(module_info, "module_id", event->sensor_data->module_id);
-            cJSON_AddNumberToObject(module_info, "local_sensor_id", event->sensor_data->local_sensor_id);
-            cJSON_AddNumberToObject(sensor_info, "module_pin", event->sensor_data->pin_number);
+                    cJSON_AddNumberToObject(sensor_data, value_name, event->sensor_data->value[i]);
+            }
 
-            cJSON_AddItemToObject(root, "sensor_data", sensor_info);
-            cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(event->sensor_data->sensor_type));
 
-            char *timestamp = ctime(&event->sensor_data->timestamp);
-            timestamp[strcspn(timestamp, "\n")] = '\0';
+                char *sensor_data_json = cJSON_Print(root);
+                cJSON_Delete(root);
 
-            cJSON_AddStringToObject(sensor_info, "timestamp", timestamp);
-            cJSON_AddStringToObject(sensor_info, "location", event->sensor_data->location);
-            cJSON_AddItemToObject(sensor_info, "sensor_data", sensor_data);
+                if(sensor_data_json != NULL){
+                //json clean up
 
-            char value_name[25];
-            for(int i = 0; i < event->sensor_data->total_values; i++){
-                switch (event->sensor_data->sensor_type){
-                    case DHT22:
-                        switch(i){
-                            case 0:
-                                snprintf(value_name, 25, "temp");
-                                break;
-                            case 1:
-                                snprintf(value_name, 25, "humidity");
-                                break;
-                        }
-                        break;
-                    default:
-                        snprintf(value_name, 25, "%d", i);
-                        break;
-                    //implent other sensors as we go
+
+                    ESP_LOGV(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s->send_id:%d} Logged JSON Data: %s",
+                                                        event->sensor_data->module_id,
+                                                        event->sensor_data->local_sensor_id,
+                                                        sensor_type_to_string(event->sensor_data->sensor_type),
+                                                        event->current_send_id,
+                                                        sensor_data_json
+                                                        );
+
+
+                    //add json to fram pacakage and pass to websocket server for transmission
+                    websocket_frame_data_t ws_frame;
+                    httpd_ws_frame_t ws_pkt;
+                    memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
+                    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
+                    ws_pkt.final = true;
+                    ws_pkt.fragmented = false;
+                    ws_frame.ws_pkt = &ws_pkt;
+                    ws_pkt.payload = (uint8_t*)sensor_data_json;
+                    ws_pkt.len = strlen(sensor_data_json) + 1;
+
+
+                    xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
                 }
+                //temp mem cleanup
+                vTaskDelay(pdMS_TO_TICKS(100));
+                free(event->sensor_data->value);
+                event->sensor_data->value=NULL;
+                free(event->sensor_data->location);
+                event->sensor_data->location=NULL;
+                free(event->sensor_data->module_id);
+                event->sensor_data->module_id=NULL;
+                free(event->sensor_data);
+                event->sensor_data=NULL;
+            }
 
-
-                cJSON_AddNumberToObject(sensor_data, value_name, event->sensor_data->value[i]);
-           }
-
-
-            char *sensor_data_json = cJSON_Print(root);
-
-            //json clean up
-            cJSON_Delete(root);
-
-
-            ESP_LOGV(SENSOR_EVENT_TAG, "{module->%s-id:%d-%s->send_id:%d} Logged JSON Data: %s",
-                                                event->sensor_data->module_id,
-                                                event->sensor_data->local_sensor_id,
-                                                sensor_type_to_string(event->sensor_data->sensor_type),
-                                                event->current_send_id,
-                                                sensor_data_json
-                                                );
-
-
-            //add json to fram pacakage and pass to websocket server for transmission
-            websocket_frame_data_t ws_frame;
-            httpd_ws_frame_t ws_pkt;
-            memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
-            ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-            ws_pkt.final = true;
-            ws_pkt.fragmented = false;
-            ws_frame.ws_pkt = &ws_pkt;
-            ws_pkt.payload = (uint8_t*)sensor_data_json;
-            ws_pkt.len = strlen(sensor_data_json) + 1;
-
-
-            xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
-
-            //temp mem cleanup
-            vTaskDelay(pdMS_TO_TICKS(100));
-            free(event->sensor_data->value);
-            event->sensor_data->value=NULL;
-            free(event->sensor_data->location);
-            event->sensor_data->location=NULL;
-            free(event->sensor_data->module_id);
-            event->sensor_data->module_id=NULL;
-            free(event->sensor_data);
-            event->sensor_data=NULL;
             free(event);
             event=NULL;
 
