@@ -105,6 +105,29 @@ Used for updating and quick diagnostics. -->
         <!-- OTA Update -->
         <div class="ota-update overlay hidden">
           <h2>OTA Update:</h2>
+
+          <p class="ota-info">
+            Warning: This ota update will propagate throughout all connected
+            nodes
+          </p>
+
+          <form class="ota-form" id="uploadForm">
+            <input
+              class="ota-input"
+              type="file"
+              id="fileInput"
+              name="file"
+              required
+            />
+            <button class="ota-btn" type="submit" id="uploadBtn">
+              Upload Firmware
+            </button>
+          </form>
+          <div class="ota-status hidden">
+            <p class="ota-status-info ota-info">Upload in progress...</p>
+            <p class="ota-info ota-status-reset"></p>
+            <textarea class="ota-log"></textarea>
+          </div>
         </div>
         <div class="head-icon">
           <svg

@@ -107,11 +107,11 @@ void sensor_queue_monitor_task(void * pvParameters)
 
 
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
-            ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
-            ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
-            heap_caps_check_integrity_all(true);
+//             ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
+//             ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+// ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
+//             ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
+//             heap_caps_check_integrity_all(true);
 // heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
 
             switch(event->nextEventID){
