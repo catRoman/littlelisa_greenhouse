@@ -34,7 +34,7 @@ static List *websocket_log_clients;
 
 
 
-static const char WEBSOCKET_SERVER_TAG[] = "WEBSOCKET_server";
+static const char WEBSOCKET_SERVER_TAG[] = "WEBSOCKET_SERVER";
 httpd_handle_t websocket_server_handle = NULL;
 static TaskHandle_t task_websocket_server_monitor = NULL;
 static QueueHandle_t websocket_server_monitor_queue_handle;
@@ -454,7 +454,7 @@ esp_err_t ws_echo_handler(httpd_req_t *req)
     }
       ret = httpd_ws_send_frame(req, &ws_pkt);
     if (ret != ESP_OK) {
-        ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
+        ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame for echo ws failed with %d", ret);
     }
 
 
@@ -538,42 +538,17 @@ void websocket_send_sensor_data_queue(void *vpParameter){
             for(int j = 0; j < num_websocket_sensor_clients; j++){
                 ESP_LOGD(WEBSOCKET_SERVER_TAG, "sending sensor data to socket %d/%d -> socket # %d", (j+1),num_websocket_sensor_clients, websocket_sensor_clients->items[j] );
 
-
-
-            //===========================================================
-            //===========================================================
-            //===========================================================
-
-
-
-
-
-
-            //===========================================================
-            //===========================================================
-            //===========================================================
-            //===========================================================
-
             esp_err_t ret = httpd_ws_send_frame_async(websocket_server_handle, websocket_sensor_clients->items[j], ws_frame_data.ws_pkt);
-
-
-
-
-
-
-
 
             // ret  = httpd_ws_send_frame(req, &ws_pkt);
             // ret = httpd_ws_send_data(websocket_server_handle, httpd_req_to_sockfd(req), &ws_pkt);
                 if (ret != ESP_OK) {
-                    ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame failed with %d", ret);
+                    ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame for sensor ws failed with %d", ret);
                     websocket_server_monitor_send_message(WEBSOCKET_SENSOR_CONNECT_FAIL,websocket_sensor_clients->items[j]);
 
                 }else{
                     ESP_LOGD(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",websocket_sensor_clients->items[j]);
-
                 }
-
             }
             free(ws_frame_data.ws_pkt->payload);
            //free frame payload json data?
