@@ -669,9 +669,9 @@ taskCreated = xTaskCreatePinnedToCore(
         "node_ota_update_send",
         8000,
         NULL,
-        9,
+        5,
        &myTaskHandle,
-        0);
+        1);
 // taskCreated = xTaskCreatePinnedToCore(
 //         http_test_task,
 //         "test_send",
@@ -736,6 +736,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
         fwrite(buf, 1, received, fd);
         remaining -= received;
         ESP_LOGI("SD_DOWNLOAD", "%d bytes remaining", remaining);
+
     }
     ESP_LOGI("SD_DOWNLOAD", "recieving finished closing file");
     fclose(fd);
@@ -771,6 +772,11 @@ void node_ota_update_send(void *vpParam){
     portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
     // Get the list of connected stations
     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
+
+
+//prevent station joining while update gumming up everything while allowing debug
+//site to stay open
+
  for(;;){
     ESP_LOGI("OTA_PROP_UDATE", "INSIDE TASK");
 
@@ -785,9 +791,13 @@ void node_ota_update_send(void *vpParam){
      //   taskENTER_CRITICAL(&myMutex);
         post_file_in_chunks(node_addr, OTA_FILENAME);
    //    taskEXIT_CRITICAL(&myMutex);
+  // taskYIELD();
     }
 
 ota_update_from_sd();
+
+
+//turn wifi back on in case of failure
 
     vTaskDelete(NULL);
  }
