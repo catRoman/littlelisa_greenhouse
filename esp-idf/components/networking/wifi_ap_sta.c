@@ -54,8 +54,10 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             break;
 
         case WIFI_EVENT_STA_START:
+        
             esp_wifi_connect();
             ESP_LOGI(WIFI_TAG, "module joined ap as sta");
+        
             break;
 
 
@@ -170,6 +172,7 @@ esp_netif_t *wifi_init_softap(void)
 esp_netif_t *wifi_init_sta(void)
 {
     esp_netif_t *esp_netif_sta = esp_netif_create_default_wifi_sta();
+    
 
     // wifi_config_t wifi_sta_config = {
     //     .sta = {
