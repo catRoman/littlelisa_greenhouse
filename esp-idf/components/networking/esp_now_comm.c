@@ -158,7 +158,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
                     espnow_queue_packet = NULL;
                 }else{
                      ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for incoming queue packet");
-                    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
                 }
 
 
@@ -173,6 +173,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
             }else{
                 ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for incoming sensor data packet");
                 ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
             }
 
 
@@ -263,6 +264,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (packet == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for queue packet");
         ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
 
         return;
     }
@@ -271,6 +273,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (packet->data == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for data");
         ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
         free(packet); // Clean up previously allocated packet memory
         packet= NULL;
         return;
@@ -287,6 +290,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (xQueueSend(esp_now_comm_incoming_data_queue_handle, &packet, portMAX_DELAY) != pdPASS) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to send packet to incoming data queue");
         ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
         free(packet->data); // Clean up allocated data memory
         packet->data=NULL;
         free(packet); // Clean up packet memory
@@ -316,6 +320,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Allocate memory for serialized data
     uint8_t *serialized_data = (uint8_t*)malloc(total_size);
     if (serialized_data == NULL) {
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
         // Memory allocation failed
         *size = 0;
         return NULL;
