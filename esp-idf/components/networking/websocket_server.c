@@ -546,12 +546,17 @@ void websocket_send_sensor_data_queue(void *vpParameter){
                     ESP_LOGE(WEBSOCKET_SERVER_TAG, "httpd_ws_send_frame for sensor ws failed with %d", ret);
                     websocket_server_monitor_send_message(WEBSOCKET_SENSOR_CONNECT_FAIL,websocket_sensor_clients->items[j]);
 
+                    ESP_LOGE(WEBSOCKET_SERVER_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+
                 }else{
                     ESP_LOGD(WEBSOCKET_SERVER_TAG, "packet sent to sockt %d",websocket_sensor_clients->items[j]);
                 }
             }
-            free(ws_frame_data.ws_pkt->payload);
            //free frame payload json data?
+                    if(ws_frame_data.ws_pkt->payload != NULL){
+                    free(ws_frame_data.ws_pkt->payload);
+                    ws_frame_data.ws_pkt->payload = NULL;
+                    }
         }
         taskYIELD();
     }

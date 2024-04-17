@@ -101,48 +101,87 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 
 	//allocate for data_packet
 	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
-
-	data_packet->pin_number = sensor_t->pin_number;
-	data_packet->total_values = 2;
-	data_packet->local_sensor_id = sensor_t->local_sensor_id;
-	data_packet->module_id = (char*)malloc(strlen(sensor_t->module_id)+1);
-	strcpy(data_packet->module_id, sensor_t->module_id);
-
-	data_packet->timestamp = 0;
-
-	//TODO: mem error handling
-	data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
-	strcpy(data_packet->location, sensor_t->location);
+	if(data_packet != NULL){
 
 
-	data_packet->sensor_type = DHT22;
-	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
-	data_packet->value[TEMP] = get_temperature(sensor_t);
-
-
-	//sensor queue wrapper mem allocation
-	sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
-
-	queue_packet->nextEventID = SENSOR_PREPOCESSING;
-	queue_packet->sensor_data = data_packet;
-	queue_packet->semphoreCount = 0;
-	queue_packet->current_send_id = send_id;
-
-    char logMsg[50];
-
-    // Use snprintf to format the string
-	snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s->send_id:%d",
-	queue_packet->sensor_data->module_id,
-	queue_packet->sensor_data->local_sensor_id,
-	sensor_type_to_string(queue_packet->sensor_data->sensor_type),
-	queue_packet->current_send_id);
-	extern QueueHandle_t sensor_queue_handle;
-	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-			ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
-		}else{
-			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
+		data_packet->pin_number = sensor_t->pin_number;
+		data_packet->total_values = 2;
+		data_packet->local_sensor_id = sensor_t->local_sensor_id;
+		data_packet->module_id = (char*)malloc(strlen(sensor_t->module_id)+1);
+		if(data_packet->module_id == NULL){
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_id");
+			free(data_packet);
+			data_packet=NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+			return;
 		}
+		strcpy(data_packet->module_id, sensor_t->module_id);
+
+		data_packet->timestamp = 0;
+
+		//TODO: mem error handling
+		data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+		if(data_packet->value == NULL){
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->value");
+			free(data_packet->module_id);
+			data_packet->module_id = NULL;
+			free(data_packet);
+			data_packet= NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+			return;
+		}
+		data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
+		if(data_packet->location == NULL){
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->location");
+			free(data_packet->module_id);
+			data_packet->module_id = NULL;
+			free(data_packet->value);
+			data_packet->value = NULL;
+			free(data_packet);
+			data_packet= NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+
+			return;
+		}
+		strcpy(data_packet->location, sensor_t->location);
+
+
+		data_packet->sensor_type = DHT22;
+		data_packet->value[HUMIDITY] = get_humidity(sensor_t);
+		data_packet->value[TEMP] = get_temperature(sensor_t);
+
+
+		//sensor queue wrapper mem allocation
+		sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+		if(queue_packet != NULL){
+
+		queue_packet->nextEventID = SENSOR_PREPOCESSING;
+		queue_packet->sensor_data = data_packet;
+		queue_packet->semphoreCount = 0;
+		queue_packet->current_send_id = send_id;
+
+		char logMsg[50];
+
+		// Use snprintf to format the string
+		snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s->send_id:%d",
+		queue_packet->sensor_data->module_id,
+		queue_packet->sensor_data->local_sensor_id,
+		sensor_type_to_string(queue_packet->sensor_data->sensor_type),
+		queue_packet->current_send_id);
+		extern QueueHandle_t sensor_queue_handle;
+		if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+				ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
+			}else{
+				ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
+			}
+		}else{
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+
+		}
+	}else{
+		ESP_LOGE(TAG, "Failed to allocate mem for sensor data");
+		ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+	}
 
 
 }
