@@ -598,6 +598,7 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
 
     while ((recv_len = httpd_req_recv(req, ota_buff, sizeof(ota_buff))) > 0) {
         ESP_LOGI("OTA_UPDATE", "%d bytes remaining...", remaining);
+        taskYIELD();
 
         if (!is_req_body_started) {
             is_req_body_started = true;
