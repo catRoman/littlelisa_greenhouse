@@ -11,41 +11,7 @@
 #include "http_client.h"
 
 /* Event handler for catching system events */
-static void ota_event_handler(void* arg, esp_event_base_t event_base,
-                        int32_t event_id, void* event_data)
-{
-    if (event_base == ESP_HTTPS_OTA_EVENT) {
-        switch (event_id) {
-            case ESP_HTTPS_OTA_START:
-                ESP_LOGI("ota", "OTA started");
-                break;
-            case ESP_HTTPS_OTA_CONNECTED:
-                ESP_LOGI("ota", "Connected to server");
-                break;
-            case ESP_HTTPS_OTA_GET_IMG_DESC:
-                ESP_LOGI("ota", "Reading Image Description");
-                break;
-            case ESP_HTTPS_OTA_VERIFY_CHIP_ID:
-                ESP_LOGI("ota", "Verifying chip id of new image: %d", *(esp_chip_id_t *)event_data);
-                break;
-            case ESP_HTTPS_OTA_DECRYPT_CB:
-                ESP_LOGI("ota", "Callback to decrypt function");
-                break;
-            case ESP_HTTPS_OTA_WRITE_FLASH:
-                ESP_LOGD("ota", "Writing to flash: %d written", *(int *)event_data);
-                break;
-            case ESP_HTTPS_OTA_UPDATE_BOOT_PARTITION:
-                ESP_LOGI("ota", "Boot partition updated. Next Partition: %d", *(esp_partition_subtype_t *)event_data);
-                break;
-            case ESP_HTTPS_OTA_FINISH:
-                ESP_LOGI("ota", "OTA finish");
-                break;
-            case ESP_HTTPS_OTA_ABORT:
-                ESP_LOGI("ota", "OTA abort");
-                break;
-        }
-    }
-}
+
 
 
 static esp_err_t client_event_post_handler(esp_http_client_event_handle_t evt) {
@@ -141,8 +107,8 @@ if(ret != ESP_OK){
         }
         total += read_len;
         ESP_LOGI("OTA_NODE_SEND", "%d bytes", total);
-        ESP_LOGE("OTA_NODE_SEND", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
- ESP_LOGE("OTA_NODE_SEND", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+        ESP_LOGD("OTA_NODE_SEND", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+ ESP_LOGD("OTA_NODE_SEND", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
 
     }
 
@@ -162,23 +128,6 @@ if(ret != ESP_OK){
 }
 
 
-esp_err_t do_firmware_upgrade(char *url_str){
-    esp_http_client_config_t config = {
-        .url = url_str,
-        .cert_pem = NULL,
-        .event_handler = ota_event_handler
-    };
-    esp_https_ota_config_t ota_config = {
-        .http_config = &config,
-    };
-    esp_err_t ret = esp_https_ota(&ota_config);
-    if (ret == ESP_OK) {
-        esp_restart();
-    } else {
-        return ESP_FAIL;
-    }
-    return ESP_OK;
-}
 
 void http_client_get_test(char *url){
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);

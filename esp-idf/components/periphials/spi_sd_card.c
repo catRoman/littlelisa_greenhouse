@@ -258,7 +258,7 @@ esp_err_t ota_update_from_sd(void) {
     int binary_file_len;
     int written = 0;
     while ((binary_file_len = fread(ota_write_data, 1, sizeof(ota_write_data), f)) > 0) {
-        ESP_LOGI("OTA_SD_UPDATE", "data written-> %d", written);
+        ESP_LOGI("OTA_SD_UPDATE", "%d bytes", written);
         esp_ota_write(update_handle, (const void *)ota_write_data, binary_file_len);
         written += binary_file_len;
     }
@@ -282,8 +282,7 @@ esp_err_t ota_update_from_sd(void) {
     }
 
     fclose(f);
-    ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
-    vTaskDelay(pdMS_TO_TICKS(5000));
-    esp_restart();
+
+
     return ESP_OK;
 }

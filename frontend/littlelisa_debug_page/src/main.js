@@ -18,8 +18,15 @@ const logRefreshBtn = document.querySelector(".log-refresh");
 const sensorRefreshBtn = document.querySelector(".sensor-refresh");
 let logDataSocket; //socket handler
 let sensorDataSocket;
-//current node list
 
+//ota log update
+const otaLogBox = document.querySelector(".ota-log");
+const otaStatusContainer = document.querySelector(".ota-status");
+const otaStatusInfo = document.querySelector(".ota-status-info");
+const otaStatusReset = document.querySelector(".ota-status-reset");
+const fileInput = document.getElementById("fileInput");
+
+//current node list
 let nodeListObj = [];
 const renderedNodeList = new Set(null);
 
@@ -48,19 +55,16 @@ otaUpdateForm.addEventListener("submit", async (event) => {
   //this.disable = true;
   otaUpdateBtn.disabled = true;
 
-  const otaStatusContainer = document.querySelector(".ota-status");
-  const otaStatusInfo = document.querySelector(".ota-status-info");
-  const otaStatusReset = document.querySelector(".ota-status-reset");
-  const fileInput = document.getElementById("fileInput");
   const file = fileInput.files[0]; // Get the file from the file input
   const url = "ota/update_prop";
 
-  try {
-    otaStatusContainer.classList.toggle("hidden");
-    logDataSocket.onmessage = (event) => {
-      updateDataLog(event.data, "ota-log");
-    };
+  otaStatusContainer.classList.toggle("hidden");
+  // logDataSocket.onmessage = (event) => {
+  //   updateDataLog(event.data, "ota-log");
+  // };
 
+  try {
+    // initiateLogSocket(moduleData, "update");
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -75,10 +79,10 @@ otaUpdateForm.addEventListener("submit", async (event) => {
       const data = await response.text();
       console.log(data);
       otaStatusInfo.textContent = "Upload Complete...";
-      setTimeout(() => {
-        otaStatusInfo.textContent = "Preforming updates...";
-        otaStatusReset.textContent = "Manually reload in on completion...";
-      }, 3000);
+      // setTimeout(() => {
+      //   otaStatusInfo.textContent = "Preforming updates...";
+      //   otaStatusReset.textContent = "Manually reload in on completion...";
+      // }, 3000);
       // setTimeout(() => {
       //   location.reload(true);
       // }, 30000);
@@ -136,7 +140,13 @@ menuBtns.forEach((el) => {
         toggleInfoTab(".system-health");
         break;
       case "ota_btn":
-        toggleInfoTab(".ota-update");
+        if (moduleData.module_info.type == "controller") {
+          toggleInfoTab(".ota-update");
+        } else {
+          console.log(
+            "Disabled for nodes. TODO: only render button for controller"
+          );
+        }
         break;
       case "close":
         openButton.classList.toggle("hidden");
@@ -604,18 +614,20 @@ function updateSensorData(wsSensorData) {
   const sensorToUpdate = sensorType?.querySelector(
     `.local-sensor-${moduleInfoObj.local_sensor_id}`
   );
-  sensorToUpdate.querySelector(".timestamp").textContent =
-    sensorDataObj.timestamp;
-  sensorToUpdate.querySelector(".sensor-location").textContent =
-    sensorDataObj.location;
-  sensorToUpdate.querySelector(".sensor-pin").textContent =
-    sensorDataObj.module_pin;
-  sensorToUpdate.querySelector(
-    ".temp"
-  ).textContent = `${sensorDataObj.sensor_data.temp.toFixed(2)}`;
-  sensorToUpdate.querySelector(
-    ".hum"
-  ).textContent = `${sensorDataObj.sensor_data.humidity.toFixed(2)}`;
+  if (sensorToUpdate != undefined) {
+    sensorToUpdate.querySelector(".timestamp").textContent =
+      sensorDataObj.timestamp;
+    sensorToUpdate.querySelector(".sensor-location").textContent =
+      sensorDataObj.location;
+    sensorToUpdate.querySelector(".sensor-pin").textContent =
+      sensorDataObj.module_pin;
+    sensorToUpdate.querySelector(
+      ".temp"
+    ).textContent = `${sensorDataObj.sensor_data.temp.toFixed(2)}`;
+    sensorToUpdate.querySelector(
+      ".hum"
+    ).textContent = `${sensorDataObj.sensor_data.humidity.toFixed(2)}`;
+  }
 }
 
 function getAvgTempReading() {
@@ -712,7 +724,9 @@ function initiateSensorSocket(moduleDataObj) {
 }
 let logRetryCount = 0;
 
-function initiateLogSocket(moduleDataObj) {
+//------------------------------datalog
+
+function initiateLogSocket(moduleDataObj, logType) {
   const {
     module_info: { type, identifier },
   } = moduleDataObj;
@@ -741,7 +755,25 @@ function initiateLogSocket(moduleDataObj) {
   };
 
   logDataSocket.onmessage = (event) => {
-    updateDataLog(event.data, "log-output");
+    if (otaStatusContainer.classList.contains("hidden")) {
+      updateDataLog(event.data, "log-output");
+    } else {
+      updateDataLog(event.data, "ota-log");
+      extractNodeIdToStatus(event.data);
+    }
+    if (event.data.includes("ALL_NODE_UPDATES_COMPLETE")) {
+      console.log("Updating controller from SD...");
+      otaStatusReset.textContent = "Updating Controller from SD...";
+    }
+    if (event.data.includes("REFRESH_DEBUG_PAGE")) {
+      console.log("OTA Update Complete. Refreshing page in 10 seconds...");
+      otaStatusInfo.textContent = "OTA Update Complete";
+      otaStatusReset.textContent =
+        "OTA Update Complete. Refreshing page in 10 seconds...";
+      setTimeout(() => {
+        window.location.reload();
+      }, 10000);
+    }
   };
 
   window.addEventListener("beforeunload", function () {
@@ -798,7 +830,16 @@ function sanitizeConsoleLog(logStr) {
 function getValidNodeClass(macAddr) {
   return "node-" + macAddr.replaceAll(":", "-");
 }
+function extractNodeIdToStatus(updateLog) {
+  const regex = /.*UPDATING_NODE_(\d+).*/;
+  const nodeId = updateLog.match(regex);
 
+  if (nodeId) {
+    otaStatusInfo.textContent = "Updating";
+    otaStatusReset.textContent = `Updating node ${nodeId[1]}...`;
+    console.log(`Updating node ${nodeId[1]}...`);
+  }
+}
 //================
 //DEBUG help
 //==================
@@ -827,7 +868,7 @@ setInterval(() => {
   if (nodeType === "controller") {
     updateConnectedDevicesShow();
   }
-}, 15000);
+}, 5000);
 
 setInterval(getAvgTempReading, 5000);
 setInterval(fetchUptimeFunk, 5000);
