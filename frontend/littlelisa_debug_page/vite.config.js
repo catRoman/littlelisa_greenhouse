@@ -33,6 +33,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ota/, "/ota"),
       },
+      "/ws": {
+        target: "http://10.0.0.140:8080",
+        ws: true,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ws/, "/ws"),
+      },
       // "/ota": {
       //   target: "http://019dd198-8751-4f4c-ac57-55c314cd3c2d.mock.pstmn.io",
       //   changeOrigin: true,

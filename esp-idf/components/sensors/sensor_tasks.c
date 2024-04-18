@@ -612,7 +612,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_queue_monitor_task,
-        "sensor_queue_monitor",
+        "sq_monitor",
         SENSOR_QUEUE_STACK_SIZE,
         NULL,
         SENSOR_QUEUE_PRIORITY,
@@ -622,7 +622,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_preprocessing_task,
-        "sensor_prepocessing",
+        "s_prepocess",
         SENSOR_PREPROCESSING_STACK_SIZE,
         NULL,
         SENSOR_PREPROCESSING_PRIORITY,
@@ -632,7 +632,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_prepare_to_send_task,
-        "sensor_prepare_to_send",
+        "s_prep_send",
         SENSOR_PREPARE_TO_SEND_STACK_SIZE,
         NULL,
         SENSOR_PREPARE_TO_SEND_PRIORITY,
@@ -642,7 +642,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_post_processing_task,
-        "sensor_post_processing",
+        "s_post_process",
         SENSOR_POSTPROCESSING_STACK_SIZE,
         NULL,
         SENSOR_POSTPROCESSING_PRIORITY,
@@ -652,7 +652,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_send_to_ram_task,
-        "sensor_send_to_ram",
+        "s_snd_ram",
         SENSOR_SEND_TO_RAM_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_RAM_PRIORITY,
@@ -662,7 +662,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_send_to_sd_db_task,
-        "sensor_send_to_sd_db",
+        "s_snd_sd_db",
         SENSOR_SEND_TO_SD_DB_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_SD_DB_PRIORITY,
@@ -672,7 +672,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_send_to_server_db_task,
-        "sensor_send_to_server_db",
+        "s_snd_serv_db",
         SENSOR_SEND_TO_SERVER_DB_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_SERVER_DB_PRIORITY,
@@ -682,7 +682,7 @@ esp_err_t initiate_sensor_queue(){
 
     xTaskCreatePinnedToCore(
         sensor_queue_mem_cleanup_task,
-        "sensor_queue_mem_cleanup",
+        "s_q_memclean",
         SENSOR_QUEUE_MEM_CLEANUP_STACK_SIZE,
         NULL,
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
@@ -691,7 +691,7 @@ esp_err_t initiate_sensor_queue(){
 
      xTaskCreatePinnedToCore(
         sensor_send_to_websocket_server_task,
-        "sensor_send_to_websocket_server",
+        "s_snd_ws",
         SENSOR_SEND_TO_WEBSOCKET_SERVER_STACK_SIZE,
         NULL,
         SENSOR_SEND_TO_WEBSOCKET_SERVER_PRIORITY,

@@ -109,7 +109,6 @@ void app_main(void)
         return;
      }
     initiate_config();
-
     //enviroment controls?
 
 

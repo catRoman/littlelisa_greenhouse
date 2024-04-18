@@ -197,7 +197,7 @@ esp_err_t esp_now_comm_start(){
     //outgoing message
     xTaskCreatePinnedToCore(
         esp_now_comm_outgoing_data_task,
-        "esp_now_comm_outgoing_data",
+        "enw_c_out",
         ESP_NOW_COMM_OUTGOING_STACK_SIZE,
         NULL, ESP_NOW_COMM_OUTGOING_PRIORITY,
         &esp_now_comm_outgoing_data_task_handle,
@@ -206,7 +206,7 @@ esp_err_t esp_now_comm_start(){
     //incoming messages
     xTaskCreatePinnedToCore(
         esp_now_comm_incoming_data_task,
-        "esp_now_comm_incoming_data",
+        "enw_c_in",
         ESP_NOW_COMM_INCOMING_STACK_SIZE,
         NULL, ESP_NOW_COMM_INCOMING_PRIORITY,
         &esp_now_comm_incoming_data_task_handle,

@@ -113,7 +113,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			free(data_packet);
 			data_packet=NULL;
 			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
-			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 			return;
 		}
 		strcpy(data_packet->module_id, sensor_t->module_id);
@@ -129,7 +129,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			free(data_packet);
 			data_packet= NULL;
 			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
-			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 			return;
 		}
 		data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
@@ -142,7 +142,7 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			free(data_packet);
 			data_packet= NULL;
 			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
-			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 			return;
 		}
 		strcpy(data_packet->location, sensor_t->location);
@@ -178,12 +178,12 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			}
 		}else{
 			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
-			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 		}
 	}else{
 		ESP_LOGE(TAG, "Failed to allocate mem for sensor data");
 		ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
-		ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
+		ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 	}
 
 
@@ -411,7 +411,7 @@ void DHT22_task(void *vpParameter)
 
 	for(;;)
 	{
-
+ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
 		   if (ret == DHT_OK) {

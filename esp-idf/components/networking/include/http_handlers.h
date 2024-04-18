@@ -79,4 +79,5 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req);
 esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req);
 void node_ota_update_send(void *vpParam);
 
+esp_err_t get_system_state_handler(httpd_req_t *req);
 #endif

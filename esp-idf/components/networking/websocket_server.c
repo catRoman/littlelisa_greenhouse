@@ -305,7 +305,7 @@ httpd_handle_t websocket_server_configuration(void)
     vTaskDelay(pdMS_TO_TICKS(100));
 
     // create websocket server monitor task
-    xTaskCreatePinnedToCore(&websocket_server_monitor, "websocket_server_monitor",
+    xTaskCreatePinnedToCore(&websocket_server_monitor, "ws_monitor",
         WEBSOCKET_SERVER_MONITOR_STACK_SIZE, NULL, WEBSOCKET_SERVER_MONITOR_PRIORITY, &task_websocket_server_monitor, WEBSOCKET_SERVER_MONITOR_CORE_ID);
 
     // websocket server config
@@ -328,7 +328,7 @@ httpd_handle_t websocket_server_configuration(void)
 
         xTaskCreatePinnedToCore(
             websocket_send_sensor_data_queue,
-            "ws_sensor_queue",
+            "ws_s_queue",
             WEBSOCKET_SEND_SENSOR_DATA_STACK_SIZE,
             NULL,
             WEBSOCKET_SEND_SENSOR_DATA_PRIORITY,

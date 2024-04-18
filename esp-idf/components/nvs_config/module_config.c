@@ -448,19 +448,26 @@ void initiate_config(){
         //common to both node and controller
         ESP_LOGI(TAG, "Starting common services");
         initiate_sensor_queue();
-        initiate_sensor_tasks();
+        ESP_ERROR_CHECK(initiate_sensor_tasks());
+
         esp_now_comm_start();
     // ESP_LOGW(TAG, "ota upload succesful~");
 
 }
 
-void initiate_sensor_tasks(){
+esp_err_t initiate_sensor_tasks(){
 
     int8_t total_local_sensors = 0;
     for (int i =0; i < SENSOR_LIST_TOTAL; i++){
         total_local_sensors += module_info_gt->sensor_arr[i];
     }
     sensor_data_t **local_sensor = (sensor_data_t**)malloc(sizeof(sensor_data_t*) * total_local_sensors);
+    if(local_sensor == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor arr");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
+
 
     for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
 
@@ -468,16 +475,36 @@ void initiate_sensor_tasks(){
         //->TODO check if lop+1 is still valid
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
             local_sensor[sensor_id-1] = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+if(local_sensor[sensor_id-1] == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
 
 
                     local_sensor[sensor_id-1]->pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
                     local_sensor[sensor_id-1]->sensor_type = sensor_type;
                     local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
                     local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
+                    if(local_sensor[sensor_id-1]->location == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor->location");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
+
+
+
                     strcpy( local_sensor[sensor_id-1]->location,module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id] );
 
                     local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
                     local_sensor[sensor_id-1]->module_id = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->identity)));
+                    if(local_sensor[sensor_id-1]->module_id == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor->module_id");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
+
+
                     strcpy(local_sensor[sensor_id-1]->module_id, module_info_gt->identity);
 
                     local_sensor[sensor_id-1]->timestamp = 0;
@@ -514,6 +541,7 @@ void initiate_sensor_tasks(){
         }
     }
 
+    return ESP_OK;
 }
 
 
