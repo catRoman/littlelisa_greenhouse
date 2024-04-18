@@ -40,6 +40,7 @@ extern Module_info_t *module_info_gt;
 
 static const char WIFI_TAG[] = "wifi_ap_sta";
 static int s_retry_num = 0;
+extern int ota_updating;
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                     int32_t event_id, void* event_data)
@@ -47,6 +48,11 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     switch(event_id){
         case WIFI_EVENT_AP_STACONNECTED:
             ESP_LOGI(WIFI_TAG, "station joined to module ap");
+            if(ota_updating == true){
+                wifi_event_ap_staconnected_t *new_device = (wifi_event_ap_staconnected_t*)event_data;
+                esp_wifi_deauth_sta(new_device->aid);
+                ESP_LOGI(WIFI_TAG, "station joined to module ap- deauthenticated for ota propgated update");
+            }
             break;
 
         case WIFI_EVENT_AP_STADISCONNECTED:
@@ -54,10 +60,10 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
             break;
 
         case WIFI_EVENT_STA_START:
-        
+
             esp_wifi_connect();
             ESP_LOGI(WIFI_TAG, "module joined ap as sta");
-        
+
             break;
 
 
@@ -172,7 +178,7 @@ esp_netif_t *wifi_init_softap(void)
 esp_netif_t *wifi_init_sta(void)
 {
     esp_netif_t *esp_netif_sta = esp_netif_create_default_wifi_sta();
-    
+
 
     // wifi_config_t wifi_sta_config = {
     //     .sta = {

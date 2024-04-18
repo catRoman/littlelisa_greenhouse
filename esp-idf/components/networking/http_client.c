@@ -141,6 +141,9 @@ if(ret != ESP_OK){
         }
         total += read_len;
         ESP_LOGI("OTA_NODE_SEND", "%d bytes", total);
+        ESP_LOGE("OTA_NODE_SEND", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+ ESP_LOGE("OTA_NODE_SEND", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+
     }
 
     // Perform the HTTP POST

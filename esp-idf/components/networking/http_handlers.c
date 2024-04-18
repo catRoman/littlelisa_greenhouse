@@ -23,10 +23,12 @@
 #include "spi_sd_card.h"
 #include "http_client.h"
 
+#include "task_common.h"
+
 #define SQL_ID_SYNC_VAL 1
 
 TaskHandle_t myTaskHandle = NULL;
-
+int ota_updating = false;
 
 extern Module_info_t *module_info_gt;
 extern int g_fw_update_status;
@@ -650,11 +652,22 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req){
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
 
+    ota_updating = true;
 
     // //download to sd
     if(recv_ota_update_write_to_sd(req) == ESP_OK){
 
         httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
+
+//  wifi_config_t wifi_config;
+//     ESP_ERROR_CHECK(esp_wifi_get_config(WIFI_IF_AP, &wifi_config));
+//     strncpy((char*)wifi_config.ap.password, "uploading", sizeof(wifi_config.ap.password));
+//     wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK; // Ensure mode that requires password
+//     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+//     vTaskDelay(pdMS_TO_TICKS(100));
+
+
+
     }else{
         httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
         return ESP_FAIL;
@@ -668,11 +681,11 @@ BaseType_t taskCreated;
 taskCreated = xTaskCreatePinnedToCore(
         node_ota_update_send,
         "node_ota_update_send",
-        8000,
+        OTA_PROP_STACK_SIZE,
         NULL,
-        5,
+        OTA_PROP_TASK_PRIORITY,
        &myTaskHandle,
-        1);
+        OTA_PROP_TASK_CORE_ID);
 // taskCreated = xTaskCreatePinnedToCore(
 //         http_test_task,
 //         "test_send",
@@ -737,6 +750,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
         fwrite(buf, 1, received, fd);
         remaining -= received;
         ESP_LOGI("SD_DOWNLOAD", "%d bytes remaining", remaining);
+        ESP_LOGE("SD_DOWNLOAD", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 
     }
     ESP_LOGI("SD_DOWNLOAD", "recieving finished closing file");
@@ -792,7 +806,8 @@ void node_ota_update_send(void *vpParam){
      //   taskENTER_CRITICAL(&myMutex);
         post_file_in_chunks(node_addr, OTA_FILENAME);
    //    taskEXIT_CRITICAL(&myMutex);
-  // taskYIELD();
+  // taskYIE"LD();
+   ESP_LOGE("OTA_PROP_UPDATE", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
     }
 
 ota_update_from_sd();
