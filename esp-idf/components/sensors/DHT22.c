@@ -112,7 +112,8 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_id");
 			free(data_packet);
 			data_packet=NULL;
-			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
 			return;
 		}
 		strcpy(data_packet->module_id, sensor_t->module_id);
@@ -127,7 +128,8 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			data_packet->module_id = NULL;
 			free(data_packet);
 			data_packet= NULL;
-			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
 			return;
 		}
 		data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
@@ -139,8 +141,8 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			data_packet->value = NULL;
 			free(data_packet);
 			data_packet= NULL;
-			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
-
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
 			return;
 		}
 		strcpy(data_packet->location, sensor_t->location);
@@ -175,12 +177,13 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 				ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
 			}
 		}else{
-			ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
-
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
 		}
 	}else{
 		ESP_LOGE(TAG, "Failed to allocate mem for sensor data");
-		ESP_LOGE(TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+		ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+		ESP_LOGE(TAG, "Minimum heap free: %lu words\n",esp_get_free_heap_size());
 	}
 
 
@@ -429,7 +432,7 @@ void DHT22_task(void *vpParameter)
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
-
+		taskYIELD();
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
 }

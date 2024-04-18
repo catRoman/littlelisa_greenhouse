@@ -83,8 +83,11 @@ int websocket_log_handler(const char* fmt, va_list args) {
         // Send log over websocket with pause
 
         trigger_async_log_send(g_websocket_ctx.handle, g_websocket_ctx.sockfd, log_buffer);
+
     }
-    vprintf(fmt, args);
+
+
+   vprintf(fmt, args);
     return 0;
 }
 

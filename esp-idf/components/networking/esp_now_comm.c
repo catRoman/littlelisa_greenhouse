@@ -87,95 +87,101 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
     for(;;){
         if (xQueueReceive(esp_now_comm_incoming_data_queue_handle, &espnow_queue_packet, portMAX_DELAY) == pdTRUE){
             sensor_data = deserialize_sensor_data(espnow_queue_packet->data,espnow_queue_packet->len);
+            if(sensor_data != NULL){
 
-            //log for test
-            //print_sensor_data(sensor_data);
-            //pass data to sensor queue
+                //log for test
+                //print_sensor_data(sensor_data);
+                //pass data to sensor queue
 
-            //allocate for data_packet
-            sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+                //allocate for data_packet
+                sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
 
-            if(data_packet != NULL){
-
-
-                data_packet->pin_number= sensor_data->pin_number;
-                data_packet->sensor_type = sensor_data->sensor_type;
-                data_packet->total_values = sensor_data->total_values;
-                data_packet->local_sensor_id = sensor_data->local_sensor_id;
-                data_packet->timestamp = sensor_data->timestamp;
-
-                //TODO: mem error handling
-                data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-                data_packet->module_id=(char*)malloc(strlen(sensor_data->module_id) +1);
-                strcpy(data_packet->module_id, sensor_data->module_id);
-
-                data_packet->location = (char*)malloc(strlen(sensor_data->location)+1);
-                strcpy(data_packet->location, sensor_data->location);
-
-                for(int i = 0; i < data_packet->total_values; i++){
-                    data_packet->value[i] = sensor_data->value[i];
-                }
-
-                //sensor queue wrapper mem allocation
-                sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
-
-                if(queue_packet !=NULL){
-
-                    queue_packet->nextEventID = SENSOR_POST_PROCESSING;
-                    queue_packet->sensor_data = data_packet;
-                    queue_packet->semphoreCount = 0;
+                if(data_packet != NULL){
 
 
-                    // Protect send_id access with the mutex
-                    if (xSemaphoreTake(send_id_mutex, portMAX_DELAY) == pdTRUE) {
-                        queue_packet->current_send_id = send_id;
-                        send_id++;
-                        xSemaphoreGive(send_id_mutex); // Release the mutex after updating send_id
-                    } else {
-                        ESP_LOGW(ESP_NOW_COMM_TAG, "failed to get semaphore for send_id");
+                    data_packet->pin_number= sensor_data->pin_number;
+                    data_packet->sensor_type = sensor_data->sensor_type;
+                    data_packet->total_values = sensor_data->total_values;
+                    data_packet->local_sensor_id = sensor_data->local_sensor_id;
+                    data_packet->timestamp = sensor_data->timestamp;
+
+                    //TODO: mem error handling
+                    data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+                    data_packet->module_id=(char*)malloc(strlen(sensor_data->module_id) +1);
+                    strcpy(data_packet->module_id, sensor_data->module_id);
+
+                    data_packet->location = (char*)malloc(strlen(sensor_data->location)+1);
+                    strcpy(data_packet->location, sensor_data->location);
+
+                    for(int i = 0; i < data_packet->total_values; i++){
+                        data_packet->value[i] = sensor_data->value[i];
+                    }
+
+                    //sensor queue wrapper mem allocation
+                    sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+
+                    if(queue_packet !=NULL){
+
+                        queue_packet->nextEventID = SENSOR_POST_PROCESSING;
+                        queue_packet->sensor_data = data_packet;
+                        queue_packet->semphoreCount = 0;
+
+
+                        // Protect send_id access with the mutex
+                        if (xSemaphoreTake(send_id_mutex, portMAX_DELAY) == pdTRUE) {
+                            queue_packet->current_send_id = send_id;
+                            send_id++;
+                            xSemaphoreGive(send_id_mutex); // Release the mutex after updating send_id
+                        } else {
+                            ESP_LOGW(ESP_NOW_COMM_TAG, "failed to get semaphore for send_id");
+                        }
+
+
+
+
+
+                        //process the recieved message -> pass the sensor event queue
+
+                        extern QueueHandle_t sensor_queue_handle;
+                        if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+                                ESP_LOGD(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
+                                espnow_queue_packet->mac_addr[0], espnow_queue_packet->mac_addr[1], espnow_queue_packet->mac_addr[2],
+                                espnow_queue_packet->mac_addr[3], espnow_queue_packet->mac_addr[4], espnow_queue_packet->mac_addr[5]);
+
+                                ESP_LOGD(ESP_NOW_COMM_TAG, "sensor data communicated and sent to sensor que for postprocessing");
+                            }else{
+                                ESP_LOGE(ESP_NOW_COMM_TAG, "data communicated failed to transfer to sensor que");
+                            }
+
+                        free(espnow_queue_packet->data);
+                        espnow_queue_packet->data = NULL;
+                        free(espnow_queue_packet);
+                        espnow_queue_packet = NULL;
+                    }else{
+                        ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for incoming queue packet");
+                    ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
                     }
 
 
-
-
-
-                    //process the recieved message -> pass the sensor event queue
-
-                    extern QueueHandle_t sensor_queue_handle;
-                    if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-                            ESP_LOGD(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
-                            espnow_queue_packet->mac_addr[0], espnow_queue_packet->mac_addr[1], espnow_queue_packet->mac_addr[2],
-                            espnow_queue_packet->mac_addr[3], espnow_queue_packet->mac_addr[4], espnow_queue_packet->mac_addr[5]);
-
-                            ESP_LOGD(ESP_NOW_COMM_TAG, "sensor data communicated and sent to sensor que for postprocessing");
-                        }else{
-                            ESP_LOGE(ESP_NOW_COMM_TAG, "data communicated failed to transfer to sensor que");
-                        }
-
-                    free(espnow_queue_packet->data);
-                    espnow_queue_packet->data = NULL;
-                    free(espnow_queue_packet);
-                    espnow_queue_packet = NULL;
+                    free(sensor_data->value);
+                    sensor_data->value = NULL;
+                    free(sensor_data->location);
+                    sensor_data->location = NULL;
+                    free(sensor_data->module_id);
+                    sensor_data->module_id = NULL;
+                    free(sensor_data);
+                    sensor_data=NULL;
                 }else{
-                     ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for incoming queue packet");
-                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
+                    ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for new sensor data packet");
+                    ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+                    ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
                 }
 
-
-                free(sensor_data->value);
-                sensor_data->value = NULL;
-                free(sensor_data->location);
-                sensor_data->location = NULL;
-                free(sensor_data->module_id);
-                sensor_data->module_id = NULL;
-                free(sensor_data);
-                sensor_data=NULL;
             }else{
-                ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for incoming sensor data packet");
+                  ESP_LOGE(ESP_NOW_COMM_TAG, "failed to allocate mem for incoming sensor data packet");
                 ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
-                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
             }
-
 
 
         }
@@ -184,6 +190,7 @@ void esp_now_comm_incoming_data_task(void * pvParameters)
 
 esp_err_t esp_now_comm_start(){
     //TODO: verifiy its succesfull
+    esp_log_level_set(ESP_NOW_COMM_TAG, ESP_LOG_INFO);
     esp_now_comm_outgoing_data_queue_handle = xQueueCreate(10, sizeof(queue_packet_t));
     esp_now_comm_incoming_data_queue_handle = xQueueCreate(10, sizeof(queue_packet_t));
 
@@ -264,7 +271,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (packet == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for queue packet");
         ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
-                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 
         return;
     }
@@ -273,7 +280,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (packet->data == NULL) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to allocate memory for data");
         ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
-                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
         free(packet); // Clean up previously allocated packet memory
         packet= NULL;
         return;
@@ -290,7 +297,7 @@ void esp_now_comm_on_data_recv_cb(const esp_now_recv_info_t *recv_info, const ui
     if (xQueueSend(esp_now_comm_incoming_data_queue_handle, &packet, portMAX_DELAY) != pdPASS) {
         ESP_LOGE(ESP_NOW_COMM_TAG, "Failed to send packet to incoming data queue");
         ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
-                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
         free(packet->data); // Clean up allocated data memory
         packet->data=NULL;
         free(packet); // Clean up packet memory
@@ -320,7 +327,7 @@ uint8_t* serialize_sensor_data(const sensor_data_t *data, size_t *size) {
     // Allocate memory for serialized data
     uint8_t *serialized_data = (uint8_t*)malloc(total_size);
     if (serialized_data == NULL) {
-                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %u words\n",esp_get_free_heap_size());
+                ESP_LOGE(ESP_NOW_COMM_TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
         // Memory allocation failed
         *size = 0;
         return NULL;
