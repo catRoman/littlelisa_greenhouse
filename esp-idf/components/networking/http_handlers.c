@@ -599,7 +599,7 @@ esp_err_t ota_update_handler(httpd_req_t *req) {
     int remaining = req->content_len;
 
     while ((recv_len = httpd_req_recv(req, ota_buff, sizeof(ota_buff))) > 0) {
-        ESP_LOGI("OTA_UPDATE", "%d bytes remaining...", remaining);
+        ESP_LOGI("OTA_UPDATE", "%d bytes", remaining);
         taskYIELD();
 
         if (!is_req_body_started) {
@@ -676,7 +676,7 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req){
 
 
     // Loop over each connected station
-printf("Free heap size: %lu bytes\n", esp_get_free_heap_size());
+ESP_LOGD("OTA_PROP_UPADTE","Free heap size: %lu bytes\n", esp_get_free_heap_size());
 BaseType_t taskCreated;
 taskCreated = xTaskCreatePinnedToCore(
         node_ota_update_send,
@@ -749,8 +749,8 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
         // Write the received data to the file
         fwrite(buf, 1, received, fd);
         remaining -= received;
-        ESP_LOGI("SD_DOWNLOAD", "%d bytes remaining", remaining);
-        ESP_LOGE("SD_DOWNLOAD", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        ESP_LOGI("SD_DOWNLOAD", "%d bytes", remaining);
+        ESP_LOGD("SD_DOWNLOAD", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 
     }
     ESP_LOGI("SD_DOWNLOAD", "recieving finished closing file");
@@ -793,7 +793,7 @@ void node_ota_update_send(void *vpParam){
 //site to stay open
 
  for(;;){
-    ESP_LOGI("OTA_PROP_UDATE", "INSIDE TASK");
+    ESP_LOGD("OTA_PROP_UDATE", "INSIDE TASK");
 
    for (int i = 1; i <= sta_list.num; i++) {
         char node_addr[100];
@@ -801,16 +801,26 @@ void node_ota_update_send(void *vpParam){
         vTaskDelay(pdMS_TO_TICKS(3000));
         snprintf(node_addr, sizeof(node_addr)-1, "http://192.168.0.%d/ota/update",
               i+1);
-
+        ESP_LOGI("OTA_PROP_UDATE", "UPDATING_NODE_%d", i);
         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
      //   taskENTER_CRITICAL(&myMutex);
         post_file_in_chunks(node_addr, OTA_FILENAME);
    //    taskEXIT_CRITICAL(&myMutex);
   // taskYIE"LD();
-   ESP_LOGE("OTA_PROP_UPDATE", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+   ESP_LOGD("OTA_PROP_UPDATE", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
     }
+    ESP_LOGI("OTA_PROP_UPDATE", "ALL_NODE_UPDATES_COMPLETE");
 
-ota_update_from_sd();
+if(ota_update_from_sd() == ESP_OK){
+    ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
+    ESP_LOGI("OTA_SD_UPDATE", "REFRESH_DEBUG_PAGE");
+    vTaskDelay(pdMS_TO_TICKS(5000));
+
+    esp_restart();
+}else{
+    ESP_LOGI("OTA_SD_UPDATE", "OTA on self failed");
+    ota_updating = false;
+}
 
 
 //turn wifi back on in case of failure
