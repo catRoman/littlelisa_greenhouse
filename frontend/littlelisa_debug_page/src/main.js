@@ -769,7 +769,7 @@ function initiateLogSocket(moduleDataObj, logType) {
       console.log("OTA Update Complete. Refreshing page in 10 seconds...");
       otaStatusInfo.textContent = "OTA Update Complete";
       otaStatusReset.textContent =
-        "OTA Update Complete. Refreshing page in 10 seconds...";
+        "OTA Update Complete. Wifi Restarting - please ensure your reconnection.\nRefreshing page in 10 seconds...";
       setTimeout(() => {
         window.location.reload();
       }, 10000);
