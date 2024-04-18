@@ -22,6 +22,7 @@
 #include "websocket_server.h"
 #include "spi_sd_card.h"
 #include "http_client.h"
+#include "helper.h"
 
 #include "task_common.h"
 
@@ -235,6 +236,14 @@ void register_http_server_handlers(void)
             };
             httpd_register_uri_handler(http_server_handle, &propagate_ota_update);
 
+              //register systemstate handler
+            httpd_uri_t system_state = {
+                .uri = "/api/system_state",
+                .method = HTTP_GET,
+                .handler = get_system_state_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &system_state);
 
 
 
@@ -541,7 +550,38 @@ esp_err_t get_wifi_ap_connect_info_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+esp_err_t get_system_state_handler(httpd_req_t *req)
+{
+// Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "systemState requested");
+
+    char pcWriteBuffer[2048];
+vTaskGetRunTimeStats(pcWriteBuffer );
+printf("%s\n\n", pcWriteBuffer);
+
+TaskStatus_t pxTaskStatusArray[30];
+uint32_t uxArraySize = 30;
+
+uint32_t uxNumberOfTasks;
+uxNumberOfTasks = uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, NULL);
+for (uint32_t i = 0; i < uxNumberOfTasks; i++) {
+    printf("Task: %s\tHigh Water Mark: %lu words\n",
+           pxTaskStatusArray[i].pcTaskName,
+           pxTaskStatusArray[i].usStackHighWaterMark);
+}
+
+
+
+httpd_resp_set_hdr(req, "Content-Type", "text/plain");
+    httpd_resp_send(req, pcWriteBuffer, strlen(pcWriteBuffer));
+
+    return ESP_OK;
+}
 
 
 
