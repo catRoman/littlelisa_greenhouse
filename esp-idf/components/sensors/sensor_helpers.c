@@ -84,7 +84,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
 
     if (err == ESP_OK)
     {
-        ESP_LOGI(TAG, "sensor data json created");
+        ESP_LOGD(TAG, "sensor data json created");
     }
     return sensor_data_json;
 }
