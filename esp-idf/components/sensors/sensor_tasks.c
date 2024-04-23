@@ -536,7 +536,7 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             if (event)
             {
 
-                vTaskDelay(pdMS_TO_TICKS(100));
+               // vTaskDelay(pdMS_TO_TICKS(100));
                 free(event->sensor_data->value);
                 event->sensor_data->value = NULL;
                 free(event->sensor_data->location);
@@ -549,11 +549,8 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
                 event = NULL;
 
 
-                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d Memory cleaned up successfully",
-                     event->sensor_data->module_id,
-                     event->sensor_data->local_sensor_id,
-                     sensor_type_to_string(event->sensor_data->sensor_type),
-                     event->current_send_id);
+                ESP_LOGD(SENSOR_EVENT_TAG, "Memory cleaned up successfully");
+                     
                 
             }
 
