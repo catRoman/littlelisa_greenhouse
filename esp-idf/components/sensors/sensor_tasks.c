@@ -613,8 +613,7 @@ void sensor_send_to_websocket_server_task(void *pvParameters)
             xSemaphoreGive(all_tasks_complete_semaphore);
             
             
-            free(event);
-            event = NULL;
+            
 
             taskYIELD();
         }
