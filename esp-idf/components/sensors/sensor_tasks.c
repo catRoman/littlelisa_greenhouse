@@ -409,17 +409,20 @@ void sensor_post_processing_task(void *pvParameters)
                 xSemaphoreTake(all_tasks_complete_semaphore, portMAX_DELAY);
             }
 
+
+
             event->nextEventID = SENSOR_QUEUE_MEM_CLEANUP;
 
-            if (xQueueSend(sensor_queue_handle, &event, portMAX_DELAY) == pdPASS)
-            {
-
-                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d All semaphores returned sent to mem cleanup queue ",
+            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d All semaphores returned sent to mem cleanup queue ",
                          event->sensor_data->module_id,
                          event->sensor_data->local_sensor_id,
                          sensor_type_to_string(event->sensor_data->sensor_type),
                          event->current_send_id);
-            }
+
+            xQueueSend(sensor_queue_handle, &event, portMAX_DELAY);
+
+            
+          
 
             //-->pass to next thing ie db, save to ram etc,
 
