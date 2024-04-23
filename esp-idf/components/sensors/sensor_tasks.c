@@ -606,7 +606,7 @@ void sensor_send_to_websocket_server_task(void *pvParameters)
 
                     xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
 
-                    free(sensor_data_json);
+                    
                 }
             }
 
