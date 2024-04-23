@@ -424,12 +424,17 @@ void initiate_config(){
 
         ESP_LOGI(TAG,"{==nvs info==}\n%s\n", node_info_get_module_info_json());
         // Start Wifi
+        vTaskDelay(pdMS_TO_TICKS(500));
         wifi_start();
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(500));
         if (strcmp(module_info_gt->type, "controller") == 0) {
             ESP_LOGI(TAG, "Starting Controller only services");
             //sd and db_init
-            //spi_sd_card_init();
+            spi_sd_card_init();
+           // vTaskDelay(pdMS_TO_TICKS(100));
+          // spi_sd_card_test();
+
+
             //sd_db_init();
 
         } else if(strcmp(module_info_gt->type, "node") == 0){
@@ -443,40 +448,68 @@ void initiate_config(){
         //common to both node and controller
         ESP_LOGI(TAG, "Starting common services");
         initiate_sensor_queue();
-        initiate_sensor_tasks();
-        esp_now_comm_start();
+        ESP_ERROR_CHECK(initiate_sensor_tasks());
 
+        esp_now_comm_start();
+    // ESP_LOGW(TAG, "ota upload succesful~");
 
 }
 
-void initiate_sensor_tasks(){
+esp_err_t initiate_sensor_tasks(){
 
     int8_t total_local_sensors = 0;
     for (int i =0; i < SENSOR_LIST_TOTAL; i++){
         total_local_sensors += module_info_gt->sensor_arr[i];
     }
     sensor_data_t **local_sensor = (sensor_data_t**)malloc(sizeof(sensor_data_t*) * total_local_sensors);
+    if(local_sensor == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor arr");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
+
 
     for(Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++){
 
         //sensor_id starts from 1 to allows for sync with sql data base id eventualy, leaves [0] as null
+        //->TODO check if lop+1 is still valid
         for(int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type]+SQL_ID_SYNC_VAL; sensor_id++){
             local_sensor[sensor_id-1] = (sensor_data_t*)malloc(sizeof(sensor_data_t));
+if(local_sensor[sensor_id-1] == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
 
 
                     local_sensor[sensor_id-1]->pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
                     local_sensor[sensor_id-1]->sensor_type = sensor_type;
                     local_sensor[sensor_id-1]->total_values = module_info_gt->sensor_arr[sensor_type];
                     local_sensor[sensor_id-1]->location = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
+                    if(local_sensor[sensor_id-1]->location == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor->location");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
+
+
+
                     strcpy( local_sensor[sensor_id-1]->location,module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id] );
 
                     local_sensor[sensor_id-1]->local_sensor_id = sensor_id;
                     local_sensor[sensor_id-1]->module_id = (char*)malloc(sizeof(char) * (1 + strlen(module_info_gt->identity)));
+                    if(local_sensor[sensor_id-1]->module_id == NULL){
+        ESP_LOGE(TAG, "Failed to allocate local sensor->module_id");
+        ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+        return ESP_ERR_NO_MEM;
+    }
+
+
                     strcpy(local_sensor[sensor_id-1]->module_id, module_info_gt->identity);
 
                     local_sensor[sensor_id-1]->timestamp = 0;
 
-
+//TODO:map local sensor id to unique sensortype id so to better be applyed to debug page
             switch(sensor_type){
                 case DHT22:
 
@@ -508,6 +541,7 @@ void initiate_sensor_tasks(){
         }
     }
 
+    return ESP_OK;
 }
 
 
@@ -529,19 +563,19 @@ Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins,
    return sensor_config;
 }
 
-// Function to free a Module_sensor_config_t instance
-void freeModuleSensorConfig(Module_sensor_config_t *config) {
-    if (!config) return;
+// // Function to free a Module_sensor_config_t instance
+// void freeModuleSensorConfig(Module_sensor_config_t *config) {
+//     if (!config) return;
 
-    // Free each string in sensor_loc_arr
-    for (int i = 0; config->sensor_loc_arr && config->sensor_loc_arr[i] != NULL; i++) {
-        free(config->sensor_loc_arr[i]);
-    }
-    free(config->sensor_loc_arr); // Free the array of strings
+//     // Free each string in sensor_loc_arr
+//     for (int i = 0; config->sensor_loc_arr && config->sensor_loc_arr[i] != NULL; i++) {
+//         free(config->sensor_loc_arr[i]);
+//     }
+//     free(config->sensor_loc_arr); // Free the array of strings
 
-    free(config->sensor_pin_arr); // Free the array of pins
-    free(config); // Free the struct itself
-}
+//     free(config->sensor_pin_arr); // Free the array of pins
+//     free(config); // Free the struct itself
+// }
 
 // Function to create a Module_info_t instance
 Module_info_t *create_module_from_NVS() {
@@ -580,8 +614,11 @@ Module_info_t *create_module_from_NVS() {
 
 
     free(temp_module.type);
+    temp_module.type=NULL;
     free(temp_module.location);
+    temp_module.location=NULL;
     free(temp_module.identity);
+    temp_module.identity=NULL;
 
 
     return created_module;

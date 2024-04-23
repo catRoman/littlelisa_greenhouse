@@ -63,7 +63,7 @@ void sntp_service_init(void){
 void sntp_server_connection_check_task(void *vpParameter){
 
     setenv("TZ", "UTC+8", 1);
-    tzset(); 
+    tzset();
 
     #ifdef CONFIG_MODULE_TYPE_CONTROLLER
     bool RTC_IS_ON = true;
@@ -88,8 +88,8 @@ void sntp_server_connection_check_task(void *vpParameter){
 
     sntp_set_sync_interval(3600000); //one hour sync
     for(;;){
-        
-           
+
+
                 if(sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED){
                     ESP_LOGI(TAG, "sntp sync complete");
                     ESP_LOGI(TAG, "sync interval set to  %lu", sntp_get_sync_interval());
@@ -99,13 +99,13 @@ void sntp_server_connection_check_task(void *vpParameter){
                     time_t current_time = time(NULL);
 
                     ESP_LOGI(TAG, "current time set to:  %s", ctime(&current_time));
-              
+
                     ESP_ERROR_CHECK(ds1302_set_write_protect(&rtc_device, false));
                     ESP_ERROR_CHECK(ds1302_get_time(&rtc_device, &time_on_rtc));
 
-                    ESP_LOGI(TAG, "{==RTC_DS1302==} previous time retrieved from rtc: %s", asctime(&time_on_rtc));
+                    // ESP_LOGI(TAG, "{==RTC_DS1302==} previous time retrieved from rtc: %s", asctime(&time_on_rtc));
                     ESP_ERROR_CHECK(ds1302_set_time(&rtc_device, localtime(&current_time)));
-              
+
                     ESP_ERROR_CHECK(ds1302_get_time(&rtc_device, &time_on_rtc));
                     ESP_LOGI(TAG, "{==RTC_DS1302==} set to time retrieved from sntp service: %s", asctime(&time_on_rtc));
                     ESP_ERROR_CHECK(ds1302_set_write_protect(&rtc_device, false));
@@ -113,9 +113,9 @@ void sntp_server_connection_check_task(void *vpParameter){
                     #endif
                     initial_sync = false;
 
-                    
+
                 }else if (initial_sync == true){
-            
+
                     ESP_LOGI(TAG, "Waiting for system time to be set for intial sync... ");
                     vTaskDelay(5000 / portTICK_PERIOD_MS);
                 }
@@ -126,8 +126,8 @@ void sntp_server_connection_check_task(void *vpParameter){
                 }
 
                 // TODO: set syncing task
-        
-                
+
+
     }
 }
 
@@ -136,5 +136,3 @@ void sntp_server_connection_check(){
     ESP_LOGI(TAG, "starting time check");
     xTaskCreatePinnedToCore(sntp_server_connection_check_task, "sntp_connection_check", SNTP_TASK_STACK_SIZE, NULL, SNTP_TASK_PRIORITY,NULL, SNTP_TASK_CORE_ID);
 }
-
-

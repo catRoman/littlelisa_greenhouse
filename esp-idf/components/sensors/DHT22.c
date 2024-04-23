@@ -32,6 +32,7 @@
 #include "cJSON.h"
 #include "freertos/semphr.h"
 #include "sdkconfig.h"
+#include "esp_task_wdt.h"
 
 //componenets
 #include "esp_now_comm.h"
@@ -44,11 +45,11 @@
 
 
 // == global defines =============================================
-
+extern SemaphoreHandle_t send_id_mutex;
+int send_id=0;
 
 static const char TAG [] = "dht22_sensor";
-SemaphoreHandle_t xSemaphore = NULL;
-static portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+static portMUX_TYPE signalLevelMutex = portMUX_INITIALIZER_UNLOCKED;
 extern Module_info_t *module_info_gt;
 
 
@@ -91,6 +92,7 @@ char * get_DHT22_SENSOR_JSON_String(sensor_data_t *sensor_t, int sensor_choice)
 	char * json_string = get_DHT22_SENSOR_JSON_String(sensor_t, sensor_choice);
 	ESP_LOGV(TAG, "{==%s==} Logged JSON Data: %s", sensor_t->location, json_string);
 	free(json_string);
+	json_string=NULL;
  }
 
 //TODO: rewrite module_config and this to work on sensor types
@@ -99,48 +101,90 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 
 	//allocate for data_packet
 	sensor_data_t *data_packet = (sensor_data_t*)malloc(sizeof(sensor_data_t));
-
-	data_packet->pin_number = sensor_t->pin_number;
-	data_packet->total_values = 2;
-	data_packet->local_sensor_id = sensor_t->local_sensor_id;
-	data_packet->module_id = (char*)malloc(strlen(sensor_t->module_id)+1);
-	strcpy(data_packet->module_id, sensor_t->module_id);
-
-	data_packet->timestamp = 0;
-
-	//TODO: mem error handling
-	data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
-	data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
-	strcpy(data_packet->location, sensor_t->location);
+	if(data_packet != NULL){
 
 
-	data_packet->sensor_type = DHT22;
-	data_packet->value[HUMIDITY] = get_humidity(sensor_t);
-	data_packet->value[TEMP] = get_temperature(sensor_t);
-
-
-	//sensor queue wrapper mem allocation
-	sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
-
-	queue_packet->nextEventID = SENSOR_PREPOCESSING;
-	queue_packet->sensor_data = data_packet;
-	queue_packet->semphoreCount = 0;
-	queue_packet->current_send_id = send_id;
-
-    char logMsg[50];
-
-    // Use snprintf to format the string
-	snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s->send_id:%d",
-	queue_packet->sensor_data->module_id,
-	queue_packet->sensor_data->local_sensor_id,
-	sensor_type_to_string(queue_packet->sensor_data->sensor_type),
-	queue_packet->current_send_id);
-	extern QueueHandle_t sensor_queue_handle;
-	if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
-			ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
-		}else{
-			ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
+		data_packet->pin_number = sensor_t->pin_number;
+		data_packet->total_values = 2;
+		data_packet->local_sensor_id = sensor_t->local_sensor_id;
+		data_packet->module_id = (char*)malloc(strlen(sensor_t->module_id)+1);
+		if(data_packet->module_id == NULL){
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_id");
+			free(data_packet);
+			data_packet=NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+			return;
 		}
+		strcpy(data_packet->module_id, sensor_t->module_id);
+
+		data_packet->timestamp = 0;
+
+		//TODO: mem error handling
+		data_packet->value = (float *)malloc(data_packet->total_values * sizeof(float));
+		if(data_packet->value == NULL){
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->value");
+			free(data_packet->module_id);
+			data_packet->module_id = NULL;
+			free(data_packet);
+			data_packet= NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+			return;
+		}
+		data_packet->location = (char*)malloc(strlen(sensor_t->location)+1);
+		if(data_packet->location == NULL){
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->location");
+			free(data_packet->module_id);
+			data_packet->module_id = NULL;
+			free(data_packet->value);
+			data_packet->value = NULL;
+			free(data_packet);
+			data_packet= NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+			return;
+		}
+		strcpy(data_packet->location, sensor_t->location);
+
+
+		data_packet->sensor_type = DHT22;
+		data_packet->value[HUMIDITY] = get_humidity(sensor_t);
+		data_packet->value[TEMP] = get_temperature(sensor_t);
+
+
+		//sensor queue wrapper mem allocation
+		sensor_queue_wrapper_t *queue_packet = (sensor_queue_wrapper_t*)malloc(sizeof(sensor_queue_wrapper_t));
+		if(queue_packet != NULL){
+
+		queue_packet->nextEventID = SENSOR_PREPOCESSING;
+		queue_packet->sensor_data = data_packet;
+		queue_packet->semphoreCount = 0;
+		queue_packet->current_send_id = send_id;
+
+		char logMsg[50];
+
+		// Use snprintf to format the string
+		snprintf(logMsg, sizeof(logMsg), "module->%s-id:%d-%s->send_id:%d",
+		queue_packet->sensor_data->module_id,
+		queue_packet->sensor_data->local_sensor_id,
+		sensor_type_to_string(queue_packet->sensor_data->sensor_type),
+		queue_packet->current_send_id);
+		extern QueueHandle_t sensor_queue_handle;
+		if(xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS){
+				ESP_LOGD(TAG, "%s recieved from internal sensor and sent to sensor que for processing", logMsg);
+			}else{
+				ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que", logMsg);
+			}
+		}else{
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+		}
+	}else{
+		ESP_LOGE(TAG, "Failed to allocate mem for sensor data");
+		ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+		ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+	}
 
 
 }
@@ -152,22 +196,22 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 
 void errorHandler(int response, sensor_data_t *sensor_t)
 {
-	// switch(response) {
+	switch(response) {
 
-	// 	case DHT_TIMEOUT_ERROR :
-	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
-	// 		break;
+		case DHT_TIMEOUT_ERROR :
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Sensor Timeout\n",sensor_t->local_sensor_id, sensor_t->location);
+			break;
 
-	// 	case DHT_CHECKSUM_ERROR:
-	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
-	// 		break;
+		case DHT_CHECKSUM_ERROR:
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: CheckSum error\n", sensor_t->local_sensor_id, sensor_t->location );
+			break;
 
-	// 	case DHT_OK:
-	// 		break;
+		case DHT_OK:
+			break;
 
-	// 	default :
-	// 		ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
-	// }
+		default :
+			ESP_LOGE( TAG, "{==id:%d-loc:%s==}: Unknown error\n",  sensor_t->local_sensor_id, sensor_t->location);
+	}
 }
 
 /*-------------------------------------------------------------------------------
@@ -185,19 +229,19 @@ int getSignalLevel( int usTimeOut, bool state, sensor_data_t *sensor_t )
 
 	int uSec = 0;
 
-	portENTER_CRITICAL(&myMutex);
+	portENTER_CRITICAL(&signalLevelMutex);
 
 	while( gpio_get_level(sensor_t->pin_number)==state ) {
 
 		if( uSec > usTimeOut ){
-			portEXIT_CRITICAL(&myMutex);
+			portEXIT_CRITICAL(&signalLevelMutex);
 			return -1;
 		}
 
 		++uSec;
 		esp_rom_delay_us(1);		// uSec delay
 	}
-	portEXIT_CRITICAL(&myMutex);
+	portEXIT_CRITICAL(&signalLevelMutex);
 	return uSec;
 }
 
@@ -358,33 +402,37 @@ void DHT22_task(void *vpParameter)
 	sensor_t->total_values = DHT22_TOTAL_VALUE_TYPES;
 	float values[sensor_t->total_values];
 	sensor_t->value = values;
-
 	gpio_set_direction((gpio_num_t) sensor_t->pin_number, GPIO_MODE_INPUT);
 	esp_rom_delay_us( 100 );
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
 	esp_log_level_set(TAG, ESP_LOG_INFO);
-	int send_id = 0;
+	ESP_LOGD(TAG, "Started DHT22_TASK");
+
 	for(;;)
 	{
-
+ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
-		if (ret == DHT_OK){
-			//log_sensor_JSON(sensor_t, DHT22);
+		   if (ret == DHT_OK) {
+            // Protect send_id access with the mutex
+            if (xSemaphoreTake(send_id_mutex, portMAX_DELAY) == pdTRUE) {
+                dht22_sensor_send_to_sensor_queue(sensor_t, DHT22, send_id);
+                send_id++;
+                xSemaphoreGive(send_id_mutex); // Release the mutex after updating send_id
+            } else {
+                taskYIELD();
+				vTaskDelay(pdMS_TO_TICKS(100));
+				esp_task_wdt_reset();
+            }
+        } else {
+            errorHandler(ret, sensor_t);
+        }
 
-			//#ifdef CONFIG_MODULE_TYPE_NODE
-			dht22_sensor_send_to_sensor_queue(sensor_t, DHT22, send_id);
-			//#endif
-			 //TODO: change either the function name or the function for better focus
-			 send_id++;
-		}else{
-			errorHandler(ret, sensor_t);
-		}
 
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
-
+		taskYIELD();
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
 }

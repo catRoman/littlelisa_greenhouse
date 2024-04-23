@@ -20,8 +20,16 @@
 #include "sensor_tasks.h"
 #include "module_config.h"
 #include "websocket_server.h"
+#include "spi_sd_card.h"
+#include "http_client.h"
+#include "helper.h"
+
+#include "task_common.h"
 
 #define SQL_ID_SYNC_VAL 1
+
+TaskHandle_t myTaskHandle = NULL;
+int ota_updating = false;
 
 extern Module_info_t *module_info_gt;
 extern int g_fw_update_status;
@@ -34,8 +42,8 @@ extern httpd_handle_t http_server_handle;
 extern const uint8_t index_html_start[]         asm("_binary_index_html_start");
 extern const uint8_t index_html_end[]         asm("_binary_index_html_end");
 
-extern const uint8_t plant3_svg_start[]         asm("_binary_plant3_svg_start");
-extern const uint8_t plant3_svg_end[]         asm("_binary_plant3_svg_end");
+extern const uint8_t favicon_png_start[]         asm("_binary_favicon_png_start");
+extern const uint8_t favicon_png_end[]         asm("_binary_favicon_png_end");
 
 
 extern const uint8_t index_js_start[]         asm("_binary_index_js_start");
@@ -44,6 +52,11 @@ extern const uint8_t index_js_end[]         asm("_binary_index_js_end");
 
 extern const uint8_t index_css_start[]         asm("_binary_index_css_start");
 extern const uint8_t index_css_end[]         asm("_binary_index_css_end");
+
+extern const uint8_t list_svg_start[]         asm("_binary_list_svg_start");
+extern const uint8_t list_svg_end[]         asm("_binary_list_svg_end");
+
+
 
 
 
@@ -54,6 +67,19 @@ static const char HTTP_HANDLER_TAG [] = "http_handlers";
 void register_http_server_handlers(void)
 {
     ESP_LOGI(HTTP_HANDLER_TAG, "http_server_configure: Registering URI handlers");
+
+        /* Register a generic preflight handler */
+            httpd_uri_t options_uri = {
+                .uri       = "*",
+                .method    = HTTP_OPTIONS,
+                .handler   = preflight_handler,
+                .user_ctx  = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &options_uri);
+
+        //=====================
+        // littleLisa Debug content service
+        //=====================
 
         //register index.html handler
         httpd_uri_t index_html = {
@@ -66,7 +92,7 @@ void register_http_server_handlers(void)
 
         //register css handler
         httpd_uri_t index_css = {
-            .uri = "/assets/index.css",
+            .uri = "/index.css",
             .method = HTTP_GET,
             .handler = index_css_handler,
             .user_ctx = NULL,
@@ -75,7 +101,7 @@ void register_http_server_handlers(void)
 
         //register js handler
         httpd_uri_t index_js = {
-            .uri = "/assets/index.js",
+            .uri = "/index.js",
             .method = HTTP_GET,
             .handler = index_js_handler,
             .user_ctx = NULL,
@@ -83,13 +109,29 @@ void register_http_server_handlers(void)
         httpd_register_uri_handler(http_server_handle, &index_js);
 
         //register icon handler
-        httpd_uri_t plant3_svg = {
-            .uri = "/plant3.svg",
+        httpd_uri_t favicon_png = {
+            .uri = "/favicon.png",
             .method = HTTP_GET,
-            .handler = plant3_svg_handler,
+            .handler = favicon_png_handler,
             .user_ctx = NULL,
         };
-        httpd_register_uri_handler(http_server_handle, &plant3_svg);
+        httpd_register_uri_handler(http_server_handle, &favicon_png);
+
+           //register icon handler
+        httpd_uri_t list_svg = {
+            .uri = "/icons/list.svg",
+            .method = HTTP_GET,
+            .handler = list_svg_handler,
+            .user_ctx = NULL,
+        };
+        httpd_register_uri_handler(http_server_handle, &list_svg);
+
+        //end of littlelisa content service
+
+        //==========================
+        // littleLisa API
+        //=========================
+
 
         //register dhtSensor.json handler
         httpd_uri_t dht_sensor_json = {
@@ -109,14 +151,24 @@ void register_http_server_handlers(void)
         };
         httpd_register_uri_handler(http_server_handle, &wifi_connect_status);
 
-        //register wifiConnectInfo.json handler
-        httpd_uri_t wifi_connect_info_json = {
-            .uri = "/api/wifiConnectInfo.json",
+        //register wifiStaConnectInfo.json handler
+        httpd_uri_t wifi_sta_connect_info_json = {
+            .uri = "/api/wifiStaConnectInfo.json",
             .method = HTTP_GET,
-            .handler = get_wifi_connect_info_json_handler,
+            .handler = get_wifi_sta_connect_info_json_handler,
             .user_ctx = NULL
         };
-        httpd_register_uri_handler(http_server_handle, &wifi_connect_info_json);
+        httpd_register_uri_handler(http_server_handle, &wifi_sta_connect_info_json);
+
+ //register wifiApConnectInfo.json handler
+        httpd_uri_t wifi_ap_connect_info_json = {
+            .uri = "/api/wifiApConnectInfo.json",
+            .method = HTTP_GET,
+            .handler = get_wifi_ap_connect_info_json_handler,
+            .user_ctx = NULL
+        };
+        httpd_register_uri_handler(http_server_handle, &wifi_ap_connect_info_json);
+
 
         //register moduleInfo.json handler
             httpd_uri_t module_info_json = {
@@ -127,22 +179,81 @@ void register_http_server_handlers(void)
             };
             httpd_register_uri_handler(http_server_handle, &module_info_json);
 
-        /* Register a generic preflight handler */
-            httpd_uri_t options_uri = {
-                .uri       = "*",
-                .method    = HTTP_OPTIONS,
-                .handler   = preflight_handler,
-                .user_ctx  = NULL
+          //register controllerStaList.json handler
+            httpd_uri_t controller_sta_list_json = {
+                .uri = "/api/controllerStaList.json",
+                .method = HTTP_GET,
+                .handler = get_controller_sta_list_json_handler,
+                .user_ctx = NULL
             };
-            httpd_register_uri_handler(http_server_handle, &options_uri);
+            httpd_register_uri_handler(http_server_handle, &controller_sta_list_json);
+
+     //register uptimeFunk.json handler
+            httpd_uri_t uptimeFunk_json = {
+                .uri = "/api/uptimeFunk.json",
+                .method = HTTP_GET,
+                .handler = get_uptime_json_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &uptimeFunk_json);
+
+            //register deviceInfo.json handler
+            httpd_uri_t device_info_json = {
+                .uri = "/api/deviceInfo.json",
+                .method = HTTP_GET,
+                .handler = get_device_info_json_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &device_info_json);
+
+    //OTA-handlers
+
+              //register upload handler
+            httpd_uri_t upload_ota_sd = {
+                .uri = "/ota/upload",
+                .method = HTTP_POST,
+                .handler = recv_ota_update_save_to_sd_post_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &upload_ota_sd);
+
+
+              //register upload handler
+            httpd_uri_t preform_ota = {
+                .uri = "/ota/update",
+                .method = HTTP_POST,
+                .handler = ota_update_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &preform_ota);
+
+                    //register propgate update handler
+            httpd_uri_t propagate_ota_update = {
+                .uri = "/ota/update_prop",
+                .method = HTTP_POST,
+                .handler = propogate_ota_update_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &propagate_ota_update);
+
+              //register systemstate handler
+            httpd_uri_t system_state = {
+                .uri = "/api/system_state",
+                .method = HTTP_GET,
+                .handler = get_system_state_handler,
+                .user_ctx = NULL
+            };
+            httpd_register_uri_handler(http_server_handle, &system_state);
+
+
 
 
 }
-
+//static debug landing page content serve
 
 esp_err_t index_css_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "index.css requested");
+    ESP_LOGD(HTTP_HANDLER_TAG, "index.css requested");
 
     httpd_resp_set_type(req, "text/css");
     httpd_resp_send(req, (const char *)index_css_start, index_css_end - index_css_start);
@@ -175,18 +286,29 @@ esp_err_t index_js_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
- esp_err_t plant3_svg_handler(httpd_req_t *req)
+ esp_err_t favicon_png_handler(httpd_req_t *req)
 {
-    ESP_LOGI(HTTP_HANDLER_TAG, "plant3.svg requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "favicon.png requested");
 
     httpd_resp_set_type(req, "image/x-con");
-    httpd_resp_send(req, (const char *)plant3_svg_start, plant3_svg_end - plant3_svg_start);
+    httpd_resp_send(req, (const char *)favicon_png_start, favicon_png_end - favicon_png_start);
+
+    return ESP_OK;
+}
+
+ esp_err_t list_svg_handler(httpd_req_t *req)
+{
+    ESP_LOGI(HTTP_HANDLER_TAG, "list.svg requested");
+
+    httpd_resp_set_type(req, "image/x-con");
+    httpd_resp_send(req, (const char *)list_svg_start, list_svg_end - list_svg_start);
 
     return ESP_OK;
 }
 
 
 
+//api
 esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 {
 
@@ -283,7 +405,7 @@ esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 
 esp_err_t get_module_info_json_handler(httpd_req_t *req){
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "moduleInfo.json requested");
+    ESP_LOGD(HTTP_HANDLER_TAG, "moduleInfo.json requested");
 
       // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -291,10 +413,42 @@ esp_err_t get_module_info_json_handler(httpd_req_t *req){
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
 
-    const char *module_json_data = node_info_get_module_info_json();
+    char *module_json_data = node_info_get_module_info_json();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, module_json_data);
+    free(module_json_data);
+
+
+    return ESP_OK;
+}
+
+esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req){
+
+    ESP_LOGD(HTTP_HANDLER_TAG, "controllerStaList.json requested");
+
+      // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
+
+
+    wifi_mode_t mode;
+    esp_wifi_get_mode(&mode);
+
+    if(mode == WIFI_MODE_APSTA || mode == WIFI_MODE_AP){
+        char *controller_sta_list = node_info_get_controller_sta_list_json();
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_sendstr(req, controller_sta_list);
+
+        free(controller_sta_list);
+    }else{
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "400 Bad Request - requested from node");
+
+    }
+
 
 
     return ESP_OK;
@@ -317,7 +471,44 @@ esp_err_t wifi_connect_status_json_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
+esp_err_t get_device_info_json_handler(httpd_req_t *req)
+{
+
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    ESP_LOGD(HTTP_HANDLER_TAG, "deviceInfo.json requested");
+
+   char *deviceInfo = node_info_get_device_info_json();
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_sendstr(req, deviceInfo);
+
+        free(deviceInfo);
+    return ESP_OK;
+}
+
+esp_err_t get_uptime_json_handler(httpd_req_t *req)
+{
+
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    ESP_LOGD(HTTP_HANDLER_TAG, "uptimeFunk.json requested");
+
+    char *uptimeFunk = node_info_get_uptime_json();
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_sendstr(req, uptimeFunk);
+
+        free(uptimeFunk);
+    return ESP_OK;
+}
+
+
+esp_err_t get_wifi_sta_connect_info_json_handler(httpd_req_t *req)
 {
 // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -327,32 +518,76 @@ esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req)
 
     ESP_LOGI(HTTP_HANDLER_TAG, "wifiConnectInfo.json requested");
 
-    char ipInfoJSON[200];
-    memset(ipInfoJSON, 0, sizeof(ipInfoJSON));
-
-    char ip[IP4ADDR_STRLEN_MAX];
-    char netmask[IP4ADDR_STRLEN_MAX];
-    char gw[IP4ADDR_STRLEN_MAX];
-
-    wifi_ap_record_t wifi_data;
-    ESP_ERROR_CHECK(esp_wifi_sta_get_ap_info(&wifi_data));
-    char *ssid = (char*)wifi_data.ssid;
-
-    esp_netif_ip_info_t ip_info;
-
-    ESP_ERROR_CHECK(esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"), &ip_info));
-    esp_ip4addr_ntoa(&ip_info.ip, ip, IP4ADDR_STRLEN_MAX);
-    esp_ip4addr_ntoa(&ip_info.netmask, netmask, IP4ADDR_STRLEN_MAX);
-    esp_ip4addr_ntoa(&ip_info.gw, gw, IP4ADDR_STRLEN_MAX);
-
-    sprintf(ipInfoJSON, "{\"ip\":\"%s\",\"netmask\":\"%s\",\"gw\":\"%s\",\"ap\":\"%s\"}", ip, netmask, gw, ssid);
-
+    char *ipInfoJSON = node_info_get_network_sta_info_json();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, ipInfoJSON, strlen(ipInfoJSON));
 
+
+    free(ipInfoJSON);
+
     return ESP_OK;
 }
+
+esp_err_t get_wifi_ap_connect_info_json_handler(httpd_req_t *req)
+{
+// Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "wifiConnectInfo.json requested");
+
+    char *ap_info = node_info_get_network_ap_info_json();
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, ap_info, strlen(ap_info));
+
+
+    free(ap_info);
+
+    return ESP_OK;
+}
+
+esp_err_t get_system_state_handler(httpd_req_t *req)
+{
+// Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "systemState requested");
+
+    char pcWriteBuffer[2048];
+vTaskGetRunTimeStats(pcWriteBuffer );
+printf("%s\n\n", pcWriteBuffer);
+
+TaskStatus_t pxTaskStatusArray[30];
+uint32_t uxArraySize = 30;
+
+uint32_t uxNumberOfTasks;
+uxNumberOfTasks = uxTaskGetSystemState(pxTaskStatusArray, uxArraySize, NULL);
+for (uint32_t i = 0; i < uxNumberOfTasks; i++) {
+    printf("Task: %s\tHigh Water Mark: %lu words\n",
+           pxTaskStatusArray[i].pcTaskName,
+           pxTaskStatusArray[i].usStackHighWaterMark);
+}
+
+
+
+httpd_resp_set_hdr(req, "Content-Type", "text/plain");
+    httpd_resp_send(req, pcWriteBuffer, strlen(pcWriteBuffer));
+
+    return ESP_OK;
+}
+
+
+
+
+
+
 
 esp_err_t preflight_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
@@ -360,4 +595,276 @@ esp_err_t preflight_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
     httpd_resp_send(req, NULL, 0); // 200 OK with no body
     return ESP_OK;
+}
+
+
+
+esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req) {
+
+//    spi_sd_card_test();
+    if(recv_ota_update_write_to_sd(req) == ESP_OK){
+         httpd_resp_sendstr(req, "File uploaded successfully");
+    }else{
+         httpd_resp_sendstr(req, "Error: File uploaded unsuccessfully");
+
+    }
+
+    return ESP_OK;
+}
+
+
+esp_err_t ota_update_handler(httpd_req_t *req) {
+
+
+
+
+
+    char ota_buff[1024];  // Buffer size adjusted for chunk size
+    int recv_len;
+    bool is_req_body_started = false;
+
+    esp_ota_handle_t ota_handle;
+
+    const esp_partition_t *ota_partition = esp_ota_get_next_update_partition(NULL);
+
+    // Initialize OTA update on this partition
+    esp_err_t err = esp_ota_begin(ota_partition, OTA_SIZE_UNKNOWN, &ota_handle);
+    if (err != ESP_OK) {
+        ESP_LOGE("OTA_UPDATE", "esp_ota_begin failed, error=%d", err);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA begin failed");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI("OTA_UPDATE", "Starting OTA...");
+    int remaining = req->content_len;
+
+    while ((recv_len = httpd_req_recv(req, ota_buff, sizeof(ota_buff))) > 0) {
+        ESP_LOGI("OTA_UPDATE", "%d bytes", remaining);
+        taskYIELD();
+
+        if (!is_req_body_started) {
+            is_req_body_started = true;
+            ESP_LOGI("OTA_UPDATE", "Receiving OTA data...");
+        }
+
+        // Write received data to the OTA partition
+        if (esp_ota_write(ota_handle, (const void *)ota_buff, recv_len) != ESP_OK) {
+        ESP_LOG_BUFFER_HEX("OTA Data", ota_buff, recv_len);
+            ESP_LOGE("OTA_UPDATE", "OTA write failed");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA write failed");
+            esp_ota_abort(ota_handle);
+            return ESP_FAIL;
+        }
+        remaining -= recv_len;
+    }
+
+    if (recv_len < 0) {
+        ESP_LOGE("OTA_UPDATE", "Receive error %d", recv_len);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Error receiving data");
+        esp_ota_abort(ota_handle);
+        return ESP_FAIL;
+    }
+
+    // Complete the OTA update
+    if (esp_ota_end(ota_handle) != ESP_OK) {
+        ESP_LOGE("OTA_UPDATE", "OTA end failed");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA end failed");
+        return ESP_FAIL;
+    }
+
+    // Set the new OTA partition as the boot partition
+    if (esp_ota_set_boot_partition(ota_partition) != ESP_OK) {
+        ESP_LOGE("OTA_UPDATE", "OTA set boot partition failed");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA set boot partition failed");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI("OTA_UPDATE", "OTA Update Successful. Rebooting...");
+    httpd_resp_send(req, "OTA Update Successful. Rebooting in 5 seconds...", HTTPD_RESP_USE_STRLEN);
+    vTaskDelay(pdMS_TO_TICKS(5000));
+    esp_restart();  // Restart the system to boot from the updated firmware
+
+    return ESP_OK;
+}
+
+esp_err_t propogate_ota_update_handler(httpd_req_t *req){
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+
+    ota_updating = true;
+
+    // //download to sd
+    if(recv_ota_update_write_to_sd(req) == ESP_OK){
+
+        httpd_resp_send(req, "OTA update recieved successful. Preforming update to all nodes and controller...", HTTPD_RESP_USE_STRLEN);
+
+//  wifi_config_t wifi_config;
+//     ESP_ERROR_CHECK(esp_wifi_get_config(WIFI_IF_AP, &wifi_config));
+//     strncpy((char*)wifi_config.ap.password, "uploading", sizeof(wifi_config.ap.password));
+//     wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK; // Ensure mode that requires password
+//     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+//     vTaskDelay(pdMS_TO_TICKS(100));
+
+
+
+    }else{
+        httpd_resp_send(req, "Could not download ota update in full, cancelling update",HTTPD_RESP_USE_STRLEN);
+        return ESP_FAIL;
+    }
+
+
+
+    // Loop over each connected station
+ESP_LOGD("OTA_PROP_UPADTE","Free heap size: %lu bytes\n", esp_get_free_heap_size());
+BaseType_t taskCreated;
+taskCreated = xTaskCreatePinnedToCore(
+        node_ota_update_send,
+        "node_ota_update_send",
+        OTA_PROP_STACK_SIZE,
+        NULL,
+        OTA_PROP_TASK_PRIORITY,
+       &myTaskHandle,
+        OTA_PROP_TASK_CORE_ID);
+// taskCreated = xTaskCreatePinnedToCore(
+//         http_test_task,
+//         "test_send",
+//         8000,
+//         NULL,
+//         7,
+//        &myTaskHandle,
+//         1);
+
+if (taskCreated != pdPASS) {
+    printf("Task creation failed!\n");
+}
+
+
+    return ESP_OK;
+}
+
+esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req) {
+
+//    spi_sd_card_test();
+
+
+    const char *file_path = MOUNT_POINT"/ota.bin";
+
+
+    ESP_LOGI("SD_DOWNLOAD", "{==POST WRITE==} Opening file %s", file_path);
+    FILE* fd = fopen(file_path, "w");
+
+
+    if (fd == NULL) {
+        ESP_LOGE("FILE", "Failed to open file for writing");
+        return ESP_FAIL;
+    }
+
+    // Read the content posted by the browser
+    char buf[1024];
+    int received;
+
+    // Content length
+    int remaining = req->content_len;
+    ESP_LOGI("SD_DOWNLOAD", "initial content length -> %d", remaining);
+    while (remaining > 0) {
+        // Calculate how much data to read
+        int to_read = sizeof(buf);
+        if (to_read > remaining) {
+            to_read = remaining;
+        }
+
+        // Read data and write it to the file
+        received = httpd_req_recv(req, buf, to_read);
+        if (received <= 0) {
+            fclose(fd);
+            if (received == HTTPD_SOCK_ERR_TIMEOUT) {
+                ESP_LOGE("SD_DOWNLOAD", "Socket Timeout");
+                return ESP_FAIL;
+            }
+            ESP_LOGE("SD_DOWNLOAD", "Error in receiving file");
+            return ESP_FAIL;
+        }
+
+        // Write the received data to the file
+        fwrite(buf, 1, received, fd);
+        remaining -= received;
+        ESP_LOGI("SD_DOWNLOAD", "%d bytes", remaining);
+        ESP_LOGD("SD_DOWNLOAD", "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+
+    }
+    ESP_LOGI("SD_DOWNLOAD", "recieving finished closing file");
+    fclose(fd);
+
+ ESP_LOGI("SD_DOWNLOAD", "File download succesfully to sd card--> 'ota.bin'");
+
+    return ESP_OK;
+}
+
+// void node_ota_update_send(void *vpParam){
+//     wifi_sta_list_t sta_list;
+
+//     // Get the list of connected stations
+//     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
+//  for(;;){
+//     ESP_LOGI(HTTP_HANDLER_TAG, "INSIDE TASK");
+
+//    for (int i = 0; i < sta_list.num; i++) {
+//         char node_addr[100];
+//         snprintf(node_addr, sizeof(node_addr)-1, "http://littlelisa-node-%02x-%02x-%02x-%02x-%02x-%02x.local/api/moduleInfo.json",
+//              sta_list.sta[i].mac[0], sta_list.sta[i].mac[1], sta_list.sta[i].mac[2], sta_list.sta[i].mac[3], sta_list.sta[i].mac[4], sta_list.sta[i].mac[5]);
+
+//         ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
+//         //post_file_in_chunks(node_addr, OTA_FILENAME);
+//         http_client_get_test(node_addr);
+//     }
+//     vTaskDelete(NULL);
+//  }
+// }
+
+void node_ota_update_send(void *vpParam){
+    wifi_sta_list_t sta_list;
+    portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
+    // Get the list of connected stations
+    ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
+
+
+//prevent station joining while update gumming up everything while allowing debug
+//site to stay open
+
+ for(;;){
+    ESP_LOGD("OTA_PROP_UDATE", "INSIDE TASK");
+
+   for (int i = 1; i <= sta_list.num; i++) {
+        char node_addr[100];
+        ESP_LOGI("OTA_PROP_UDATE", "updating node %d", i);
+        vTaskDelay(pdMS_TO_TICKS(3000));
+        snprintf(node_addr, sizeof(node_addr)-1, "http://192.168.0.%d/ota/update",
+              i+1);
+        ESP_LOGI("OTA_PROP_UDATE", "UPDATING_NODE_%d", i);
+        ESP_LOGI("OTA_PROP_UPDATE", "node %d: %s being sent update", i, node_addr);
+     //   taskENTER_CRITICAL(&myMutex);
+        post_file_in_chunks(node_addr, OTA_FILENAME);
+   //    taskEXIT_CRITICAL(&myMutex);
+  // taskYIE"LD();
+   ESP_LOGD("OTA_PROP_UPDATE", "Minimum stack free for this task: %u words\n", uxTaskGetStackHighWaterMark(NULL));
+    }
+    ESP_LOGI("OTA_PROP_UPDATE", "ALL_NODE_UPDATES_COMPLETE");
+
+if(ota_update_from_sd() == ESP_OK){
+    ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
+    ESP_LOGI("OTA_SD_UPDATE", "REFRESH_DEBUG_PAGE");
+    vTaskDelay(pdMS_TO_TICKS(5000));
+
+    esp_restart();
+}else{
+    ESP_LOGI("OTA_SD_UPDATE", "OTA on self failed");
+    ota_updating = false;
+}
+
+
+//turn wifi back on in case of failure
+
+    vTaskDelete(NULL);
+ }
 }

@@ -1,0 +1,494 @@
+/* LittleLisa project debug page
+author: Catlin Roman
+date: april 8th 2024
+file: index.css
+
+styles for main debug page-- mobile first*/
+
+/*
+
+default: 1
+small: 1.05
+paragraph default: 1.6
+
+letter spacing
+0.5px
+0.75px
+
+FONT SIZE SYSTEM (px)
+10 / 12 / 14 / 16 / 18 / 20 / 24 / 30 / 36 / 44 / 52 / 62 / 74 / 86 / 98
+
+==============02 - colors
+#131516
+#160729
+#171856
+#243771
+#416e8f
+#dbf3f1
+=======05 SHAWDOWS
+
+=======06 BOARDER-RADIUS
+defaul: 8px
+=======07 WITESPACE
+SPACING SYSTEM (px)
+2 / 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 80 / 96 / 128
+
+*/
+
+/* =================== */
+/* HEADER */
+/* =================== */
+header {
+  display: grid;
+  grid-template-columns: 10fr 1fr;
+}
+.menu-select {
+  grid-column: 2;
+  grid-row: 1;
+}
+.overlay {
+  position: absolute;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 90%;
+  margin: 2rem;
+  margin-top: 57%;
+  /* background-color: #222121; */
+  height: 100vh;
+}
+
+.nav-btn {
+  font-family: inherit;
+  padding: 1rem 2.4rem;
+  background-color: #222121;
+  border: 2px solid #1d5752;
+  color: #dbf3f1;
+  margin-bottom: 1rem;
+  width: 100%;
+  font-size: 2.4rem;
+  border-radius: 9px;
+}
+.nav-btn:active {
+  color: #ee5b5b;
+}
+.close {
+  color: #ee5b5b;
+}
+
+.header-menu-icon {
+  width: 4rem;
+  color: #dbf3f1;
+  margin: 1rem;
+  margin-top: 2rem;
+}
+.header-menu-icon:active {
+  color: #ee5b5b;
+}
+
+.title-box {
+  font-size: 1.6rem;
+  margin: 0 2rem;
+  margin-top: 2rem;
+  grid-column: 1;
+  line-height: 3rem;
+}
+/* =================== */
+/* MENU SECTIONS */
+/* =================== */
+.network-info .subheading,
+.device-info .subheading {
+  font-size: 1.6rem;
+  margin-bottom: 1.6rem;
+  color: #8b1e1e;
+}
+.network-info span,
+.device-info span {
+  padding-left: 1rem;
+  font-weight: 300;
+  color: #f2dbaf;
+}
+
+.network-info li,
+.device-info li {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+  font-weight: 400;
+  color: #773a7e;
+}
+.network-info h2,
+.device-info h2 {
+  margin-bottom: 3.2rem;
+  font-size: 2.4rem;
+  color: rgb(36, 167, 36);
+}
+.network-info ul,
+.device-info ul {
+  padding-left: 1.2rem;
+  margin-bottom: 3.2rem;
+}
+.idf-ver-li,
+.device-info .app-info li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+/* =================== */
+/* SECTION_STATUS */
+/* =================== */
+.section-status {
+}
+.status {
+  border: 2px solid #1d5752;
+  border-radius: 9px;
+  padding: 1.2rem;
+  padding-left: 2.4rem;
+  line-height: 2.4rem;
+  font-size: 1.6rem;
+  background-color: #222121;
+}
+
+.internal-db-status,
+.external-db-status,
+.uptime {
+  color: green;
+}
+/* =================== */
+/* SECTION_ONLINE_CONNECTIONS */
+/* =================== */
+.section-online-connections {
+}
+.online-connections {
+  display: flex;
+  gap: 1.6rem;
+  flex-direction: column;
+  justify-content: center;
+}
+.subheading {
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+}
+.ota-btn,
+.sensor-refresh,
+.log-refresh,
+.online-connection-btn {
+  font-family: inherit;
+  width: 100%;
+  padding: 0.8rem 1.6rem;
+  background-color: #222121;
+  border: 2px solid #1d5752;
+  color: #dbf3f1;
+  font-size: 2.4rem;
+  border-radius: 9px;
+  margin-bottom: 1rem;
+}
+.online-connection-btn a {
+  color: #dbf3f1;
+  text-decoration: none;
+}
+.online-connection-btn a:focus-visible {
+  outline: none;
+}
+
+.sensor-refresh:active,
+.log-refresh:active,
+.online-connection-btn:active {
+  color: #ee5b5b;
+  transform: scale(0.95);
+}
+.online-connection-btn p {
+  color: orange;
+  font-size: 2rem;
+  line-height: 2;
+}
+.loc-rssi {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+}
+.rssi {
+  border: 2px solid #1d5752;
+  padding: 0 1rem;
+  border-radius: 9px;
+
+  color: #dbf3f1 !important;
+}
+button:focus,
+a:focus {
+  outline: none !important;
+}
+.dbm-label {
+  font-size: 1.4rem;
+}
+
+/* =================== */
+/* SECTION_LOG_OUTPUT */
+/* =================== */
+.ota-log,
+.log-output {
+  height: 25rem;
+}
+.connected-devices {
+  height: 10rem;
+  width: 95% !important;
+}
+
+.ota-log,
+.connected-devices,
+.log-output {
+  width: 100%;
+  text-align: left;
+  direction: ltr;
+  line-height: 1.4rem;
+  color: green;
+  overflow-y: auto;
+  resize: none;
+  font-family: monospace;
+  background-color: #222121;
+  border: 2px solid #1d5752;
+  padding: 1rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  touch-action: pan-y !important;
+}
+textarea {
+  overflow-y: auto;
+  touch-action: pan-y !important;
+}
+.sensor-header,
+.log-header {
+  display: flex;
+  justify-content: space-between;
+}
+.sensor-refresh,
+.log-refresh {
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  width: 25%;
+}
+
+/* =================== */
+/* SECTION_SENSOR_DATA */
+/* =================== */
+
+.section-sensor-data {
+}
+.sensor-data-node-box .subheading {
+  padding-left: 1rem;
+}
+.sensor-summary {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  border: 2px solid #1d5752;
+  /* border-radius: 9px; */
+  padding: 1.2rem;
+
+  line-height: 2.4rem;
+  font-size: 1.6rem;
+  background-color: #222121;
+  margin-bottom: 2rem;
+}
+.sensor-avg {
+  font-size: 2.4rem;
+}
+.timestamp {
+  font-size: 1.6rem;
+  color: #ee5b5b;
+}
+.sensor-readings-box {
+  padding: 0 1.6rem;
+  font-size: 2rem;
+  color: #dbf3f1;
+}
+.sensor-reading {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.6rem;
+  padding: 1rem;
+  border-bottom: 2px solid;
+  gap: 0.2rem;
+}
+ul {
+  list-style: none;
+}
+.sensor-value {
+  color: green;
+  font-weight: 700;
+}
+.sensor-location {
+  color: orange;
+}
+
+.sensor-type .subheading {
+  margin: 0;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+.sensor-location-pin-header {
+  margin: 0.2rem;
+  display: grid;
+  justify-content: space-between;
+  font-size: 1.6rem;
+  grid-template-columns: 1fr 1fr;
+}
+.pin {
+  justify-self: end;
+  grid-column: 2;
+  grid-row: 1;
+}
+.location-label {
+  grid-column: 1;
+  grid-row: 1;
+}
+.sensor-location {
+  padding-left: 1rem;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row: 2;
+}
+.values {
+  display: flex;
+  justify-content: space-around;
+}
+.green {
+  color: green;
+}
+.node-title {
+}
+.value-avg-box {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+}
+.status-uptime {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.uptime {
+  align-self: center;
+}
+/* .value-avg-box p {
+  align-self: last baseline;
+} */
+.body-disabled {
+  pointer-events: none;
+}
+
+/*-------------ota------------*/
+
+.ota-info {
+  margin: 3.2rem 0;
+}
+.ota-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4rem;
+}
+.ota-info {
+  font-size: 1.8rem;
+  color: #8b1e1e;
+  font-weight: 600;
+}
+.ota-input {
+  margin-top: 3rem;
+
+  width: 100%;
+
+  border-color: #1d5752;
+}
+.ota-btn {
+  font-size: 1.6rem;
+  padding: 1rem 0;
+  width: 80%;
+}
+
+input[type="file"] {
+  outline: none;
+  padding: 4px;
+  margin: -4px;
+}
+
+input[type="file"]:focus-within::file-selector-button,
+input[type="file"]:focus::file-selector-button {
+  outline: 2px solid #0964b0;
+  outline-offset: 2px;
+}
+
+input[type="file"]::before {
+  top: 16px;
+}
+
+input[type="file"]::after {
+  top: 14px;
+}
+
+input[type="file"] {
+  position: relative;
+  font-family: inherit;
+}
+
+input[type="file"]::file-selector-button {
+  width: 136px;
+  color: transparent;
+}
+
+/* Faked label styles and icon */
+input[type="file"]::before {
+  position: absolute;
+  pointer-events: none;
+  /*   top: 11px; */
+  left: 40px;
+  color: #0964b0;
+  content: "Upload File";
+}
+
+input[type="file"]::after {
+  position: absolute;
+  pointer-events: none;
+  /*   top: 10px; */
+  left: 16px;
+  height: 20px;
+  width: 20px;
+  content: "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+}
+
+/* file upload button */
+input[type="file"]::file-selector-button {
+  font-family: inherit;
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 40px;
+  cursor: pointer;
+  background-color: #222121;
+  border: 2px solid #1d5752;
+  box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+  margin-right: 16px;
+  transition: background-color 200ms;
+}
+
+/* file upload button hover state */
+input[type="file"]::file-selector-button:hover {
+  background-color: #222121;
+}
+
+/* file upload button active state */
+input[type="file"]::file-selector-button:active {
+  background-color: #222121;
+}
+
+.ota-status p {
+  color: green;
+  margin-top: 3.2rem;
+  margin-bottom: 1.4rem;
+  font-weight: 600;
+}
+.ota-status-reset {
+  color: #8b1e1e !important;
+  margin-top: 0 !important;
+  font-size: 1.4rem;
+}

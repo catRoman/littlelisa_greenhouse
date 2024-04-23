@@ -21,7 +21,7 @@ typedef struct Module_info_t{
 }Module_info_t;
 
 
-void initiate_sensor_tasks(void);
+esp_err_t initiate_sensor_tasks(void);
 
 void initiate_config(void);
 

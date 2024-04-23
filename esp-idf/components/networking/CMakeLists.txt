@@ -6,14 +6,16 @@ idf_component_register(
         esp_now_comm.c
         sntp.c
         websocket_server.c
+        http_client.c
 
 
-    REQUIRES 
+    REQUIRES
         sensors
         main
         esp_wifi
         app_update
-    
+        
+
 
     PRIV_REQUIRES
         nvs_config
@@ -24,15 +26,19 @@ idf_component_register(
         esp_http_server
         esp_timer
         main
+        freertos
+        esp_http_client
+        esp_https_ota
 
 
     INCLUDE_DIRS "include"
 
     EMBED_FILES
         landing_page/index.html
-        landing_page/plant3.svg
-        landing_page/assets/index.js
-        landing_page/assets/index.css
+        landing_page/icons/favicon.png
+        landing_page/icons/list.svg
+        landing_page/index.js
+        landing_page/index.css
 )
 
 # target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined" "-O0")
