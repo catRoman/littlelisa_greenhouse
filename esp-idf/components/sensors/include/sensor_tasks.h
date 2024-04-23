@@ -16,7 +16,8 @@
 #include "esp_err.h"
 #include <time.h>
 
-typedef enum Sensor_List{
+typedef enum Sensor_List
+{
     DHT22,
     SOIL_MOISTURE,
     LIGHT,
@@ -24,29 +25,30 @@ typedef enum Sensor_List{
     MOVEMENT,
     CAMERA,
     SENSOR_LIST_TOTAL
-}Sensor_List;
+} Sensor_List;
 
-typedef struct sensor_data_t{
-	int8_t pin_number;
+typedef struct sensor_data_t
+{
+    int8_t pin_number;
     Sensor_List sensor_type;
-	float *value;
+    float *value;
     int8_t total_values;
-	char* location;
-	int8_t local_sensor_id;
-    char* module_id;
+    char *location;
+    int8_t local_sensor_id;
+    char *module_id;
     time_t timestamp;
 
 } sensor_data_t;
 
-//sensor agnostic as long as data is recieved in strtandard struct definition
+// sensor agnostic as long as data is recieved in strtandard struct definition
 typedef enum sensor_event_type
 {
-    SENSOR_PREPOCESSING, //validation and routing (controller/node)
-    SENSOR_PREPARE_TO_SEND, //sent in struct
-    SENSOR_POST_PROCESSING, //routing, packet addition(based on sensor) and jsonify (controller/node)-timestamp
-    SENSOR_SEND_TO_RAM, //sent in struct
-    SENSOR_SEND_TO_SD_DB,   //json? or direct to db
-    SENSOR_SEND_TO_SERVER_DB,   //json? or direct to db
+    SENSOR_PREPOCESSING,    // validation and routing (controller/node)
+    SENSOR_PREPARE_TO_SEND, // sent in struct
+    SENSOR_POST_PROCESSING, // routing, packet addition(based on sensor) and jsonify (controller/node)-timestamp
+    SENSOR_SEND_TO_RAM,     // sent in struct
+    SENSOR_SEND_TO_SD_DB,   // json? or direct to db
+    SENSOR_SEND_TO_SERVER,  // json? or direct to db
     SENSOR_QUEUE_MEM_CLEANUP,
     SENSOR_SEND_TO_WEBSOCKET_SERVER
 
@@ -60,16 +62,15 @@ typedef struct sensor_queue_wrapper_t
     int current_send_id;
 } sensor_queue_wrapper_t;
 
-
 esp_err_t initiate_sensor_queue(void);
 char *sensor_type_to_string(Sensor_List sensor_type);
-void sensor_preprocessing_task(void * pvParameters);
-void sensor_prepare_to_send_task(void * pvParameters);
-void sensor_post_processing_task(void * pvParameters);
-void sensor_send_to_ram_task(void * pvParameters);
-void sensor_send_to_sd_db_task(void * pvParameters);
-void sensor_send_to_server_db_task(void * pvParameters);
-void sensor_queue_mem_cleanup_task(void * pvParameters);
-void sensor_send_to_websocket_server_task(void * pvParameters);
+void sensor_preprocessing_task(void *pvParameters);
+void sensor_prepare_to_send_task(void *pvParameters);
+void sensor_post_processing_task(void *pvParameters);
+void sensor_send_to_ram_task(void *pvParameters);
+void sensor_send_to_sd_db_task(void *pvParameters);
+void sensor_send_to_server_db_task(void *pvParameters);
+void sensor_queue_mem_cleanup_task(void *pvParameters);
+void sensor_send_to_websocket_server_task(void *pvParameters);
 
 #endif
