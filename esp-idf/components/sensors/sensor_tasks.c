@@ -109,10 +109,10 @@ void sensor_queue_monitor_task(void *pvParameters)
                      sensor_type_to_string(event->sensor_data->sensor_type),
                      event->current_send_id);
 
-            //             ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
-            //             ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-            // ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
-            //             ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
+                         ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que",logMsg);
+                         ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+             ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
+                         ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
             //             heap_caps_check_integrity_all(true);
             // heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
 
@@ -433,8 +433,8 @@ void sensor_post_processing_task(void *pvParameters)
             // event->sensor_data->module_id=NULL;
             // free(event->sensor_data);
             // event->sensor_data=NULL;
-            // free(event);
-            // event=NULL;
+            free(event);
+            event=NULL;
             //  heap_trace_stop();
             // heap_trace_dump();
             // trigger_panic();
@@ -503,7 +503,12 @@ void sensor_send_to_server_task(void *pvParameters)
                 if (sensor_data_json != NULL)
                 {
                     post_sensor_data_backend(sensor_data_json);
-                    ESP_LOGI(SENSOR_EVENT_TAG, "sensor data sent posting to server");
+                    ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sensor data sent posting to servers",
+                     event->sensor_data->module_id,
+                     event->sensor_data->local_sensor_id,
+                     sensor_type_to_string(event->sensor_data->sensor_type),
+                     event->current_send_id);
+                  
                 }
             }
 
@@ -543,7 +548,13 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
                 free(event);
                 event = NULL;
 
-                ESP_LOGI("CLEANUP_TASK", "Memory cleaned up successfully");
+
+                ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d Memory cleaned up successfully",
+                     event->sensor_data->module_id,
+                     event->sensor_data->local_sensor_id,
+                     sensor_type_to_string(event->sensor_data->sensor_type),
+                     event->current_send_id);
+                
             }
 
             taskYIELD();
