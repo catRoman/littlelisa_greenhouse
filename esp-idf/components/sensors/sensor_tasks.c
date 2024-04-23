@@ -511,7 +511,9 @@ void sensor_send_to_server_task(void *pvParameters)
                      event->sensor_data->local_sensor_id,
                      sensor_type_to_string(event->sensor_data->sensor_type),
                      event->current_send_id);
-                  
+
+
+                     free(sensor_data_json);                  
                 }
             }
 
@@ -603,10 +605,14 @@ void sensor_send_to_websocket_server_task(void *pvParameters)
                     ws_pkt.len = strlen(sensor_data_json) + 1;
 
                     xQueueSend(websocket_send_sensor_data_queue_handle, &ws_frame, portMAX_DELAY);
+
+                    free(sensor_data_json);
                 }
             }
 
             xSemaphoreGive(all_tasks_complete_semaphore);
+            
+            
             // free(event);
             // event = NULL;
 
