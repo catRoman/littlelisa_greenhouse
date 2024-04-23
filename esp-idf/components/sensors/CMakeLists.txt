@@ -2,10 +2,11 @@ idf_component_register(
     SRCS
         sensor_tasks.c
         DHT22.c
+        sensor_helpers.c
 
     INCLUDE_DIRS "include"
 
-    PRIV_REQUIRES 
+    PRIV_REQUIRES
         nvs_config
         networking
         driver
