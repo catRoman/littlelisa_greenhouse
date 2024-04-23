@@ -3,9 +3,12 @@ import { join } from "path";
 import { Web_Config_g, __root_dir } from "./globals.js";
 
 import path from "path";
+import { json } from "express/lib/response.js";
 
 function startWebServer() {
   const webApp = express();
+
+  webApp.use(express.json());
 
   // middleware for static pages
   //webApp.use('/', express.static(join(__root_dir + "/frontend/public/dice")));
