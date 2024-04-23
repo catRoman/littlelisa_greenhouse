@@ -184,7 +184,7 @@ void post_sensor_data_backend(const char *sensor_json)
         ESP_LOGE("HTTP_CLIENT", "Failed to initialize HTTP client");
         return;
     }
-    printf("%s\n", sensor_json);
+    //printf("%s\n", sensor_json);
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, sensor_json, strlen(sensor_json));
     esp_err_t err = esp_http_client_perform(client);
@@ -199,31 +199,7 @@ void post_sensor_data_backend(const char *sensor_json)
         ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
     }
 
-    // esp_err_t ret = esp_http_client_open(client, strlen(sensor_json));
-    // if (ret != ESP_OK)
-    // {
-    //     ESP_LOGE("HTTP_CLIENT", "error http client open");
-    //     return;
-    // }
-
-    // if (esp_http_client_write(client, sensor_json, strlen(sensor_json)) < 0)
-    // {
-    //     ESP_LOGE("HTTP_CLIENT", "Failed to send data chunk");
-    //     return;
-    // }
-
-    // // Perform the HTTP POST
-    // esp_err_t err = esp_http_client_perform(client);
-    // if (err == ESP_OK)
-    // {
-    //     ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %lld",
-    //              esp_http_client_get_status_code(client),
-    //              esp_http_client_get_content_length(client));
-    // }
-    // else
-    // {
-    //     ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
-    // }
+ 
 
     esp_http_client_cleanup(client);
 }
