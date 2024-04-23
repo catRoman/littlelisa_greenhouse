@@ -411,7 +411,7 @@ void DHT22_task(void *vpParameter)
 
 	for(;;)
 	{
-ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
+	ESP_LOGD(TAG, "Minimum heap free: %lu bytes\n",esp_get_free_heap_size());
 		//printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
 		   if (ret == DHT_OK) {
