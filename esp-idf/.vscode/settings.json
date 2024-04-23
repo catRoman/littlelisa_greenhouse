@@ -1,23 +1,25 @@
 {
-    "idf.adapterTargetName": "esp32",
-    "idf.port": "/dev/ttyACM1",
-    "idf.flashType": "UART",
-    "files.associations": {
-        "freertos.h": "c",
-        "string.h": "c",
-        "random": "cpp",
-        "http_handlers.h": "c",
-        "esp_ota_ops.h": "c",
-        "wifi_ap_sta.h": "c",
-        "sdkconfig.h": "c",
-        "esp_system.h": "c",
-        "sensor_tasks.h": "c",
-        "task_common.h": "c",
-        "task.h": "c",
-        "websocket_server.h": "c",
-        "module_config.h": "c",
-        "stdint.h": "c",
-        "esp_http_server.h": "c",
-        "esp_mac.h": "c"
-    }
+  "idf.adapterTargetName": "esp32",
+  "idf.port": "/dev/ttyACM0",
+  "idf.flashType": "UART",
+  "files.associations": {
+    "freertos.h": "c",
+    "string.h": "c",
+    "random": "cpp",
+    "http_handlers.h": "c",
+    "esp_ota_ops.h": "c",
+    "wifi_ap_sta.h": "c",
+    "sdkconfig.h": "c",
+    "esp_system.h": "c",
+    "sensor_tasks.h": "c",
+    "task_common.h": "c",
+    "task.h": "c",
+    "websocket_server.h": "c",
+    "module_config.h": "c",
+    "stdint.h": "c",
+    "esp_http_server.h": "c",
+    "esp_mac.h": "c",
+    "esp_err.h": "c"
+  },
+  "idf.openOcdConfigs": ["board/esp32-wrover-kit-3.3v.cfg"]
 }

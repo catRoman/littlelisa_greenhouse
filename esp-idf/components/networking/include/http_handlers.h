@@ -8,7 +8,9 @@ esp_err_t index_css_handler(httpd_req_t *req);
 
 esp_err_t index_js_handler(httpd_req_t *req);
 
- esp_err_t plant3_svg_handler(httpd_req_t *req);
+ esp_err_t list_svg_handler(httpd_req_t *req);
+
+  esp_err_t favicon_png_handler(httpd_req_t *req);
 
 /**
  * sends theindex.html page
@@ -42,7 +44,7 @@ esp_err_t wifi_connect_status_json_handler(httpd_req_t *req);
  * @param req HTTP request for which the uri needs to be handled
  * @return ESP_OK
 */
-esp_err_t get_wifi_connect_info_json_handler(httpd_req_t *req);
+esp_err_t get_wifi_sta_connect_info_json_handler(httpd_req_t *req);
 
 /* Generic Preflight Request Handler */
 esp_err_t preflight_handler(httpd_req_t *req);
@@ -58,4 +60,24 @@ esp_err_t ws_echo_handler(httpd_req_t *req);
 
 esp_err_t ws_sensor_handler(httpd_req_t *req);
 
+esp_err_t get_controller_sta_list_json_handler(httpd_req_t *req);
+
+esp_err_t get_uptime_json_handler(httpd_req_t *req);
+
+esp_err_t get_device_info_json_handler(httpd_req_t *req);
+
+esp_err_t get_wifi_ap_connect_info_json_handler(httpd_req_t *req);
+
+esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req);
+
+esp_err_t ota_update_handler(httpd_req_t *req);
+
+char* extract_boundary(const char* content_type);
+
+esp_err_t propogate_ota_update_handler(httpd_req_t *req);
+
+esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req);
+void node_ota_update_send(void *vpParam);
+
+esp_err_t get_system_state_handler(httpd_req_t *req);
 #endif

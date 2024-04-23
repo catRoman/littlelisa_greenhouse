@@ -85,8 +85,9 @@ static httpd_handle_t http_server_configuration(void)
     config.task_priority = HTTP_SERVER_TASK_PRIORITY;
     config.stack_size = HTTP_SERVER_TASK_STACK_SIZE;
     config.max_uri_handlers = 20;
-    config.recv_wait_timeout = 10;
-    config.send_wait_timeout = 10;
+    config.max_open_sockets = 13;
+    config.recv_wait_timeout = 100;
+    config.send_wait_timeout = 100;
 
     ESP_LOGI(HTTP_SERVER_TAG, "http_server_configure: Starting server on port '%d'",
             config.server_port);

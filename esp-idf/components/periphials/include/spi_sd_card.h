@@ -17,7 +17,7 @@
 #define PIN_NUM_CLK         18
 #define PIN_NUM_CS          5
 
-
+#define OTA_FILENAME "/sdcard/ota.bin"
 #define MOUNT_POINT "/sdcard"
 #define MAX_LINE_SIZE 120
 
@@ -30,5 +30,7 @@ esp_err_t spi_sd_card_read(const char *path);
 void spi_sd_card_init(void);
 
 void spi_sd_card_test(void);
+
+esp_err_t ota_update_from_sd(void);
 
 #endif
