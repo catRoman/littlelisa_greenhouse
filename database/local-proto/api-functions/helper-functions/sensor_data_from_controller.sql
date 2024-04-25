@@ -30,6 +30,7 @@ declare
     module_type_table text;
     module_id int;
     controller_id int;
+    sensor_type_id int;
 begin
     --extract data fron jsonb
     --greenhouse info
@@ -40,6 +41,7 @@ begin
     firmware_version  :=sensor_data->'module_info'->>'firmware_version';
     module_type :=sensor_data->'module_info'->>'type';
     date_compilied_str  :=sensor_data->'module_info'->>'date_compilied';
+        --adjsut timestamp for postgres
     date_compiled  := to_timestamp(date_compilied_str, 'YYY_MM_DD HH24:MI:SS');
     identifier  :=sensor_data->'module_info'->>'identifier';
     module_location  :=sensor_data->'module_info'->>'location';
@@ -48,8 +50,11 @@ begin
     sensor_pin  :=sensor_data->'sensor_info'->>'sensor_pin';
     sensor_type  :=sensor_data->'sensor_info'->>'sensor_type';
     sensor_timestamp_str  :=sensor_data->'sensor_info'->>'timestamp';
+        --adjsut timestamp for postgres
     sensor_timestamp := to_timestamp(sensor_timestamp_str, 'YYY_MM_DD HH24:MI:SS');
     sensor_location  :=sensor_data->'sensor_info'->>'location';
+
+    --variable sensor data
     sensor_data jsonb :=sensor_data->'sensor_info'->>'data';
 
 
@@ -85,7 +90,7 @@ begin
             date_compilied = date_compiled,
             location = module_location
         where identifier = identifier
-        returning
+
     else
         -- module not found
         insert into modules (greenhouse_id, zone_id, identifier, firmware_version, date_compilied, location )
@@ -145,13 +150,51 @@ begin
     else raise exception 'Module type: % -> invalid, rolling back....', module_type;
     end if;
 
-
     --create/update sensors based on sesnor_id
-    --ceck if sensor type exists if not throw exception
-    --adjsut timestamp using use_timestamp to sensor_data
-    --add sensor data to corresponding inherited sensor_data type
-    --based on type
+    --check if sensor type exists if not throw exception else store sensor_type_id
+    if not exists ( select type_id into sensor_type_id from sensor_types where type_name = sensor_type )
+    then raise exception 'Sensor type % not found, rollingback data insert...', sensor_type;
+    end if;
 
+    if exists (
+        select 1
+        from sensors
+        where sensor_id = sensor_id
+        and (
+            module_id != module_id or
+            sensor_pin != sensor_pin or
+            location != sensor_location or
+            type_id != sensor_type_id
+            ))
+    then
+        update sensors
+        -- module exists but  data needs updating
+        set
+            module_id = module_id,
+            sensor_pin = sensor_pin,
+            location = sensor_location,
+            type_id = sensor_type_id
+        where sensor_id = sensor_id
 
+    else
+        -- module not found
+        insert into sensors (module_id, sensor_pin, location, type_id )
+        values (module_id, sensor_pin, sensor_location, sensor_type_id);
+    end if;
+
+    --add sensor data to corresponding inherited sensor_data type based on type
+
+    if sensor_type = 'dht22'
+        insert into dht22_data (sensor_id, timestamp, temperature, humidity)
+        values (
+            sensor_id,
+            sensor_timestamp,
+             sensor_data->'temperature'::decimal(5,2),
+             sensor_data->'humidity'::decimal(5,2));
+
+    else raise exception 'Irregular sensor type not caught, rolling back...';
+    end if;
+
+    raise notice 'sensor data added at %', now();
 end;
 $$;

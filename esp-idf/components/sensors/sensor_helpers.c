@@ -48,7 +48,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     cJSON_AddStringToObject(module_info, "location", module_info_gt->location);
     cJSON_AddNumberToObject(module_info, "sensor_id", sensor_data_recv->local_sensor_id);
 
-    cJSON_AddItemToObject(root, "sensor_data", sensor_info);
+    cJSON_AddItemToObject(root, "sensor_info", sensor_info);
     cJSON_AddNumberToObject(sensor_info, "sensor_pin", sensor_data_recv->pin_number);
     cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(sensor_data_recv->sensor_type));
 
@@ -57,7 +57,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
 
     cJSON_AddStringToObject(sensor_info, "timestamp", timestamp);
     cJSON_AddStringToObject(sensor_info, "location", sensor_data_recv->location);
-    cJSON_AddItemToObject(sensor_info, "sensor_data", sensor_data);
+    cJSON_AddItemToObject(sensor_info, "data", sensor_data);
 
     switch (sensor_data_recv->sensor_type)
     {
@@ -73,7 +73,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
                 switch (i)
                 {
                 case 0:
-                    snprintf(value_name, 25, "temp");
+                    snprintf(value_name, 25, "temperature");
                     break;
                 case 1:
                     snprintf(value_name, 25, "humidity");
