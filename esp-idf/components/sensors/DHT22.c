@@ -431,12 +431,12 @@ void DHT22_task(void *vpParameter)
 	esp_rom_delay_us(100);
 	gpio_set_pull_mode(sensor_t->pin_number, GPIO_PULLUP_ONLY);
 	vTaskDelay(pdMS_TO_TICKS(1000));
-	esp_log_level_set(TAG, ESP_LOG_INFO);
+	esp_log_level_set(TAG, ESP_LOG_DEBUG);
 	ESP_LOGD(TAG, "Started DHT22_TASK");
 
 	for (;;)
 	{
-		ESP_LOGW(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+		ESP_LOGW(TAG, "Minimum heap free: %u bytes\n", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
 		// printf("=== Reading DHT ===\n");
 		int ret = readDHT(sensor_t);
 		if (ret == DHT_OK)
