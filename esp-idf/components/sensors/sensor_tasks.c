@@ -111,7 +111,7 @@ void sensor_queue_monitor_task(void *pvParameters)
 
             ESP_LOGD(SENSOR_EVENT_TAG, "%s entered sensor que", logMsg);
             // ESP_LOGW(SENSOR_EVENT_TAG, "free mem total:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-            // ESP_LOGW(SENSOR_EVENT_TAG, "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
+            ESP_LOGW("sensor-que", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             // ESP_LOGW(SENSOR_EVENT_TAG, "largest free block:%d\n", heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL));
             heap_caps_check_integrity_all(true);
             // heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
@@ -274,7 +274,7 @@ void sensor_preprocessing_task(void *pvParameters)
                              event->current_send_id);
                 }
             }
-
+            ESP_LOGW("preprocessor", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -342,7 +342,8 @@ void sensor_prepare_to_send_task(void *pvParameters)
             //     event->sensor_data=NULL;
             //     free(event);
             //     event=NULL;
-            // taskYIELD();
+            ESP_LOGW("prepare-to-send", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
+            taskYIELD();
         }
     }
 }
@@ -436,7 +437,7 @@ void sensor_post_processing_task(void *pvParameters)
             //  heap_trace_stop();
             // heap_trace_dump();
             // trigger_panic();
-
+            ESP_LOGW("post-process", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -455,7 +456,7 @@ void sensor_send_to_ram_task(void *pvParameters)
                      event->sensor_data->local_sensor_id,
                      sensor_type_to_string(event->sensor_data->sensor_type),
                      event->current_send_id);
-
+            ESP_LOGW("send-to-ram", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -474,7 +475,7 @@ void sensor_send_to_sd_db_task(void *pvParameters)
                      event->sensor_data->local_sensor_id,
                      sensor_type_to_string(event->sensor_data->sensor_type),
                      event->current_send_id);
-
+            ESP_LOGW("send-sd-db", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -488,6 +489,7 @@ void sensor_send_to_server_task(void *pvParameters)
     {
         if (xQueueReceive(sensor_send_to_server_handle, &event, portMAX_DELAY) == pdTRUE)
         {
+            ESP_LOGW("send-to-server-start", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d in server send process",
                      event->sensor_data->module_id,
                      event->sensor_data->local_sensor_id,
@@ -496,6 +498,7 @@ void sensor_send_to_server_task(void *pvParameters)
 
             if (event->sensor_data != NULL)
             {
+                ESP_LOGW("send-to-server-before-post", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
                 char *sensor_data_json = create_sensor_data_json(event->sensor_data);
 
                 if (sensor_data_json != NULL)
@@ -508,10 +511,13 @@ void sensor_send_to_server_task(void *pvParameters)
                              event->current_send_id);
 
                     free(sensor_data_json);
+                    ESP_LOGW("send-to-server-after-post", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
                 }
             }
 
             xSemaphoreGive(all_tasks_complete_semaphore);
+
+            ESP_LOGW("send-to-server-end", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -569,6 +575,7 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
                          curr_send_id);
             }
 
+            ESP_LOGW("mem-cleanup", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -622,7 +629,7 @@ void sensor_send_to_websocket_server_task(void *pvParameters)
             }
 
             xSemaphoreGive(all_tasks_complete_semaphore);
-
+            ESP_LOGW("send-to-ws", "free min size:%d", heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -631,7 +638,7 @@ void sensor_send_to_websocket_server_task(void *pvParameters)
 esp_err_t initiate_sensor_queue()
 {
     ESP_LOGI(SENSOR_EVENT_TAG, "sensor queue init started");
-    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_DEBUG);
+    esp_log_level_set(SENSOR_EVENT_TAG, ESP_LOG_INFO);
 
     sensor_queue_handle = xQueueCreate(50, sizeof(sensor_queue_wrapper_t));
     if (sensor_queue_handle == NULL)
