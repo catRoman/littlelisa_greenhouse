@@ -19,7 +19,8 @@
     "stdint.h": "c",
     "esp_http_server.h": "c",
     "esp_mac.h": "c",
-    "esp_err.h": "c"
+    "esp_err.h": "c",
+    "esp_app_desc.h": "c"
   },
   "idf.openOcdConfigs": ["board/esp32-wrover-kit-3.3v.cfg"]
 }
