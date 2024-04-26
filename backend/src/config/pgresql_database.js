@@ -3,7 +3,7 @@ const { Pool } = pg;
 
 const { Client } = pg;
 
-const pool = new Pool({
+export const db_pool = new Pool({
   host: "10.0.0.204",
   port: 5432,
   database: "little_lisa_proto",
@@ -11,8 +11,20 @@ const pool = new Pool({
   password: "littleLisa",
 });
 
-function connectToDatabase() {
+db_pool.on("notice", (notice) => {
+  console.log("Notice from little_lisa_proto:", notice.message);
+});
+
+export function connectToDatabase() {
   console.log("Hello there");
 }
 
-export { connectToDatabase };
+export async function handleSensorData(sensorData) {
+  try {
+    const result = await db_pool.query("SELECT add_sensor_data($1)", [
+      JSON.stringify(sensorData),
+    ]);
+  } catch (error) {
+    console.log("uhuhuh there was an error", error);
+  }
+}
