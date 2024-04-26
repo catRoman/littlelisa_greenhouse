@@ -20,10 +20,40 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     esp_err_t err = ESP_OK;
 
     cJSON *root = cJSON_CreateObject();
+    if (root == NULL)
+    {
+        return NULL;
+    }
     cJSON *greenhouse_info = cJSON_CreateObject();
+    if (greenhouse_info == NULL)
+    {
+        cJSON_Delete(root);
+        return NULL;
+    }
     cJSON *module_info = cJSON_CreateObject();
+    if (module_info == NULL)
+    {
+        cJSON_Delete(greenhouse_info);
+        cJSON_Delete(root);
+        return NULL;
+    }
     cJSON *sensor_info = cJSON_CreateObject();
+    if (sensor_info == NULL)
+    {
+        cJSON_Delete(module_info);
+        cJSON_Delete(greenhouse_info);
+        cJSON_Delete(root);
+        return NULL;
+    }
     cJSON *sensor_data = cJSON_CreateObject();
+    if (sensor_data == NULL)
+    {
+        cJSON_Delete(sensor_info);
+        cJSON_Delete(module_info);
+        cJSON_Delete(greenhouse_info);
+        cJSON_Delete(root);
+        return NULL;
+    }
 
     cJSON_AddItemToObject(root, "greenhouse_info", greenhouse_info);
     // temp for now will retrieve from module info eventually

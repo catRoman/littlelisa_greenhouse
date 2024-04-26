@@ -12,7 +12,7 @@
 #define MAIN_TASKS_COMMON_H_
 
 // NETWORK PROCESSES
-
+#define BACKEND_URL "http://10.0.0.53:3000/api/sensorStream"
 // WiFi application task
 #define SNTP_TASK_STACK_SIZE 4096
 #define SNTP_TASK_PRIORITY 5 // 0 is lowest priority in freeRTOS

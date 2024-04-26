@@ -9,10 +9,9 @@
 #include "esp_https_ota.h"
 
 #include "http_client.h"
+#include "task_common.h"
 
 /* Event handler for catching system events */
-
-#define BACKEND_URL "http://10.0.0.53:3000/api/sensorStream"
 
 static esp_err_t client_event_post_handler(esp_http_client_event_handle_t evt)
 {
@@ -184,7 +183,7 @@ void post_sensor_data_backend(const char *sensor_json)
         ESP_LOGE("HTTP_CLIENT", "Failed to initialize HTTP client");
         return;
     }
-    //printf("%s\n", sensor_json);
+    // printf("%s\n", sensor_json);
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, sensor_json, strlen(sensor_json));
     esp_err_t err = esp_http_client_perform(client);
@@ -199,7 +198,8 @@ void post_sensor_data_backend(const char *sensor_json)
         ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
     }
 
- 
-
+    free(sensor_json);
+    // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);
+    sensor_json = NULL;
     esp_http_client_cleanup(client);
 }
