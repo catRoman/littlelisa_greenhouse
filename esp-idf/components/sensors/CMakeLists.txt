@@ -12,6 +12,7 @@ idf_component_register(
         driver
         json
         esp_http_server
+        esp_http_client
 
 )
 
