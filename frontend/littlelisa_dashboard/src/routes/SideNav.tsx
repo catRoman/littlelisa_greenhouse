@@ -1,8 +1,9 @@
+import WeatherAp from "../components/WeatherApp";
 import NavItem from "./NavItem";
 
 export default function SideNave() {
   return (
-    <nav className="m-4 flex list-none flex-col items-center gap-4 text-xl font-bold tracking-wider text-stone-700">
+    <nav className="m-0 flex h-screen list-none flex-col items-center gap-4 p-4 text-xl tracking-wider text-stone-700">
       <div className="flex justify-center">
         <img
           width="70px"
@@ -11,11 +12,14 @@ export default function SideNave() {
         />
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col font-bold">
         <NavItem>dashboard</NavItem>
         <NavItem>zones</NavItem>
         <NavItem>sensors</NavItem>
         <NavItem>settings</NavItem>
+      </div>
+      <div className="mt-auto">
+        <WeatherAp />
       </div>
     </nav>
   );

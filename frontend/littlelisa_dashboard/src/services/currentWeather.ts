@@ -1,16 +1,16 @@
-//weatherapi.com apr 26/2024
-const weatherApiKey = "96315d212b3c425aac312511242704";
+import { WEATHER_API_KEY } from "../data/api_keys";
 
-const currentWeatherApiUrl = `http://api.weatherapi.com/v1/current.json?key=${weatherApiKey}{&q=48.42,-123.53&aqi=no`;
+const currentWeatherApiUrl = `http://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=48.42,-123.53&aqi=no`;
 
-export interface WeatherData {
+export type WeatherData = {
   temp_c: number;
   weather_code: number;
   wind_kph: number;
-  percip_mm: number;
+  precip_mm: number;
   humidity: number;
   feelslike_c: number;
-}
+  localtime: string;
+};
 
 export async function fetchWeatherData(): Promise<WeatherData | null> {
   try {
@@ -20,11 +20,14 @@ export async function fetchWeatherData(): Promise<WeatherData | null> {
     }
 
     const {
-      condition: { code: weather_code },
-      ...other
+      location: { localtime },
+      current: {
+        condition: { code: weather_code },
+        ...other
+      },
     } = await response.json();
 
-    return { weather_code, ...other };
+    return { weather_code, localtime, ...other };
   } catch (error) {
     console.log("Error requesting current weather data", error);
     return null;
