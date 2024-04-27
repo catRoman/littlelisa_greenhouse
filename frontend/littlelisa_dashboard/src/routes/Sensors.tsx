@@ -1,7 +1,7 @@
-export default function DashBoard() {
+export default function Sensors() {
   return (
     <main className="m-4">
-      <h1 className="mb-4 text-2xl">hello im a DashBoard</h1>
+      <h1 className="mb-4 text-2xl">hello im a Sensors</h1>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus fugiat
         saepe id aspernatur officia recusandae cumque in quia officiis?
