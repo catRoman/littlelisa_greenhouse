@@ -4,9 +4,9 @@ import { Outlet } from "react-router-dom";
 export default function Root() {
   return (
     <>
-      <div className="flex">
+      <div className="">
         <SideNave />
-        <main className="m-4">
+        <main className="m-0 ml-40">
           <Outlet />
         </main>
       </div>
