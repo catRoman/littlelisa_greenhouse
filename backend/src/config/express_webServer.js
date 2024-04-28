@@ -1,6 +1,8 @@
 import express from "express";
 import { join } from "path";
 import { Web_Config_g, __root_dir } from "./globals.js";
+import { MjpegProxy } from "mjpeg-proxy";
+
 
 import path from "path";
 
@@ -15,7 +17,7 @@ function startWebServer() {
   //webApp.use("/", express.static(path.join(__root_dir, "backend/public_test")));
   webApp.use("/", express.static("public_test"));
   //webApp.use("/esp", express.static(join(__root_dir + "/frontend/public/esp")));
-
+  webApp.get('/camStream', new MjpegProxy('http://10.0.0.249/camStream').proxyRequest);
   //recieve sensor json from esp
   webApp.post("/api/sensorStream", (req, res) => {
     try {

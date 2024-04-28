@@ -6,6 +6,7 @@ export default function SideNave() {
     <nav className="fixed m-0 flex h-screen  list-none flex-col items-center gap-4 p-4 text-xl tracking-wider text-stone-700">
       <div className="flex justify-center">
         <img
+          className=""
           width="70px"
           src="../../public/assets/noun-greenhouse-6514676.svg"
           alt="little greenhouse icon"

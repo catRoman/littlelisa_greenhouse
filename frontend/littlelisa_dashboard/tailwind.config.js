@@ -8,6 +8,9 @@ export default {
         // Add more custom font families as needed
       },
     },
+    backgroundImage:{
+      'main-cam': "url('http://10.0.0.249/camStream')"
+    },
   },
   plugins: [],
 };
