@@ -75,16 +75,16 @@ static httpd_handle_t http_server_configuration(void)
 
     // create HTTP server monitor task
     xTaskCreatePinnedToCore(&http_server_monitor, "http_server_monitor",
-                            4000, NULL, 5, &task_http_server_monitor, 1);
+                            8148, NULL, 5, &task_http_server_monitor, 1);
 
     // http server config
     config.core_id = 1;
     config.task_priority = 5;
-    config.stack_size = 4000;
+    config.stack_size = 8148;
     config.max_uri_handlers = 20;
     config.max_open_sockets = 7;
-    config.recv_wait_timeout = 100;
-    config.send_wait_timeout = 100;
+    config.recv_wait_timeout = 10000;
+    config.send_wait_timeout = 10000;
 
     ESP_LOGI(HTTP_SERVER_TAG, "http_server_configure: Starting server on port '%d'",
              config.server_port);
@@ -171,7 +171,7 @@ esp_err_t jpg_stream_httpd_handler(httpd_req_t *req)
         }
         if (fb->format != PIXFORMAT_JPEG)
         {
-            bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
+            bool jpeg_converted = frame2jpg(fb, 20, &_jpg_buf, &_jpg_buf_len);
             if (!jpeg_converted)
             {
                 ESP_LOGE(HTTP_SERVER_TAG, "JPEG compression failed");
