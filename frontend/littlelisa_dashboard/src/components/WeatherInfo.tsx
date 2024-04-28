@@ -45,7 +45,11 @@ export default function WeatherInfo({ data }: WeatherInfoProps) {
 
   return (
     <div className="flex flex-col items-center gap-1 text-xs">
-      <img width="40px" src={handleWeatherIcon(weather_code, localtime)} />
+      <img
+        className=""
+        width="40px"
+        src={handleWeatherIcon(weather_code, localtime)}
+      />
       <span>{localtime}</span>
       <p className="font-bold">Temp:</p>
       <span>{temp_c} &deg;C</span>
