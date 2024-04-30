@@ -1,11 +1,66 @@
 import express from "express";
+import fetch from "node-fetch";
+import EventEmitter from "events";
+import { Readable } from "stream";
 import { join } from "path";
 import { Web_Config_g, __root_dir } from "./globals.js";
 import { MjpegProxy } from "mjpeg-proxy";
 
-
 import path from "path";
 
+//=======================================
+// buffer for esp cam stream
+//=================================
+
+class CamBuffer extends EventEmitter {
+  constructor(initialData) {
+    super();
+    this.buffer = Buffer.from(initialData);
+  }
+
+  // Method to update the buffer
+  update(newData) {
+    this.buffer = newData;
+    this.emit("updated", this.buffer);
+  }
+
+  // Method to get the buffer
+  getBuffer() {
+    return this.buffer;
+  }
+}
+
+const camBuffer = new CamBuffer(Buffer.alloc(0));
+
+(async () => {
+  console.log("trying cam stream connection");
+  try {
+    const camStream = await fetch("http://10.0.0.249/camStream");
+    if (!camStream.ok) {
+      throw new Error("cannot connect to cam stream....");
+    }
+
+    console.log("Connected to cam stream succesful");
+
+    camStream.body.on("data", (chunk) => {
+      //assuming jpegStream in binary
+      camBuffer.update(chunk);
+      console.log("=================================================");
+      console.log(chunk.toString());
+      console.log("=========================================");
+
+      //console.log(`chunk sent to buffer-> Chunk Length: ${chunk.length}`);
+      //console.log(`New buffer size: length-> ${camBuffer.length}`);
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+})();
+
+// camBuffer.on("updated", () => {
+//   console.log("buffer Updated");
+// });
+//===============================\
 
 function startWebServer() {
   const webApp = express();
@@ -17,7 +72,31 @@ function startWebServer() {
   //webApp.use("/", express.static(path.join(__root_dir, "backend/public_test")));
   webApp.use("/", express.static("public_test"));
   //webApp.use("/esp", express.static(join(__root_dir + "/frontend/public/esp")));
-  webApp.get('/camStream', new MjpegProxy('http://10.0.0.249/camStream').proxyRequest);
+  webApp.get("/camStream", (req, res) => {
+    try {
+      res.statusCode = 200;
+      res.setHeader(
+        "Content-type",
+        "multipart/x-mixed-replace; boundary=frame"
+      );
+      res.setHeader("Connection", "keep-alive");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Transfer-Encoding", "chunked");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      //console.log(req);
+
+      const onData = (buff) => res.write(buff);
+
+      camBuffer.on("updated", onData);
+
+      req.on("close", () => {
+        camBuffer.removeListener("update", onData);
+        res.end();
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  });
   //recieve sensor json from esp
   webApp.post("/api/sensorStream", (req, res) => {
     try {
