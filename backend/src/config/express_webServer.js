@@ -39,16 +39,42 @@ const camBuffer = new CamBuffer(Buffer.alloc(0));
     if (!camStream.ok) {
       throw new Error("cannot connect to cam stream....");
     }
-
     console.log("Connected to cam stream succesful");
+
+    let currentChunk = Buffer.alloc(0);
 
     camStream.body.on("data", (chunk) => {
       //assuming jpegStream in binary
-      camBuffer.update(chunk);
-      console.log("=================================================");
-      console.log(chunk.toString());
-      console.log("=========================================");
+      //console.log(chunk);
 
+      currentChunk = Buffer.concat([currentChunk, chunk]);
+
+      const jpegStartMarker = Buffer.from([0xff, 0xd8]);
+      const jpegEndMarker = Buffer.from([0xff, 0xd9]);
+
+      let jpegEndImageIndex = currentChunk.indexOf(jpegEndMarker);
+      while (jpegEndImageIndex !== -1) {
+        let jpegStartImageIndex = currentChunk.indexOf(jpegStartMarker);
+        if (
+          jpegStartImageIndex !== -1 &&
+          jpegStartImageIndex < jpegEndImageIndex
+        ) {
+          camBuffer.update(
+            currentChunk.subarray(
+              jpegStartImageIndex /*+ jpegStartMarker.byteLength*/,
+              jpegEndImageIndex
+            )
+          );
+
+          //console.log(currentImage);
+        }
+        currentChunk = currentChunk.subarray(
+          jpegEndImageIndex + jpegEndMarker.byteLength
+        );
+        jpegEndImageIndex = currentChunk.indexOf(jpegEndMarker);
+      }
+
+      //console.log(currentChunk.toString("hex"));
       //console.log(`chunk sent to buffer-> Chunk Length: ${chunk.length}`);
       //console.log(`New buffer size: length-> ${camBuffer.length}`);
     });
@@ -62,7 +88,7 @@ const camBuffer = new CamBuffer(Buffer.alloc(0));
 // });
 //===============================\
 
-function startWebServer() {
+export function startWebServer() {
   const webApp = express();
 
   webApp.use(express.json());
@@ -77,7 +103,7 @@ function startWebServer() {
       res.statusCode = 200;
       res.setHeader(
         "Content-type",
-        "multipart/x-mixed-replace; boundary=frame"
+        "multipart/x-mixed-replace; boundary=--hotdogs"
       );
       res.setHeader("Connection", "keep-alive");
       res.setHeader("Cache-Control", "no-cache");
@@ -85,7 +111,12 @@ function startWebServer() {
       res.setHeader("Access-Control-Allow-Origin", "*");
       //console.log(req);
 
-      const onData = (buff) => res.write(buff);
+      const onData = (buff) => {
+        res.write("--hotdogs\r\n");
+        res.write("Content-Type: image/jpeg\r\n\r\n");
+        res.write(buff, "binary");
+        res.write("\r\n");
+      };
 
       camBuffer.on("updated", onData);
 
@@ -122,5 +153,3 @@ function startWebServer() {
 
   return webApp;
 }
-
-export { startWebServer };
