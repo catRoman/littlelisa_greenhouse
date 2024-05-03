@@ -44,35 +44,36 @@ const camBuffer = new CamBuffer(Buffer.alloc(0));
     let currentChunk = Buffer.alloc(0);
 
     camStream.body.on("data", (chunk) => {
+      camBuffer.update(chunk);
       //assuming jpegStream in binary
       //console.log(chunk);
 
-      currentChunk = Buffer.concat([currentChunk, chunk]);
+      // currentChunk = Buffer.concat([currentChunk, chunk]);
 
-      const jpegStartMarker = Buffer.from([0xff, 0xd8]);
-      const jpegEndMarker = Buffer.from([0xff, 0xd9]);
+      // const jpegStartMarker = Buffer.from([0xff, 0xd8]);
+      // const jpegEndMarker = Buffer.from([0xff, 0xd9]);
 
-      let jpegEndImageIndex = currentChunk.indexOf(jpegEndMarker);
-      while (jpegEndImageIndex !== -1) {
-        let jpegStartImageIndex = currentChunk.indexOf(jpegStartMarker);
-        if (
-          jpegStartImageIndex !== -1 &&
-          jpegStartImageIndex < jpegEndImageIndex
-        ) {
-          camBuffer.update(
-            currentChunk.subarray(
-              jpegStartImageIndex /*+ jpegStartMarker.byteLength*/,
-              jpegEndImageIndex
-            )
-          );
+      // let jpegEndImageIndex = currentChunk.indexOf(jpegEndMarker);
+      // while (jpegEndImageIndex !== -1) {
+      //   let jpegStartImageIndex = currentChunk.indexOf(jpegStartMarker);
+      //   if (
+      //     jpegStartImageIndex !== -1 &&
+      //     jpegStartImageIndex < jpegEndImageIndex
+      //   ) {
+      //     camBuffer.update(
+      //       currentChunk.subarray(
+      //         jpegStartImageIndex /*+ jpegStartMarker.byteLength*/,
+      //         jpegEndImageIndex
+      //       )
+      //     );
 
-          //console.log(currentImage);
-        }
-        currentChunk = currentChunk.subarray(
-          jpegEndImageIndex + jpegEndMarker.byteLength
-        );
-        jpegEndImageIndex = currentChunk.indexOf(jpegEndMarker);
-      }
+      //     //console.log(currentImage);
+      //   }
+      //   currentChunk = currentChunk.subarray(
+      //     jpegEndImageIndex + jpegEndMarker.byteLength
+      //   );
+      //   jpegEndImageIndex = currentChunk.indexOf(jpegEndMarker);
+      // }
 
       //console.log(currentChunk.toString("hex"));
       //console.log(`chunk sent to buffer-> Chunk Length: ${chunk.length}`);
@@ -103,19 +104,20 @@ export function startWebServer() {
       res.statusCode = 200;
       res.setHeader(
         "Content-type",
-        "multipart/x-mixed-replace; boundary=--hotdogs"
+        "multipart/x-mixed-replace; boundary=--123456789000000000000987654321"
       );
       res.setHeader("Connection", "keep-alive");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Transfer-Encoding", "chunked");
       res.setHeader("Access-Control-Allow-Origin", "*");
-      //console.log(req);
+      // //console.log(req);
 
       const onData = (buff) => {
-        res.write("--hotdogs\r\n");
-        res.write("Content-Type: image/jpeg\r\n\r\n");
-        res.write(buff, "binary");
-        res.write("\r\n");
+        //  // res.write("--hotdogs\r\n");
+        //   res.write("Content-Type: image/jpeg\r\n\r\n");
+        //   res.write(buff, "binary");
+        //   res.write("\r\n");
+        res.write(buff);
       };
 
       camBuffer.on("updated", onData);

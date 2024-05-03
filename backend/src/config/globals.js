@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 
 const Web_Config_g = {
   PORT: 3000,
-  SERVER_IP: "localhost",
+  SERVER_IP: "10.0.0.53",
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

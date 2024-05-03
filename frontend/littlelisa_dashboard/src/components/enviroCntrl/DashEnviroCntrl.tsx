@@ -31,8 +31,8 @@ const iconPathPairs: cntrlIconPair[] = [
 export default function DashEnviroCntrl() {
   return (
     <div className="flex h-24 flex-col justify-between ">
-      <p className="text-xl font-bold">Enviro controls</p>
-      <ul className="align-center my-2 flex justify-around  ">
+      <p className="mb-4 text-xl font-bold">Enviro controls</p>
+      <ul className="align-center my-2 flex flex-col justify-center gap-2 pr-4  ">
         {iconPathPairs.map((cntrl) => {
           return (
             <EnvirCntrlBtn iconPath={cntrl.iconPath}>

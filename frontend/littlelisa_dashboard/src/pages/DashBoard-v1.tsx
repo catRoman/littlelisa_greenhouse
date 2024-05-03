@@ -1,10 +1,9 @@
 import DashAvgChart from "../components/dashboard/DashAvgChart";
 import DashCameraContainer from "../components/dashboard/DashCameraContainer";
-import DashEnviroCntrl from "../components/dashboard/DashEnviroCntrl";
-import DashSchedule from "../components/dashboard/DashSchedule";
+import DashEnviroCntrl from "../components/enviroCntrl/DashEnviroCntrl";
 import { greenhouse_data } from "../data/static_info";
 
-export default function DashBoard() {
+function DashBoard-v1() {
   return (
     <main className="m-4 grid grid-cols-2 gap-4">
       <div className="flex flex-col justify-between">
@@ -18,9 +17,9 @@ export default function DashBoard() {
             Controller: d4:h1:y7:i6:e2:4b &rarr; active
           </p>
         </div>
-        <div className="">
+        {/* <div className="">
           <DashSchedule />
-        </div>
+        </div> */}
       </div>
       <div className="pt-3">
         <DashCameraContainer />

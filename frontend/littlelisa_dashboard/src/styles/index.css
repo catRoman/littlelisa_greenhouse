@@ -5,5 +5,6 @@
 
 body {
   @apply font-robotoMono;
-  @apply text-stone-600;
+  @apply text-zinc-400;
+  @apply bg-zinc-900;
 }
