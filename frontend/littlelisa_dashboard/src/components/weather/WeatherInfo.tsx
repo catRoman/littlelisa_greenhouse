@@ -1,5 +1,5 @@
-import { type WeatherData } from "../services/currentWeather";
-import { weatherIcons } from "../data/weather_icons";
+import { type WeatherData } from "../../services/currentWeather";
+import { weatherIcons } from "../../data/weather_icons";
 
 interface WeatherInfoProps extends React.HTMLAttributes<HTMLHtmlElement> {
   data: WeatherData;

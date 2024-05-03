@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { fetchWeatherData, type WeatherData } from "../services/currentWeather";
+import {
+  fetchWeatherData,
+  type WeatherData,
+} from "../../services/currentWeather";
 import WeatherInfo from "./WeatherInfo";
 
 export default function WeatherAp() {
