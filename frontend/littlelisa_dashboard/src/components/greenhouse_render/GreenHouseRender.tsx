@@ -1,7 +1,11 @@
 import { useEffect, useRef } from "react";
 //import ascii_ball from "../data/three_renders/test";
 import * as THREE from "three";
-import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
+
+import gsap from "gsap";
+import { CSSPlugin } from "gsap/CSSPlugin";
+
+gsap.registerPlugin(CSSPlugin);
 
 type GreenHouseRenderProps = {
   cssClass: string;
@@ -9,22 +13,34 @@ type GreenHouseRenderProps = {
 
 export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
   const renderContainer = useRef<HTMLDivElement>(null);
+  const previousTimeRef = useRef<number>(performance.now());
+  const camera = useRef<THREE.OrthographicCamera | null>(null);
 
   useEffect(() => {
     //react div container setup
     const container = renderContainer.current;
 
+    const size = {
+      height: container!.clientHeight,
+      width: container!.clientWidth,
+    };
+
+    container?.addEventListener("mousemove", (event) => {
+      console.log(event.clientX);
+    });
+
     //axis helper
-    const axisHelper = new THREE.AxesHelper(10);
-    //set up camer
-    const camera = new THREE.PerspectiveCamera(
-      75, //perspective in degrees
-      container!.offsetWidth / container!.offsetHeight,
-      0.1, //near clipping
-      1000, //far clipping
+    const axisHelper = new THREE.AxesHelper(1000);
+
+    const aspectRatio = size.width / size.height;
+    camera.current = new THREE.OrthographicCamera(
+      -100 * aspectRatio,
+      100 * aspectRatio,
+      100,
+      -100,
+      0.1,
+      1000,
     );
-    camera.position.set(0, 0, 0);
-    camera.lookAt(0, 0, 0);
 
     //set up scene
     const scene = new THREE.Scene();
@@ -34,35 +50,45 @@ export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(container!.offsetWidth, container!.offsetHeight);
     container!.appendChild(renderer.domElement);
-    const controls = new TrackballControls(camera, renderer.domElement);
-    //===========
-    //create model geometry
-    //===========
-    //+++++++++
-    // material
-    //++++++++
-    const box_material = new THREE.MeshBasicMaterial({
-      color: 0x000ff,
-      wireframe: true,
-    });
 
-    //++++++++
-    //geometry
-    //+++++++++
-    const greenhouse_geometery = new THREE.BoxGeometry(12, 16, 0);
-    const zone1_geometry = new THREE.BoxGeometry(4, 6, 1.5);
-    const zone2_geometry = new THREE.BoxGeometry(4, 6, 3);
-    const zone3_geometry = new THREE.BoxGeometry(4, 8, 1.5);
-    const zone4_geometry = new THREE.BoxGeometry(4, 1, 2);
-
-    //+++++++++++++++++++
+    //++++++++++++++++++++++++++++++
     // Combine model with material-> meshes
     //+++++++++++++++++++
-    const greenhouse_plot = new THREE.Mesh(greenhouse_geometery, box_material);
-    const zone1_plot = new THREE.Mesh(zone1_geometry, box_material);
-    const zone2_plot = new THREE.Mesh(zone2_geometry, box_material);
-    const zone3_plot = new THREE.Mesh(zone3_geometry, box_material);
-    const zone4_plot = new THREE.Mesh(zone4_geometry, box_material);
+    const greenhouse_plot = new THREE.Mesh(
+      new THREE.BoxGeometry(120, 160, 0),
+      new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        wireframe: true,
+      }),
+    );
+    const zone1_plot = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 60, 15),
+      new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: true,
+      }),
+    );
+    const zone2_plot = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 60, 30),
+      new THREE.MeshBasicMaterial({
+        color: 0x00ff,
+        wireframe: true,
+      }),
+    );
+    const zone3_plot = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 80, 15),
+      new THREE.MeshBasicMaterial({
+        color: 0xf0ff,
+        wireframe: true,
+      }),
+    );
+    const zone4_plot = new THREE.Mesh(
+      new THREE.BoxGeometry(40, 10, 20),
+      new THREE.MeshBasicMaterial({
+        color: 0xaaaa0a,
+        wireframe: true,
+      }),
+    );
 
     //==========
     // group
@@ -80,61 +106,42 @@ export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
 
     //  box.scale.set(12, 16, 0);
 
-    zone1_plot.position.set(-4, -5, 0.75);
-    zone2_plot.position.set(-4, 1, 1.5);
-    zone3_plot.position.set(4, -3, 0.75);
-    zone4_plot.position.set(0, 7.5, 1);
-
-    // greenhouse_zone_group.rotation.x = -1;
-    // greenhouse_zone_group.rotation.z = -7;
-    //greenhouse_zone_group.rotation.z = Math.PI;
-
-    // greenhouse_plot.rotation.x = 2;
-    // zone1_plot.rotation.x = 2;
-    // zone2_plot.rotation.x = 2;
-    // zone3_plot.rotation.x = 2;
-    // zone4_plot.rotation.x = 2;
-    //positioning
-    camera.position.z = 20; //move the camera away form 0,0,0,
-    // camera.rotateX(90);
+    zone1_plot.position.set(-40, -50, 7.5);
+    zone2_plot.position.set(-40, 10, 15);
+    zone3_plot.position.set(40, -30, 7.5);
+    zone4_plot.position.set(0, 75, 10);
 
     //==================
     //add model to scene
     //===================
+    // scene.add(axisHelper);
+    scene.add(camera.current);
     scene.add(greenhouse_zone_group);
-    // scene.add(greenhouse_plot);
-    // scene.add(zone1_plot);
-    // scene.add(zone2_plot);
-    // scene.add(zone3_plot);
-    // scene.add(zone4_plot);
-    scene.add(axisHelper);
+
+    //==============
+    //Position
+    //===============
+    greenhouse_zone_group.rotation.x = -(Math.PI / 2);
+    camera.current.position.set(500, 500, 500);
+    //animate
+    camera.current.lookAt(0, 0, 0);
+
+    tick();
 
     //animate
-    animate();
+    function tick() {
+      // delta time for react
+      const currTime = performance.now();
+      const deltaTime = (currTime - previousTimeRef.current) / 100;
+      previousTimeRef.current = currTime;
+      requestAnimationFrame(tick);
 
-    if (container) {
-      window.addEventListener("resize", () => onWindowResize(container));
-    }
+      greenhouse_zone_group.rotation.z += ((Math.PI / 4) * deltaTime) / 100; // Rotate around the x-axis (z-x plane)
 
-    function onWindowResize(container: HTMLDivElement) {
-      camera.aspect = container.clientWidth / container.clientHeight;
-      //camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      //renderer.setSize(window.innerWidth, window.innerHeight);
-      // effect.setSize(container.clientWidth, container.clientHeight);
-      //effect.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      // greenhouse_plot.rotation.z += 0.01;
       render();
     }
     function render() {
-      controls.update();
-      renderer.render(scene, camera);
+      renderer.render(scene, camera.current!);
     }
   }, []);
 
