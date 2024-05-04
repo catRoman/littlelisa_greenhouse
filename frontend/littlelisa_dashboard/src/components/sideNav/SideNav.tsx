@@ -10,6 +10,7 @@ export default function SideNave() {
         <NavItem>zones</NavItem>
         <NavItem>sensors</NavItem>
         <NavItem>settings</NavItem>
+        <NavItem>Debug</NavItem>
       </div>
       <div className="">
         <WeatherApp />
