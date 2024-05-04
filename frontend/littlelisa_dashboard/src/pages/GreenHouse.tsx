@@ -13,7 +13,7 @@ export default function GreenHouse() {
           veniam asperiores reprehenderit.
         </p>
       </div>
-      <div className="z-1 col-span-2 h-96 overflow-hidden">
+      <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
         {/* <GreenHouseRender cssClass="h-96" /> */}
         <GreenHouseRender cssClass="h-80" />
       </div>
