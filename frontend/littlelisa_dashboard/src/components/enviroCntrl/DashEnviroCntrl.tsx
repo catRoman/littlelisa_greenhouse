@@ -1,41 +1,13 @@
 import EnvirCntrlBtn from "./EnviroCntrlBtn";
-
-type cntrlIconPair = {
-  cntrl: string;
-  iconPath: string;
-};
-
-const iconPathPairs: cntrlIconPair[] = [
-  {
-    cntrl: "fans",
-    iconPath: "../../../public/assets/control icons/fans.svg",
-  },
-  {
-    cntrl: "lights",
-    iconPath: "../../../public/assets/control icons/lights.svg",
-  },
-  {
-    cntrl: "water",
-    iconPath: "../../../public/assets/control icons/water.svg",
-  },
-  {
-    cntrl: "fertilizer",
-    iconPath: "../../../public/assets/control icons/fertilizer.png",
-  },
-  {
-    cntrl: "ventilation",
-    iconPath: "../../../public/assets/control icons/vent.svg",
-  },
-];
+import { cntrlData } from "../../data/static_info";
 
 export default function DashEnviroCntrl() {
   return (
-    <div className="flex h-24 flex-col justify-between ">
-      <p className="mb-4 text-xl font-bold">Enviro controls</p>
+    <div className="flex h-80 flex-col justify-between pt-4 ">
       <ul className="align-center my-2 flex flex-col justify-center gap-2 pr-4  ">
-        {iconPathPairs.map((cntrl) => {
+        {cntrlData.map((cntrl) => {
           return (
-            <EnvirCntrlBtn iconPath={cntrl.iconPath}>
+            <EnvirCntrlBtn key={cntrl.cntrl} iconPath={cntrl.iconPath}>
               {cntrl.cntrl}
             </EnvirCntrlBtn>
           );

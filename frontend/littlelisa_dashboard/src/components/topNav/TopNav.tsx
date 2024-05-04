@@ -4,7 +4,7 @@ import { currentUser } from "../../data/user";
 
 export default function TopNav() {
   return (
-    <div className=" flex items-center justify-between p-4 pt-2">
+    <div className=" flex items-center justify-between bg-zinc-900 p-4 pt-2">
       <div className="flex items-center gap-4 ">
         <img src="../../../public/assets/greenhouse-logo.svg" width="40" />
         <h3 className="pt-2">LittleLisa</h3>

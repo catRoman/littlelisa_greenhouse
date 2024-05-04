@@ -52,3 +52,94 @@ export const phoney_sensor_avgd = [
     soil_moisture: 75,
   },
 ];
+
+type cntrlDataType = {
+  cntrl: string;
+  currList: {
+    zone: number;
+    isActive: boolean;
+  }[];
+  iconPath: string;
+};
+
+export const cntrlData: cntrlDataType[] = [
+  {
+    cntrl: "fans",
+    currList: [
+      {
+        zone: 1,
+        isActive: true,
+      },
+      {
+        zone: 2,
+        isActive: false,
+      },
+      {
+        zone: 3,
+        isActive: true,
+      },
+      {
+        zone: 4,
+        isActive: false,
+      },
+    ],
+
+    iconPath: "../../../public/assets/control icons/fans.svg",
+  },
+  {
+    cntrl: "lights",
+    currList: [
+      {
+        zone: 1,
+        isActive: true,
+      },
+      {
+        zone: 2,
+        isActive: false,
+      },
+    ],
+    iconPath: "../../../public/assets/control icons/lights.svg",
+  },
+  {
+    cntrl: "water",
+    currList: [
+      {
+        zone: 1,
+        isActive: true,
+      },
+      {
+        zone: 2,
+        isActive: false,
+      },
+    ],
+    iconPath: "../../../public/assets/control icons/water.svg",
+  },
+  {
+    cntrl: "fertilizer",
+    currList: [
+      {
+        zone: 1,
+        isActive: true,
+      },
+      {
+        zone: 2,
+        isActive: false,
+      },
+    ],
+    iconPath: "../../../public/assets/control icons/fertilizer.png",
+  },
+  {
+    cntrl: "ventilation",
+    currList: [
+      {
+        zone: 1,
+        isActive: true,
+      },
+      {
+        zone: 2,
+        isActive: false,
+      },
+    ],
+    iconPath: "../../../public/assets/control icons/vent.svg",
+  },
+];

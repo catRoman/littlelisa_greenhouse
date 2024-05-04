@@ -12,6 +12,7 @@ import Footer from "./pages/Footer.tsx";
 import { Outlet } from "react-router-dom";
 import Login from "./pages/Login.tsx";
 import Scheduling from "./pages/Scheduling.tsx";
+import Debug from "./pages/Debug.tsx";
 
 export default function App() {
   const Layout = () => {
@@ -65,6 +66,10 @@ export default function App() {
         {
           path: "settings",
           element: <Settings />,
+        },
+        {
+          path: "debug",
+          element: <Debug />,
         },
       ],
     },

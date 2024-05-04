@@ -1,6 +1,6 @@
 export default function Zones() {
   return (
-    <main className="m-4">
+    <main className="">
       <h1 className="mb-4 text-2xl">hello im a Zones</h1>
       <p>
         Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus fugiat
