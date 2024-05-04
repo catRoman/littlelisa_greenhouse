@@ -7,6 +7,7 @@ export default function SideNave() {
       <div className="flex flex-col font-bold">
         <NavItem>dashboard</NavItem>
         <NavItem>Schedule</NavItem>
+        <NavItem>Greenhouse</NavItem>
         <NavItem>zones</NavItem>
         <NavItem>sensors</NavItem>
         <NavItem>settings</NavItem>

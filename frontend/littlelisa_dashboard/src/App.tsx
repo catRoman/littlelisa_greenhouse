@@ -13,6 +13,7 @@ import { Outlet } from "react-router-dom";
 import Login from "./pages/Login.tsx";
 import Scheduling from "./pages/Scheduling.tsx";
 import Debug from "./pages/Debug.tsx";
+import GreenHouse from "./pages/GreenHouse.tsx";
 
 export default function App() {
   const Layout = () => {
@@ -25,7 +26,7 @@ export default function App() {
           <div className="">
             <SideNave />
           </div>
-          <main className="m-0 ml-40">
+          <main className="m-0 ml-48">
             <Outlet />
           </main>
         </div>
@@ -50,6 +51,10 @@ export default function App() {
               <DashBoard />
             </React.Suspense>
           ),
+        },
+        {
+          path: "greenhouse",
+          element: <GreenHouse />,
         },
         {
           path: "zones",
