@@ -15,7 +15,7 @@ export default function GreenHouse() {
       </div>
       <div className="z-1 col-span-2 h-96 overflow-hidden">
         {/* <GreenHouseRender cssClass="h-96" /> */}
-        <FiberTest />
+        <GreenHouseRender cssClass="h-80" />
       </div>
       <div className="border">2</div>
       <div className="border">3</div>
