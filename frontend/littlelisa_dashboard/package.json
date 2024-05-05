@@ -20,17 +20,19 @@
     "@fullcalendar/timegrid": "^6.1.11",
     "@mui/material": "^5.15.16",
     "@mui/x-data-grid": "^7.3.2",
-    "@react-three/fiber": "^8.16.3",
+    "@react-three/drei": "^9.105.6",
+    "@react-three/fiber": "8.15",
     "@types/three": "^0.164.0",
     "ag-grid-community": "^31.3.1",
     "ag-grid-react": "^31.3.1",
     "gsap": "3.12",
+    "lil-gui": "^0.19.2",
     "react": "^18.2.0",
     "react-calendar": "^4.8.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.0",
     "recharts": "^2.12.6",
-    "three": "^0.164.1"
+    "three": "^0.158.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

@@ -1,169 +1,86 @@
-import { useEffect, useRef } from "react";
-import from "addon"
-import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import { type Mesh, type Group } from "three";
 
-type GreenHouseRenderProps = {
-  cssClass: string;
-};
+import {
+  PivotControls,
+  OrbitControls,
+  TransformControls,
+} from "@react-three/drei";
 
-export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
-  const renderContainer = useRef<HTMLDivElement>(null);
-  const previousTimeRef = useRef<number>(performance.now());
-  const camera = useRef<THREE.OrthographicCamera | null>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
+export default function GreenHouseRender() {
+  const sceneRef = useRef<Group>(null!);
+  const zone1Ref = useRef<Mesh>(null!);
+  const zone2Ref = useRef<Mesh>(null!);
 
-  useEffect(() => {
-    //react div container setup
-    const container = renderContainer.current;
+  useFrame((state, delta) => {
+    //TODO:
+    //spin slowly
+    //stop if mouse clicked
+    //wait a period of no clicking start spinning again
 
-    const size = {
-      height: container!.clientHeight,
-      width: container!.clientWidth,
-    };
+    sceneRef.current.rotation.z += 0.1 * delta;
+  });
 
-    container?.addEventListener("mousemove", (event) => {
-      const rect = container.getBoundingClientRect();
-      const coord = {
-        x: (event.clientX - rect.left) / size.width - 0.5,
-        y: (event.clientY - rect.top) / size.height - 0.5,
-      };
+  function zone1EventHandler(event) {
+    event.stopPropagation();
+    console.log("zone1 clicked");
+  }
+  function zone2EventHandler(event) {
+    event.stopPropagation();
+    console.log("zone2 clicked");
+  }
+  function zone3EventHandler(event) {
+    event.stopPropagation();
+    console.log("zone3 clicked");
+  }
+  function zone4EventHandler(event) {
+    event.stopPropagation();
+    console.log("zone4 clicked");
+  }
 
-      mousePos.current = coord;
+  return (
+    <>
+      <OrbitControls
+        maxPolarAngle={Math.PI / 2}
+        zoomToCursor={true}
+        makeDefault
+      />
 
-      console.log(`x: ${mousePos.current.x}`);
-      console.log(`y: ${mousePos.current.y}`);
-    });
+      {/*Ground*/}
+      <group ref={sceneRef} rotation={[-(Math.PI / 2), 0, 0]}>
+        <mesh>
+          <planeGeometry args={[12, 16, 12, 16]} />
+          <meshBasicMaterial args={[{ color: "green", wireframe: true }]} />
+        </mesh>
 
-    //axis helper
-    const axisHelper = new THREE.AxesHelper(1000);
+        {/*Zone 1*/}
+        {/* <TransformControls object={zone1Ref} translationSnap={1} /> */}
+        <mesh ref={zone1Ref} position={[-4, -5, 1]} onClick={zone1EventHandler}>
+          <boxGeometry args={[4, 6, 2, 4, 6, 2]} />
+          <meshBasicMaterial args={[{ color: "blue", wireframe: true }]} />
+        </mesh>
 
-    const aspectRatio = size.width / size.height;
-    camera.current = new THREE.OrthographicCamera(
-      -100 * aspectRatio,
-      100 * aspectRatio,
-      100,
-      -100,
-      0.1,
-      1000,
-    );
+        {/*Zone 2*/}
+        {/* <PivotControls anchor={[0, 0, 0]} depthTest={false}> */}
+        <mesh position={[-4, 1, 1.5]} onClick={zone2EventHandler}>
+          <boxGeometry args={[4, 6, 3, 4, 6, 3]} />
+          <meshBasicMaterial args={[{ color: "red", wireframe: true }]} />
+        </mesh>
+        {/* </PivotControls> */}
 
-    //set up scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color("rgb(24, 24, 27)");
+        {/*Zone 3*/}
+        <mesh position={[4, -2, 1]} onClick={zone3EventHandler}>
+          <boxGeometry args={[4, 8, 2, 4, 8, 2]} />
+          <meshBasicMaterial args={[{ color: "yellow", wireframe: true }]} />
+        </mesh>
 
-    //create renderer
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(size.width, size.height);
-    container!.appendChild(renderer.domElement);
-
-    //++++++++++++++++++++++++++++++
-    // Combine model with material-> meshes
-    //+++++++++++++++++++
-    const greenhouse_plot = new THREE.Mesh(
-      new THREE.BoxGeometry(120, 160, 0),
-      new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-        wireframe: true,
-      }),
-    );
-    const zone1_plot = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 60, 15),
-      new THREE.MeshBasicMaterial({
-        color: 0xff0000,
-        wireframe: true,
-      }),
-    );
-    const zone2_plot = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 60, 30),
-      new THREE.MeshBasicMaterial({
-        color: 0x00ff,
-        wireframe: true,
-      }),
-    );
-    const zone3_plot = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 80, 15),
-      new THREE.MeshBasicMaterial({
-        color: 0xf0ff,
-        wireframe: true,
-      }),
-    );
-    const zone4_plot = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 10, 20),
-      new THREE.MeshBasicMaterial({
-        color: 0xaaaa0a,
-        wireframe: true,
-      }),
-    );
-
-    //==========
-    // group
-    //==========
-
-    const greenhouse_zone_group = new THREE.Group();
-    greenhouse_zone_group.add(greenhouse_plot);
-    greenhouse_zone_group.add(zone1_plot);
-    greenhouse_zone_group.add(zone2_plot);
-    greenhouse_zone_group.add(zone3_plot);
-    greenhouse_zone_group.add(zone4_plot);
-    //++++++++++++++
-    // position/scale/rotation
-    //+++++++++++++
-
-    //  box.scale.set(12, 16, 0);
-
-    zone1_plot.position.set(-40, -50, 7.5);
-    zone2_plot.position.set(-40, 10, 15);
-    zone3_plot.position.set(40, -30, 7.5);
-    zone4_plot.position.set(0, 75, 10);
-
-    //==================
-    //add model to scene
-    //===================
-    // scene.add(axisHelper);
-    scene.add(camera.current);
-    scene.add(greenhouse_zone_group);
-
-    //==============
-    //Position
-    //===============
-    greenhouse_zone_group.rotation.x = -(Math.PI / 2);
-    camera.current.position.set(500, 500, 500);
-    //animate
-    camera.current.lookAt(0, 0, 0);
-
-    tick();
-
-    //animate
-    function tick() {
-      // delta time for react
-      const currTime = performance.now();
-      const deltaTime = (currTime - previousTimeRef.current) / 100;
-      previousTimeRef.current = currTime;
-      requestAnimationFrame(tick);
-
-      //greenhouse_zone_group.rotation.z += ((Math.PI / 4) * deltaTime) / 100; // Rotate around the x-axis (z-x plane)
-
-      if (mousePos.current.y >= 0.45 || mousePos.current.x >= 0.45) {
-        greenhouse_zone_group.rotation.z += ((Math.PI / 4) * deltaTime) / 75;
-      } else if (mousePos.current.y <= -0.45 || mousePos.current.x <= -0.45) {
-        greenhouse_zone_group.rotation.z -= ((Math.PI / 4) * deltaTime) / 75;
-      } 
-      // else if (mousePos.current.x != 0 || mousePos.current.y != 0) {
-      //   camera.current!.position.x = mousePos.current.x * 1000;
-      //   // greenhouse_zone_group.rotation.z = Math.sin(
-        //   mousePos.current.x * Math.PI * 2,
-        // );
-        // Math.cos(mousePos.current.x * Math.PI);
-        // camera.current!.position.y = Math.abs(mousePos.current.y) * 1000;
-        // camera.current!.lookAt(greenhouse_zone_group.position);
-      // }
-
-      render();
-    }
-    function render() {
-      renderer.render(scene, camera.current!);
-    }
-  }, []);
-
-  return <div className={cssClass} ref={renderContainer}></div>;
+        {/*Zone 4*/}
+        <mesh position={[0, 7.5, 1]} onClick={zone4EventHandler}>
+          <boxGeometry args={[4, 1, 2, 4, 1, 2]} />
+          <meshBasicMaterial args={[{ color: "purple", wireframe: true }]} />
+        </mesh>
+      </group>
+    </>
+  );
 }
