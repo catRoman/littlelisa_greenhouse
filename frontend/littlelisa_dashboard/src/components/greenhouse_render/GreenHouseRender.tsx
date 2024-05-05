@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
-//import ascii_ball from "../data/three_renders/test";
+import from "addon"
 import * as THREE from "three";
-
-import gsap from "gsap";
-import { CSSPlugin } from "gsap/CSSPlugin";
-
-gsap.registerPlugin(CSSPlugin);
 
 type GreenHouseRenderProps = {
   cssClass: string;
@@ -15,6 +10,7 @@ export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
   const renderContainer = useRef<HTMLDivElement>(null);
   const previousTimeRef = useRef<number>(performance.now());
   const camera = useRef<THREE.OrthographicCamera | null>(null);
+  const mousePos = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     //react div container setup
@@ -26,7 +22,16 @@ export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
     };
 
     container?.addEventListener("mousemove", (event) => {
-      console.log(event.clientX);
+      const rect = container.getBoundingClientRect();
+      const coord = {
+        x: (event.clientX - rect.left) / size.width - 0.5,
+        y: (event.clientY - rect.top) / size.height - 0.5,
+      };
+
+      mousePos.current = coord;
+
+      console.log(`x: ${mousePos.current.x}`);
+      console.log(`y: ${mousePos.current.y}`);
     });
 
     //axis helper
@@ -48,7 +53,7 @@ export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
 
     //create renderer
     const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(container!.offsetWidth, container!.offsetHeight);
+    renderer.setSize(size.width, size.height);
     container!.appendChild(renderer.domElement);
 
     //++++++++++++++++++++++++++++++
@@ -136,7 +141,22 @@ export default function GreenHouseRender({ cssClass }: GreenHouseRenderProps) {
       previousTimeRef.current = currTime;
       requestAnimationFrame(tick);
 
-      greenhouse_zone_group.rotation.z += ((Math.PI / 4) * deltaTime) / 100; // Rotate around the x-axis (z-x plane)
+      //greenhouse_zone_group.rotation.z += ((Math.PI / 4) * deltaTime) / 100; // Rotate around the x-axis (z-x plane)
+
+      if (mousePos.current.y >= 0.45 || mousePos.current.x >= 0.45) {
+        greenhouse_zone_group.rotation.z += ((Math.PI / 4) * deltaTime) / 75;
+      } else if (mousePos.current.y <= -0.45 || mousePos.current.x <= -0.45) {
+        greenhouse_zone_group.rotation.z -= ((Math.PI / 4) * deltaTime) / 75;
+      } 
+      // else if (mousePos.current.x != 0 || mousePos.current.y != 0) {
+      //   camera.current!.position.x = mousePos.current.x * 1000;
+      //   // greenhouse_zone_group.rotation.z = Math.sin(
+        //   mousePos.current.x * Math.PI * 2,
+        // );
+        // Math.cos(mousePos.current.x * Math.PI);
+        // camera.current!.position.y = Math.abs(mousePos.current.y) * 1000;
+        // camera.current!.lookAt(greenhouse_zone_group.position);
+      // }
 
       render();
     }
