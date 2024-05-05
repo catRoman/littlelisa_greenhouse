@@ -1,5 +1,4 @@
-import AsciiTest from "../components/greenhouse_render/AsciiTest";
-import FiberTest from "../components/greenhouse_render/FiberTest";
+import { Canvas } from "@react-three/fiber";
 import GreenHouseRender from "../components/greenhouse_render/GreenHouseRender";
 export default function GreenHouse() {
   return (
@@ -15,7 +14,18 @@ export default function GreenHouse() {
       </div>
       <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
         {/* <GreenHouseRender cssClass="h-96" /> */}
-        <GreenHouseRender cssClass="h-80" />
+        <Canvas
+          orthographic
+          camera={{
+            //fov: 35,
+            zoom: 25,
+            near: 0.1,
+            far: 200,
+            position: [15, 15, 15],
+          }}
+        >
+          <GreenHouseRender />
+        </Canvas>
       </div>
       <div className="border">2</div>
       <div className="border">3</div>

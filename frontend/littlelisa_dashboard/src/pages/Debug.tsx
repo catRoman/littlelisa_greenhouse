@@ -1,4 +1,4 @@
-import GreenHouseRender from "../components/greenhouse_render/GreenHouseRender";
+import GreenHouseRender from "../components/greenhouse_render/fooling_around/GreenHouseRenderjs";
 
 export default function Debug() {
   return (

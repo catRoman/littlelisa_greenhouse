@@ -1,6 +1,6 @@
 import DashAvgChart from "../components/dashboard/DashAvgChart";
-import AsciiTest from "../components/greenhouse_render/AsciiTest";
-import FiberTest from "../components/greenhouse_render/FiberTest";
+import AsciiTest from "../components/greenhouse_render/fooling_around/AsciiTest";
+import FiberTest from "../components/greenhouse_render/fooling_around/FiberTest";
 
 export default function Zones() {
   return (
