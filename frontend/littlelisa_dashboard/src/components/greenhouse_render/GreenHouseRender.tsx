@@ -1,6 +1,7 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, Suspense } from "react";
 import { type Mesh, type Group } from "three";
+import { Bounds, useBounds } from "@react-three/drei";
 
 import {
   PivotControls,
@@ -12,14 +13,15 @@ export default function GreenHouseRender() {
   const sceneRef = useRef<Group>(null!);
   const zone1Ref = useRef<Mesh>(null!);
   const zone2Ref = useRef<Mesh>(null!);
+  const zone3Ref = useRef<Mesh>(null!);
+  const zone4Ref = useRef<Mesh>(null!);
 
   useFrame((state, delta) => {
     //TODO:
     //spin slowly
     //stop if mouse clicked
     //wait a period of no clicking start spinning again
-
-    sceneRef.current.rotation.z += 0.1 * delta;
+    // sceneRef.current.rotation.z += 0.1 * delta;
   });
 
   function zone1EventHandler(event) {
@@ -56,7 +58,7 @@ export default function GreenHouseRender() {
 
         {/*Zone 1*/}
         {/* <TransformControls object={zone1Ref} translationSnap={1} /> */}
-        <mesh ref={zone1Ref} position={[-4, -5, 1]} onClick={zone1EventHandler}>
+        <mesh ref={zone1Ref} position={[-4, -5, 1]}>
           <boxGeometry args={[4, 6, 2, 4, 6, 2]} />
           <meshBasicMaterial args={[{ color: "blue", wireframe: true }]} />
         </mesh>
@@ -70,12 +72,13 @@ export default function GreenHouseRender() {
         {/* </PivotControls> */}
 
         {/*Zone 3*/}
-        <mesh position={[4, -2, 1]} onClick={zone3EventHandler}>
+        <mesh position={[4, -2, 1]}>
           <boxGeometry args={[4, 8, 2, 4, 8, 2]} />
           <meshBasicMaterial args={[{ color: "yellow", wireframe: true }]} />
         </mesh>
 
         {/*Zone 4*/}
+
         <mesh position={[0, 7.5, 1]} onClick={zone4EventHandler}>
           <boxGeometry args={[4, 1, 2, 4, 1, 2]} />
           <meshBasicMaterial args={[{ color: "purple", wireframe: true }]} />
