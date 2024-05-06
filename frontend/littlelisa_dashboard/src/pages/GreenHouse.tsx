@@ -18,13 +18,13 @@ export default function GreenHouse() {
       <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
         {/* <GreenHouseRender cssClass="h-96" /> */}
         <Canvas
-          orthographic
+          // orthographic
           camera={{
-            //fov: 35,
+            fov: 35,
             zoom: 25,
             near: 0.1,
-            far: 200,
-            position: [15, 15, 15],
+            far: 1000,
+            position: [500, 500, 500],
           }}
         >
           <GreenHouseModel model_info={greenhouse_data} />

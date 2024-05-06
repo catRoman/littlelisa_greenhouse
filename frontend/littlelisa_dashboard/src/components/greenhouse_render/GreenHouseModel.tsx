@@ -45,12 +45,14 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
       />
 
       {/*Ground*/}
+
       <group
         position={[-dimensions.x / 2, -1, dimensions.y / 2 - 1]}
         ref={sceneRef}
         rotation={[-(Math.PI / 2), 0, 0]}
       >
         <GreenHouseRender dimensions={dimensions} />
+
         {model_info.zones.map((zone, index) => {
           const zoneId = index + 1;
           return (
