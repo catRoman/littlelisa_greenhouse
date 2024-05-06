@@ -4,6 +4,8 @@ import { Vector3 } from "three";
 import { ZoneRenderProps } from "../../../../types/common.ts";
 import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
+import React from "react";
+import SquareRender from "./SquareRender.tsx";
 
 export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
   const {
@@ -29,10 +31,22 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
         )
       }
     >
-      <mesh>
-        <boxGeometry args={[zone_x, zone_y, zone_z, zone_x, zone_y, zone_z]} />
-        <meshBasicMaterial args={[{ color: "green", wireframe: true }]} />
-      </mesh>
+      {(function (): JSX.Element {
+        const zone = [];
+        for (let i = 0; i < zone_x; i++) {
+          for (let j = 0; j < zone_y; j++) {
+            zone.push(
+              <SquareRender
+                position={[i - zone_x / 2 + 0.5, j - zone_y / 2 + 0.5, 0]}
+                args={[1, 1, zone_z]}
+                squareId={{ x: i, y: j }}
+                zoneId={zoneId}
+              />,
+            );
+          }
+        }
+        return <>{zone}</>;
+      })()}
       <SensorListRender
         sensors={sensors}
         zoneId={zoneId}
