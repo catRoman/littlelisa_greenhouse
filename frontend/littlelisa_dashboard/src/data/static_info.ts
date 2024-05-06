@@ -69,8 +69,17 @@ export const greenhouse_data = {
     {
       dimensions: { x: 4, y: 1, z: 2 },
       loc_coord: { x: 4, y: 15, z: 0 },
-      sensorsAvailable: false,
-      sensors: null,
+      sensorsAvailable: true,
+      sensors: [
+        {
+          type: "DHT22",
+          loc_coord: { x: 1, y: 1 },
+        },
+        {
+          type: "DHT22",
+          loc_coord: { x: 3, y: 1 },
+        },
+      ],
       lightAvailable: true,
       sprinklersAvailable: false,
       sprinklers: null,
