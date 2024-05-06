@@ -1,7 +1,8 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { useRef, useState } from "react";
-import { MeshBasicMaterial, type Mesh } from "three";
-import { useSpring, animated } from "@react-spring/three";
+import { useState } from "react";
+
+import { useSpring, animated, to } from "@react-spring/three";
+import { Vector3 } from "three";
 
 type SquareRenderProps = {
   position: [x: number, y: number, z: number];
@@ -16,45 +17,46 @@ export default function SquareRender({
   squareId,
   zoneId,
 }: SquareRenderProps) {
-  const squareRef = useRef<Mesh>(null!);
+  const [selected, setSelected] = useState(false);
 
-  const [spring, setSpring] = useSpring(() => ({
-    scale: 1,
-  }));
+  const spring = useSpring({
+    color: selected ? "orange" : "green",
+    wireframe: selected ? false : true,
+    position: selected
+      ? [position[0], position[1], position[2] + 0.5]
+      : position,
+    config: {
+      mass: 1, // Mass of the moving object
+      tension: 120, // Stiffness of the spring
+      friction: 126, // Damping (friction) of the spring
+    },
+  });
 
   function pointerEnterEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     console.log(`Square (${squareId.x}, ${squareId.y}) in Zone ${zoneId}`);
-    const selectedSquare = squareRef.current;
-    if (selectedSquare) {
-      setSpring({ scale: 1.5 });
-
-      // selectedSquare.material.color.set("purple");
-      //selectedSquare.material.wireframe = false;
-    }
+    setSelected(true);
   }
   function pointerLeaveEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
-
-    const selectedSquare = squareRef.current;
-    if (selectedSquare) {
-      setSpring({ scale: 1 });
-
-      //selectedSquare.material.color.set("green");
-      //selectedSquare.material.wireframe = true;
-    }
+    setSelected(false);
   }
 
   return (
     <animated.mesh
-      scale={spring.scale}
-      ref={squareRef}
       onPointerEnter={pointerEnterEventHandler}
       onPointerLeave={pointerLeaveEventHandler}
-      position={position}
+      position={spring.position.to((x: number, y: number, z: number) => [
+        x,
+        y,
+        z,
+      ])}
     >
       <boxGeometry args={args} />
-      <meshBasicMaterial args={[{ color: "green", wireframe: true }]} />
+      <animated.meshBasicMaterial
+        color={spring.color}
+        wireframe={spring.wireframe}
+      />
     </animated.mesh>
   );
 }

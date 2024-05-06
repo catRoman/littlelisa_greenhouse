@@ -6,6 +6,7 @@ import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
 import React from "react";
 import SquareRender from "./SquareRender.tsx";
+import SpringTest from "../fooling_around/SpringTest.tsx";
 
 export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
   const {
