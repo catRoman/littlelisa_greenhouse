@@ -1,7 +1,7 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MeshBasicMaterial, type Mesh } from "three";
-import { useState } from "react";
+import { useSpring, animated } from "@react-spring/three";
 
 type SquareRenderProps = {
   position: [x: number, y: number, z: number];
@@ -16,35 +16,38 @@ export default function SquareRender({
   squareId,
   zoneId,
 }: SquareRenderProps) {
-  const squareRef = useRef<Mesh>(null);
+  const squareRef = useRef<Mesh>(null!);
+
+  const [spring, setSpring] = useSpring(() => ({
+    scale: 1,
+  }));
 
   function pointerEnterEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     console.log(`Square (${squareId.x}, ${squareId.y}) in Zone ${zoneId}`);
     const selectedSquare = squareRef.current;
-    if (
-      selectedSquare &&
-      selectedSquare.material instanceof MeshBasicMaterial
-    ) {
-      selectedSquare.material.color.set("purple");
-      selectedSquare.material.wireframe = false;
+    if (selectedSquare) {
+      setSpring({ scale: 1.5 });
+
+      // selectedSquare.material.color.set("purple");
+      //selectedSquare.material.wireframe = false;
     }
   }
   function pointerLeaveEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
 
     const selectedSquare = squareRef.current;
-    if (
-      selectedSquare &&
-      selectedSquare.material instanceof MeshBasicMaterial
-    ) {
-      selectedSquare.material.color.set("green");
-      selectedSquare.material.wireframe = true;
+    if (selectedSquare) {
+      setSpring({ scale: 1 });
+
+      //selectedSquare.material.color.set("green");
+      //selectedSquare.material.wireframe = true;
     }
   }
 
   return (
-    <mesh
+    <animated.mesh
+      scale={spring.scale}
       ref={squareRef}
       onPointerEnter={pointerEnterEventHandler}
       onPointerLeave={pointerLeaveEventHandler}
@@ -52,6 +55,6 @@ export default function SquareRender({
     >
       <boxGeometry args={args} />
       <meshBasicMaterial args={[{ color: "green", wireframe: true }]} />
-    </mesh>
+    </animated.mesh>
   );
 }
