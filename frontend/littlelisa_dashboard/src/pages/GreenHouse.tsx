@@ -1,5 +1,8 @@
 import { Canvas } from "@react-three/fiber";
-import GreenHouseRender from "../components/greenhouse_render/GreenHouseRender";
+
+import { greenhouse_data } from "../data/static_info";
+import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
+
 export default function GreenHouse() {
   return (
     <div className="mr-4 grid grid-cols-4 gap-6 px-4">
@@ -24,7 +27,7 @@ export default function GreenHouse() {
             position: [15, 15, 15],
           }}
         >
-          <GreenHouseRender />
+          <GreenHouseModel model_info={greenhouse_data} />
         </Canvas>
       </div>
       <div className="border">2</div>
