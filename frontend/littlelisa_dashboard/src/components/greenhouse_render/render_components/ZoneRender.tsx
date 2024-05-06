@@ -4,12 +4,16 @@ import { Vector3 } from "three";
 type Coordinate = {
   x: number;
   y: number;
-  z?: number; // Optional property
+  z: number; // Optional property
+};
+type SpaceCoordinate = {
+  x: number;
+  y: number;
 };
 
 type Sensor = {
   type: string;
-  loc_coord: Coordinate;
+  loc_coord: SpaceCoordinate;
 };
 
 type ZoneData = {
@@ -19,7 +23,7 @@ type ZoneData = {
   sensors: Sensor[] | null;
   lightAvailable: boolean;
   sprinklersAvailable: boolean;
-  sprinklers: Coordinate[] | null;
+  sprinklers: SpaceCoordinate[] | null;
 };
 
 type ZoneRenderProps = {
@@ -28,19 +32,87 @@ type ZoneRenderProps = {
 };
 
 export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
+  const {
+    loc_coord,
+    dimensions: { x: zone_x, y: zone_y, z: zone_z },
+    sensors,
+    sprinklers,
+  } = zone;
+
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     console.log(`zone ${zoneId} clicked`);
   }
+  function sensorEventHandler(event: ThreeEvent<MouseEvent>, sensorId: number) {
+    event.stopPropagation();
+    console.log(`zone ${zoneId} sensor ${sensorId} clicked`);
+  }
+  function sprinklerEventHandler(
+    event: ThreeEvent<MouseEvent>,
+    sprinklerId: number,
+  ) {
+    event.stopPropagation();
+    console.log(`zone ${zoneId} sprinkler ${sprinklerId} clicked`);
+  }
 
-  const { loc_coord, dimensions } = zone;
   return (
-    <mesh
+    <group
       onClick={zoneEventHandler}
-      position={new Vector3(loc_coord.x, loc_coord.y, loc_coord.z)}
+      position={
+        new Vector3(
+          loc_coord.x + zone_x / 2,
+          loc_coord.y + zone_y / 2,
+          loc_coord.z + zone_z / 2,
+        )
+      }
     >
-      <boxGeometry />
-      <meshBasicMaterial args={[{ color: "green", wireframe: true }]} />
-    </mesh>
+      <mesh>
+        <boxGeometry args={[zone_x, zone_y, zone_z, zone_x, zone_y, zone_z]} />
+        <meshBasicMaterial args={[{ color: "green", wireframe: true }]} />
+      </mesh>
+      {sensors &&
+        sensors.map((sensor, index) => {
+          const {
+            loc_coord: { x: sensor_x, y: sensor_y },
+          } = sensor;
+          const sphereRadius = 0.1;
+          const sensorId = index + 1;
+          return (
+            <mesh
+              key={index + 1}
+              onClick={(event) => sensorEventHandler(event, sensorId)}
+              position={[
+                sensor_x - zone_x / 2 - 0.5,
+                sensor_y - zone_y / 2 - 0.5,
+                zone_z / 2 + sphereRadius,
+              ]}
+            >
+              <sphereGeometry args={[sphereRadius, 8, 4]} />
+              <meshBasicMaterial args={[{ color: "red", wireframe: true }]} />
+            </mesh>
+          );
+        })}
+      {sprinklers &&
+        sprinklers.map((sprinklers, index) => {
+          const { x: sprinkler_x, y: sprinkler_y } = sprinklers;
+          const coneHeight = 0.5;
+          const sprinklerId = index + 1;
+          return (
+            <mesh
+              key={index + 1}
+              onClick={(event) => sprinklerEventHandler(event, sprinklerId)}
+              position={[
+                sprinkler_x - zone_x / 2,
+                sprinkler_y - zone_y / 2,
+                zone_z / 2 + coneHeight / 2,
+              ]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            >
+              <coneGeometry args={[0.1, coneHeight, 8, 4]} />
+              <meshBasicMaterial args={[{ color: "blue", wireframe: true }]} />
+            </mesh>
+          );
+        })}
+    </group>
   );
 }
