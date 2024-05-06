@@ -37,6 +37,7 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
           for (let j = 0; j < zone_y; j++) {
             zone.push(
               <SquareRender
+                key={`square_${i}_${j}`}
                 position={[i - zone_x / 2 + 0.5, j - zone_y / 2 + 0.5, 0]}
                 args={[1, 1, zone_z]}
                 squareId={{ x: i, y: j }}
