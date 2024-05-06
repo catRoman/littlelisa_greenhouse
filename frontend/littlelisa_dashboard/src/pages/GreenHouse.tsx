@@ -23,7 +23,7 @@ export default function GreenHouse() {
             fov: 35,
             zoom: 25,
             near: 0.1,
-            far: 1000,
+            far: 5000,
             position: [500, 500, 500],
           }}
         >

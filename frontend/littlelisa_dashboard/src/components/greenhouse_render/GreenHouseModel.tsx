@@ -4,27 +4,8 @@ import { type Group } from "three";
 import { OrbitControls } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
+import { GreenhouseData } from "../../../types/common";
 
-type GreenhouseData = {
-  greenhouse: {
-    lat: number;
-    long: number;
-    greenhouse_id: number;
-    greenhouse_location_str: string;
-    dimensions: { x: number; y: number };
-    total_zones: number;
-    total_controllers: number;
-  };
-  zones: {
-    dimensions: { x: number; y: number; z: number };
-    loc_coord: { x: number; y: number; z: number };
-    sensorsAvailable: boolean;
-    sensors: { type: string; loc_coord: { x: number; y: number } }[] | null;
-    lightAvailable: boolean;
-    sprinklersAvailable: boolean;
-    sprinklers: { x: number; y: number }[] | null;
-  }[];
-};
 type GreenHouseModelProps = {
   model_info: GreenhouseData;
 };
