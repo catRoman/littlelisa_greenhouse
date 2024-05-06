@@ -1,5 +1,6 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { Vector3 } from "three";
+import { Text, Billboard, Html } from "@react-three/drei";
 
 type Coordinate = {
   x: number;
@@ -78,7 +79,7 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
           const sphereRadius = 0.1;
           const sensorId = index + 1;
           return (
-            <mesh
+            <group
               key={index + 1}
               onClick={(event) => sensorEventHandler(event, sensorId)}
               position={[
@@ -87,9 +88,32 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
                 zone_z / 2 + sphereRadius,
               ]}
             >
-              <sphereGeometry args={[sphereRadius, 8, 4]} />
-              <meshBasicMaterial args={[{ color: "red", wireframe: true }]} />
-            </mesh>
+              <Html
+                style={{ userSelect: "none" }}
+                className="rounded-md bg-blue-500  bg-opacity-45 p-1 text-sm"
+                center
+                sprite
+                distanceFactor={0.01}
+                position={[0, 0, sphereRadius * 4]}
+              >
+                <p>{sensor.type}</p>
+              </Html>
+              {/* <Text
+                rotation={[Math.PI / 2, Math.PI / 4, 0]}
+                color="yellow"
+                fontSize={0.4}
+                fontWeight="bold"
+                anchorX="center"
+                anchorY={-0.7}
+              >
+                {sensor.type}
+              </Text> */}
+
+              <mesh>
+                <sphereGeometry args={[sphereRadius, 8, 4]} />
+                <meshBasicMaterial args={[{ color: "red", wireframe: true }]} />
+              </mesh>
+            </group>
           );
         })}
       {sprinklers &&
