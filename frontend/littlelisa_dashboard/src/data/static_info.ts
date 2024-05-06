@@ -1,11 +1,81 @@
 export const greenhouse_data = {
-  lat: 48.42,
-  long: -123.53,
-  greenhouse_id: 1,
-  greenhouse_location_str: "backyard",
-
-  total_zones: 3,
-  total_controllers: 1,
+  greenhouse: {
+    lat: 48.42,
+    long: -123.53,
+    greenhouse_id: 1,
+    greenhouse_location_str: "backyard",
+    dimensions: { x: 12, y: 16 },
+    total_zones: 3,
+    total_controllers: 1,
+  },
+  zones: [
+    {
+      dimensions: { x: 4, y: 6, z: 2 },
+      loc_coord: { x: 0, y: 0, z: 0 },
+      sensorsAvailable: true,
+      sensors: [
+        {
+          type: "DHT22",
+          loc_coord: { x: 1, y: 2 },
+        },
+        {
+          type: "DHT22",
+          loc_coord: { x: 3, y: 3 },
+        },
+      ],
+      lightAvailable: true,
+      sprinklersAvailable: true,
+      sprinklers: [
+        { x: 1, y: 1 },
+        { x: 1, y: 3 },
+        { x: 1, y: 5 },
+        { x: 3, y: 1 },
+        { x: 3, y: 3 },
+        { x: 3, y: 5 },
+      ],
+    },
+    {
+      dimensions: { x: 4, y: 6, z: 3 },
+      loc_coord: { x: 0, y: 6, z: 0 },
+      sensorsAvailable: true,
+      sensors: [
+        {
+          type: "DHT22",
+          loc_coord: { x: 3, y: 3 },
+        },
+      ],
+      lightAvailable: true,
+      sprinklersAvailable: false,
+      sprinklers: null,
+    },
+    {
+      dimensions: { x: 4, y: 8, z: 2 },
+      loc_coord: { x: 8, y: 2, z: 0 },
+      sensorsAvailable: false,
+      sensors: null,
+      lightAvailable: true,
+      sprinklersAvailable: true,
+      sprinklers: [
+        { x: 1, y: 1 },
+        { x: 1, y: 3 },
+        { x: 1, y: 5 },
+        { x: 1, y: 7 },
+        { x: 3, y: 1 },
+        { x: 3, y: 3 },
+        { x: 3, y: 5 },
+        { x: 3, y: 7 },
+      ],
+    },
+    {
+      dimensions: { x: 4, y: 1, z: 2 },
+      loc_coord: { x: 4, y: 15, z: 0 },
+      sensorsAvailable: false,
+      sensors: null,
+      lightAvailable: true,
+      sprinklersAvailable: false,
+      sprinklers: null,
+    },
+  ],
 };
 
 export const phoney_sensor_avgd = [
