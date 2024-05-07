@@ -15,7 +15,8 @@ type ZoneRenderProps = {
 
 export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   const zoneRef = useRef<Group>(null); // Or the appropriate Three.js type
-  const { setZonePosition, setZoneId, zoneId } = useContext(ZoneContext);
+  const { setZonePosition, setZoneId, zoneId, inZone, setInZone } =
+    useContext(ZoneContext);
   const {
     loc_coord,
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
@@ -25,19 +26,17 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
 
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
-    if (zoneRef.current) {
+    if (zoneRef.current && !inZone) {
+      setInZone(true);
       setZonePosition(zoneRef.current.position.clone());
       setZoneId(localZoneId);
       console.log("zonerender clicked");
     }
     // console.log(`zone ${zoneId} clicked`);
   }
-  useEffect(() => {
-    console.log("zoneRender->zoneId: ", zoneId);
-  }, [zoneId]);
-  useEffect(() => {
-    console.log("zoneRender zoneid:", zoneId);
-  }, [zoneId]);
+  // useEffect(() => {
+  //   console.log("zoneRender->zoneId: ", zoneId);
+  // }, [zoneId]);
 
   return (
     <group
