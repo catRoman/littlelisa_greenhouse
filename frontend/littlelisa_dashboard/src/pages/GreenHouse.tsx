@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 
 import { greenhouse_data } from "../data/static_info";
 import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
+import { PresentationControls } from "@react-three/drei";
 
 export default function GreenHouse() {
   return (
@@ -27,7 +28,16 @@ export default function GreenHouse() {
             position: [500, 500, 500],
           }}
         >
-          <GreenHouseModel model_info={greenhouse_data} />
+          <PresentationControls
+            snap
+            global
+            zoom={0.8}
+            rotation={[0, -Math.PI / 4, 0]}
+            polar={[0, Math.PI / 4]}
+            azimuth={[-Math.PI / 4, Math.PI / 4]}
+          >
+            <GreenHouseModel model_info={greenhouse_data} />
+          </PresentationControls>
         </Canvas>
       </div>
       <div className="border">2</div>
