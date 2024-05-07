@@ -19,11 +19,11 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
 
   return (
     <>
-      <OrbitControls
+      {/* <OrbitControls
         maxPolarAngle={Math.PI / 2}
         zoomToCursor={true}
         makeDefault
-      />
+      /> */}
 
       {/*Ground*/}
 
