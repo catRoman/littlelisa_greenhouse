@@ -6,6 +6,8 @@ export interface ZoneContextType {
   zonePosition: Vector3 | null;
   zoneId: number;
   setZoneId: (id: number) => void;
+  inZone: boolean;
+  setInZone: (value: boolean) => void;
 }
 
 type ZoneContextProviderProps = {
@@ -17,6 +19,8 @@ const defaultContextValue: ZoneContextType = {
   zonePosition: null, // Default to null
   zoneId: 0, // Default ID
   setZoneId: () => {}, // No-operation function
+  inZone: false,
+  setInZone: () => {},
 };
 
 export const ZoneContext = createContext<ZoneContextType>(defaultContextValue);
@@ -25,13 +29,21 @@ export default function ZoneContextProvider({
   children,
 }: ZoneContextProviderProps) {
   const [zonePosition, setZonePosition] = useState<Vector3 | null>(null);
+  const [inZone, setInZone] = useState<boolean>(false);
   const [zoneId, setZoneId] = useState(0);
   useEffect(() => {
     console.log("Zone ID updated to:", zoneId);
   }, [zoneId]);
   return (
     <ZoneContext.Provider
-      value={{ setZonePosition, zonePosition, zoneId, setZoneId }}
+      value={{
+        setZonePosition,
+        zonePosition,
+        zoneId,
+        setZoneId,
+        setInZone,
+        inZone,
+      }}
     >
       {children}
     </ZoneContext.Provider>

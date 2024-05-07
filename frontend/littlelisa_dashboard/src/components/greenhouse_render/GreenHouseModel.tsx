@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Euler, Vector3, type Group } from "three";
-import {
-  PresentationControls,
-  PerspectiveCamera,
-  OrbitControls,
-} from "@react-three/drei";
+import React, {
+  RefObject,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import * as THREE from "three";
+import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
 import { CameraSettings, GreenhouseData } from "../../../types/common";
@@ -12,10 +14,14 @@ import { useControls } from "leva";
 import { ZoneContext } from "../../context/ZoneContextProvider";
 import { useFrame } from "@react-three/fiber";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
+import { useSpring, a } from "@react-spring/three";
 
 type GreenHouseModelProps = {
   model_info: GreenhouseData;
+  enableControls: boolean;
+  setEnableControls: React.Dispatch<React.SetStateAction<boolean>>;
   zoneZoom: boolean;
+  initialCameraSettings: CameraSettings;
   setZoneZoom: React.Dispatch<React.SetStateAction<boolean>>;
   cameraSettings: CameraSettings;
   setCameraSettings: React.Dispatch<React.SetStateAction<CameraSettings>>;
@@ -23,14 +29,16 @@ type GreenHouseModelProps = {
 
 export default function GreenHouseModel({
   model_info,
+  enableControls,
+  setEnableControls,
   zoneZoom,
   setZoneZoom,
+  initialCameraSettings,
   cameraSettings,
   setCameraSettings,
 }: GreenHouseModelProps) {
-  const sceneRef = useRef<Group>(null!);
-  const cameraRef = useRef(null!);
-  const [enableControls, setEnableControls] = useState(true);
+  const sceneRef = useRef<THREE.Group>(null!);
+  const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
   const {
     greenhouse: { dimensions },
@@ -85,12 +93,12 @@ export default function GreenHouseModel({
   // Update camera settings based on controls
   // Update camera settings based on controls
   useEffect(() => {
-    const newPosition = new Vector3(
+    const newPosition = new THREE.Vector3(
       cameraControls.positionX,
       cameraControls.positionY,
       cameraControls.positionZ,
     );
-    const newRotation = new Euler(
+    const newRotation = new THREE.Euler(
       cameraControls.rotationX,
       cameraControls.rotationY,
       cameraControls.rotationZ,
@@ -103,7 +111,7 @@ export default function GreenHouseModel({
       position: newPosition,
       rotation: newRotation,
     }));
-  }, [cameraControls]);
+  }, [cameraControls, setCameraSettings]);
 
   //==========================
 
@@ -132,50 +140,61 @@ export default function GreenHouseModel({
   });
 
   useEffect(() => {
-    if (zoneId === 2) {
+    if (zoneId) {
       // Do something with the zonePosition, e.g., log it, update UI, etc.
-      //console.log("Selected zone position:", zonePosition);
+
       console.log("GreenHouseModel->zoneId: ", zoneId);
-      const newPosition = new Vector3(
+      const newPosition = new THREE.Vector3(
         zoneCameraViews[zoneId - 1].posX,
         zoneCameraViews[zoneId - 1].posY,
         zoneCameraViews[zoneId - 1].posZ,
       );
-      const newRotation = new Euler(
+      const newRotation = new THREE.Euler(
         zoneCameraViews[zoneId - 1].rotX,
         zoneCameraViews[zoneId - 1].rotY,
         zoneCameraViews[zoneId - 1].rotZ,
       );
 
-      setZoneZoom(true);
-      setEnableControls(false);
       setCameraSettings((prev) => ({
         ...prev,
-        //rotation: newRotation,
+        rotation: newRotation,
         position: newPosition,
       }));
-      console.log("inside grreenhouserender effect");
-    }
-  }, [zoneId, setZoneZoom, setCameraSettings]);
 
-  useEffect(() => {
-    console.log("greenhouseRender zoneid:", zoneId);
-  }, [zoneId]);
+      setZoneZoom(true);
+      setEnableControls(false);
+    }
+  }, [zoneId, setEnableControls, setZoneZoom, setCameraSettings]);
+
+  useFrame(() => {
+    if (cameraRef.current) {
+      const delta = 0.05;
+      // console.log("cameraSettings inside useFrame:", cameraSettings.position);
+      cameraRef.current.position.lerp(cameraSettings.position, delta);
+      if (
+        cameraRef.current.position.distanceTo(cameraSettings.position) < 0.1
+      ) {
+        //animation done
+      }
+    }
+  });
+
   return (
     <>
       <PerspectiveCamera
         ref={cameraRef}
         makeDefault
-        fov={cameraSettings.fov}
+        fov={initialCameraSettings.fov}
         // zoom={10}
-        near={cameraSettings.near}
-        far={cameraSettings.far}
-        position={cameraSettings.position}
-        rotation={cameraSettings.rotation}
+        near={initialCameraSettings.near}
+        far={initialCameraSettings.far}
+        position={initialCameraSettings.position}
+        rotation={initialCameraSettings.rotation}
       />
 
       {/* <OrbitControls makeDefault zoomToCursor /> */}
       <PresentationControls
+        //ref={cameraRef}
         enabled={enableControls}
         snap
         global
