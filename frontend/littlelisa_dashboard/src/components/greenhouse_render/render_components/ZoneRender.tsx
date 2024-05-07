@@ -1,16 +1,21 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
 
-import { ZoneRenderProps } from "../../../../types/common.ts";
 import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
 import SquareRender from "./SquareRender.tsx";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { ZoneContext } from "../../../context/ZoneContextProvider.tsx";
+import { ZoneData } from "../../../../types/common.ts";
 
-export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
+type ZoneRenderProps = {
+  zone: ZoneData;
+  localZoneId: number;
+};
+
+export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   const zoneRef = useRef<Group>(null); // Or the appropriate Three.js type
-  const { setZonePosition, setZoneId } = useContext(ZoneContext);
+  const { setZonePosition, setZoneId, zoneId } = useContext(ZoneContext);
   const {
     loc_coord,
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
@@ -22,10 +27,17 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
     event.stopPropagation();
     if (zoneRef.current) {
       setZonePosition(zoneRef.current.position.clone());
-      setZoneId(zoneId);
+      setZoneId(localZoneId);
+      console.log("zonerender clicked");
     }
     // console.log(`zone ${zoneId} clicked`);
   }
+  useEffect(() => {
+    console.log("zoneRender->zoneId: ", zoneId);
+  }, [zoneId]);
+  useEffect(() => {
+    console.log("zoneRender zoneid:", zoneId);
+  }, [zoneId]);
 
   return (
     <group
@@ -49,7 +61,7 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
                 position={[i - zone_x / 2 + 0.5, j - zone_y / 2 + 0.5, 0]}
                 args={[1, 1, zone_z]}
                 squareId={{ x: i, y: j }}
-                zoneId={zoneId}
+                zoneId={localZoneId}
               />,
             );
           }
@@ -58,12 +70,12 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
       })()}
       <SensorListRender
         sensors={sensors}
-        zoneId={zoneId}
+        zoneId={localZoneId}
         zone_dim={zone.dimensions}
       />
       <SprinklerListRender
         sprinklers={sprinklers}
-        zoneId={zoneId}
+        zoneId={localZoneId}
         zone_dim={zone.dimensions}
       />
     </group>

@@ -17,7 +17,7 @@ export default function SquareRender({
   squareId,
   zoneId,
 }: SquareRenderProps) {
-  const [selected, setSelected] = useState(false);
+  const [selected, setSelected] = useState<boolean>(false);
 
   const spring = useSpring({
     color: selected ? "orange" : "green",

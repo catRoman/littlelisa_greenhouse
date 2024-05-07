@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { Vector3 } from "three";
 
 export interface ZoneContextType {
@@ -26,6 +26,9 @@ export default function ZoneContextProvider({
 }: ZoneContextProviderProps) {
   const [zonePosition, setZonePosition] = useState<Vector3 | null>(null);
   const [zoneId, setZoneId] = useState(0);
+  useEffect(() => {
+    console.log("Zone ID updated to:", zoneId);
+  }, [zoneId]);
   return (
     <ZoneContext.Provider
       value={{ setZonePosition, zonePosition, zoneId, setZoneId }}
