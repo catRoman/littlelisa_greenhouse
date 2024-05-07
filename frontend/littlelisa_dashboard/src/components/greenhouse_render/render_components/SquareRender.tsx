@@ -28,13 +28,13 @@ export default function SquareRender({
     config: {
       mass: 1, // Mass of the moving object
       tension: 120, // Stiffness of the spring
-      friction: 126, // Damping (friction) of the spring
+      friction: 76, // Damping (friction) of the spring
     },
   });
 
   function pointerEnterEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
-    console.log(`Square (${squareId.x}, ${squareId.y}) in Zone ${zoneId}`);
+    // console.log(`Square (${squareId.x}, ${squareId.y}) in Zone ${zoneId}`);
     setSelected(true);
   }
   function pointerLeaveEventHandler(event: ThreeEvent<MouseEvent>) {
