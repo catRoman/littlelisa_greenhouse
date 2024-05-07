@@ -11,12 +11,12 @@ export const zoneCameraViews = [
   },
   //zone2
   {
-    posX: 2.9889619875531843,
-    posY: 7.443543311535763,
-    posZ: 3.2147231487546675,
-    rotX: -0.8056838939422966,
-    rotY: 0.8648206487810185,
-    rotZ: 0.670148939189653,
+    posX: -3,
+    posY: 8,
+    posZ: 7,
+    rotX: -0.5,
+    rotY: 0,
+    rotZ: 0,
     zoom: 1,
   },
   //zone3

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Euler, Vector3, type Group } from "three";
 import {
   PresentationControls,
@@ -7,7 +7,7 @@ import {
 } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
-import { GreenhouseData } from "../../../types/common";
+import { CameraSettings, GreenhouseData } from "../../../types/common";
 import { useControls } from "leva";
 import { ZoneContext } from "../../context/ZoneContextProvider";
 import { useFrame } from "@react-three/fiber";
@@ -15,27 +15,28 @@ import { zoneCameraViews } from "./render_components/data/zoneCameras";
 
 type GreenHouseModelProps = {
   model_info: GreenhouseData;
+  zoneZoom: boolean;
+  setZoneZoom: React.Dispatch<React.SetStateAction<boolean>>;
+  cameraSettings: CameraSettings;
+  setCameraSettings: React.Dispatch<React.SetStateAction<CameraSettings>>;
 };
 
-export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
+export default function GreenHouseModel({
+  model_info,
+  zoneZoom,
+  setZoneZoom,
+  cameraSettings,
+  setCameraSettings,
+}: GreenHouseModelProps) {
   const sceneRef = useRef<Group>(null!);
   const cameraRef = useRef(null!);
   const [enableControls, setEnableControls] = useState(true);
+
   const {
     greenhouse: { dimensions },
   } = model_info;
 
   // Component to add axes helper
-  const initalCameraSettings = {
-    fov: 35,
-    //zoom: null,
-    near: 0.1,
-    far: 5000,
-    position: new Vector3(0, 10, 16),
-    rotation: new Euler(-0.5, 0, 0),
-  };
-
-  const [cameraSettings, setCameraSettings] = useState(initalCameraSettings);
 
   //===============LERA==============
   // Leva panel to adjust the camera
@@ -107,53 +108,59 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
   //==========================
 
   const { zoneId } = useContext(ZoneContext);
-  // useFrame((state) => {
-  //   if (zoneId) {
-  //     // Do something with the zonePosition, e.g., log it, update UI, etc.
-  //     // console.log(
-  //     //   JSON.stringify({
-  //     //     pX: state.camera.position.x,
-  //     //     pY: state.camera.position.y,
-  //     //     pZ: state.camera.position.z,
-  //     //     rX: state.camera.rotation.x,
-  //     //     rY: state.camera.rotation.y,
-  //     //     rZ: state.camera.rotation.z,
-  //     //     zoom: state.camera.zoom,
-  //     //   }),
-  //     // );
-  //     const newPosition = new Vector3(
-  //       zoneCameraViews[zoneId - 1].posX,
-  //       zoneCameraViews[zoneId - 1].posY,
-  //       zoneCameraViews[zoneId - 1].posZ,
-  //     );
-  //     state.camera.lookAt(newPosition);
-  //   }
-  // });
+  useFrame((state) => {
+    if (zoneId) {
+      // Do something with the zonePosition, e.g., log it, update UI, etc.
+      // console.log(
+      //   JSON.stringify({
+      //     pX: state.camera.position.x,
+      //     pY: state.camera.position.y,
+      //     pZ: state.camera.position.z,
+      //     rX: state.camera.rotation.x,
+      //     rY: state.camera.rotation.y,
+      //     rZ: state.camera.rotation.z,
+      //     zoom: state.camera.zoom,
+      //   }),
+      // );
+      // const newPosition = new Vector3(
+      //   zoneCameraViews[zoneId - 1].posX,
+      //   zoneCameraViews[zoneId - 1].posY,
+      //   zoneCameraViews[zoneId - 1].posZ,
+      // );
+      // state.camera.lookAt(newPosition);
+    }
+  });
 
-  // useEffect(() => {
-  //   if (zoneId) {
-  //     // Do something with the zonePosition, e.g., log it, update UI, etc.
-  //     //console.log("Selected zone position:", zonePosition);
-  //     console.log("Selected Zone: ", zoneId);
-  //     const newPosition = new Vector3(
-  //       zoneCameraViews[zoneId - 1].posX,
-  //       zoneCameraViews[zoneId - 1].posY,
-  //       zoneCameraViews[zoneId - 1].posZ,
-  //     );
-  //     const newRotation = new Euler(
-  //       zoneCameraViews[zoneId - 1].rotX,
-  //       zoneCameraViews[zoneId - 1].rotY,
-  //       zoneCameraViews[zoneId - 1].rotZ,
-  //     );
-  //     state.
-  //     // setCameraSettings((prev) => ({
-  //     //   ...prev,
-  //     //   position: newPosition,
-  //     //   rotation: newRotation,
-  //     // }));
-  //   }
-  // }, [zoneId]);
+  useEffect(() => {
+    if (zoneId === 2) {
+      // Do something with the zonePosition, e.g., log it, update UI, etc.
+      //console.log("Selected zone position:", zonePosition);
+      console.log("GreenHouseModel->zoneId: ", zoneId);
+      const newPosition = new Vector3(
+        zoneCameraViews[zoneId - 1].posX,
+        zoneCameraViews[zoneId - 1].posY,
+        zoneCameraViews[zoneId - 1].posZ,
+      );
+      const newRotation = new Euler(
+        zoneCameraViews[zoneId - 1].rotX,
+        zoneCameraViews[zoneId - 1].rotY,
+        zoneCameraViews[zoneId - 1].rotZ,
+      );
 
+      setZoneZoom(true);
+      setEnableControls(false);
+      setCameraSettings((prev) => ({
+        ...prev,
+        //rotation: newRotation,
+        position: newPosition,
+      }));
+      console.log("inside grreenhouserender effect");
+    }
+  }, [zoneId, setZoneZoom, setCameraSettings]);
+
+  useEffect(() => {
+    console.log("greenhouseRender zoneid:", zoneId);
+  }, [zoneId]);
   return (
     <>
       <PerspectiveCamera
@@ -193,7 +200,7 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
               <ZoneRender
                 zone={zone}
                 key={`zone${index + 1}`}
-                zoneId={zoneId}
+                localZoneId={zoneId}
               />
             );
           })}

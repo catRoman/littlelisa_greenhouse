@@ -14,6 +14,7 @@ import Login from "./pages/Login.tsx";
 import Scheduling from "./pages/Scheduling.tsx";
 import Debug from "./pages/Debug.tsx";
 import GreenHouse from "./pages/GreenHouse.tsx";
+import ZoneContextProvider from "./context/ZoneContextProvider.tsx";
 
 export default function App() {
   const Layout = () => {
@@ -54,7 +55,11 @@ export default function App() {
         },
         {
           path: "greenhouse",
-          element: <GreenHouse />,
+          element: (
+            <ZoneContextProvider>
+              <GreenHouse />,
+            </ZoneContextProvider>
+          ),
         },
         {
           path: "zones",

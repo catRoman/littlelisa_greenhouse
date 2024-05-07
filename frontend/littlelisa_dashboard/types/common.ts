@@ -25,10 +25,6 @@ export type ZoneData = {
   sprinklers: SpaceCoordinate[] | null;
 };
 
-export type ZoneRenderProps = {
-  zone: ZoneData;
-  zoneId: number;
-};
 export type GreenhouseData = {
   greenhouse: {
     lat: number;
@@ -50,10 +46,10 @@ export type GreenhouseData = {
   }[];
 };
 export type CameraSettings = {
-  fov: number | undefined;
-  zoom: number | undefined;
-  near: number | undefined;
-  far: number | undefined;
-  position: Vector3 | undefined;
-  rotation: Euler | undefined;
+  fov: number;
+  zoom: number;
+  near: number;
+  far: number;
+  position: Vector3;
+  rotation: Euler;
 };
