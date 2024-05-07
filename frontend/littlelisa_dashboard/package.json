@@ -27,6 +27,7 @@
     "ag-grid-community": "^31.3.1",
     "ag-grid-react": "^31.3.1",
     "gsap": "3.12",
+    "leva": "^0.9.35",
     "lil-gui": "^0.19.2",
     "react": "^18.2.0",
     "react-calendar": "^4.8.0",

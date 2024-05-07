@@ -21,7 +21,7 @@ export default function SensorListReader({
     event.stopPropagation();
     console.log(`zone ${zoneId} sensor ${sensorId} clicked`);
   }
-  console.log(sensors);
+
   if (sensors) {
     return (
       <>
@@ -42,12 +42,19 @@ export default function SensorListReader({
               ]}
             >
               <Html
-                style={{ userSelect: "none" }}
-                className="rounded-md bg-blue-500  bg-opacity-45 p-1 text-sm"
+                style={{
+                  userSelect: "none",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "rgba(59, 131, 246, 0.623)", // blue-500 with 45% opacity
+                  padding: "0.25rem",
+                  fontSize: "0.875rem",
+                  color: "#ff0080",
+                }}
+                // className="rounded-md bg-blue-500 bg-opacity-45 p-1 text-sm text-red-100"
                 center
                 sprite
-                distanceFactor={100}
-                position={[0, 0, sphereRadius * 4]}
+                distanceFactor={10}
+                position={[0, 0, sphereRadius * 6]}
               >
                 <p>{sensor.type}</p>
               </Html>

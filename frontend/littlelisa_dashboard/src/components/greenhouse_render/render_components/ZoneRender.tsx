@@ -1,14 +1,16 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { Vector3 } from "three";
+import { Vector3, type Group } from "three";
 
 import { ZoneRenderProps } from "../../../../types/common.ts";
 import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
-import React from "react";
 import SquareRender from "./SquareRender.tsx";
-import SpringTest from "../fooling_around/SpringTest.tsx";
+import { useContext, useRef, useState } from "react";
+import { ZoneContext } from "../../../context/ZoneContextProvider.tsx";
 
 export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
+  const zoneRef = useRef<Group>(null); // Or the appropriate Three.js type
+  const { setZonePosition, setZoneId } = useContext(ZoneContext);
   const {
     loc_coord,
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
@@ -18,11 +20,16 @@ export default function ZoneRender({ zone, zoneId }: ZoneRenderProps) {
 
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
-    console.log(`zone ${zoneId} clicked`);
+    if (zoneRef.current) {
+      setZonePosition(zoneRef.current.position.clone());
+      setZoneId(zoneId);
+    }
+    // console.log(`zone ${zoneId} clicked`);
   }
 
   return (
     <group
+      ref={zoneRef}
       onClick={zoneEventHandler}
       position={
         new Vector3(

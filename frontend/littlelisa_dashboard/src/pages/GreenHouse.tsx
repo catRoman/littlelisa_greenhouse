@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
-
 import { greenhouse_data } from "../data/static_info";
 import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
-import { PresentationControls } from "@react-three/drei";
+import ZoneContextProvider from "../context/ZoneContextProvider";
+import { Leva } from "leva";
 
 export default function GreenHouse() {
   return (
@@ -17,28 +17,12 @@ export default function GreenHouse() {
         </p>
       </div>
       <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
-        {/* <GreenHouseRender cssClass="h-96" /> */}
-        <Canvas
-          // orthographic
-          camera={{
-            fov: 35,
-            zoom: 25,
-            near: 0.1,
-            far: 5000,
-            position: [500, 500, 500],
-          }}
-        >
-          <PresentationControls
-            snap
-            global
-            zoom={0.8}
-            rotation={[0, -Math.PI / 4, 0]}
-            polar={[0, Math.PI / 4]}
-            azimuth={[-Math.PI / 4, Math.PI / 4]}
-          >
+        <ZoneContextProvider>
+          <Canvas>
             <GreenHouseModel model_info={greenhouse_data} />
-          </PresentationControls>
-        </Canvas>
+          </Canvas>
+          <Leva collapsed={false} />
+        </ZoneContextProvider>
       </div>
       <div className="border">2</div>
       <div className="border">3</div>
