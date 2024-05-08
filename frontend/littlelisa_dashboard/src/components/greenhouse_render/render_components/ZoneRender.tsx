@@ -1,4 +1,4 @@
-import { ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent, useThree } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
 
 import SensorListRender from "./SensorListRender.tsx";
@@ -12,13 +12,19 @@ import SquareContextProvider from "../../../context/SquareContextProvider.tsx";
 type ZoneRenderProps = {
   zone: ZoneData;
   localZoneId: number;
+  squareSelectedRef: React.MutableRefObject<boolean>;
 };
 
-export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
+export default function ZoneRender({
+  zone,
+  localZoneId,
+  squareSelectedRef,
+}: ZoneRenderProps) {
   const zoneRef = useRef<Group>(null);
 
   const { setZonePosition, setZoneId, inZone, setInZone } =
     useContext(ZoneContext);
+
   const {
     loc_coord,
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
@@ -59,6 +65,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
                   args={[1, 1, zone_z]}
                   squareId={{ x: i, y: j }}
                   localZoneId={localZoneId}
+                  squareSelectedRef={squareSelectedRef}
                 />,
               );
             }

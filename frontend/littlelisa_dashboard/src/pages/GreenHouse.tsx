@@ -3,7 +3,7 @@ import { greenhouse_data } from "../data/static_info";
 import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
 import { ZoneContext } from "../context/ZoneContextProvider";
 import { Leva } from "leva";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { Euler, Vector3 } from "three";
 import { CameraSettings } from "../../types/common";
 
@@ -19,15 +19,21 @@ export default function GreenHouse() {
   const [enableControls, setEnableControls] = useState(true);
   const [cameraSettings, setCameraSettings] =
     useState<CameraSettings>(initalCameraSettings);
-  const { setZoneId, setInZone } = useContext(ZoneContext);
-
+  const { setZoneId, setInZone, zoneSquarePosition, zoneSquareSelected } =
+    useContext(ZoneContext);
+  const squareSelectedRef = useRef<boolean>(false);
   const zoomOutHandle = () => {
-    console.log("greenhouse clicked");
-    setInZone(false);
-    setEnableControls(true);
-    setZoneId(0);
+    //console.log("squareSelected", squareSelectedRef.current);
+    //console.log("!squareSelected", !squareSelectedRef.current);
 
-    setCameraSettings(initalCameraSettings);
+    if (!zoneSquareSelected.current) {
+      console.log("greenhouse clicked");
+      setInZone(false);
+      setEnableControls(true);
+      setZoneId(0);
+
+      setCameraSettings(initalCameraSettings);
+    }
   };
 
   return (
@@ -44,6 +50,7 @@ export default function GreenHouse() {
       <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
         <Canvas onPointerMissed={zoomOutHandle}>
           <GreenHouseModel
+            squareSelectedRef={squareSelectedRef}
             enableControls={enableControls}
             setEnableControls={setEnableControls}
             model_info={greenhouse_data}

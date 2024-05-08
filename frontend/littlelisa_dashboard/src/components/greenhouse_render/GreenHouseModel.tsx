@@ -10,6 +10,7 @@ import { useFrame } from "@react-three/fiber";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 
 type GreenHouseModelProps = {
+  squareSelectedRef: React.MutableRefObject<boolean>;
   model_info: GreenhouseData;
   enableControls: boolean;
   setEnableControls: React.Dispatch<React.SetStateAction<boolean>>;
@@ -20,6 +21,7 @@ type GreenHouseModelProps = {
 
 export default function GreenHouseModel({
   model_info,
+  squareSelectedRef,
   enableControls,
   setEnableControls,
   initialCameraSettings,
@@ -151,7 +153,6 @@ export default function GreenHouseModel({
       />
 
       <PresentationControls
-        //ref={cameraRef}
         enabled={enableControls}
         snap
         global
@@ -173,6 +174,7 @@ export default function GreenHouseModel({
 
             return (
               <ZoneRender
+                squareSelectedRef={squareSelectedRef}
                 zone={zone}
                 key={`zone${index + 1}`}
                 localZoneId={localZoneId}

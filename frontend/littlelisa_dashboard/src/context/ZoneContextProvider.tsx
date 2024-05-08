@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import { Vector3 } from "three";
 
 export interface ZoneContextType {
@@ -10,6 +10,7 @@ export interface ZoneContextType {
   setZoneId: (id: number) => void;
   inZone: boolean;
   setInZone: (value: boolean) => void;
+  zoneSquareSelected: React.MutableRefObject<boolean>;
 }
 
 type ZoneContextProviderProps = {
@@ -25,6 +26,8 @@ const defaultContextValue: ZoneContextType = {
   setZoneId: () => {},
   inZone: false,
   setInZone: () => {},
+
+  zoneSquareSelected: { current: false },
 };
 
 export const ZoneContext = createContext<ZoneContextType>(defaultContextValue);
@@ -37,6 +40,7 @@ export default function ZoneContextProvider({
     null,
   );
   const [inZone, setInZone] = useState<boolean>(false);
+  const zoneSquareSelected = useRef<boolean>(false);
   const [zoneId, setZoneId] = useState(0);
   useEffect(() => {
     console.log("Zone ID updated to:", zoneId);
@@ -48,6 +52,8 @@ export default function ZoneContextProvider({
         zonePosition,
         zoneId,
         zoneSquarePosition,
+
+        zoneSquareSelected,
         setZoneSquarePosition,
         setZoneId,
         setInZone,
