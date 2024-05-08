@@ -4,7 +4,7 @@ import { Vector3, type Group } from "three";
 import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
 import SquareRender from "./SquareRender.tsx";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import { ZoneContext } from "../../../context/ZoneContextProvider.tsx";
 import { ZoneData } from "../../../../types/common.ts";
 import SquareContextProvider from "../../../context/SquareContextProvider.tsx";
@@ -17,7 +17,7 @@ type ZoneRenderProps = {
 export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   const zoneRef = useRef<Group>(null);
 
-  const { setZonePosition, setZoneId, zoneId, inZone, setInZone } =
+  const { setZonePosition, setZoneId, inZone, setInZone } =
     useContext(ZoneContext);
   const {
     loc_coord,
@@ -33,11 +33,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
       setZonePosition(zoneRef.current.position.clone());
       setZoneId(localZoneId);
     }
-    // console.log(`zone ${zoneId} clicked`);
   }
-  // useEffect(() => {
-  //   console.log("zoneRender->zoneId: ", zoneId);
-  // }, [zoneId]);
 
   return (
     <SquareContextProvider>

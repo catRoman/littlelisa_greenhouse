@@ -3,11 +3,9 @@ import { greenhouse_data } from "../data/static_info";
 import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
 import { ZoneContext } from "../context/ZoneContextProvider";
 import { Leva } from "leva";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { Euler, Vector3 } from "three";
 import { CameraSettings } from "../../types/common";
-import { Route, Routes } from "react-router-dom";
-import Zones from "./Zones";
 
 export default function GreenHouse() {
   const initalCameraSettings: CameraSettings = {
@@ -19,22 +17,18 @@ export default function GreenHouse() {
     rotation: new Euler(-0.5, 0, 0),
   };
   const [enableControls, setEnableControls] = useState(true);
-  const [zoneZoom, setZoneZoom] = useState<boolean>(false);
   const [cameraSettings, setCameraSettings] =
     useState<CameraSettings>(initalCameraSettings);
-  const { zoneId, setZoneId, setInZone } = useContext(ZoneContext);
+  const { setZoneId, setInZone } = useContext(ZoneContext);
 
   const zoomOutHandle = () => {
     console.log("greenhouse clicked");
     setInZone(false);
     setEnableControls(true);
     setZoneId(0);
-    setZoneZoom(false);
+
     setCameraSettings(initalCameraSettings);
   };
-  // useEffect(() => {
-  //   console.log("after cam pos", cameraSettings.position);
-  // }, [cameraSettings]);
 
   return (
     <div className="mr-4 grid grid-cols-4 gap-6 px-4">
@@ -54,8 +48,6 @@ export default function GreenHouse() {
             setEnableControls={setEnableControls}
             model_info={greenhouse_data}
             initialCameraSettings={initalCameraSettings}
-            zoneZoom={zoneZoom}
-            setZoneZoom={setZoneZoom}
             cameraSettings={cameraSettings}
             setCameraSettings={setCameraSettings}
           />
