@@ -94,13 +94,13 @@ export default function SquareRender({
       if (state.camera.position.distanceTo(squareView) < 0.1) {
         console.log("animation done");
       }
-      console.log(
-        `current camer pos-> x:${state.camera.position.x} y:${state.camera.position.y} z:${state.camera.position.z}`,
-      );
-      console.log(
-        `square  pos for cam-> x:${squareView.x} y:${squareView.y} z:${squareView.z}`,
-      );
-      console.log("");
+      // console.log(
+      //   `current camer pos-> x:${state.camera.position.x} y:${state.camera.position.y} z:${state.camera.position.z}`,
+      // );
+      // console.log(
+      //   `square  pos for cam-> x:${squareView.x} y:${squareView.y} z:${squareView.z}`,
+      // );
+      // console.log("");
     }
   });
   return (
