@@ -4,6 +4,8 @@ import { Vector3 } from "three";
 export interface ZoneContextType {
   setZonePosition: (position: Vector3 | null) => void;
   zonePosition: Vector3 | null;
+  setZoneSquarePosition: (position: Vector3 | null) => void;
+  zoneSquarePosition: Vector3 | null;
   zoneId: number;
   setZoneId: (id: number) => void;
   inZone: boolean;
@@ -17,6 +19,8 @@ type ZoneContextProviderProps = {
 const defaultContextValue: ZoneContextType = {
   setZonePosition: () => {},
   zonePosition: null,
+  setZoneSquarePosition: () => {},
+  zoneSquarePosition: null,
   zoneId: 0,
   setZoneId: () => {},
   inZone: false,
@@ -29,6 +33,9 @@ export default function ZoneContextProvider({
   children,
 }: ZoneContextProviderProps) {
   const [zonePosition, setZonePosition] = useState<Vector3 | null>(null);
+  const [zoneSquarePosition, setZoneSquarePosition] = useState<Vector3 | null>(
+    null,
+  );
   const [inZone, setInZone] = useState<boolean>(false);
   const [zoneId, setZoneId] = useState(0);
   useEffect(() => {
@@ -40,6 +47,8 @@ export default function ZoneContextProvider({
         setZonePosition,
         zonePosition,
         zoneId,
+        zoneSquarePosition,
+        setZoneSquarePosition,
         setZoneId,
         setInZone,
         inZone,

@@ -1,10 +1,4 @@
-import React, {
-  RefObject,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
@@ -14,15 +8,12 @@ import { useControls } from "leva";
 import { ZoneContext } from "../../context/ZoneContextProvider";
 import { useFrame } from "@react-three/fiber";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
-import { useSpring, a } from "@react-spring/three";
 
 type GreenHouseModelProps = {
   model_info: GreenhouseData;
   enableControls: boolean;
   setEnableControls: React.Dispatch<React.SetStateAction<boolean>>;
-  zoneZoom: boolean;
   initialCameraSettings: CameraSettings;
-  setZoneZoom: React.Dispatch<React.SetStateAction<boolean>>;
   cameraSettings: CameraSettings;
   setCameraSettings: React.Dispatch<React.SetStateAction<CameraSettings>>;
 };
@@ -31,8 +22,6 @@ export default function GreenHouseModel({
   model_info,
   enableControls,
   setEnableControls,
-  zoneZoom,
-  setZoneZoom,
   initialCameraSettings,
   cameraSettings,
   setCameraSettings,
@@ -43,8 +32,6 @@ export default function GreenHouseModel({
   const {
     greenhouse: { dimensions },
   } = model_info;
-
-  // Component to add axes helper
 
   //===============LERA==============
   // Leva panel to adjust the camera
@@ -90,8 +77,6 @@ export default function GreenHouseModel({
     },
   });
 
-  // Update camera settings based on controls
-  // Update camera settings based on controls
   useEffect(() => {
     const newPosition = new THREE.Vector3(
       cameraControls.positionX,
@@ -116,33 +101,9 @@ export default function GreenHouseModel({
   //==========================
 
   const { zoneId } = useContext(ZoneContext);
-  useFrame((state) => {
-    if (zoneId) {
-      // Do something with the zonePosition, e.g., log it, update UI, etc.
-      // console.log(
-      //   JSON.stringify({
-      //     pX: state.camera.position.x,
-      //     pY: state.camera.position.y,
-      //     pZ: state.camera.position.z,
-      //     rX: state.camera.rotation.x,
-      //     rY: state.camera.rotation.y,
-      //     rZ: state.camera.rotation.z,
-      //     zoom: state.camera.zoom,
-      //   }),
-      // );
-      // const newPosition = new Vector3(
-      //   zoneCameraViews[zoneId - 1].posX,
-      //   zoneCameraViews[zoneId - 1].posY,
-      //   zoneCameraViews[zoneId - 1].posZ,
-      // );
-      // state.camera.lookAt(newPosition);
-    }
-  });
 
   useEffect(() => {
     if (zoneId) {
-      // Do something with the zonePosition, e.g., log it, update UI, etc.
-
       const newPosition = new THREE.Vector3(
         zoneCameraViews[zoneId - 1].posX,
         zoneCameraViews[zoneId - 1].posY,
@@ -160,15 +121,13 @@ export default function GreenHouseModel({
         position: newPosition,
       }));
 
-      setZoneZoom(true);
       setEnableControls(false);
     }
-  }, [zoneId, setEnableControls, setZoneZoom, setCameraSettings]);
+  }, [zoneId, setEnableControls, setCameraSettings]);
 
   useFrame(() => {
     if (cameraRef.current) {
       const delta = 0.05;
-      // console.log("cameraSettings inside useFrame:", cameraSettings.position);
       cameraRef.current.position.lerp(cameraSettings.position, delta);
       if (
         cameraRef.current.position.distanceTo(cameraSettings.position) < 0.1
@@ -191,15 +150,12 @@ export default function GreenHouseModel({
         rotation={initialCameraSettings.rotation}
       />
 
-      {/* <OrbitControls makeDefault zoomToCursor /> */}
       <PresentationControls
         //ref={cameraRef}
         enabled={enableControls}
         snap
         global
         zoom={0.8}
-        //rotation={[-(Math.PI / 2), 0, 0]}
-        //rotation={[-(Math.PI / 2), 0, 0]}
         rotation={[0, -(Math.PI / 4), 0]}
         polar={[0, -Math.PI / 4]}
         azimuth={[-Math.PI, 0]}
