@@ -1,16 +1,18 @@
-import { ThreeEvent, useFrame } from "@react-three/fiber";
+import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { ZoneContext } from "../../../context/ZoneContextProvider";
 import { SquareContext } from "../../../context/SquareContextProvider";
 import { SquareId } from "../../../../types/common";
+import { zoneCameraViews } from "./data/zoneCameras";
 
 type SquareRenderProps = {
   position: [x: number, y: number, z: number];
   args: [x: number, y: number, z: number];
   squareId: SquareId;
   localZoneId: number;
+  squareSelectedRef: React.MutableRefObject<boolean>;
 };
 
 export default function SquareRender({
@@ -18,14 +20,19 @@ export default function SquareRender({
   args,
   squareId,
   localZoneId,
+  squareSelectedRef,
 }: SquareRenderProps) {
   const [hovering, setHovering] = useState<boolean>(false);
   const [cameraSquarePosition, setCameraSquarePosition] =
     useState<THREE.Vector3>(null!);
+  const [cameraSquareRotation, setCameraSquareRotation] = useState<THREE.Euler>(
+    null!,
+  );
   const [animationDone, setAnimationDone] = useState<boolean>(false);
-
+  const { camera: sceneCamera } = useThree();
   const { selectedSquareId, setSelectedSquareId } = useContext(SquareContext);
-  const { inZone, zoneId, setZoneSquarePosition } = useContext(ZoneContext);
+  const { inZone, zoneId, setZoneSquarePosition, zoneSquareSelected } =
+    useContext(ZoneContext);
 
   const spring = useSpring({
     color:
@@ -67,10 +74,12 @@ export default function SquareRender({
     setHovering(false);
   }
   function squareClickedHandler(event: ThreeEvent<MouseEvent>) {
-    if (inZone) {
+    if (inZone && selectedSquareId === null) {
       event.stopPropagation();
       if (localZoneId === zoneId) {
         setSelectedSquareId(squareId);
+        zoneSquareSelected.current = true;
+        // setZoneSquareSelected(true);
         console.log(
           `obj pos-> x:${event.object.position.x} y:${event.object.position.y} z:${event.object.position.z}`,
         );
@@ -81,7 +90,38 @@ export default function SquareRender({
       }
     }
   }
+  function pointerMissedHandler(event: MouseEvent) {
+    // event.stopPropagation();
+    if (selectedSquareId === squareId) {
+      //event.stopPropagation();
+      console.log("pointer missed");
+      //console.log(zoneCameraViews);
+      // const zoneCam = zoneCameraViews[localZoneId - 1];
+      // const zonePosition = new THREE.Vector3(
+      //   zoneCam.posX,
+      //   zoneCam.posY,
+      //   zoneCam.posZ,
+      // );
+      const test = new THREE.Vector3(0, 0, 0);
+      const testRot = new THREE.Euler(0, 0, -0.5);
+
+      setCameraSquareRotation(testRot);
+      setCameraSquarePosition(test);
+
+      // const zoneRotation = new THREE.Euler(
+      //   zoneCam.rotX,
+      //   zoneCam.rotY,
+      //   zoneCam.rotZ,
+      // );
+      // setCameraSquareRotation(zoneRotation);
+      //sceneCamera.lookAt(0, 0, 0);
+    }
+  }
   useFrame((state) => {
+    if (cameraSquareRotation) {
+      const delta = 0.5;
+      state.camera.position.lerp(cameraSquareRotation, delta);
+    }
     if (cameraSquarePosition) {
       const delta = 0.05;
       const squareView = new THREE.Vector3(
@@ -108,6 +148,7 @@ export default function SquareRender({
       onClick={squareClickedHandler}
       onPointerEnter={pointerEnterEventHandler}
       onPointerLeave={pointerLeaveEventHandler}
+      onPointerMissed={pointerMissedHandler}
       position={spring.position.to((x: number, y: number, z: number) => [
         x,
         y,
