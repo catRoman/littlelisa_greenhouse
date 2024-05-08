@@ -30,13 +30,11 @@ export default function GreenHouse() {
     setEnableControls(true);
     setZoneId(0);
     setZoneZoom(false);
-    console.log("before cam pos", cameraSettings.position);
     setCameraSettings(initalCameraSettings);
-    console.log("Updated cameraSettings:", cameraSettings.position);
   };
-  useEffect(() => {
-    console.log("after cam pos", cameraSettings.position);
-  }, [cameraSettings]);
+  // useEffect(() => {
+  //   console.log("after cam pos", cameraSettings.position);
+  // }, [cameraSettings]);
 
   return (
     <div className="mr-4 grid grid-cols-4 gap-6 px-4">

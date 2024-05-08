@@ -143,7 +143,6 @@ export default function GreenHouseModel({
     if (zoneId) {
       // Do something with the zonePosition, e.g., log it, update UI, etc.
 
-      console.log("GreenHouseModel->zoneId: ", zoneId);
       const newPosition = new THREE.Vector3(
         zoneCameraViews[zoneId - 1].posX,
         zoneCameraViews[zoneId - 1].posY,
@@ -214,12 +213,13 @@ export default function GreenHouseModel({
           <GreenHouseRender dimensions={dimensions} />
 
           {model_info.zones.map((zone, index) => {
-            const zoneId = index + 1;
+            const localZoneId = index + 1;
+
             return (
               <ZoneRender
                 zone={zone}
                 key={`zone${index + 1}`}
-                localZoneId={zoneId}
+                localZoneId={localZoneId}
               />
             );
           })}

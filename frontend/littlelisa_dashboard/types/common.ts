@@ -53,3 +53,5 @@ export type CameraSettings = {
   position: Vector3;
   rotation: Euler;
 };
+
+export type SquareId = { x: number; y: number };

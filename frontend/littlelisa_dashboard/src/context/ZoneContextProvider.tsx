@@ -15,10 +15,10 @@ type ZoneContextProviderProps = {
 };
 
 const defaultContextValue: ZoneContextType = {
-  setZonePosition: () => {}, // No-operation function
-  zonePosition: null, // Default to null
-  zoneId: 0, // Default ID
-  setZoneId: () => {}, // No-operation function
+  setZonePosition: () => {},
+  zonePosition: null,
+  zoneId: 0,
+  setZoneId: () => {},
   inZone: false,
   setInZone: () => {},
 };
