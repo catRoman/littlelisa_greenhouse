@@ -1,5 +1,5 @@
 import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { ZoneContext } from "../../../context/ZoneContextProvider";
@@ -22,12 +22,16 @@ export default function SquareRender({
   localZoneId,
   squareSelectedRef,
 }: SquareRenderProps) {
+  const zoomOut = useRef<boolean>(false);
+  const currentZoneCameraRef = useRef<{
+    position: THREE.Vector3;
+    rotation: THREE.Quaternion;
+  }>(null!);
   const [hovering, setHovering] = useState<boolean>(false);
   const [cameraSquarePosition, setCameraSquarePosition] =
     useState<THREE.Vector3>(null!);
-  const [cameraSquareRotation, setCameraSquareRotation] = useState<THREE.Euler>(
-    null!,
-  );
+  const [cameraSquareRotation, setCameraSquareRotation] =
+    useState<THREE.Quaternion>(null!);
   const [animationDone, setAnimationDone] = useState<boolean>(false);
   const { camera: sceneCamera } = useThree();
   const { selectedSquareId, setSelectedSquareId } = useContext(SquareContext);
@@ -79,11 +83,18 @@ export default function SquareRender({
       if (localZoneId === zoneId) {
         setSelectedSquareId(squareId);
         zoneSquareSelected.current = true;
+        zoomOut.current = false;
         // setZoneSquareSelected(true);
         console.log(
           `obj pos-> x:${event.object.position.x} y:${event.object.position.y} z:${event.object.position.z}`,
         );
 
+        currentZoneCameraRef.current = {
+          position: sceneCamera.position.clone(),
+          rotation: sceneCamera.quaternion.clone(),
+        };
+        console.log("Camera Position:", currentZoneCameraRef.current.position);
+        console.log("Camera Rotation:", currentZoneCameraRef.current.rotation);
         const worldPosition = new THREE.Vector3();
         worldPosition.setFromMatrixPosition(event.object.matrixWorld);
         setCameraSquarePosition(worldPosition);
@@ -92,55 +103,50 @@ export default function SquareRender({
   }
   function pointerMissedHandler(event: MouseEvent) {
     // event.stopPropagation();
-    if (selectedSquareId === squareId) {
+    if (
+      selectedSquareId === squareId &&
+      zoneSquareSelected.current &&
+      !zoomOut.current
+    ) {
       //event.stopPropagation();
       console.log("pointer missed");
-      //console.log(zoneCameraViews);
-      // const zoneCam = zoneCameraViews[localZoneId - 1];
-      // const zonePosition = new THREE.Vector3(
-      //   zoneCam.posX,
-      //   zoneCam.posY,
-      //   zoneCam.posZ,
-      // );
-      const test = new THREE.Vector3(0, 0, 0);
-      const testRot = new THREE.Euler(0, 0, -0.5);
 
-      setCameraSquareRotation(testRot);
-      setCameraSquarePosition(test);
-
-      // const zoneRotation = new THREE.Euler(
-      //   zoneCam.rotX,
-      //   zoneCam.rotY,
-      //   zoneCam.rotZ,
-      // );
-      // setCameraSquareRotation(zoneRotation);
-      //sceneCamera.lookAt(0, 0, 0);
+      setSelectedSquareId(null);
+      zoneSquareSelected.current = false;
+      zoomOut.current = true;
+      setCameraSquareRotation(currentZoneCameraRef.current.rotation);
+      setCameraSquarePosition(currentZoneCameraRef.current.position);
     }
   }
   useFrame((state) => {
-    if (cameraSquareRotation) {
-      const delta = 0.5;
-      state.camera.position.lerp(cameraSquareRotation, delta);
-    }
-    if (cameraSquarePosition) {
+    if (cameraSquarePosition && zoneSquareSelected.current) {
       const delta = 0.05;
       const squareView = new THREE.Vector3(
         cameraSquarePosition.x,
         cameraSquarePosition.y + 5,
         -5,
       );
+
       state.camera.lookAt(cameraSquarePosition);
+
       state.camera.position.lerp(squareView, delta);
       if (state.camera.position.distanceTo(squareView) < 0.1) {
         console.log("animation done");
       }
-      // console.log(
-      //   `current camer pos-> x:${state.camera.position.x} y:${state.camera.position.y} z:${state.camera.position.z}`,
-      // );
-      // console.log(
-      //   `square  pos for cam-> x:${squareView.x} y:${squareView.y} z:${squareView.z}`,
-      // );
-      // console.log("");
+    } else if (
+      cameraSquarePosition &&
+      cameraSquareRotation &&
+      !zoneSquareSelected.current &&
+      zoomOut.current === true
+    ) {
+      const delta = 0.5;
+      state.camera.quaternion.slerp(cameraSquareRotation, delta);
+      state.camera.position.lerp(cameraSquarePosition, delta);
+
+      if (state.camera.position.distanceTo(cameraSquarePosition) < 0.1) {
+        console.log("animation done");
+        zoomOut.current = false;
+      }
     }
   });
   return (
