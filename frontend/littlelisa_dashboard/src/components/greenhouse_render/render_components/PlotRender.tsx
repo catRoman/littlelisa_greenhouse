@@ -3,21 +3,24 @@ import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { SquareId } from "../../../../types/common";
+import { Sensor, SquareId } from "../../../../types/common";
+import SensorListRender from "./SensorListRender";
 
-type SquareRenderProps = {
-  position: [x: number, y: number, z: number];
+type PlotRenderProps = {
   args: [x: number, y: number, z: number];
   squareId: SquareId;
   localZoneId: number;
+  sensors: Sensor[] | null;
+  position: [x: number, y: number, z: number];
 };
 
-export default function SquareRender({
-  position,
+export default function PlotRender({
   args,
   squareId,
   localZoneId,
-}: SquareRenderProps) {
+  sensors,
+  position,
+}: PlotRenderProps) {
   const [hovering, setHovering] = useState<boolean>(false);
 
   const {
@@ -81,7 +84,7 @@ export default function SquareRender({
       //equivalent to lookat thanks chat - linear-algebra not today lol
       const newPosition = new THREE.Vector3(
         worldPosition.x,
-        worldPosition.y + position[2] + 4,
+        worldPosition.y + 4,
         worldPosition.z + 5,
       );
       setCurrentCameraProperties({
@@ -96,21 +99,30 @@ export default function SquareRender({
   }
 
   return (
-    <animated.mesh
-      onClick={squareClickedHandler}
-      onPointerEnter={pointerEnterEventHandler}
-      onPointerLeave={pointerLeaveEventHandler}
+    <animated.group
       position={spring.position.to((x: number, y: number, z: number) => [
         x,
         y,
         z,
       ])}
     >
-      <boxGeometry args={args} />
-      <animated.meshBasicMaterial
-        color={spring.color}
-        wireframe={spring.wireframe}
+      <animated.mesh
+        onClick={squareClickedHandler}
+        onPointerEnter={pointerEnterEventHandler}
+        onPointerLeave={pointerLeaveEventHandler}
+      >
+        <boxGeometry args={args} />
+        <animated.meshBasicMaterial
+          color={spring.color}
+          wireframe={spring.wireframe}
+        />
+      </animated.mesh>
+      <SensorListRender
+        sensors={sensors}
+        plot_height={args[2]}
+        localZoneId={localZoneId}
+        squareId={squareId}
       />
-    </animated.mesh>
+    </animated.group>
   );
 }
