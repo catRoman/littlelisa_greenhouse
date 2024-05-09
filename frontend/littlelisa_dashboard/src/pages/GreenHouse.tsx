@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { greenhouse_data } from "../data/static_info";
 import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
-import { ZoneContext } from "../context/ZoneContextProvider";
-import { Leva } from "leva";
+import { GreenHouseContext } from "../context/GreenHouseContextProvider";
+
 import { useContext, useRef, useState } from "react";
 import { Euler, Vector3 } from "three";
 import { CameraSettings } from "../../types/common";
@@ -20,7 +20,7 @@ export default function GreenHouse() {
   const [cameraSettings, setCameraSettings] =
     useState<CameraSettings>(initalCameraSettings);
   const { setZoneId, setInZone, zoneSquarePosition, zoneSquareSelected } =
-    useContext(ZoneContext);
+    useContext(GreenHouseContext);
   const squareSelectedRef = useRef<boolean>(false);
   const zoomOutHandle = () => {
     //console.log("squareSelected", squareSelectedRef.current);
@@ -59,7 +59,6 @@ export default function GreenHouse() {
             setCameraSettings={setCameraSettings}
           />
         </Canvas>
-        <Leva collapsed={false} />
       </div>
       <div className="border">2</div>
       <div className="border">3</div>
