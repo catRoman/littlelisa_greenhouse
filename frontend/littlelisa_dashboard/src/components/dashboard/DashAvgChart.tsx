@@ -30,7 +30,7 @@ export default class DashAvgChart extends PureComponent {
           <XAxis dataKey="timestamp" />
           <YAxis />
           <Tooltip />
-          <Legend />
+          <Legend verticalAlign="bottom" />
           <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
           <Line type="monotone" dataKey="humidity" stroke="#2139c4" />
           <Line type="monotone" dataKey="soil_moisture" stroke="#dd6d11" />

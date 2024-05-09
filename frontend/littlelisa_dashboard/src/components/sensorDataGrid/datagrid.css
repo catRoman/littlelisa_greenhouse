@@ -1,0 +1,8 @@
+/* set the background color of many elements across the grid */
+.ag-theme-quartz-dark {
+  --ag-background-color: #ddd;
+}
+/* change the font style of a single UI component */
+.ag-theme-quartz-dark .ag-header-cell-label {
+  font-style: italic;
+}
