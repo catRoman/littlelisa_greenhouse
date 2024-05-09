@@ -1,11 +1,10 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
-import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
-import SquareRender from "./SquareRender.tsx";
 import { useContext, useRef } from "react";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider.tsx";
 import { ZoneData } from "../../../../types/common.ts";
+import PlotRender from "./PlotRender.tsx";
 
 type ZoneRenderProps = {
   zone: ZoneData;
@@ -53,23 +52,18 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
         for (let i = 0; i < zone_x; i++) {
           for (let j = 0; j < zone_y; j++) {
             zone.push(
-              <SquareRender
-                key={`square_${i}_${j}`}
+              <PlotRender
                 position={[i - zone_x / 2 + 0.5, j - zone_y / 2 + 0.5, 0]}
-                args={[1, 1, zone_z]}
                 squareId={{ x: i, y: j }}
+                args={[1, 1, zone_z]}
                 localZoneId={localZoneId}
+                sensors={sensors}
               />,
             );
           }
         }
         return <>{zone}</>;
       })()}
-      <SensorListRender
-        sensors={sensors}
-        zoneId={localZoneId}
-        zone_dim={zone.dimensions}
-      />
       <SprinklerListRender
         sprinklers={sprinklers}
         zoneId={localZoneId}
