@@ -2,7 +2,7 @@ import { ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { useContext, useRef, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
-import { ZoneContext } from "../../../context/ZoneContextProvider";
+import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 import { SquareContext } from "../../../context/SquareContextProvider";
 import { SquareId } from "../../../../types/common";
 import { zoneCameraViews } from "./data/zoneCameras";
@@ -22,7 +22,7 @@ export default function SquareRender({
   localZoneId,
   squareSelectedRef,
 }: SquareRenderProps) {
-  const zoomOut = useRef<boolean>(false);
+  const zoomOut = useRef<boolean>(true);
   const currentZoneCameraRef = useRef<{
     position: THREE.Vector3;
     rotation: THREE.Quaternion;
@@ -35,8 +35,7 @@ export default function SquareRender({
   const [animationDone, setAnimationDone] = useState<boolean>(false);
   const { camera: sceneCamera } = useThree();
   const { selectedSquareId, setSelectedSquareId } = useContext(SquareContext);
-  const { inZone, zoneId, setZoneSquarePosition, zoneSquareSelected } =
-    useContext(ZoneContext);
+  const { inZone, zoneId, zoneSquareSelected } = useContext(GreenHouseContext);
 
   const spring = useSpring({
     color:
@@ -85,16 +84,13 @@ export default function SquareRender({
         zoneSquareSelected.current = true;
         zoomOut.current = false;
         // setZoneSquareSelected(true);
-        console.log(
-          `obj pos-> x:${event.object.position.x} y:${event.object.position.y} z:${event.object.position.z}`,
-        );
+        console.log(`square ${selectedSquareId} in zone ${zoneId}`);
 
         currentZoneCameraRef.current = {
           position: sceneCamera.position.clone(),
           rotation: sceneCamera.quaternion.clone(),
         };
-        console.log("Camera Position:", currentZoneCameraRef.current.position);
-        console.log("Camera Rotation:", currentZoneCameraRef.current.rotation);
+
         const worldPosition = new THREE.Vector3();
         worldPosition.setFromMatrixPosition(event.object.matrixWorld);
         setCameraSquarePosition(worldPosition);
@@ -102,7 +98,7 @@ export default function SquareRender({
     }
   }
   function pointerMissedHandler(event: MouseEvent) {
-    // event.stopPropagation();
+    event.stopPropagation();
     if (
       selectedSquareId === squareId &&
       zoneSquareSelected.current &&

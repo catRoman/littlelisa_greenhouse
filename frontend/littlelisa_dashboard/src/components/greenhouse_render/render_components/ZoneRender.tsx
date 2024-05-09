@@ -1,11 +1,11 @@
-import { ThreeEvent, useThree } from "@react-three/fiber";
+import { ThreeEvent } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
 
 import SensorListRender from "./SensorListRender.tsx";
 import SprinklerListRender from "./SprinklerListRender.tsx";
 import SquareRender from "./SquareRender.tsx";
 import { useContext, useRef } from "react";
-import { ZoneContext } from "../../../context/ZoneContextProvider.tsx";
+import { GreenHouseContext } from "../../../context/GreenHouseContextProvider.tsx";
 import { ZoneData } from "../../../../types/common.ts";
 import SquareContextProvider from "../../../context/SquareContextProvider.tsx";
 
@@ -23,7 +23,7 @@ export default function ZoneRender({
   const zoneRef = useRef<Group>(null);
 
   const { setZonePosition, setZoneId, inZone, setInZone } =
-    useContext(ZoneContext);
+    useContext(GreenHouseContext);
 
   const {
     loc_coord,
@@ -35,6 +35,7 @@ export default function ZoneRender({
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     if (zoneRef.current && !inZone) {
+      console.log(`zone ${localZoneId} clicked`);
       setInZone(true);
       setZonePosition(zoneRef.current.position.clone());
       setZoneId(localZoneId);

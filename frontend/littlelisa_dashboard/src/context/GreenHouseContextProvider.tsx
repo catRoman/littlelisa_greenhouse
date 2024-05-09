@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
 import { Vector3 } from "three";
 
-export interface ZoneContextType {
+export interface GreenHouseContextType {
   setZonePosition: (position: Vector3 | null) => void;
   zonePosition: Vector3 | null;
   setZoneSquarePosition: (position: Vector3 | null) => void;
@@ -13,11 +13,11 @@ export interface ZoneContextType {
   zoneSquareSelected: React.MutableRefObject<boolean>;
 }
 
-type ZoneContextProviderProps = {
+type GreenHouseContextProviderProps = {
   children: React.ReactNode;
 };
 
-const defaultContextValue: ZoneContextType = {
+const defaultContextValue: GreenHouseContextType = {
   setZonePosition: () => {},
   zonePosition: null,
   setZoneSquarePosition: () => {},
@@ -30,11 +30,12 @@ const defaultContextValue: ZoneContextType = {
   zoneSquareSelected: { current: false },
 };
 
-export const ZoneContext = createContext<ZoneContextType>(defaultContextValue);
+export const GreenHouseContext =
+  createContext<GreenHouseContextType>(defaultContextValue);
 
-export default function ZoneContextProvider({
+export default function GreenHouseContextProvider({
   children,
-}: ZoneContextProviderProps) {
+}: GreenHouseContextProviderProps) {
   const [zonePosition, setZonePosition] = useState<Vector3 | null>(null);
   const [zoneSquarePosition, setZoneSquarePosition] = useState<Vector3 | null>(
     null,
@@ -46,7 +47,7 @@ export default function ZoneContextProvider({
     console.log("Zone ID updated to:", zoneId);
   }, [zoneId]);
   return (
-    <ZoneContext.Provider
+    <GreenHouseContext.Provider
       value={{
         setZonePosition,
         zonePosition,
@@ -61,6 +62,6 @@ export default function ZoneContextProvider({
       }}
     >
       {children}
-    </ZoneContext.Provider>
+    </GreenHouseContext.Provider>
   );
 }

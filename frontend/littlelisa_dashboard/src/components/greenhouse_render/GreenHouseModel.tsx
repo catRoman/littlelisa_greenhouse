@@ -4,8 +4,7 @@ import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
 import { CameraSettings, GreenhouseData } from "../../../types/common";
-import { useControls } from "leva";
-import { ZoneContext } from "../../context/ZoneContextProvider";
+import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { useFrame } from "@react-three/fiber";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 
@@ -35,74 +34,7 @@ export default function GreenHouseModel({
     greenhouse: { dimensions },
   } = model_info;
 
-  //===============LERA==============
-  // Leva panel to adjust the camera
-  const cameraControls = useControls("Camera", {
-    fov: { value: cameraSettings.fov, min: 10, max: 100 },
-    near: { value: cameraSettings.near, min: 0.01, max: 100 },
-    far: { value: cameraSettings.far, min: 1, max: 2000 },
-    positionX: {
-      value: cameraSettings.position.x,
-      min: -100,
-      max: 100,
-      step: 0.1,
-    },
-    positionY: {
-      value: cameraSettings.position.y,
-      min: -100,
-      max: 100,
-      step: 0.1,
-    },
-    positionZ: {
-      value: cameraSettings.position.z,
-      min: -100,
-      max: 100,
-      step: 0.1,
-    },
-    rotationX: {
-      value: cameraSettings.rotation.x,
-      min: -Math.PI,
-      max: Math.PI,
-      step: 0.01,
-    },
-    rotationY: {
-      value: cameraSettings.rotation.y,
-      min: -Math.PI,
-      max: Math.PI,
-      step: 0.01,
-    },
-    rotationZ: {
-      value: cameraSettings.rotation.z,
-      min: -Math.PI,
-      max: Math.PI,
-      step: 0.01,
-    },
-  });
-
-  useEffect(() => {
-    const newPosition = new THREE.Vector3(
-      cameraControls.positionX,
-      cameraControls.positionY,
-      cameraControls.positionZ,
-    );
-    const newRotation = new THREE.Euler(
-      cameraControls.rotationX,
-      cameraControls.rotationY,
-      cameraControls.rotationZ,
-    );
-    setCameraSettings((prev) => ({
-      ...prev,
-      fov: cameraControls.fov,
-      near: cameraControls.near,
-      far: cameraControls.far,
-      position: newPosition,
-      rotation: newRotation,
-    }));
-  }, [cameraControls, setCameraSettings]);
-
-  //==========================
-
-  const { zoneId } = useContext(ZoneContext);
+  const { zoneId } = useContext(GreenHouseContext);
 
   useEffect(() => {
     if (zoneId) {
