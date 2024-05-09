@@ -1,3 +1,5 @@
+import { cntrlDataType } from "../../types/common";
+//TODO:Types for json data
 export const greenhouse_data = {
   greenhouse: {
     lat: 48.42,
@@ -131,15 +133,6 @@ export const phoney_sensor_avgd = [
     soil_moisture: 75,
   },
 ];
-
-type cntrlDataType = {
-  cntrl: string;
-  currList: {
-    zone: number;
-    isActive: boolean;
-  }[];
-  iconPath: string;
-};
 
 export const cntrlData: cntrlDataType[] = [
   {

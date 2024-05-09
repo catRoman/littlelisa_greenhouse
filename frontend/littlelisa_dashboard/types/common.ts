@@ -55,3 +55,11 @@ export type CameraSettings = {
 };
 
 export type SquareId = { x: number; y: number };
+export type cntrlDataType = {
+  cntrl: string;
+  currList: {
+    zone: number;
+    isActive: boolean;
+  }[];
+  iconPath: string;
+};
