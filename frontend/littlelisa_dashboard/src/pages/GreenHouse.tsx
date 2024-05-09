@@ -2,37 +2,27 @@ import { Canvas } from "@react-three/fiber";
 import { greenhouse_data } from "../data/static_info";
 import GreenHouseModel from "../components/greenhouse_render/GreenHouseModel";
 import { GreenHouseContext } from "../context/GreenHouseContextProvider";
-
-import { useContext, useRef, useState } from "react";
-import { Euler, Vector3 } from "three";
-import { CameraSettings } from "../../types/common";
+import { useContext } from "react";
+import { initalCameraProperties } from "../components/greenhouse_render/render_components/data/zoneCameras";
 
 export default function GreenHouse() {
-  const initalCameraSettings: CameraSettings = {
-    fov: 35,
-    zoom: 1,
-    near: 0.1,
-    far: 5000,
-    position: new Vector3(0, 10, 16),
-    rotation: new Euler(-0.5, 0, 0),
-  };
-  const [enableControls, setEnableControls] = useState(true);
-  const [cameraSettings, setCameraSettings] =
-    useState<CameraSettings>(initalCameraSettings);
-  const { setZoneId, setInZone, zoneSquarePosition, zoneSquareSelected } =
-    useContext(GreenHouseContext);
-  const squareSelectedRef = useRef<boolean>(false);
+  const {
+    setSelectedZoneId,
+    inZone,
+    setSelectedSquareId,
+    zoneSquareSelected,
+    enableControls,
+    setCurrentCameraProperties,
+  } = useContext(GreenHouseContext);
   const zoomOutHandle = () => {
-    //console.log("squareSelected", squareSelectedRef.current);
-    //console.log("!squareSelected", !squareSelectedRef.current);
-
     if (!zoneSquareSelected.current) {
       console.log("greenhouse clicked");
-      setInZone(false);
-      setEnableControls(true);
-      setZoneId(0);
+      inZone.current = false;
+      enableControls.current = true;
+      setSelectedSquareId(null);
+      setSelectedZoneId(0);
 
-      setCameraSettings(initalCameraSettings);
+      setCurrentCameraProperties(initalCameraProperties);
     }
   };
 
@@ -49,15 +39,7 @@ export default function GreenHouse() {
       </div>
       <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
         <Canvas onPointerMissed={zoomOutHandle}>
-          <GreenHouseModel
-            squareSelectedRef={squareSelectedRef}
-            enableControls={enableControls}
-            setEnableControls={setEnableControls}
-            model_info={greenhouse_data}
-            initialCameraSettings={initalCameraSettings}
-            cameraSettings={cameraSettings}
-            setCameraSettings={setCameraSettings}
-          />
+          <GreenHouseModel model_info={greenhouse_data} />
         </Canvas>
       </div>
       <div className="border">2</div>
