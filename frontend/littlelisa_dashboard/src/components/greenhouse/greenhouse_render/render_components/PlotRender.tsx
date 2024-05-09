@@ -2,9 +2,10 @@ import { ThreeEvent } from "@react-three/fiber";
 import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
-import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { Sensor, SquareId } from "../../../../types/common";
+import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
+import { Sensor, SquareId } from "../../../../../types/common";
 import SensorListRender from "./SensorListRender";
+import { GreenHouseViewState } from "../../../../../types/enums";
 
 type PlotRenderProps = {
   args: [x: number, y: number, z: number];
@@ -29,7 +30,7 @@ export default function PlotRender({
     setSelectedSquareId,
     selectedSquareId,
     previousCameraProperties,
-
+    setViewState,
     setCurrentCameraProperties,
   } = useContext(GreenHouseContext);
 
@@ -77,6 +78,7 @@ export default function PlotRender({
     if (inZone.current) event.stopPropagation();
     if (localZoneId === selectedZoneId) {
       setSelectedSquareId(squareId);
+      setViewState(GreenHouseViewState.Plot);
 
       const worldPosition = new THREE.Vector3();
       worldPosition.setFromMatrixPosition(event.object.matrixWorld);

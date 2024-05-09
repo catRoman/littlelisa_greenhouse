@@ -3,8 +3,8 @@ import * as THREE from "three";
 import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
-import { GreenhouseData } from "../../../types/common";
-import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
+import { GreenhouseData } from "../../../../types/common";
+import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 import { useSpring, animated } from "@react-spring/three";

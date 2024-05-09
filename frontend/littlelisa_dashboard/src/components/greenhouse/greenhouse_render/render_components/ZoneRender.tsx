@@ -2,9 +2,10 @@ import { ThreeEvent } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
 import SprinklerListRender from "./SprinklerListRender.tsx";
 import { useContext, useRef } from "react";
-import { GreenHouseContext } from "../../../context/GreenHouseContextProvider.tsx";
-import { ZoneData } from "../../../../types/common.ts";
+import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider.tsx";
+import { ZoneData } from "../../../../../types/common.ts";
 import PlotRender from "./PlotRender.tsx";
+import { GreenHouseViewState } from "../../../../../types/enums.ts";
 
 type ZoneRenderProps = {
   zone: ZoneData;
@@ -19,6 +20,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     currentCameraProperties,
     setSelectedZoneId,
     inZone,
+    setViewState,
   } = useContext(GreenHouseContext);
 
   const {
@@ -33,6 +35,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     previousCameraProperties.current = currentCameraProperties;
     setSelectedZoneId(localZoneId);
     inZone.current = true;
+    setViewState(GreenHouseViewState.Zone);
   }
 
   return (
