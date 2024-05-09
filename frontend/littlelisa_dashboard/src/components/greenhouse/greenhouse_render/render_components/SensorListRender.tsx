@@ -1,6 +1,6 @@
 import { Html } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
-import { Sensor, SquareId } from "../../../../types/common";
+import { Sensor, SquareId } from "../../../../../types/common";
 import { useState } from "react";
 
 type SensorListRenderProp = {

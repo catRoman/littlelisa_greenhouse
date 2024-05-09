@@ -1,7 +1,7 @@
 import React, { createContext, useRef, useState } from "react";
-
 import { CameraSettings, SquareId } from "../../types/common";
-import { initalCameraProperties } from "../components/greenhouse_render/render_components/data/zoneCameras";
+import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
+import { GreenHouseViewState } from "../../types/enums";
 export interface GreenHouseContextType {
   //state
   currentCameraProperties: CameraSettings;
@@ -16,6 +16,8 @@ export interface GreenHouseContextType {
   inZone: React.MutableRefObject<boolean>;
   zoneSquareSelected: React.MutableRefObject<boolean>;
   enableControls: React.MutableRefObject<boolean>;
+  viewState: GreenHouseViewState;
+  setViewState: (value: GreenHouseViewState) => void;
 }
 
 type GreenHouseContextProviderProps = {
@@ -28,10 +30,11 @@ const defaultContextValue: GreenHouseContextType = {
   setSelectedSquareId: () => {},
   setCurrentCameraProperties: () => {},
   currentCameraProperties: initalCameraProperties,
+  viewState: GreenHouseViewState.GreenHouse,
+  setViewState: () => {},
 
   //refs
   previousCameraProperties: { current: initalCameraProperties },
-
   setSelectedZoneId: () => {},
   selectedZoneId: 0,
   enableControls: { current: true },
@@ -58,10 +61,15 @@ export default function GreenHouseContextProvider({
   const inZone = useRef<boolean>(false);
   const zoneSquareSelected = useRef<boolean>(false);
   const [selectedZoneId, setSelectedZoneId] = useState<number>(0);
+  const [viewState, setViewState] = useState<GreenHouseViewState>(
+    GreenHouseViewState.GreenHouse,
+  );
 
   return (
     <GreenHouseContext.Provider
       value={{
+        viewState,
+        setViewState,
         selectedZoneId,
         setSelectedZoneId,
         previousCameraProperties,
