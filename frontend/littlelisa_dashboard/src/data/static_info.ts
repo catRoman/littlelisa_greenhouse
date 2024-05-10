@@ -6,12 +6,15 @@ export const greenhouse_data = {
     long: -123.53,
     greenhouse_id: 1,
     greenhouse_location_str: "backyard",
+    type: "half tunnel",
     dimensions: { x: 12, y: 16 },
-    total_zones: 3,
+    total_zones: 4,
     total_controllers: 1,
   },
   zones: [
     {
+      name: "leafy greens",
+      description: "Blah blah blah this is a general descirption that may not be nesesary",
       dimensions: { x: 4, y: 6, z: 2 },
       loc_coord: { x: 0, y: 0, z: 0 },
       sensorsAvailable: true,
@@ -37,6 +40,8 @@ export const greenhouse_data = {
       ],
     },
     {
+      name: "root vegtables",
+      description: "Blah blah blah this is a general descirption that may not be nesesary",
       dimensions: { x: 4, y: 6, z: 3 },
       loc_coord: { x: 0, y: 6, z: 0 },
       sensorsAvailable: true,
@@ -51,6 +56,8 @@ export const greenhouse_data = {
       sprinklers: null,
     },
     {
+      name: "fruting plants and herbs",
+      description: "Blah blah blah this is a general descirption that may not be nesesary",
       dimensions: { x: 4, y: 8, z: 2 },
       loc_coord: { x: 8, y: 2, z: 0 },
       sensorsAvailable: false,
@@ -69,6 +76,8 @@ export const greenhouse_data = {
       ],
     },
     {
+      name: "climbing vines plants",
+      description: "Blah blah blah this is a general descirption that may not be nesesary",
       dimensions: { x: 4, y: 1, z: 2 },
       loc_coord: { x: 4, y: 15, z: 0 },
       sensorsAvailable: true,
