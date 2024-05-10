@@ -1,46 +1,45 @@
 import { useContext } from "react";
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
-import { greenhouse_data } from "../../data/static_info";
+import { greenhouse_data, current_enviromental } from "../../data/static_info";
 import { square_data } from "../../data/mock_json/square_data";
+import GreenHouseOverview from "./sub_components/GreenhouseOverview";
+import ZoneOverview from "./sub_components/ZoneOverview";
+import PlotOverview from "./sub_components/PlotOverview";
 
-const { greenhouse, zones };
+const { greenhouse } = greenhouse_data;
 export default function OverviewSection() {
-  const { viewState, selectedZoneId, selectedSquareId } =
-    useContext(GreenHouseContext);
+  const { viewState } = useContext(GreenHouseContext);
 
-  let content = <></>;
+  let overview = <></>;
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
-      content = (
+      overview = (
         <>
-          <li></li>
+          <GreenHouseOverview />
         </>
       );
       break;
 
     case GreenHouseViewState.Zone:
-      content = (
+      overview = (
         <>
-          <li>
-            <span>lat:</span>
-            <span>{}</span>
-          </li>
+          <ZoneOverview />
         </>
       );
       break;
     case GreenHouseViewState.Plot:
-      content = (
+      overview = (
         <>
-          <li></li>
+          <PlotOverview />
         </>
       );
       break;
   }
   return (
     <div>
-      <h2 className="text-xl">Overview:</h2>
-      <ul>{content}</ul>
+      <h2 className=" text-xl font-bold text-orange-500">Overview:</h2>
+      <ul className="">{overview}</ul>
     </div>
   );
 }

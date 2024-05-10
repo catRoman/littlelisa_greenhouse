@@ -63,3 +63,21 @@ export type cntrlDataType = {
   }[];
   iconPath: string;
 };
+
+export type Plot = {
+  square_db_id: number;
+  zone_id: number;
+  row: number;
+  column: number;
+  plant_type?: string;
+  date_planted?: string;
+  date_expected_harvest?: string;
+  notes?: Note[];
+  is_transplanted?: boolean;
+  is_empty: boolean;
+};
+
+export type Note = {
+  date: string;
+  note: string;
+};

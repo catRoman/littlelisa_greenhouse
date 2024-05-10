@@ -1,4 +1,6 @@
-export const square_data = [
+import { Plot } from "../../../types/common";
+
+export const square_data: Plot[] = [
   // {
   //   square_db_id:
   //   zone_id:
@@ -57,7 +59,7 @@ export const square_data = [
     zone_id: 3,
     row: 1,
     column: 4,
-    plant_type: "carrot",
+    plant_type: "spinach",
     date_planted: "2023-06-30",
     date_expected_harvest: "2023-07-22",
     notes: [
@@ -85,7 +87,7 @@ export const square_data = [
     zone_id: 3,
     row: 2,
     column: 2,
-    plant_type: "carrot",
+    plant_type: "spinach",
     date_planted: "2023-06-21",
     date_expected_harvest: "2023-08-02",
     notes: [
@@ -116,7 +118,7 @@ export const square_data = [
     zone_id: 3,
     row: 3,
     column: 1,
-    plant_type: "lettuce",
+    plant_type: "spinach",
     date_planted: "2023-06-19",
     date_expected_harvest: "2023-07-28",
     notes: [
@@ -190,7 +192,7 @@ export const square_data = [
     zone_id: 3,
     row: 4,
     column: 1,
-    plant_type: "cucumber",
+    plant_type: "spinach",
     date_planted: "2023-06-27",
     date_expected_harvest: "2023-07-24",
     notes: [
@@ -236,7 +238,7 @@ export const square_data = [
     zone_id: 3,
     row: 5,
     column: 1,
-    plant_type: "cucumber",
+    plant_type: "spinach",
     date_planted: "2023-06-19",
     date_expected_harvest: "2023-06-21",
     notes: [
@@ -316,7 +318,7 @@ export const square_data = [
     zone_id: 3,
     row: 6,
     column: 3,
-    plant_type: "lettuce",
+    plant_type: "spinach",
     date_planted: "2023-06-13",
     date_expected_harvest: "2023-07-20",
     notes: [
@@ -354,7 +356,7 @@ export const square_data = [
     zone_id: 3,
     row: 7,
     column: 1,
-    plant_type: "lettuce",
+    plant_type: "spinach",
     date_planted: "2023-06-05",
     date_expected_harvest: "2023-06-14",
     notes: [
@@ -378,7 +380,7 @@ export const square_data = [
     zone_id: 3,
     row: 7,
     column: 3,
-    plant_type: "carrot",
+    plant_type: "spinach",
     date_planted: "2023-06-25",
     date_expected_harvest: "2023-07-02",
     notes: [
@@ -420,7 +422,7 @@ export const square_data = [
     zone_id: 3,
     row: 8,
     column: 1,
-    plant_type: "cucumber",
+    plant_type: "spinach",
     date_planted: "2023-06-12",
     date_expected_harvest: "2023-07-01",
     notes: [

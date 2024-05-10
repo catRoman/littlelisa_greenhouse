@@ -3,9 +3,10 @@ import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
-import { Sensor, SquareId } from "../../../../../types/common";
+import { Plot, Sensor, SquareId } from "../../../../../types/common";
 import SensorListRender from "./SensorListRender";
 import { GreenHouseViewState } from "../../../../../types/enums";
+import { square_data } from "../../../../data/mock_json/square_data";
 
 type PlotRenderProps = {
   args: [x: number, y: number, z: number];
@@ -35,6 +36,14 @@ export default function PlotRender({
     currentCameraProperties,
   } = useContext(GreenHouseContext);
 
+  const plotInfo: Plot | undefined = square_data.find((plot) => {
+    if (plot.row - 1 === squareId.y && plot.column - 1 === squareId.x) {
+      return plot;
+    }
+  });
+
+  const color = plotInfo?.is_empty ? "brown" : "green";
+
   const spring = useSpring({
     color:
       (selectedSquareId?.x === squareId.x &&
@@ -43,7 +52,7 @@ export default function PlotRender({
       (localZoneId === selectedZoneId && hovering) ||
       (selectedZoneId === 0 && hovering)
         ? "orange"
-        : "green",
+        : color,
     wireframe:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
