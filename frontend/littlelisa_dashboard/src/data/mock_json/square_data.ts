@@ -1,4 +1,4 @@
-export const square_data_zone_3 = [
+export const square_data = [
   // {
   //   square_db_id:
   //   zone_id:
