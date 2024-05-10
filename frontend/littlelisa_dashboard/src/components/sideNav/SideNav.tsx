@@ -8,7 +8,7 @@ export default function SideNave() {
         <NavItem>dashboard</NavItem>
         <NavItem>Schedule</NavItem>
         <NavItem>Greenhouse</NavItem>
-        <NavItem>zones</NavItem>
+
         <NavItem>sensors</NavItem>
         <NavItem>settings</NavItem>
         <NavItem>Debug</NavItem>

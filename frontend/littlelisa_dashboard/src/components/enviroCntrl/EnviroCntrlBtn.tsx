@@ -21,7 +21,7 @@ export default function EnvirCntrlBtn({
     <>
       <li
         onClick={toggleSubMenu}
-        className="flex items-center gap-2 rounded-md border-2  border-solid border-stone-50 px-6 py-2 hover:bg-stone-200 "
+        className="flex items-center gap-2 rounded-md border-2 border-solid border-stone-50 bg-zinc-800 px-6 py-2 hover:bg-stone-200 "
       >
         <img width="50px" src={iconPath} />
         <p>{children}</p>

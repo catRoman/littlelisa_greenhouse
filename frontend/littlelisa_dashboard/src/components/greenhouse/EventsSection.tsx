@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
-import { greenhouse_data } from "../../data/static_info";
 import {
   upcoming_event_data,
   recent_event_data,
@@ -9,9 +8,7 @@ import {
 import EventLog from "./sub_components/EventLog";
 
 export default function EventsSection() {
-  const { greenhouse, zones } = greenhouse_data;
-  const { viewState, selectedZoneId, selectedSquareId } =
-    useContext(GreenHouseContext);
+  const { viewState, selectedZoneId } = useContext(GreenHouseContext);
 
   const upcoming: JSX.Element[] = [];
   const recent: JSX.Element[] = [];
