@@ -32,6 +32,7 @@ export default function PlotRender({
     previousCameraProperties,
     setViewState,
     setCurrentCameraProperties,
+    currentCameraProperties,
   } = useContext(GreenHouseContext);
 
   const spring = useSpring({
@@ -79,7 +80,8 @@ export default function PlotRender({
     if (localZoneId === selectedZoneId) {
       setSelectedSquareId(squareId);
       setViewState(GreenHouseViewState.Plot);
-
+      previousCameraProperties.current = currentCameraProperties;
+      console.log(previousCameraProperties.current);
       const worldPosition = new THREE.Vector3();
       worldPosition.setFromMatrixPosition(event.object.matrixWorld);
 
@@ -99,9 +101,22 @@ export default function PlotRender({
       });
     }
   }
+  // function squareMissedHandler(event: MouseEvent) {
+  //   event.stopPropagation();
+  //   if (
+  //     selectedSquareId?.x === squareId.x &&
+  //     selectedSquareId?.y === squareId.y
+  //   ) {
+  //     console.log("squareMissed");
+  //     setSelectedSquareId(null);
+  //     //setViewState(GreenHouseViewState.Zone);
 
+  //     setCurrentCameraProperties();
+  //   }
+  // }
   return (
     <animated.group
+      // onPointerMissed={squareMissedHandler}
       position={spring.position.to((x: number, y: number, z: number) => [
         x,
         y,

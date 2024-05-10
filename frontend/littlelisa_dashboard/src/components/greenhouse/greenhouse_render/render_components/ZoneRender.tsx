@@ -33,6 +33,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     previousCameraProperties.current = currentCameraProperties;
+    console.log(previousCameraProperties.current);
     setSelectedZoneId(localZoneId);
     inZone.current = true;
     setViewState(GreenHouseViewState.Zone);
