@@ -30,7 +30,7 @@ export default function TitleSection() {
   return (
     <>
       <h1 className="mb-4 text-2xl">{header}</h1>
-      <p className="h-12 border">{description}</p>
+      <p className=" ">{description}</p>
     </>
   );
 }

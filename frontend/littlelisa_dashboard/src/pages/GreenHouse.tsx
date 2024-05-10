@@ -35,25 +35,28 @@ export default function GreenHouse() {
   };
 
   return (
-    <div className="mr-4 grid grid-cols-4 gap-6 px-4">
-      <div className="col-span-4 ">
+    <div className="mr-4  grid auto-rows-min  grid-cols-6  gap-6 px-4">
+      <div className="col-span-3  ">
         <TitleSection />
       </div>
-      <div className="z-1 col-span-2 h-96 cursor-pointer overflow-hidden">
+      <div className="row-span-3 h-96">
+        <OverviewSection />
+      </div>
+      <div className="col-span-2  row-span-2 ">
+        <EventsSection />
+      </div>
+      <div className="z-1 col-span-3 row-span-2 h-96 cursor-pointer overflow-hidden">
         <Canvas onPointerMissed={zoomOutHandle}>
           <GreenHouseModel model_info={greenhouse_data} />
         </Canvas>
       </div>
-      <div className="border">
-        <OverviewSection />
+      <div className="col-span-2 h-24 border">
+        <p>Schedule</p>
       </div>
-      <div className="border">
-        <EventsSection />
-      </div>
-      <div className="col-span-3 h-24 border">
+      <div className="col-span-4 border">
         <SectionBody />
       </div>
-      <div className="border">
+      <div className="col-span-2 border">
         <NotesSection />
       </div>
     </div>
