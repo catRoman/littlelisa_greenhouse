@@ -35,7 +35,7 @@ export default function GreenHouse() {
   };
 
   return (
-    <div className="mr-4  grid auto-rows-min  grid-cols-6  gap-6 px-4">
+    <div className="mr-4 grid  w-full auto-rows-min  grid-cols-6  gap-6 px-4">
       <div className="col-span-3  ">
         <TitleSection />
       </div>

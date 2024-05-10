@@ -3,12 +3,11 @@ import "./styles/index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/ErrorPage.tsx";
 import DashBoard from "./pages/DashBoard.tsx";
-import Zones from "./pages/Zones.tsx";
 import Sensors from "./pages/Sensors.tsx";
 import Settings from "./pages/Settings.tsx";
 import SideNave from "./components/sideNav/SideNav.tsx";
 import TopNav from "./components/topNav/TopNav.tsx";
-import Footer from "./pages/Footer.tsx";
+
 import { Outlet } from "react-router-dom";
 import Login from "./pages/Login.tsx";
 import Scheduling from "./pages/Scheduling.tsx";
@@ -60,10 +59,6 @@ export default function App() {
               <GreenHouse />,
             </GreenHouseContextProvider>
           ),
-        },
-        {
-          path: "zones",
-          element: <Zones />,
         },
         {
           path: "schedule",
