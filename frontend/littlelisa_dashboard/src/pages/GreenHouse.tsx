@@ -51,12 +51,12 @@ export default function GreenHouse() {
         </Canvas>
       </div>
       <div className="col-span-3 h-24 border">
-        <p>Schedule</p>
+        {GreenHouseViewState.Plot ? <p>Update</p> : <p>Schedule</p>}
       </div>
       <div className="col-span-4  ">
         <SectionBody />
       </div>
-      <div className="col-span-2 border">
+      <div className="col-span-2 ">
         <NotesSection />
       </div>
     </div>

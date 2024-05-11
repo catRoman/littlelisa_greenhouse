@@ -27,22 +27,20 @@ export default function SectionBody() {
     case GreenHouseViewState.Zone:
       body = (
         <div className="flex flex-col gap-3">
-          {greenhouse_data.zones[selectedZoneId - 1].sensors ? (
+          <ZoneInfo
+            zone={greenhouse_data.zones[selectedZoneId - 1]}
+            zoneId={selectedZoneId}
+          />
+          {greenhouse_data.zones[selectedZoneId - 1].sensors &&
             greenhouse_data.zones[selectedZoneId - 1].sensors?.map(
               (sensor, index) => {
                 return (
                   <div key={`sensor_info_${index}`}>
-                    <SensorInfo
-                      sensor={greenhouse_data.zones[selectedZoneId - 1]}
-                      sensorId={index + 1}
-                    />
+                    <SensorInfo sensor={sensor} sensorId={index + 1} />
                   </div>
                 );
               },
-            )
-          ) : (
-            <p>No Sensor Data Available</p>
-          )}
+            )}
         </div>
       );
       break;

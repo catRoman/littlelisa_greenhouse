@@ -19,7 +19,7 @@ export const upcoming_event_data = [
     zone: "0",
   },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-04-20 02:27:03",
     action: "off",
     zone: "0",
@@ -31,7 +31,7 @@ export const upcoming_event_data = [
     zone: "1",
   },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-04-26 03:29:03",
     action: "on",
     zone: "4",
@@ -51,20 +51,20 @@ export const upcoming_event_data = [
   },
   { event: "fans", timestamp: "2024-04-30 17:53:03", action: "off", zone: "1" },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-04-30 19:31:03",
     action: "done",
     zone: "2",
   },
   { event: "water", timestamp: "2024-05-03 16:25:03", action: "on", zone: "1" },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-05-04 20:09:03",
     action: "on",
     zone: "1",
   },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-05-08 03:02:03",
     action: "on",
     zone: "1",
@@ -112,7 +112,7 @@ export const recent_event_data = [
     zone: "0",
   },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-04-20 02:27:03",
     action: "off",
     zone: "0",
@@ -124,7 +124,7 @@ export const recent_event_data = [
     zone: "1",
   },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-04-26 03:29:03",
     action: "on",
     zone: "3",
@@ -144,20 +144,20 @@ export const recent_event_data = [
   },
   { event: "fans", timestamp: "2024-04-30 17:53:03", action: "off", zone: "1" },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-04-30 19:31:03",
     action: "done",
     zone: "3",
   },
   { event: "water", timestamp: "2024-05-03 16:25:03", action: "on", zone: "1" },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-05-04 20:09:03",
     action: "on",
     zone: "1",
   },
   {
-    event: "fertilized",
+    event: "fert",
     timestamp: "2024-05-08 03:02:03",
     action: "on",
     zone: "1",
