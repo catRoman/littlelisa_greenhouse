@@ -6,7 +6,7 @@ import {
 export default function GreenHouseOverview() {
   const { greenhouse } = greenhouse_data;
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <div className="pl-4">
         <li>
           <span className="font-bold">lat: </span>
@@ -33,7 +33,7 @@ export default function GreenHouseOverview() {
       </div>
       <div>
         <li className="">
-          <h3 className="text-xl font-bold text-orange-500">Modules</h3>
+          <h3 className="text-md font-bold text-orange-500">Modules</h3>
         </li>
         <div className="pl-4">
           <li>
@@ -50,7 +50,7 @@ export default function GreenHouseOverview() {
       </div>
       <div>
         <li className="">
-          <h3 className="text-xl font-bold text-orange-500">
+          <h3 className="text-md font-bold text-orange-500">
             Enviromental Status
           </h3>
         </li>
@@ -107,6 +107,6 @@ export default function GreenHouseOverview() {
           </li>
         </div>
       </div>
-    </>
+    </div>
   );
 }

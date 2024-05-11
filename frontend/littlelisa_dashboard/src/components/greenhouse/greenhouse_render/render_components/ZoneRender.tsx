@@ -28,6 +28,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
     sensors,
     sprinklers,
+    nodes,
   } = zone;
 
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
@@ -63,6 +64,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
                 args={[1, 1, zone_z]}
                 localZoneId={localZoneId}
                 sensors={sensors}
+                nodes={nodes}
               />,
             );
           }

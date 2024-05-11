@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { greenhouse_data } from "../../../data/static_info";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { Plot, Sensor } from "../../../../types/common";
+import { Plot } from "../../../../types/common";
 import { square_data } from "../../../data/mock_json/square_data";
 
 export default function ZoneOverview() {
@@ -9,13 +9,6 @@ export default function ZoneOverview() {
   const { zones } = greenhouse_data;
   const zone = zones[selectedZoneId - 1];
 
-  function getUniqueSensorTypes(sensors: Sensor[]): string[] {
-    const uniqueTypes = new Set<string>();
-    sensors.forEach((sensor) => {
-      uniqueTypes.add(sensor.type);
-    });
-    return Array.from(uniqueTypes);
-  }
   const zonePlots: Plot[] = [];
 
   square_data.map((plot) => {
@@ -23,18 +16,18 @@ export default function ZoneOverview() {
       zonePlots.push(plot);
     }
   });
-  function getNumberEmptyPlots(plotArr: Plot[]): number {
-    return plotArr.reduce((acc, curr) => {
-      if (curr.is_empty) acc++;
-      return acc;
-    }, 0);
-  }
-  function getNumberPlants(plotArr: Plot[]): number {
-    return plotArr.reduce((acc, curr) => {
-      if (!curr.is_empty) acc++;
-      return acc;
-    }, 0);
-  }
+  // function getNumberEmptyPlots(plotArr: Plot[]): number {
+  //   return plotArr.reduce((acc, curr) => {
+  //     if (curr.is_empty) acc++;
+  //     return acc;
+  //   }, 0);
+  // }
+  // function getNumberPlants(plotArr: Plot[]): number {
+  //   return plotArr.reduce((acc, curr) => {
+  //     if (!curr.is_empty) acc++;
+  //     return acc;
+  //   }, 0);
+  // }
 
   function getUniquePlantTypes(plotArr: Plot[]): string[] {
     const uniqueTypes = new Set<string>();
@@ -45,7 +38,7 @@ export default function ZoneOverview() {
   }
   console.log(getUniquePlantTypes(zonePlots));
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <div className="pl-4">
         <li>
           <span className="font-bold">Rows: </span>
@@ -75,36 +68,37 @@ export default function ZoneOverview() {
         )}
       </div>
       <div>
-        <h3 className="text-xl font-bold text-orange-500">Sensors</h3>
+        <h3 className="text-md font-bold text-orange-500">Latest</h3>
         <ul className="pl-4">
           <li>
-            <span className="font-bold">Total: </span>
-            <span className="text-green-300">
-              {zone.sensors?.length ? zone.sensors?.length : 0}
-            </span>
+            <span className="font-bold">Water: </span>
+            <ul className="pl-4">
+              <li className="text-green-300">{zone.lastest_enviro.water}</li>
+            </ul>
           </li>
-
-          {zone.sensorsAvailable && zone.sensors && (
-            <li>
-              <span className="font-bold">Types: </span>
-              <ul className="pl-4">
-                {getUniqueSensorTypes(zone.sensors).map((uniqueType, index) => {
-                  return (
-                    <li
-                      key={`uniqueSensor-${index}`}
-                      className="text-green-300"
-                    >
-                      {uniqueType}
-                    </li>
-                  );
-                })}
-              </ul>
-            </li>
-          )}
+          <li>
+            <span className="font-bold">Fert: </span>
+            <ul className="pl-4">
+              <li className="text-green-300">{zone.lastest_enviro.fert}</li>
+            </ul>
+          </li>
+          <li>
+            <span className="font-bold">Light Period: </span>
+            <ul className="pl-4">
+              {zone.lastest_enviro.light_period ? (
+                <li className="text-green-300">
+                  {zone.lastest_enviro.light_period?.on} {" - "}
+                  {zone.lastest_enviro.light_period?.off}
+                </li>
+              ) : (
+                <li className="text-red-300">No light period set</li>
+              )}
+            </ul>
+          </li>
         </ul>
       </div>
-      <div>
-        <h3 className="text-xl font-bold text-orange-500">Plots</h3>
+      {/* <div>
+        <h3 className="text-md font-bold text-orange-500">Plots</h3>
 
         <ul className="pl-4">
           <li>
@@ -124,7 +118,7 @@ export default function ZoneOverview() {
             <span className="text-green-300">{getNumberPlants(zonePlots)}</span>
           </li>
 
-          {/* <li>
+          <li>
             <span className="font-bold">Types: </span>
             <ul className="hide-scrollbar ml-2 mr-8 mt-2 h-24  overflow-scroll rounded-md bg-zinc-700 pl-2">
               {getUniquePlantTypes(zonePlots).map((uniqueType, index) => {
@@ -135,9 +129,9 @@ export default function ZoneOverview() {
                 );
               })}
             </ul>
-          </li> */}
+          </li>
         </ul>
-      </div>
-    </>
+      </div> */}
+    </div>
   );
 }
