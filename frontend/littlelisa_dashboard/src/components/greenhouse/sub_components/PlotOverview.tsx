@@ -15,7 +15,7 @@ export default function PlotOverview() {
   });
 
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <div className="pl-4">
         <li>
           <span className="font-bold">Zone: </span>
@@ -41,7 +41,7 @@ export default function PlotOverview() {
         </li>
       </div>
       <div className="mt-4">
-        <h3 className="text-xl font-bold text-orange-500">Planted</h3>
+        <h3 className="text-md font-bold text-orange-500">Planted</h3>
         <ul className="pl-4">
           {plot!.is_empty ? (
             <li>plot is empty</li>
@@ -73,6 +73,6 @@ export default function PlotOverview() {
           )}
         </ul>
       </div>
-    </>
+    </div>
   );
 }

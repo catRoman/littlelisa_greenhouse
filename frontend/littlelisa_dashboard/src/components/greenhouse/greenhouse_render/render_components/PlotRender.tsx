@@ -3,16 +3,18 @@ import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
-import { Plot, Sensor, SquareId } from "../../../../../types/common";
+import { Module, Plot, Sensor, SquareId } from "../../../../../types/common";
 import SensorListRender from "./SensorListRender";
 import { GreenHouseViewState } from "../../../../../types/enums";
 import { square_data } from "../../../../data/mock_json/square_data";
+import NodeListRender from "../NodeListRender";
 
 type PlotRenderProps = {
   args: [x: number, y: number, z: number];
   squareId: SquareId;
   localZoneId: number;
   sensors: Sensor[] | null;
+  nodes: Module[] | null;
   position: [x: number, y: number, z: number];
 };
 
@@ -21,6 +23,7 @@ export default function PlotRender({
   squareId,
   localZoneId,
   sensors,
+  nodes,
   position,
 }: PlotRenderProps) {
   const [hovering, setHovering] = useState<boolean>(false);
@@ -149,6 +152,7 @@ export default function PlotRender({
         localZoneId={localZoneId}
         squareId={squareId}
       />
+      <NodeListRender nodes={nodes} plot_height={args[2]} squareId={squareId} />
     </animated.group>
   );
 }

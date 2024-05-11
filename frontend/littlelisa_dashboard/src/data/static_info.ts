@@ -134,17 +134,17 @@ export const greenhouse_data = {
       dimensions: { x: 4, y: 1, z: 2 },
       loc_coord: { x: 4, y: 15, z: 0 },
       sensorsAvailable: true,
-      nodes: [{ moduleId: "n6:2d:f5:g7:z1:8", loc_coord: { x: 2, y: 1 } }],
+      nodes: [{ moduleId: "n6:2d:f5:g7:z1:8", loc_coord: { x: 2, y: 0 } }],
       sensors: [
         {
           node: "n6:2d:f5:g7:z1:8",
           type: "DHT22",
-          loc_coord: { x: 1, y: 1 },
+          loc_coord: { x: 0, y: 0 },
         },
         {
           node: "n6:2d:f5:g7:z1:8",
           type: "DHT22",
-          loc_coord: { x: 3, y: 1 },
+          loc_coord: { x: 3, y: 0 },
         },
       ],
       lightAvailable: true,
