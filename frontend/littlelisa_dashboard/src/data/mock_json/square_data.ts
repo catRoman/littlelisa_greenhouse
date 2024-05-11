@@ -80,7 +80,21 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 2,
     column: 1,
-    is_empty: true,
+    plant_type: "lisas Plant",
+    date_planted: "2024-05-10",
+    date_expected_harvest: "2024-07-04",
+    notes: [
+      {
+        date: "2023-07-10",
+        note: "added fertilizer",
+      },
+      {
+        date: "2023-07-05",
+        note: "watered today",
+      },
+    ],
+    is_transplanted: true,
+    is_empty: false,
   },
   {
     square_db_id: 6,

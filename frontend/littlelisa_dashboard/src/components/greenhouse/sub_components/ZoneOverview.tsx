@@ -60,12 +60,12 @@ export default function ZoneOverview() {
             {zone.lightAvailable ? "Yes" : "No"}
           </span>
         </li>
-        {zone.sprinklersAvailable && zone.sprinklers && (
+        {/* {zone.sprinklersAvailable && zone.sprinklers && (
           <li>
             <span className="font-bold">Sprinkler Heads: </span>
             <span className="text-green-300">{zone.sprinklers?.length}</span>
           </li>
-        )}
+        )} */}
       </div>
       <div>
         <h3 className="text-md font-bold text-orange-500">Latest</h3>
