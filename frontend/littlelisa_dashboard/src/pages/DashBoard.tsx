@@ -23,7 +23,7 @@ function DashBoard() {
       </div>
       <div className="col-span-3 row-start-2 flex flex-col gap-2">
         <h3 className="text-md  font-bold text-orange-500">
-          Culumative Avg Zone Sensor Readings
+          Culumative Avg Greenhouse Sensor Readings
         </h3>
         <div className="h-48 rounded-md  bg-zinc-800 p-4">
           <DashAvgChart />
