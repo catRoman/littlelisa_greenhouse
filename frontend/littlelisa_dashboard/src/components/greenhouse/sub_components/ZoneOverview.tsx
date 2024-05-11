@@ -124,7 +124,7 @@ export default function ZoneOverview() {
             <span className="text-green-300">{getNumberPlants(zonePlots)}</span>
           </li>
 
-          <li>
+          {/* <li>
             <span className="font-bold">Types: </span>
             <ul className="hide-scrollbar ml-2 mr-8 mt-2 h-24  overflow-scroll rounded-md bg-zinc-700 pl-2">
               {getUniquePlantTypes(zonePlots).map((uniqueType, index) => {
@@ -135,7 +135,7 @@ export default function ZoneOverview() {
                 );
               })}
             </ul>
-          </li>
+          </li> */}
         </ul>
       </div>
     </>

@@ -39,7 +39,7 @@ export default function GreenHouse() {
       <div className="col-span-3  ">
         <TitleSection />
       </div>
-      <div className="row-span-3 h-96">
+      <div className="row-span-2 h-96">
         <OverviewSection />
       </div>
       <div className="col-span-2  row-span-2 ">
@@ -50,10 +50,10 @@ export default function GreenHouse() {
           <GreenHouseModel model_info={greenhouse_data} />
         </Canvas>
       </div>
-      <div className="col-span-2 h-24 border">
+      <div className="col-span-3 h-24 border">
         <p>Schedule</p>
       </div>
-      <div className="col-span-4 border">
+      <div className="col-span-4  ">
         <SectionBody />
       </div>
       <div className="col-span-2 border">

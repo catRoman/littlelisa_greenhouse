@@ -3,10 +3,20 @@ import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { greenhouse_data } from "../../data/static_info";
 import { square_data } from "../../data/mock_json/square_data";
+import { Plot } from "../../../types/common";
 
 export default function TitleSection() {
   const { viewState, selectedZoneId, selectedSquareId } =
     useContext(GreenHouseContext);
+
+  const plot: Plot | undefined = square_data.find((plot) => {
+    if (
+      plot.row - 1 === selectedSquareId?.y &&
+      plot.column - 1 === selectedSquareId?.x
+    ) {
+      return plot;
+    }
+  });
 
   let header = "";
   let description = "";
@@ -22,7 +32,7 @@ export default function TitleSection() {
       description = `${greenhouse_data.zones[selectedZoneId - 1].description}`;
       break;
     case GreenHouseViewState.Plot:
-      header = `Plot ${selectedSquareId!.x}-${selectedSquareId!.y}`;
+      header = `Plot: ${plot?.is_empty ? "Empty" : plot?.plant_type}`;
       description = `tool time or quote maybe`;
       break;
   }
