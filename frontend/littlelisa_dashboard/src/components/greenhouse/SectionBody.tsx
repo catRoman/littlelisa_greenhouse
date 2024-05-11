@@ -4,9 +4,15 @@ import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { useContext } from "react";
 import SensorInfo from "./sub_components/SensorInfo";
+import { tomatoe_data } from "../../data/wikiarticles/tomatoe.ts";
 
 export default function SectionBody() {
   const { viewState, selectedZoneId } = useContext(GreenHouseContext);
+  const {
+    parse: {
+      text: { "*": content },
+    },
+  } = tomatoe_data;
 
   let body: JSX.Element = <></>;
   switch (viewState) {
@@ -45,6 +51,7 @@ export default function SectionBody() {
       );
       break;
     case GreenHouseViewState.Plot:
+      body = <div dangerouslySetInnerHTML={{ __html: content }} />;
       break;
   }
   return <div>{body}</div>;
