@@ -20,6 +20,7 @@ function startServers() {
         );
       }
     );
+    server.keepAliveTimeout = 35000;
 
     process.on("SIGINT", () => {
       console.log("Closing the web server...");
