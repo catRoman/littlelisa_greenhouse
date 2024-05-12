@@ -1,7 +1,5 @@
 import { useContext } from "react";
-import { square_data } from "../../../data/mock_json/square_data";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { Plot } from "../../../../types/common";
 export default function PlotOverview() {
   const { selectedZoneId, selectedSquareId, selectedPlot } =
     useContext(GreenHouseContext);

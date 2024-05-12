@@ -23,6 +23,7 @@
     "ag-grid-community": "^31.3.1",
     "ag-grid-react": "^31.3.1",
     "gsap": "3.12",
+    "html-react-parser": "^5.1.10",
     "react": "^18.2.0",
     "react-calendar": "^4.8.0",
     "react-dom": "^18.2.0",

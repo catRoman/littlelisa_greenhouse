@@ -2,8 +2,6 @@ import { useContext } from "react";
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { greenhouse_data } from "../../data/static_info";
-import { square_data } from "../../data/mock_json/square_data";
-import { Plot } from "../../../types/common";
 
 export default function TitleSection() {
   const { viewState, selectedZoneId, selectedPlot } =
