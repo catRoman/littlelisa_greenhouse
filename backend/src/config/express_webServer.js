@@ -135,7 +135,7 @@ export function startWebServer() {
     try {
       const sensorData = req.body;
       // debug logging incoming sensor data
-      //console.log(sensorData);
+      console.log(sensorData);
       handleSensorData(sensorData);
 
       if (!req.body || Object.keys(req.body).length === 0) {

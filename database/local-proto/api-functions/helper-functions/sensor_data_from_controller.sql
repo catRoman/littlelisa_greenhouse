@@ -71,15 +71,8 @@ begin
     if exists (
         select 1
         from modules
-        where identifier = id
-        and (
-            greenhouse_id != gh_id or
-            zone_id != z_id or
-            firmware_version != f_ver or
-            date_compilied != d_comp or
-            location != m_loc
-            ))
-    then
+        where LOWER(identifier) = LOWER(id)
+    )then
         -- module exists but  data needs updating
         update modules
         set
@@ -88,7 +81,14 @@ begin
             firmware_version = f_ver,
             date_compilied = d_comp,
             location = m_loc
-        where identifier = id;
+        where lower(identifier) = lower(id)
+        and (
+            greenhouse_id != gh_id or
+            zone_id != z_id or
+            firmware_version != f_ver or
+            date_compilied != d_comp or
+            location != m_loc
+            );
     else
         -- module not found
         insert into modules (greenhouse_id, zone_id, identifier, firmware_version, date_compilied, location )
@@ -161,12 +161,7 @@ begin
         select 1
         from sensors
         where sensor_id = s_id
-        and (
-            module_id != mod_id or
-            sensor_pin != s_pin or
-            location != s_loc or
-            type_id != s_type_id
-            ))
+        )
     then
         update sensors
         -- module exists but  data needs updating
@@ -176,6 +171,12 @@ begin
             location = s_loc,
             type_id = s_type_id
         where sensor_id = s_id;
+        and (
+            module_id != mod_id or
+            sensor_pin != s_pin or
+            location != s_loc or
+            type_id != s_type_id
+            );
 
     else
         -- module not found
