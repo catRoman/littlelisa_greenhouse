@@ -13,7 +13,7 @@ export default function SectionBody() {
   const [mainImage, setMainImage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (selectedPlant === "" || selectedPlant == "unknown") {
+    if (selectedPlant === "") {
       return;
     }
     const fetchPlantPage = async () => {
@@ -79,13 +79,12 @@ export default function SectionBody() {
       );
       break;
     case GreenHouseViewState.Plot:
+      console.log(selectedPlant);
       if (selectedPlant === "") {
         body = <p>Hurry up and plant something already</p>;
-      }
-      if (selectedPlant === "unknown") {
+      } else if (selectedPlant === "unknown") {
         body = <p> Couldnt find an entry on this particluar plant</p>;
       } else {
-        console.log("image: ", mainImage);
         body = (
           <div>
             <h3 className="text-md font-bold text-orange-500">

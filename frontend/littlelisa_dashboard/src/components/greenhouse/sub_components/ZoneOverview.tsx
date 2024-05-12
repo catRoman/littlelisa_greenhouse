@@ -29,14 +29,14 @@ export default function ZoneOverview() {
   //   }, 0);
   // }
 
-  function getUniquePlantTypes(plotArr: Plot[]): string[] {
-    const uniqueTypes = new Set<string>();
-    plotArr.forEach((plot) => {
-      plot.plant_type && uniqueTypes.add(plot.plant_type);
-    });
-    return Array.from(uniqueTypes);
-  }
-  console.log(getUniquePlantTypes(zonePlots));
+  // function getUniquePlantTypes(plotArr: Plot[]): string[] {
+  //   const uniqueTypes = new Set<string>();
+  //   plotArr.forEach((plot) => {
+  //     plot.plant_type && uniqueTypes.add(plot.plant_type);
+  //   });
+  //   return Array.from(uniqueTypes);
+  // }
+  // console.log(getUniquePlantTypes(zonePlots));
   return (
     <div className="flex flex-col gap-2">
       <div className="pl-4">

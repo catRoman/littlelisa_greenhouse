@@ -5,7 +5,6 @@ import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
 import { GreenhouseData } from "../../../../types/common";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { ControllerListRender } from "./render_components/ControllerListRender";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 import { useSpring, animated } from "@react-spring/three";
 
@@ -18,7 +17,7 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
   const {
-    greenhouse: { dimensions, controllers },
+    greenhouse: { dimensions },
   } = model_info;
 
   const {
@@ -50,7 +49,7 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
         rotation: newRotation,
         position: newPosition,
       });
-      console.log(`zone clicked: ${selectedZoneId}`);
+      // console.log(`zone clicked: ${selectedZoneId}`);
       enableControls.current = false;
     }
   }, [selectedZoneId, enableControls, setCurrentCameraProperties]);
