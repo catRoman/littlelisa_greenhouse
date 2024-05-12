@@ -37,10 +37,15 @@ export default function PlotRender({
     setViewState,
     setCurrentCameraProperties,
     currentCameraProperties,
+    setSelectedPlant,
   } = useContext(GreenHouseContext);
 
   const plotInfo: Plot | undefined = square_data.find((plot) => {
-    if (plot.row - 1 === squareId.y && plot.column - 1 === squareId.x) {
+    if (
+      plot.row - 1 === squareId.y &&
+      plot.column - 1 === squareId.x &&
+      plot.zone_id === localZoneId
+    ) {
       return plot;
     }
   });
@@ -96,7 +101,6 @@ export default function PlotRender({
       console.log(previousCameraProperties.current);
       const worldPosition = new THREE.Vector3();
       worldPosition.setFromMatrixPosition(event.object.matrixWorld);
-
       //equivalent to lookat thanks chat - linear-algebra not today lol
       const newPosition = new THREE.Vector3(
         worldPosition.x,
@@ -111,6 +115,18 @@ export default function PlotRender({
         rotation: previousCameraProperties.current.rotation,
         position: newPosition,
       });
+
+      if (
+        selectedSquareId?.x === squareId.x &&
+        selectedSquareId?.y === squareId.y &&
+        localZoneId === selectedZoneId &&
+        plotInfo?.plant_type !== undefined
+      ) {
+        console.log("inclick: ", plotInfo.plant_type);
+        setSelectedPlant(plotInfo.plant_type);
+      } else {
+        setSelectedPlant("");
+      }
     }
   }
   // function squareMissedHandler(event: MouseEvent) {
@@ -152,6 +168,7 @@ export default function PlotRender({
         localZoneId={localZoneId}
         squareId={squareId}
       />
+
       <NodeListRender nodes={nodes} plot_height={args[2]} squareId={squareId} />
     </animated.group>
   );

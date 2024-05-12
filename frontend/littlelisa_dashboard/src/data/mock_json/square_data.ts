@@ -24,7 +24,7 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 1,
     column: 1,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-06",
     date_expected_harvest: "2023-07-19",
     notes: [
@@ -153,7 +153,7 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 3,
     column: 2,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-13",
     date_expected_harvest: "2023-07-14",
     notes: [
@@ -174,7 +174,7 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 3,
     column: 3,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-04",
     date_expected_harvest: "2023-06-13",
     notes: [
@@ -291,7 +291,7 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 5,
     column: 4,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-15",
     date_expected_harvest: "2023-07-06",
     notes: [
@@ -349,7 +349,7 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 6,
     column: 4,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-16",
     date_expected_harvest: "2023-07-25",
     notes: [
@@ -481,7 +481,7 @@ export const square_data: Plot[] = [
     zone_id: 3,
     row: 8,
     column: 4,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-11",
     date_expected_harvest: "2023-06-12",
     notes: [
@@ -762,7 +762,7 @@ export const square_data: Plot[] = [
     zone_id: 2,
     row: 6,
     column: 4,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-22",
     date_expected_harvest: "2023-07-25",
     notes: [
@@ -854,7 +854,7 @@ export const square_data: Plot[] = [
     zone_id: 1,
     row: 2,
     column: 2,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-05",
     date_expected_harvest: "2023-07-08",
     notes: [
@@ -917,7 +917,7 @@ export const square_data: Plot[] = [
     zone_id: 1,
     row: 3,
     column: 3,
-    plant_type: "tomato",
+    plant_type: "Tomato",
     date_planted: "2023-06-07",
     date_expected_harvest: "2023-06-20",
     notes: [
@@ -1082,22 +1082,22 @@ export const square_data: Plot[] = [
   {
     square_db_id: 82,
     zone_id: 4,
-    row: 2,
-    column: 1,
+    row: 1,
+    column: 2,
     is_empty: true,
   },
   {
     square_db_id: 83,
     zone_id: 4,
-    row: 3,
-    column: 1,
+    row: 1,
+    column: 3,
     is_empty: true,
   },
   {
     square_db_id: 84,
     zone_id: 4,
-    row: 4,
-    column: 1,
+    row: 1,
+    column: 4,
     is_empty: true,
   },
 ];
