@@ -75,10 +75,6 @@ export default function GreenHouseContextProvider({
   const [selectedPlant, setSelectedPlant] = useState<string>("");
   const [selectedPlot, setSelectedPlot] = useState<Plot>();
   useEffect(() => {
-    console.log("zone: ", selectedZoneId);
-
-    console.log("selectectSquareId.x: ", selectedSquareId?.x);
-    console.log("selectedSquareId.y: ", selectedSquareId?.y);
     setSelectedPlot(
       square_data.find((plot) => {
         if (
@@ -86,7 +82,7 @@ export default function GreenHouseContextProvider({
           plot.row - 1 === selectedSquareId?.y &&
           plot.column - 1 === selectedSquareId?.x
         ) {
-          if (plot.plant_type !== undefined) {
+          if (plot.plant_type !== undefined && !plot.is_empty) {
             setSelectedPlant(plot.plant_type);
           } else {
             setSelectedPlant("");
