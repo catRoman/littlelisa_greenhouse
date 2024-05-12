@@ -50,7 +50,7 @@ export default function GreenHouse() {
           <GreenHouseModel model_info={greenhouse_data} />
         </Canvas>
       </div>
-      <div className="col-span-3 h-24 border">
+      <div className="col-span-3 h-16 border">
         {GreenHouseViewState.Plot ? <p>Update</p> : <p>Schedule</p>}
       </div>
       <div className="col-span-4  ">
