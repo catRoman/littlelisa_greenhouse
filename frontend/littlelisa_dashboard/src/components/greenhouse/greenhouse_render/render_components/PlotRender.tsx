@@ -98,7 +98,7 @@ export default function PlotRender({
       setSelectedSquareId(squareId);
       setViewState(GreenHouseViewState.Plot);
       previousCameraProperties.current = currentCameraProperties;
-      console.log(previousCameraProperties.current);
+      // console.log(previousCameraProperties.current);
       const worldPosition = new THREE.Vector3();
       worldPosition.setFromMatrixPosition(event.object.matrixWorld);
       //equivalent to lookat thanks chat - linear-algebra not today lol
@@ -120,9 +120,9 @@ export default function PlotRender({
         selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
         localZoneId === selectedZoneId &&
+        !plotInfo?.is_empty &&
         plotInfo?.plant_type !== undefined
       ) {
-        console.log("inclick: ", plotInfo.plant_type);
         setSelectedPlant(plotInfo.plant_type);
       } else {
         setSelectedPlant("");
