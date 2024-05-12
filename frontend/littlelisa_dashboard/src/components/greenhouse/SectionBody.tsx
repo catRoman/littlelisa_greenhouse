@@ -4,21 +4,18 @@ import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { useContext, useEffect, useState } from "react";
 import SensorInfo from "./sub_components/SensorInfo";
-// import { tomatoe_data } from "../../data/wikiarticles/tomatoe.ts";
-// import { square_data } from "../../data/mock_json/square_data.ts";
-// import { Plot } from "../../../types/common.ts";
 
 type WikiPage = {
   content: string | TrustedHTML;
 };
 export default function SectionBody() {
-  const { viewState, selectedZoneId, selectedPlant } =
+  const { viewState, selectedZoneId, selectedPlant, setSelectedPlant } =
     useContext(GreenHouseContext);
 
   const [plantInfo, setPlantInfo] = useState<WikiPage>(null!);
 
   useEffect(() => {
-    if (selectedPlant === "") {
+    if (selectedPlant === "" || selectedPlant == "unknown") {
       return;
     }
     console.log("in async: ", selectedPlant);
@@ -31,6 +28,7 @@ export default function SectionBody() {
         const jsonData = await data.json();
         // console.log(jsonData);
         if (jsonData.error) {
+          setSelectedPlant("unknown");
           throw new Error(jsonData.error.info);
         }
         setPlantInfo(jsonData.parse.text["*"]);
@@ -39,7 +37,7 @@ export default function SectionBody() {
       }
     };
     fetchPlantPage();
-  }, [selectedPlant, plantInfo]);
+  }, [selectedPlant, setSelectedPlant, plantInfo]);
 
   let body: JSX.Element = <></>;
   switch (viewState) {
@@ -80,8 +78,13 @@ export default function SectionBody() {
     case GreenHouseViewState.Plot:
       if (selectedPlant === "") {
         body = <p>Hurry up and plant something already</p>;
+      }
+      if (selectedPlant === "unknown") {
+        body = <p> Couldnt find an entry on this particluar plant</p>;
       } else {
-        body = <div dangerouslySetInnerHTML={{ __html: plantInfo }} />;
+        body = (
+          <div className="" dangerouslySetInnerHTML={{ __html: plantInfo }} />
+        );
       }
       console.log("inviewstate:", selectedPlant);
       // body = <p>{selectedPlant}</p>;
