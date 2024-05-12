@@ -171,7 +171,7 @@ void http_client_get_test(char *url)
 void post_sensor_data_backend(const char *sensor_json)
 {
     // esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
-    esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
+    esp_log_level_set("HTTP_CLIENT", ESP_LOG_INFO);
     esp_http_client_config_t config = {
         .url = BACKEND_URL,
         .method = HTTP_METHOD_POST,
