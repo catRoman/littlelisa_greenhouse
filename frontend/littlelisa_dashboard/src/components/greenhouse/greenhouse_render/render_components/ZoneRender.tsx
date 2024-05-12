@@ -2,9 +2,10 @@ import { ThreeEvent } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
 import SprinklerListRender from "./SprinklerListRender.tsx";
 import { useContext, useRef } from "react";
-import { GreenHouseContext } from "../../../context/GreenHouseContextProvider.tsx";
-import { ZoneData } from "../../../../types/common.ts";
+import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider.tsx";
+import { ZoneData } from "../../../../../types/common.ts";
 import PlotRender from "./PlotRender.tsx";
+import { GreenHouseViewState } from "../../../../../types/enums.ts";
 
 type ZoneRenderProps = {
   zone: ZoneData;
@@ -19,6 +20,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     currentCameraProperties,
     setSelectedZoneId,
     inZone,
+    setViewState,
   } = useContext(GreenHouseContext);
 
   const {
@@ -26,13 +28,16 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
     sensors,
     sprinklers,
+    nodes,
   } = zone;
 
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
     previousCameraProperties.current = currentCameraProperties;
+    // console.log(previousCameraProperties.current);
     setSelectedZoneId(localZoneId);
     inZone.current = true;
+    setViewState(GreenHouseViewState.Zone);
   }
 
   return (
@@ -53,11 +58,13 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
           for (let j = 0; j < zone_y; j++) {
             zone.push(
               <PlotRender
+                key={`square_${i}_${j}`}
                 position={[i - zone_x / 2 + 0.5, j - zone_y / 2 + 0.5, 0]}
                 squareId={{ x: i, y: j }}
                 args={[1, 1, zone_z]}
                 localZoneId={localZoneId}
                 sensors={sensors}
+                nodes={nodes}
               />,
             );
           }

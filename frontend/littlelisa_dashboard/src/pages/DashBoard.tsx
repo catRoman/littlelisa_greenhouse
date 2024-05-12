@@ -8,28 +8,32 @@ import "../components/dashboard/dasboard.css";
 
 function DashBoard() {
   return (
-    <div className="rows-2 container m-auto grid grid-cols-4 grid-rows-2 gap-8 px-4">
-      <div className="flex flex-col justify-between gap-4">
+    <div className="container grid w-full  grid-cols-6  gap-8 px-4">
+      <div className="col-span-2 flex flex-col justify-between gap-4">
         <Title />
-        <div className="rounded-md border p-4">
+        <div className="rounded-md bg-zinc-800 p-4">
           <Calendar />
         </div>
       </div>
-      <div className="row-start-2">
+      <div className="col-span-2 row-start-2 ">
         <DashSchedule />
       </div>
-      <div className="col-span-2 flex flex-col gap-4">
+      <div className="col-span-3 flex flex-col gap-4">
         <DashCameraContainer />
       </div>
-      <div className="col-span-3 row-start-2 mb-6 flex h-64 flex-col gap-2 rounded-md border p-4">
-        <h3 className="text-xl font-bold">
-          Culumative Avg Zone Sensor Readings
+      <div className="col-span-3 row-start-2 flex flex-col gap-2">
+        <h3 className="text-md  font-bold text-orange-500">
+          Culumative Avg Greenhouse Sensor Readings
         </h3>
-        <DashAvgChart />
+        <div className="h-48 rounded-md  bg-zinc-800 p-4">
+          <DashAvgChart />
+        </div>
       </div>
-      <div>
-        <h3 className="text-xl font-bold">Enviromental Control</h3>
-        <div className="hide-scrollbar h-auto overflow-auto">
+      <div className="hide-scrollbar row-span-2 h-auto overflow-auto">
+        <h3 className="text-md  font-bold text-orange-500">
+          Enviromental Control
+        </h3>
+        <div>
           <DashEnviroCntrl />
         </div>
       </div>
