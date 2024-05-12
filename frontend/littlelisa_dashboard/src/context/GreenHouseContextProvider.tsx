@@ -1,16 +1,20 @@
-import React, { createContext, useRef, useState } from "react";
-import { CameraSettings, SquareId } from "../../types/common";
+import React, { createContext, useEffect, useRef, useState } from "react";
+import { CameraSettings, Plot, SquareId } from "../../types/common";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import { GreenHouseViewState } from "../../types/enums";
+import { square_data } from "../data/mock_json/square_data";
 export interface GreenHouseContextType {
   //state
   currentCameraProperties: CameraSettings;
   setCurrentCameraProperties: (currentSettings: CameraSettings) => void;
-
+  setSelectedPlant: (plant: string) => void;
+  selectedPlant: string;
   selectedSquareId: SquareId | null;
   setSelectedSquareId: (position: SquareId | null) => void;
   selectedZoneId: number;
   setSelectedZoneId: (value: number) => void;
+  selectedPlot: Plot | undefined;
+  setSelectedPlot: (plot: Plot | undefined) => void;
   //ref
   previousCameraProperties: React.MutableRefObject<CameraSettings>;
   inZone: React.MutableRefObject<boolean>;
@@ -32,6 +36,10 @@ const defaultContextValue: GreenHouseContextType = {
   currentCameraProperties: initalCameraProperties,
   viewState: GreenHouseViewState.GreenHouse,
   setViewState: () => {},
+  setSelectedPlant: () => {},
+  selectedPlant: "",
+  selectedPlot: undefined,
+  setSelectedPlot: () => {},
 
   //refs
   previousCameraProperties: { current: initalCameraProperties },
@@ -64,10 +72,36 @@ export default function GreenHouseContextProvider({
   const [viewState, setViewState] = useState<GreenHouseViewState>(
     GreenHouseViewState.GreenHouse,
   );
+  const [selectedPlant, setSelectedPlant] = useState<string>("");
+  const [selectedPlot, setSelectedPlot] = useState<Plot>();
+  useEffect(() => {
+    console.log("zone: ", selectedZoneId);
+
+    console.log("selectectSquareId.x: ", selectedSquareId?.x);
+    console.log("selectedSquareId.y: ", selectedSquareId?.y);
+    setSelectedPlot(
+      square_data.find((plot) => {
+        if (
+          plot.zone_id === selectedZoneId &&
+          plot.row - 1 === selectedSquareId?.y &&
+          plot.column - 1 === selectedSquareId?.x
+        ) {
+          if (plot.plant_type !== undefined) {
+            setSelectedPlant(plot.plant_type);
+          } else {
+            setSelectedPlant("");
+          }
+          return plot;
+        }
+      }),
+    );
+  }, [selectedSquareId, selectedZoneId]);
 
   return (
     <GreenHouseContext.Provider
       value={{
+        selectedPlot,
+        setSelectedPlot,
         viewState,
         setViewState,
         selectedZoneId,
@@ -80,6 +114,8 @@ export default function GreenHouseContextProvider({
         enableControls,
         selectedSquareId,
         setSelectedSquareId,
+        setSelectedPlant,
+        selectedPlant,
       }}
     >
       {children}

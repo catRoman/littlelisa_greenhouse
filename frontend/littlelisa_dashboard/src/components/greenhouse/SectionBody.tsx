@@ -2,17 +2,44 @@ import ZoneInfo from "./sub_components/ZoneInfo";
 import { greenhouse_data } from "../../data/static_info";
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import SensorInfo from "./sub_components/SensorInfo";
-import { tomatoe_data } from "../../data/wikiarticles/tomatoe.ts";
+// import { tomatoe_data } from "../../data/wikiarticles/tomatoe.ts";
+// import { square_data } from "../../data/mock_json/square_data.ts";
+// import { Plot } from "../../../types/common.ts";
 
+type WikiPage = {
+  content: string | TrustedHTML;
+};
 export default function SectionBody() {
-  const { viewState, selectedZoneId } = useContext(GreenHouseContext);
-  const {
-    parse: {
-      text: { "*": content },
-    },
-  } = tomatoe_data;
+  const { viewState, selectedZoneId, selectedPlant } =
+    useContext(GreenHouseContext);
+
+  const [plantInfo, setPlantInfo] = useState<WikiPage>(null!);
+
+  useEffect(() => {
+    if (selectedPlant === "") {
+      return;
+    }
+    console.log("in async: ", selectedPlant);
+    const fetchPlantPage = async () => {
+      try {
+        const data = await fetch(
+          `/wikiApi/api.php?action=parse&format=json&page=${selectedPlant}&prop=text&disableeditsection=true`,
+        );
+        console.log("fetch ok");
+        const jsonData = await data.json();
+        // console.log(jsonData);
+        if (jsonData.error) {
+          throw new Error(jsonData.error.info);
+        }
+        setPlantInfo(jsonData.parse.text["*"]);
+      } catch (error) {
+        console.log("whoopsie: ", error);
+      }
+    };
+    fetchPlantPage();
+  }, [selectedPlant, plantInfo]);
 
   let body: JSX.Element = <></>;
   switch (viewState) {
@@ -51,7 +78,13 @@ export default function SectionBody() {
       );
       break;
     case GreenHouseViewState.Plot:
-      body = <div dangerouslySetInnerHTML={{ __html: content }} />;
+      if (selectedPlant === "") {
+        body = <p>Hurry up and plant something already</p>;
+      } else {
+        body = <div dangerouslySetInnerHTML={{ __html: plantInfo }} />;
+      }
+      console.log("inviewstate:", selectedPlant);
+      // body = <p>{selectedPlant}</p>;
       break;
   }
   return <div>{body}</div>;
