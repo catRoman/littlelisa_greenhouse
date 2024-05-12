@@ -1,5 +1,5 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { SpaceCoordinate } from "../../../../types/common";
+import { SpaceCoordinate } from "../../../../../types/common";
 
 type SprinklerListRender = {
   zoneId: number;

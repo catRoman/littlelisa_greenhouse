@@ -1,5 +1,5 @@
 import { Euler, Vector3 } from "three";
-import { CameraSettings } from "../../../../../types/common";
+import { CameraSettings } from "../../../../../../types/common";
 
 export const zoneCameraViews = [
   //zone 1

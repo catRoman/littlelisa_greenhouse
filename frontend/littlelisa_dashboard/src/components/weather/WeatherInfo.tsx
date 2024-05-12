@@ -18,7 +18,7 @@ function handleWeatherIcon(weather_code: number, localtime: string) {
     const icon = weatherIcons.find((obj) => obj.code === weather_code)!.icon[
       dayNight_str
     ];
-    console.log(icon);
+    // console.log(icon);
     return icon;
   }
 
@@ -28,7 +28,7 @@ function handleWeatherIcon(weather_code: number, localtime: string) {
     }
   }
 
-  console.log(iconWeatherCodes);
+  // console.log(iconWeatherCodes);
 
   return weatherIcons[0].icon[dayNight_str];
 }

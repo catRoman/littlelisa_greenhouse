@@ -2,15 +2,19 @@ import { ThreeEvent } from "@react-three/fiber";
 import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
-import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { Sensor, SquareId } from "../../../../types/common";
+import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
+import { Module, Plot, Sensor, SquareId } from "../../../../../types/common";
 import SensorListRender from "./SensorListRender";
+import { GreenHouseViewState } from "../../../../../types/enums";
+import { square_data } from "../../../../data/mock_json/square_data";
+import NodeListRender from "../NodeListRender";
 
 type PlotRenderProps = {
   args: [x: number, y: number, z: number];
   squareId: SquareId;
   localZoneId: number;
   sensors: Sensor[] | null;
+  nodes: Module[] | null;
   position: [x: number, y: number, z: number];
 };
 
@@ -19,6 +23,7 @@ export default function PlotRender({
   squareId,
   localZoneId,
   sensors,
+  nodes,
   position,
 }: PlotRenderProps) {
   const [hovering, setHovering] = useState<boolean>(false);
@@ -29,9 +34,23 @@ export default function PlotRender({
     setSelectedSquareId,
     selectedSquareId,
     previousCameraProperties,
-
+    setViewState,
     setCurrentCameraProperties,
+    currentCameraProperties,
+    setSelectedPlant,
   } = useContext(GreenHouseContext);
+
+  const plotInfo: Plot | undefined = square_data.find((plot) => {
+    if (
+      plot.row - 1 === squareId.y &&
+      plot.column - 1 === squareId.x &&
+      plot.zone_id === localZoneId
+    ) {
+      return plot;
+    }
+  });
+
+  const color = plotInfo?.is_empty ? "brown" : "green";
 
   const spring = useSpring({
     color:
@@ -41,7 +60,7 @@ export default function PlotRender({
       (localZoneId === selectedZoneId && hovering) ||
       (selectedZoneId === 0 && hovering)
         ? "orange"
-        : "green",
+        : color,
     wireframe:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
@@ -77,10 +96,11 @@ export default function PlotRender({
     if (inZone.current) event.stopPropagation();
     if (localZoneId === selectedZoneId) {
       setSelectedSquareId(squareId);
-
+      setViewState(GreenHouseViewState.Plot);
+      previousCameraProperties.current = currentCameraProperties;
+      // console.log(previousCameraProperties.current);
       const worldPosition = new THREE.Vector3();
       worldPosition.setFromMatrixPosition(event.object.matrixWorld);
-
       //equivalent to lookat thanks chat - linear-algebra not today lol
       const newPosition = new THREE.Vector3(
         worldPosition.x,
@@ -95,11 +115,36 @@ export default function PlotRender({
         rotation: previousCameraProperties.current.rotation,
         position: newPosition,
       });
+
+      if (
+        selectedSquareId?.x === squareId.x &&
+        selectedSquareId?.y === squareId.y &&
+        localZoneId === selectedZoneId &&
+        !plotInfo?.is_empty &&
+        plotInfo?.plant_type !== undefined
+      ) {
+        setSelectedPlant(plotInfo.plant_type);
+      } else {
+        setSelectedPlant("");
+      }
     }
   }
+  // function squareMissedHandler(event: MouseEvent) {
+  //   event.stopPropagation();
+  //   if (
+  //     selectedSquareId?.x === squareId.x &&
+  //     selectedSquareId?.y === squareId.y
+  //   ) {
+  //     console.log("squareMissed");
+  //     setSelectedSquareId(null);
+  //     //setViewState(GreenHouseViewState.Zone);
 
+  //     setCurrentCameraProperties();
+  //   }
+  // }
   return (
     <animated.group
+      // onPointerMissed={squareMissedHandler}
       position={spring.position.to((x: number, y: number, z: number) => [
         x,
         y,
@@ -123,6 +168,8 @@ export default function PlotRender({
         localZoneId={localZoneId}
         squareId={squareId}
       />
+
+      <NodeListRender nodes={nodes} plot_height={args[2]} squareId={squareId} />
     </animated.group>
   );
 }
