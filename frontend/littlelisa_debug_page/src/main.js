@@ -97,21 +97,36 @@ otaUpdateForm.addEventListener("submit", async (event) => {
     otaUpdateBtn.disabled = false;
   }
 });
-
-logRefreshBtn.addEventListener("touchend", (e) => {
+//+++++++++++++++++++++logRefreshEvent
+function logRefreshEvent(){
   if (logDataSocket !== undefined) {
     logDataSocket.close();
     console.log("refreshing log socket...");
     logTextArea.value = "Refreshing esp log stream...";
     setTimeout(() => initiateLogSocket(moduleData), 3000);
   }
+}
+logRefreshBtn.addEventListener("click", (e) => {
+  logRefreshEvent();
+  });
+logRefreshBtn.addEventListener("touchend", (e) => {
+e.preventDefault();
+  logRefreshEvent();
 });
-
-sensorRefreshBtn.addEventListener("touchend", (e) => {
+//++++++++++sensorRefresh
+function sensorRefreshEvent(){
   if (sensorDataSocket !== undefined) {
     sensorDataSocket.close();
     setTimeout(() => initiateSensorSocket(moduleData), 3000);
   }
+
+}
+sensorRefreshBtn.addEventListener("click", (e) => {
+sensorRefreshEvent();
+});
+sensorRefreshBtn.addEventListener("touchend", (e) => {
+e.preventDefault()
+  sensorRefreshEv;ent();
 });
 //=============nav selectors================
 const openButton = document.querySelector(".icon-open");
@@ -121,52 +136,72 @@ const main = document.querySelector("main");
 const navClose = document.querySelector(".nav-btn.close");
 const menuBtns = document.querySelectorAll(".nav-btn");
 //========================================
+
+function menuEvent(e,classList){
+  
+  e.stopPropagation;
+  const classes = [...classList];
+  switch (classes[classes.length - 1]) {
+    case "dev_btn":
+      toggleInfoTab(".device-info");
+  
+      break;
+    case "net_btn":
+      toggleInfoTab(".network-info");
+      break;
+    case "db_btn":
+      toggleInfoTab(".sd-db-info");
+      break;
+    case "sys_btn":
+      toggleInfoTab(".system-health");
+      break;
+    case "ota_btn":
+      if (moduleData.module_info.type == "controller") {
+        toggleInfoTab(".ota-update");
+      } else {
+        console.log(
+          "Disabled for nodes. TODO: only render button for controller"
+        );
+      }
+      break;
+    case "close":
+      openButton.classList.toggle("hidden");
+      main.classList.toggle("hidden");
+      menu.classList.toggle("hidden");
+      main.style.pointerEvents = "none";
+  
+      setTimeout(() => {
+        main.style.pointerEvents = "auto";
+      }, 100);
+      break;
+    default:
+  }
+}
+menuBtns.forEach((el) => {
+  el.addEventListener("click", function (e) {
+    menuEvent(e, this.classList);
+    });
+});
 menuBtns.forEach((el) => {
   el.addEventListener("touchend", function (e) {
-    e.stopPropagation;
-    const classes = [...this.classList];
-    switch (classes[classes.length - 1]) {
-      case "dev_btn":
-        toggleInfoTab(".device-info");
-
-        break;
-      case "net_btn":
-        toggleInfoTab(".network-info");
-        break;
-      case "db_btn":
-        toggleInfoTab(".sd-db-info");
-        break;
-      case "sys_btn":
-        toggleInfoTab(".system-health");
-        break;
-      case "ota_btn":
-        if (moduleData.module_info.type == "controller") {
-          toggleInfoTab(".ota-update");
-        } else {
-          console.log(
-            "Disabled for nodes. TODO: only render button for controller"
-          );
-        }
-        break;
-      case "close":
-        openButton.classList.toggle("hidden");
-        main.classList.toggle("hidden");
-        menu.classList.toggle("hidden");
-        main.style.pointerEvents = "none";
-
-        setTimeout(() => {
-          main.style.pointerEvents = "auto";
-        }, 100);
-        break;
-      default:
-    }
-  });
+    e.preventDefault();
+    menuEvent(e, this.classList);
+    });
 });
-
-openButton.addEventListener("touchend", () => {
+//+++++++++++++++openEvent
+function openEvent(){
   openButton.classList.toggle("hidden");
   main.classList.toggle("hidden");
   menu.classList.toggle("hidden");
+
+}
+openButton.addEventListener("click", (e) => {
+
+openEvent();
+});
+openButton.addEventListener("touchend", (e) => {
+e.preventDefault()
+openEvent();
 });
 function toggleInfoTab(navClass) {
   console.log(navClass);
@@ -174,7 +209,10 @@ function toggleInfoTab(navClass) {
   document.querySelector(navClass).classList.toggle("hidden");
   closeButton.classList.toggle("hidden");
 }
-closeButton.addEventListener("touchend", () => {
+
+//+++++++++closeEvent
+function closeEvent(){
+
   const menuTabs = document.querySelector(".menu-select");
   Array.from(menuTabs.children).forEach((el) => {
     if (
@@ -185,6 +223,14 @@ closeButton.addEventListener("touchend", () => {
       toggleInfoTab(`.${el.classList[0]}`);
     }
   });
+}
+closeButton.addEventListener("click", (e) => {
+
+  closeEvent()
+  });
+closeButton.addEventListener("touchend", (e) => {
+e.preventDefault();
+closeEvent()
 });
 
 function toggleNavMenu() {}
