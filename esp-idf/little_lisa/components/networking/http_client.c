@@ -50,7 +50,7 @@ static esp_err_t client_event_post_handler(esp_http_client_event_handle_t evt)
     return ESP_OK;
 }
 
-// Example function to send a file in chunks
+// post for use inm progating updates
 void post_file_in_chunks(const char *url, const char *file_path)
 {
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
@@ -69,7 +69,6 @@ void post_file_in_chunks(const char *url, const char *file_path)
     // Rewind to the beginning of the file
     fseek(file, 0, SEEK_SET);
 
-    // Initialize the HTTP client
     esp_http_client_config_t config = {
         .url = url,
         .method = HTTP_METHOD_POST,
@@ -92,7 +91,7 @@ void post_file_in_chunks(const char *url, const char *file_path)
     // esp_http_client_set_header(client, "Transfer-Encoding", "chunked");
 
     // Read and send the file in chunks
-    char buffer[2048]; // Adjust the buffer size according to available memory
+    char buffer[2048];
     int read_len;
     int total = 0;
 
@@ -108,7 +107,8 @@ void post_file_in_chunks(const char *url, const char *file_path)
         if (esp_http_client_write(client, buffer, read_len) < 0)
         {
             ESP_LOGE("HTTP_CLIENT", "Failed to send data chunk");
-            break; // Exit loop on failure
+
+            break;
         }
         total += read_len;
         ESP_LOGI("OTA_NODE_SEND", "%d bytes", total);
@@ -129,7 +129,6 @@ void post_file_in_chunks(const char *url, const char *file_path)
         ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
     }
 
-    // Clean up
     esp_http_client_cleanup(client);
     fclose(file);
 }

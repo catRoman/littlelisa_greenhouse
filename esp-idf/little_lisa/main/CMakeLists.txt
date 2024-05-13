@@ -2,6 +2,7 @@ idf_component_register(
     SRCS
         helper.c
         main.c
+        task_common.c
 
     PRIV_REQUIRES
         networking

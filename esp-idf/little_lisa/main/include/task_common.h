@@ -118,4 +118,7 @@
 #define OTA_PROP_TASK_PRIORITY 19
 #define OTA_PROP_TASK_CORE_ID 1
 
+void pauseSensorPipelineTasks(void);
+void resumeSensorPipelineTasks(void);
+
 #endif /* MAIN_TASKS_COMMON_H_*/

@@ -650,7 +650,7 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
 
     ota_updating = true;
-
+    pauseSensorPipelineTasks();
     // //download to sd
     if (recv_ota_update_write_to_sd(req) == ESP_OK)
     {
@@ -667,6 +667,7 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req)
     else
     {
         httpd_resp_send(req, "Could not download ota update in full, cancelling update", HTTPD_RESP_USE_STRLEN);
+        resumeSensorPipelineTasks();
         return ESP_FAIL;
     }
 
@@ -695,7 +696,7 @@ esp_err_t propogate_ota_update_handler(httpd_req_t *req)
         ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
         ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
     }
-
+    resumeSensorPipelineTasks();
     return ESP_OK;
 }
 
@@ -703,7 +704,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req)
 {
 
     //    spi_sd_card_test();
-
+    pauseSensorPipelineTasks();
     const char *file_path = MOUNT_POINT "/ota.bin";
 
     ESP_LOGI("SD_DOWNLOAD", "{==POST WRITE==} Opening file %s", file_path);
@@ -712,6 +713,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req)
     if (fd == NULL)
     {
         ESP_LOGE("FILE", "Failed to open file for writing");
+        resumeSensorPipelineTasks();
         return ESP_FAIL;
     }
 
@@ -739,9 +741,11 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req)
             if (received == HTTPD_SOCK_ERR_TIMEOUT)
             {
                 ESP_LOGE("SD_DOWNLOAD", "Socket Timeout");
+                resumeSensorPipelineTasks();
                 return ESP_FAIL;
             }
             ESP_LOGE("SD_DOWNLOAD", "Error in receiving file");
+            resumeSensorPipelineTasks();
             return ESP_FAIL;
         }
 
@@ -755,7 +759,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req)
     fclose(fd);
 
     ESP_LOGI("SD_DOWNLOAD", "File download succesfully to sd card--> 'ota.bin'");
-
+    resumeSensorPipelineTasks();
     return ESP_OK;
 }
 
@@ -786,7 +790,7 @@ void node_ota_update_send(void *vpParam)
     portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
     // Get the list of connected stations
     ESP_ERROR_CHECK(esp_wifi_ap_get_sta_list(&sta_list));
-
+    pauseSensorPipelineTasks();
     // prevent station joining while update gumming up everything while allowing debug
     // site to stay open
 
@@ -822,6 +826,7 @@ void node_ota_update_send(void *vpParam)
         else
         {
             ESP_LOGI("OTA_SD_UPDATE", "OTA on self failed");
+            resumeSensorPipelineTasks();
             ota_updating = false;
         }
 

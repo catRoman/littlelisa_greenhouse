@@ -51,6 +51,9 @@ const bool UPDATE_NVS = false;
 static const char TAG[] = "module_config";
 
 Module_info_t *module_info_gt = NULL;
+// for dynamic sensor task handles
+int8_t total_local_sensors;
+TaskHandle_t *sensor_task_handles;
 
 void initiate_config()
 {
@@ -421,11 +424,18 @@ void initiate_config()
 esp_err_t initiate_sensor_tasks()
 {
 
-        int8_t total_local_sensors = 0;
+        total_local_sensors = 0;
         for (int i = 0; i < SENSOR_LIST_TOTAL; i++)
         {
                 total_local_sensors += module_info_gt->sensor_arr[i];
         }
+        sensor_task_handles = (TaskHandle_t *)malloc(total_local_sensors * sizeof(TaskHandle_t)); // Allocate memory for task handles
+        if (sensor_task_handles == NULL)
+        {
+                ESP_LOGE(TAG, "Failed to allocate memory for task handles");
+                ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+        }
+
         sensor_data_t **local_sensor = (sensor_data_t **)malloc(sizeof(sensor_data_t *) * total_local_sensors);
         if (local_sensor == NULL)
         {
@@ -434,6 +444,7 @@ esp_err_t initiate_sensor_tasks()
                 return ESP_ERR_NO_MEM;
         }
 
+        int8_t sensor_task_handler_count = 0; // used for maintaing count throug sensors lists for task handler
         for (Sensor_List sensor_type = DHT22; sensor_type < SENSOR_LIST_TOTAL; sensor_type++)
         {
 
@@ -485,7 +496,7 @@ esp_err_t initiate_sensor_tasks()
                                 // TODO: add internal keyword to taskname
                                 snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", local_sensor[sensor_id - 1]->local_sensor_id);
                                 BaseType_t task_code;
-                                task_code = xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)local_sensor[sensor_id - 1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+                                task_code = xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)local_sensor[sensor_id - 1], DHT22_TASK_PRIORITY, &sensor_task_handles[sensor_task_handler_count++], DHT22_TASK_CORE_ID);
                                 if (task_code != pdPASS)
                                 {
                                         ESP_LOGD("Free Memory", "Available heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
