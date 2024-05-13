@@ -819,10 +819,11 @@ void node_ota_update_send(void *vpParam)
 
         if (ota_update_from_sd() == ESP_OK)
         {
-            ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
+            ESP_LOGI("OTA_SD_UPDATE", "resuming sensor pipeline for clean restart");
+            resumeSensorPipelineTasks();
             ESP_LOGI("OTA_SD_UPDATE", "REFRESH_DEBUG_PAGE");
+            ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
             vTaskDelay(pdMS_TO_TICKS(5000));
-
             esp_restart();
         }
         else

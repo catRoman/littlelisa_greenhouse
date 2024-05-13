@@ -22,23 +22,23 @@ export default defineConfig({
   server: {
     proxy: {
       // Use the "/api" key to tell Vite that any requests starting with "/api"
-      // should be proxied to "http://10.0.0.140/api".
+      // should be proxied to "http://10.0.0.86/api".
       "/api": {
-        target: "http://10.0.0.140",
+        target: "http://10.0.0.86",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"),
       },
       "/ota": {
-        target: "http://10.0.0.140",
+        target: "http://10.0.0.86",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/ota/, "/ota"),
       },
-      "/ws": {
-        target: "http://10.0.0.140:8080",
-        ws: true,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/ws/, "/ws"),
-      },
+      // "/ws": {
+      //   target: "http://10.0.0.140:8080",
+      //   ws: true,
+      //   changeOrigin: true,
+      //   rewrite: (path) => path.replace(/^\/ws/, "/ws"),
+      // },
       // "/ota": {
       //   target: "http://019dd198-8751-4f4c-ac57-55c314cd3c2d.mock.pstmn.io",
       //   changeOrigin: true,

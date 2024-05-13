@@ -618,7 +618,8 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             //          curr_send_id);
             // }
 
-            ESP_LOGW("mem-cleanup", "free min size:%lu", esp_get_free_heap_size());
+            ESP_LOGW("mem-cleanup", "free min total size:%lu", esp_get_free_heap_size());
+            ESP_LOGW("mem-cleanup", "free min internal size:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }

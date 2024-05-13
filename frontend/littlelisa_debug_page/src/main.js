@@ -595,7 +595,7 @@ function updateUptime({ uptime }) {
 }
 
 function updateSensorData(wsSensorData) {
-  const { module_info: moduleInfoObj, sensor_data: sensorDataObj } =
+  const { module_info: moduleInfoObj, sensor_info: sensorDataObj } =
     wsSensorData;
 
   //locate sensor box using module_id
@@ -603,7 +603,7 @@ function updateSensorData(wsSensorData) {
   //locate sensor type using sensor type
   //change text content
   //adjust box for variable values
-  const validNodeClass = getValidNodeClass(moduleInfoObj.module_id);
+  const validNodeClass = getValidNodeClass(moduleInfoObj.identifier);
 
   const nodeSensorData = document.querySelector(`.${validNodeClass}`);
 
@@ -612,7 +612,7 @@ function updateSensorData(wsSensorData) {
   );
 
   const sensorToUpdate = sensorType?.querySelector(
-    `.local-sensor-${moduleInfoObj.local_sensor_id}`
+    `.local-sensor-${moduleInfoObj.sensor_id}`
   );
   if (sensorToUpdate != undefined) {
     sensorToUpdate.querySelector(".timestamp").textContent =
@@ -620,13 +620,13 @@ function updateSensorData(wsSensorData) {
     sensorToUpdate.querySelector(".sensor-location").textContent =
       sensorDataObj.location;
     sensorToUpdate.querySelector(".sensor-pin").textContent =
-      sensorDataObj.module_pin;
+      sensorDataObj.sensor_pin;
     sensorToUpdate.querySelector(
       ".temp"
-    ).textContent = `${sensorDataObj.sensor_data.temp.toFixed(2)}`;
+    ).textContent = `${sensorDataObj.data.temperature.toFixed(2)}`;
     sensorToUpdate.querySelector(
       ".hum"
-    ).textContent = `${sensorDataObj.sensor_data.humidity.toFixed(2)}`;
+    ).textContent = `${sensorDataObj.data.humidity.toFixed(2)}`;
   }
 }
 
