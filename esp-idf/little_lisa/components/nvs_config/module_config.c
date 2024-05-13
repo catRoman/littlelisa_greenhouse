@@ -484,12 +484,12 @@ esp_err_t initiate_sensor_tasks()
                                 char sensor_task_name[20];
                                 // TODO: add internal keyword to taskname
                                 snprintf(sensor_task_name, sizeof(sensor_task_name), "dht22_sensor_%d", local_sensor[sensor_id - 1]->local_sensor_id);
-                                ESP_LOGI("Free Memory", "Available heap before task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-                                BaseType_t result;
-                                result = xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)local_sensor[sensor_id - 1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
-                                if (result != pdPASS)
+                                BaseType_t task_code;
+                                task_code = xTaskCreatePinnedToCore(DHT22_task, sensor_task_name, DHT22_TASK_STACK_SIZE, (void *)local_sensor[sensor_id - 1], DHT22_TASK_PRIORITY, NULL, DHT22_TASK_CORE_ID);
+                                if (task_code != pdPASS)
                                 {
-                                        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", result);
+                                        ESP_LOGD("Free Memory", "Available heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+                                        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
                                 }
                                 break;
                         case SOIL_MOISTURE:

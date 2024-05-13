@@ -737,8 +737,8 @@ esp_err_t initiate_sensor_queue()
     sensor_send_to_server_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_queue_mem_cleanup_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_send_to_websocket_server_handle = xQueueCreate(20, sizeof(sensor_queue_wrapper_t));
-
-    xTaskCreatePinnedToCore(
+    BaseType_t task_code;
+    task_code = xTaskCreatePinnedToCore(
         sensor_queue_monitor_task,
         "sq_monitor",
         SENSOR_QUEUE_STACK_SIZE,
@@ -746,8 +746,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_QUEUE_PRIORITY,
         &sensor_queue_task_handle,
         SENSOR_QUEUE_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_preprocessing_task,
         "s_prepocess",
         SENSOR_PREPROCESSING_STACK_SIZE,
@@ -755,8 +759,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_PREPROCESSING_PRIORITY,
         &sensor_preprocessing_task_handle,
         SENSOR_PREPROCESSING_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_prepare_to_send_task,
         "s_prep_send",
         SENSOR_PREPARE_TO_SEND_STACK_SIZE,
@@ -764,8 +772,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_PREPARE_TO_SEND_PRIORITY,
         &sensor_prepare_to_send_task_handle,
         SENSOR_PREPARE_TO_SEND_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_post_processing_task,
         "s_post_process",
         SENSOR_POSTPROCESSING_STACK_SIZE,
@@ -773,8 +785,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_POSTPROCESSING_PRIORITY,
         &sensor_post_processing_task_handle,
         SENSOR_POSTPROCESSING_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_ram_task,
         "s_snd_ram",
         SENSOR_SEND_TO_RAM_STACK_SIZE,
@@ -782,8 +798,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_SEND_TO_RAM_PRIORITY,
         &sensor_send_to_ram_task_handle,
         SENSOR_SEND_TO_RAM_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_sd_db_task,
         "s_snd_sd_db",
         SENSOR_SEND_TO_SD_DB_STACK_SIZE,
@@ -791,8 +811,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_SEND_TO_SD_DB_PRIORITY,
         &sensor_send_to_sd_db_task_handle,
         SENSOR_SEND_TO_SD_DB_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_server_task,
         "s_snd_serv",
         SENSOR_SEND_TO_SERVER_STACK_SIZE,
@@ -801,7 +825,7 @@ esp_err_t initiate_sensor_queue()
         &sensor_send_to_server_task_handle,
         SENSOR_SEND_TO_SERVER_CORE_ID);
 
-    xTaskCreatePinnedToCore(
+    task_code = xTaskCreatePinnedToCore(
         sensor_queue_mem_cleanup_task,
         "s_q_memclean",
         SENSOR_QUEUE_MEM_CLEANUP_STACK_SIZE,
@@ -809,8 +833,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
         &sensor_queue_mem_cleanup_task_handle,
         SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_websocket_server_task,
         "s_snd_ws",
         SENSOR_SEND_TO_WEBSOCKET_SERVER_STACK_SIZE,
@@ -818,7 +846,11 @@ esp_err_t initiate_sensor_queue()
         SENSOR_SEND_TO_WEBSOCKET_SERVER_PRIORITY,
         &sensor_send_to_websocket_server_task_handle,
         SENSOR_SEND_TO_WEBSOCKET_SERVER_CORE_ID);
-
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
     return ESP_OK;
 }
 

@@ -135,12 +135,12 @@ export function startWebServer() {
     try {
       const sensorData = req.body;
       // debug logging incoming sensor data
-      console.log(sensorData);
-      handleSensorData(sensorData);
 
       if (!req.body || Object.keys(req.body).length === 0) {
         throw new Error("No data received in sensor stream post");
       }
+      console.log(sensorData);
+      handleSensorData(sensorData);
 
       res.status(200).send("Sensor stream post successful");
     } catch (error) {
