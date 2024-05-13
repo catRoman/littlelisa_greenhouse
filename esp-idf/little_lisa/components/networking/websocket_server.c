@@ -297,9 +297,14 @@ httpd_handle_t websocket_server_configuration(void)
     vTaskDelay(pdMS_TO_TICKS(100));
 
     // create websocket server monitor task
-    xTaskCreatePinnedToCore(&websocket_server_monitor, "ws_monitor",
-                            WEBSOCKET_SERVER_MONITOR_STACK_SIZE, NULL, WEBSOCKET_SERVER_MONITOR_PRIORITY, &task_websocket_server_monitor, WEBSOCKET_SERVER_MONITOR_CORE_ID);
-
+    BaseType_t task_code;
+    task_code = xTaskCreatePinnedToCore(&websocket_server_monitor, "ws_monitor",
+                                        WEBSOCKET_SERVER_MONITOR_STACK_SIZE, NULL, WEBSOCKET_SERVER_MONITOR_PRIORITY, &task_websocket_server_monitor, WEBSOCKET_SERVER_MONITOR_CORE_ID);
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
     // websocket server config
     ws_config.core_id = WEBSOCKET_SERVER_TASK_CORE_ID;
     ws_config.task_priority = WEBSOCKET_SERVER_TASK_PRIORITY;
@@ -318,7 +323,8 @@ httpd_handle_t websocket_server_configuration(void)
     {
         register_websocket_server_handlers();
 
-        xTaskCreatePinnedToCore(
+        BaseType_t task_code;
+        task_code = xTaskCreatePinnedToCore(
             websocket_send_sensor_data_queue,
             "ws_s_queue",
             WEBSOCKET_SEND_SENSOR_DATA_STACK_SIZE,
@@ -326,7 +332,11 @@ httpd_handle_t websocket_server_configuration(void)
             WEBSOCKET_SEND_SENSOR_DATA_PRIORITY,
             &websocket_send_sensor_data_task_handle,
             WEBSOCKET_SEND_SENSOR_DATA_CORE_ID);
-
+        if (task_code != pdPASS)
+        {
+            ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+            ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+        }
         // xTaskCreatePinnedToCore(test_frame_change_task, "test_frame_change", 4096, NULL, 5, &test_frame_change_task_handle, 1);
         return websocket_server_handle;
     }
