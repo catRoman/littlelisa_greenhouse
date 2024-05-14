@@ -16,7 +16,7 @@ declare
     d_comp timestamp;
     id varchar(25);
     m_loc varchar(50);
-    s_id int;
+    l_s_id int;
     --sensor info
     s_pin int;
     s_type varchar(25);
@@ -30,6 +30,7 @@ declare
     mod_id int;
     con_id int;
     s_type_id int;
+    s_id int;
 begin
     --extract data fron jsonb
     --greenhouse info
@@ -44,8 +45,8 @@ begin
     d_comp  := to_timestamp(d_comp_str, 'Mon DD YYYY HH24:MI:SS');
     id  :=sensor_data->'module_info'->>'identifier';
     m_loc  :=sensor_data->'module_info'->>'location';
-    s_id  :=sensor_data->'module_info'->>'sensor_id';
     --sensor info
+    l_s_id  :=sensor_data->'sensor_info'->>'local_sensor_id';
     s_pin  :=sensor_data->'sensor_info'->>'sensor_pin';
     s_type  :=sensor_data->'sensor_info'->>'sensor_type';
     s_ts_str  :=sensor_data->'sensor_info'->>'timestamp';
@@ -99,7 +100,7 @@ begin
     SELECT module_id INTO mod_id FROM modules WHERE identifier = id;
 
     --create/update node/controller table based on type
-    if m_type = 'controller'
+    if lower(m_type) = 'controller'
     then
         --check/update controllers table
         if not exists( select 1 from controllers where controller_id = mod_id)
@@ -109,7 +110,7 @@ begin
             values(mod_id);
         end if;
     --create/update node list
-    elsif m_type = 'node'
+    elsif lower(m_type) = 'node'
     then
         --check if node exists/ verify correct controller
          begin
@@ -160,28 +161,31 @@ begin
     if exists (
         select 1
         from sensors
-        where sensor_id = s_id
+        where local_sensor_id = l_s_id
+        and module_id = mod_id
         )
     then
         update sensors
         -- module exists but  data needs updating
         set
-            module_id = mod_id,
             sensor_pin = s_pin,
             location = s_loc,
             type_id = s_type_id
-        where sensor_id = s_id;
-        and (
-            module_id != mod_id or
-            sensor_pin != s_pin or
-            location != s_loc or
-            type_id != s_type_id
-            );
+        where local_sensor_id = l_s_id
+        and module_id = mod_id
+        returning sensor_id into s_id;
+
+        if not found then  -- No rows updated, so perform the insert instead
+            insert into sensors (module_id, local_sensor_id, sensor_pin, location, type_id)
+            values (mod_id, l_s_id, s_pin, s_loc, s_type_id)
+            RETURNING sensor_id into s_id;
+        end if;
 
     else
         -- module not found
-        insert into sensors (module_id, sensor_pin, location, type_id )
-        values (mod_id, s_pin, s_loc, s_type_id);
+        insert into sensors (module_id, local_sensor_id, sensor_pin, location, type_id )
+        values (mod_id, l_s_id, s_pin, s_loc, s_type_id)
+        returning sensor_id into s_id;
     end if;
 
     --add sensor data to corresponding inherited sensor_data type based on type
