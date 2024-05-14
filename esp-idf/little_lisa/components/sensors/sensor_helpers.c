@@ -76,9 +76,9 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     cJSON_AddStringToObject(module_info, "date_compilied", timestamp_buffer);
     cJSON_AddStringToObject(module_info, "identifier", sensor_data_recv->module_id);
     cJSON_AddStringToObject(module_info, "location", sensor_data_recv->module_location); //<== here
-    cJSON_AddNumberToObject(module_info, "sensor_id", sensor_data_recv->local_sensor_id);
 
     cJSON_AddItemToObject(root, "sensor_info", sensor_info);
+    cJSON_AddNumberToObject(sensor_info, "local_sensor_id", sensor_data_recv->local_sensor_id);
     cJSON_AddNumberToObject(sensor_info, "sensor_pin", sensor_data_recv->pin_number);
     cJSON_AddStringToObject(sensor_info, "sensor_type", sensor_type_to_string(sensor_data_recv->sensor_type));
 

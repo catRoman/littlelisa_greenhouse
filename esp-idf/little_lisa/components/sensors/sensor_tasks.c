@@ -366,7 +366,12 @@ void sensor_post_processing_task(void *pvParameters)
             time_t currentTime;
             time(&currentTime);
             event->sensor_data->timestamp = currentTime;
-            ESP_LOGE(SENSOR_EVENT_TAG, "%s", create_sensor_data_json(event->sensor_data));
+
+            // char *log_string = create_sensor_data_json(event->sensor_data);
+            // ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
+            // free(log_string);
+            // log_string = NULL;
+
             // prepare to send to multiple tasks for furter proccessing
 
             int8_t num_of_semaphores = 0;
@@ -553,13 +558,13 @@ void sensor_send_to_server_task(void *pvParameters)
                     //     free(sensor_data_json);
                     // }
                     // ESP_LOGW("send-to-server-after-post", "free min size:%lu", esp_get_free_heap_size());
+                    vTaskDelay(pdMS_TO_TICKS(500));
                 }
             }
 
             xSemaphoreGive(all_tasks_complete_semaphore);
 
             // ESP_LOGW("send-to-server-end", "free min size:%lu", esp_get_free_heap_size());
-
             taskYIELD();
         }
         // esp_http_client_cleanup(client);
