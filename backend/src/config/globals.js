@@ -4,9 +4,9 @@ import { fileURLToPath } from "url";
 const Web_Config_g = {
   PORT: 3000,
   //-->garage ethernet
-  ///SERVER_IP: "10.0.0.53",
+  SERVER_IP: "10.0.0.53",
   //-->laptop wsl
-  SERVER_IP: "172.30.58.251",
+  // SERVER_IP: "172.30.58.251",
 };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

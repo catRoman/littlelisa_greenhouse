@@ -256,8 +256,36 @@ void wifi_start(void)
     // initialize wifi
 
     wifi_init_config_t wifi_init_config = WIFI_INIT_CONFIG_DEFAULT();
+
+    if (heap_caps_get_free_size(MALLOC_CAP_SPIRAM) > 0)
+    {
+        // SPIRAM is available
+        ESP_LOGI("WiFi", "Initializing WiFi with SPIRAM support.");
+        // wifi_init_config.cache_tx_buf_num = 32; // Example value for boards with PSRAM
+        // wifi_init_config.static_tx_buf_num = 0;
+        // wifi_init_config.dynamic_tx_buf_num = 32;
+    }
+    else
+    {
+        // SPIRAM is not available
+        ESP_LOGW("WiFi", "SPIRAM not available. Adjusting WiFi settings.");
+        // wifi_init_config.cache_tx_buf_num = 10; // No cache TX buffers
+        // // wifi_init_config.static_tx_buf_num = 0; // No static buffers
+        // wifi_init_config.tx_buf_type = CONFIG_WS_DYNAMIC_BUFFER;
+        // wifi_init_config.dynamic_tx_buf_num = 8;
+        // SPIRAM_TRY_ALLOCATE_WIFI_LWIP
+
+        wifi_init_config.cache_tx_buf_num = 10; // Disable cache TX buffers
+        // wifi_init_config.static_tx_buf_num = 0;                            // Disable static TX buffers
+        wifi_init_config.dynamic_tx_buf_num = 8;                           // Example value for dynamic TX buffers
+        wifi_init_config.tx_buf_type = 1;                                  // Use dynamic TX buffers
+        wifi_init_config.feature_caps &= ~CONFIG_FEATURE_CACHE_TX_BUF_BIT; // Clear cache TX buffer bit
+        // wifi_init_config.feature_caps &= ~CONFIG_SPIRAM_TRY_ALLOCATE_WIFI; // Clear cache TX buffer bit
+        //  wifi_init_config.
+    }
+
     ESP_ERROR_CHECK(esp_wifi_init(&wifi_init_config));
-    esp_log_level_set("wifi", ESP_LOG_DEBUG);
+    esp_log_level_set("wifi", ESP_LOG_INFO);
 
     if (strcmp(module_info_gt->type, "controller") == 0)
     {
