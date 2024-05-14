@@ -213,6 +213,14 @@ void register_http_server_handlers(void)
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &propagate_ota_update);
 
+    // register propgate update handler
+    httpd_uri_t ota_restart = {
+        .uri = "/ota/restart",
+        .method = HTTP_GET,
+        .handler = ota_restart_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &ota_restart);
+
     // register systemstate handler
     httpd_uri_t system_state = {
         .uri = "/api/system_state",
@@ -646,15 +654,27 @@ esp_err_t ota_update_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    ESP_LOGI("OTA_UPDATE", "OTA Update Successful. Rebooting...");
-    httpd_resp_send(req, "OTA Update Successful. Rebooting in 5 seconds...", HTTPD_RESP_USE_STRLEN);
-    ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline tasks for restart");
-    resumeSensorPipelineTasks();
+    ESP_LOGI("OTA_UPDATE", "OTA Update Successful. Waiting for reboot signal");
+    httpd_resp_send(req, "OTA Update Successful. Waiting for reboot signal", HTTPD_RESP_USE_STRLEN);
+
     vTaskDelay(pdMS_TO_TICKS(5000));
 
-    esp_restart(); // Restart the system to boot from the updated firmware
+    // esp_restart(); // Restart the system to boot from the updated firmware
 
     return ESP_OK;
+}
+esp_err_t ota_restart_handler(httpd_req_t *req)
+{
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
+
+    ESP_LOGE("OTA_UPDATE", "restart messageRecieved. rebooting in 5 seconds");
+      httpd_resp_send(req, "OTA restart recieved. rebooting", HTTPD_RESP_USE_STRLEN);
+vTaskDelay(pdMS_TO_TICKS(1000));
+    ESP_LOGI("OTA_UPDATE", "ensuring all suspended task restarted before restart");
+    resumeSensorPipelineTasks();
+    esp_restart();
 }
 
 esp_err_t propogate_ota_update_handler(httpd_req_t *req)
@@ -834,11 +854,21 @@ void node_ota_update_send(void *vpParam)
 
         if (ota_update_from_sd() == ESP_OK)
         {
+            ESP_LOGI("OTA_UPDATE", "OTA complete restarting all nodes");
+            for (int i = 1; i <= sta_list.num; i++)
+            {
+                char node_addr_url[100];
+                ESP_LOGI("OTA_PROP_UDATE", "restarting node %d", i);
+                snprintf(node_addr_url, sizeof(node_addr_url) - 1, "http://192.168.0.%d/ota/restart",
+                         i + 1);
+                send_ota_restart(node_addr_url);
+            }
+
             ESP_LOGI("OTA_SD_UPDATE", "resuming sensor pipeline for clean restart");
             resumeSensorPipelineTasks();
             ESP_LOGI("OTA_SD_UPDATE", "REFRESH_DEBUG_PAGE");
-            ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting in 5 seconds...");
-            vTaskDelay(pdMS_TO_TICKS(5000));
+            ESP_LOGI("OTA_SD_UPDATE", "OTA update from SD card complete, rebooting...");
+            vTaskDelay(pdMS_TO_TICKS(500));
             esp_restart();
         }
         else
