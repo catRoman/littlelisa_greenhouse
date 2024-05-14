@@ -461,6 +461,7 @@ esp_err_t initiate_sensor_tasks()
                         }
 
                         local_sensor[sensor_id - 1]->pin_number = module_info_gt->sensor_config_arr[sensor_type]->sensor_pin_arr[sensor_id];
+
                         local_sensor[sensor_id - 1]->sensor_type = sensor_type;
                         local_sensor[sensor_id - 1]->total_values = module_info_gt->sensor_arr[sensor_type];
                         local_sensor[sensor_id - 1]->location = (char *)malloc(sizeof(char) * (1 + strlen(module_info_gt->sensor_config_arr[sensor_type]->sensor_loc_arr[sensor_id])));
@@ -481,8 +482,25 @@ esp_err_t initiate_sensor_tasks()
                                 ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
                                 return ESP_ERR_NO_MEM;
                         }
+                        strcpy(local_sensor[sensor_id - 1]->module_type, module_info_gt->type);
 
-                        strcpy(local_sensor[sensor_id - 1]->module_id, module_info_gt->identity);
+                        local_sensor[sensor_id - 1]->module_type = (char *)malloc(sizeof(char) * (1 + strlen(module_info_gt->type)));
+                        if (local_sensor[sensor_id - 1]->module_type == NULL)
+                        {
+                                ESP_LOGE(TAG, "Failed to allocate local sensor->module_type");
+                                ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+                                return ESP_ERR_NO_MEM;
+                        }
+                        strcpy(local_sensor[sensor_id - 1]->module_type, module_info_gt->type);
+
+                        local_sensor[sensor_id - 1]->module_location = (char *)malloc(sizeof(char) * (1 + strlen(module_info_gt->location)));
+                        if (local_sensor[sensor_id - 1]->module_location == NULL)
+                        {
+                                ESP_LOGE(TAG, "Failed to allocate local sensor->module_type");
+                                ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+                                return ESP_ERR_NO_MEM;
+                        }
+                        strcpy(local_sensor[sensor_id - 1]->module_location, module_info_gt->location);
 
                         local_sensor[sensor_id - 1]->timestamp = 0;
 

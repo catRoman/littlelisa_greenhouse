@@ -355,7 +355,9 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
                         sizeof(float) * data->total_values + // value array
                         sizeof(char) * SERIAL_STR_BUFF +     // location (including null terminator)
                         sizeof(char) * SERIAL_STR_BUFF +     // module_id (including null terminator)
-                        sizeof(time_t);                      // timestamp
+                        sizeof(time_t) +                     // timestamp
+                        sizeof(char) * SERIAL_STR_BUFF +     // module_type
+                        sizeof(char) * SERIAL_STR_BUFF;      // module_location
 
     // Allocate memory for serialized data
     uint8_t *serialized_data = (uint8_t *)malloc(total_size);
@@ -391,6 +393,12 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
     strcpy((char *)(serialized_data + offset), data->module_id);
     offset += (SERIAL_STR_BUFF - (strlen(data->module_id) + 1));
 
+    strcpy((char *)(serialized_data + offset), data->module_type);
+    offset += (SERIAL_STR_BUFF - (strlen(data->module_type) + 1));
+
+    strcpy((char *)(serialized_data + offset), data->module_location);
+    offset += (SERIAL_STR_BUFF - (strlen(data->module_location) + 1));
+
     for (int i = 0; i < data->total_values; i++)
     {
         memcpy(serialized_data + offset, &(data->value[i]), sizeof(float));
@@ -409,7 +417,7 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     sensor_data_t *deserialized_data = (sensor_data_t *)malloc(sizeof(sensor_data_t));
     if (deserialized_data == NULL)
     {
-        puts("allocation failed for deserialized_data");
+        ESP_LOGE(ESP_NOW_COMM_TAG, "allocation failed for deserialized_data");
         // Memory allocation failed
         return NULL;
     }
@@ -437,7 +445,7 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     if (deserialized_data->location == NULL)
     {
         // Memory allocation failed
-        puts("allocatoin failed for desearialized_data->location");
+        ESP_LOGE(ESP_NOW_COMM_TAG, "allocatoin failed for desearialized_data->location");
         free(deserialized_data);
         deserialized_data = NULL;
         return NULL;
@@ -448,7 +456,7 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     deserialized_data->module_id = strdup((char *)(serialized_data + offset));
     if (deserialized_data->module_id == NULL)
     {
-        puts("allocation failed for deserialized_data->module_id");
+        ESP_LOGE(ESP_NOW_COMM_TAG, "allocation failed for deserialized_data->module_id");
         // Memory allocation failed
         free(deserialized_data->location);
         deserialized_data->location = NULL;
@@ -458,12 +466,51 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     }
     offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->module_id) + 1));
 
+    // Deserialize the module_type string
+    deserialized_data->module_type = strdup((char *)(serialized_data + offset));
+    if (deserialized_data->module_type == NULL)
+    {
+        ESP_LOGE(ESP_NOW_COMM_TAG, "allocation failed for deserialized_data->module_type");
+        // Memory allocation failed
+        free(deserialized_data->module_id);
+        deserialized_data->module_id = NULL;
+        free(deserialized_data->location);
+        deserialized_data->location = NULL;
+        free(deserialized_data);
+        deserialized_data = NULL;
+        return NULL;
+    }
+    offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->module_type) + 1));
+
+    // Deserialize the module_location string
+    deserialized_data->module_location = strdup((char *)(serialized_data + offset));
+    if (deserialized_data->module_location == NULL)
+    {
+        ESP_LOGE(ESP_NOW_COMM_TAG, "allocation failed for deserialized_data->module_location");
+        // Memory allocation failed
+        free(deserialized_data->module_type);
+        deserialized_data->module_type = NULL;
+        free(deserialized_data->module_id);
+        deserialized_data->module_id = NULL;
+        free(deserialized_data->location);
+        deserialized_data->location = NULL;
+        free(deserialized_data);
+        deserialized_data = NULL;
+        return NULL;
+    }
+    offset += (SERIAL_STR_BUFF - (strlen(deserialized_data->module_location) + 1));
+
     // Allocate memory for the value array
     deserialized_data->value = (float *)malloc(sizeof(float) * deserialized_data->total_values);
     if (deserialized_data->value == NULL)
     {
         // Memory allocation failed
-        puts("allocation failed for deserialized_data->value");
+
+        ESP_LOGE(ESP_NOW_COMM_TAG, "allocation failed for deserialized_data->value");
+        free(deserialized_data->module_location);
+        deserialized_data->module_location = NULL;
+        free(deserialized_data->module_type);
+        deserialized_data->module_type = NULL;
         free(deserialized_data->location);
         deserialized_data->location = NULL;
         free(deserialized_data->module_id);

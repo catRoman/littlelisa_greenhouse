@@ -69,13 +69,13 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     {
         cJSON_AddStringToObject(module_info, "controller_identifier", CONFIG_ESP_NOW_COMM_RECIEVER_MAC_ADDRESS);
     }
-    cJSON_AddStringToObject(module_info, "type", module_info_gt->type);
+    cJSON_AddStringToObject(module_info, "type", sensor_data_recv->module_type); //<==here
     cJSON_AddStringToObject(module_info, "firmware_version", app_info->version);
     char timestamp_buffer[34];
     snprintf(timestamp_buffer, sizeof(timestamp_buffer), "%s %s", __DATE__, __TIME__);
     cJSON_AddStringToObject(module_info, "date_compilied", timestamp_buffer);
     cJSON_AddStringToObject(module_info, "identifier", sensor_data_recv->module_id);
-    cJSON_AddStringToObject(module_info, "location", module_info_gt->location);
+    cJSON_AddStringToObject(module_info, "location", sensor_data_recv->module_location); //<== here
     cJSON_AddNumberToObject(module_info, "sensor_id", sensor_data_recv->local_sensor_id);
 
     cJSON_AddItemToObject(root, "sensor_info", sensor_info);
