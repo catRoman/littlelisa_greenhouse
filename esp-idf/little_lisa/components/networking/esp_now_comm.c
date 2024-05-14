@@ -106,6 +106,7 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
                     data_packet->sensor_type = sensor_data->sensor_type;
                     data_packet->total_values = sensor_data->total_values;
                     data_packet->local_sensor_id = sensor_data->local_sensor_id;
+
                     data_packet->timestamp = sensor_data->timestamp;
 
                     // TODO: mem error handling
@@ -115,6 +116,12 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
 
                     data_packet->location = (char *)malloc(strlen(sensor_data->location) + 1);
                     strcpy(data_packet->location, sensor_data->location);
+
+                    data_packet->module_type = (char *)malloc(strlen(sensor_data->module_type) + 1);
+                    strcpy(data_packet->module_type, sensor_data->module_type);
+
+                    data_packet->module_location = (char *)malloc(strlen(sensor_data->module_location) + 1);
+                    strcpy(data_packet->module_location, sensor_data->module_location);
 
                     for (int i = 0; i < data_packet->total_values; i++)
                     {
@@ -356,8 +363,8 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
                         sizeof(char) * SERIAL_STR_BUFF +     // location (including null terminator)
                         sizeof(char) * SERIAL_STR_BUFF +     // module_id (including null terminator)
                         sizeof(time_t) +                     // timestamp
-                        sizeof(char) * SERIAL_STR_BUFF +     // module_type
-                        sizeof(char) * SERIAL_STR_BUFF;      // module_location
+                        sizeof(char) * SERIAL_STR_BUFF +     // module_type(including null terminator)
+                        sizeof(char) * SERIAL_STR_BUFF;      // module_location (including null term)
 
     // Allocate memory for serialized data
     uint8_t *serialized_data = (uint8_t *)malloc(total_size);
@@ -531,25 +538,25 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
 }
 
 // Function to calculate the size needed for serialization
-size_t calculate_serialized_size(const sensor_data_t *data)
-{
-    // Fixed size for int and int fields
-    size_t fixed_size = sizeof(data->pin_number) + sizeof(data->total_values) +
-                        sizeof(data->local_sensor_id) + sizeof(data->timestamp) + sizeof(data->sensor_type);
+// size_t calculate_serialized_size(const sensor_data_t *data)
+// {
+//     // Fixed size for int and int fields
+//     size_t fixed_size = sizeof(data->pin_number) + sizeof(data->total_values) +
+//                         sizeof(data->local_sensor_id) + sizeof(data->timestamp) + sizeof(data->sensor_type);
 
-    // Dynamic size for the float array
-    size_t values_size = sizeof(float) * data->total_values;
-    // printf("%s", data->location);
-    //  Dynamic size for the location string (including null terminator)
-    size_t location_len = strlen(data->location) + 1;
+//     // Dynamic size for the float array
+//     size_t values_size = sizeof(float) * data->total_values;
+//     // printf("%s", data->location);
+//     //  Dynamic size for the location string (including null terminator)
+//     size_t location_len = strlen(data->location) + 1;
 
-    size_t module_id = strlen(data->module_id) + 1;
+//     size_t module_id = strlen(data->module_id) + 1;
 
-    // Total size
-    size_t total_size = fixed_size + values_size + location_len + module_id;
+//     // Total size
+//     size_t total_size = fixed_size + values_size + location_len + module_id;
 
-    return total_size;
-}
+//     return total_size;
+// }
 
 void print_sensor_data(const sensor_data_t *data)
 {

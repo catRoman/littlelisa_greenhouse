@@ -482,7 +482,7 @@ esp_err_t initiate_sensor_tasks()
                                 ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
                                 return ESP_ERR_NO_MEM;
                         }
-                        strcpy(local_sensor[sensor_id - 1]->module_type, module_info_gt->type);
+                        strcpy(local_sensor[sensor_id - 1]->module_id, module_info_gt->identity);
 
                         local_sensor[sensor_id - 1]->module_type = (char *)malloc(sizeof(char) * (1 + strlen(module_info_gt->type)));
                         if (local_sensor[sensor_id - 1]->module_type == NULL)

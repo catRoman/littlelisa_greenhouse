@@ -366,7 +366,7 @@ void sensor_post_processing_task(void *pvParameters)
             time_t currentTime;
             time(&currentTime);
             event->sensor_data->timestamp = currentTime;
-
+            ESP_LOGE(SENSOR_EVENT_TAG, "%s", create_sensor_data_json(event->sensor_data));
             // prepare to send to multiple tasks for furter proccessing
 
             int8_t num_of_semaphores = 0;
