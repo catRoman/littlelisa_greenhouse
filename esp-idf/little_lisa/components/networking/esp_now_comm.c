@@ -183,6 +183,10 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
                     sensor_data->location = NULL;
                     free(sensor_data->module_id);
                     sensor_data->module_id = NULL;
+                    free(sensor_data->module_type);
+                    sensor_data->module_type = NULL;
+                    free(sensor_data->module_location);
+                    sensor_data->module_location = NULL;
                     free(sensor_data);
                     sensor_data = NULL;
                 }

@@ -567,7 +567,8 @@ esp_err_t recv_ota_update_save_to_sd_post_handler(httpd_req_t *req)
 
 esp_err_t ota_update_handler(httpd_req_t *req)
 {
-
+    ESP_LOGI("OTA_UPDATE", "pausing sensor pipeline for ota update");
+    pauseSensorPipelineTasks();
     char ota_buff[1024]; // Buffer size adjusted for chunk size
     int recv_len;
     bool is_req_body_started = false;
@@ -582,6 +583,8 @@ esp_err_t ota_update_handler(httpd_req_t *req)
     {
         ESP_LOGE("OTA_UPDATE", "esp_ota_begin failed, error=%d", err);
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA begin failed");
+        ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline for ota update");
+        resumeSensorPipelineTasks();
         return ESP_FAIL;
     }
 
@@ -606,6 +609,8 @@ esp_err_t ota_update_handler(httpd_req_t *req)
             ESP_LOGE("OTA_UPDATE", "OTA write failed");
             httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA write failed");
             esp_ota_abort(ota_handle);
+            ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline for ota update");
+            resumeSensorPipelineTasks();
             return ESP_FAIL;
         }
         remaining -= recv_len;
@@ -616,6 +621,8 @@ esp_err_t ota_update_handler(httpd_req_t *req)
         ESP_LOGE("OTA_UPDATE", "Receive error %d", recv_len);
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Error receiving data");
         esp_ota_abort(ota_handle);
+        ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline for ota update");
+        resumeSensorPipelineTasks();
         return ESP_FAIL;
     }
 
@@ -624,6 +631,8 @@ esp_err_t ota_update_handler(httpd_req_t *req)
     {
         ESP_LOGE("OTA_UPDATE", "OTA end failed");
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA end failed");
+        ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline for ota update");
+        resumeSensorPipelineTasks();
         return ESP_FAIL;
     }
 
@@ -632,12 +641,17 @@ esp_err_t ota_update_handler(httpd_req_t *req)
     {
         ESP_LOGE("OTA_UPDATE", "OTA set boot partition failed");
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "OTA set boot partition failed");
+        ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline for ota update");
+        resumeSensorPipelineTasks();
         return ESP_FAIL;
     }
 
     ESP_LOGI("OTA_UPDATE", "OTA Update Successful. Rebooting...");
     httpd_resp_send(req, "OTA Update Successful. Rebooting in 5 seconds...", HTTPD_RESP_USE_STRLEN);
+    ESP_LOGI("OTA_UPDATE", "resuming sensor pipeline tasks for restart");
+    resumeSensorPipelineTasks();
     vTaskDelay(pdMS_TO_TICKS(5000));
+
     esp_restart(); // Restart the system to boot from the updated firmware
 
     return ESP_OK;
@@ -787,6 +801,7 @@ esp_err_t recv_ota_update_write_to_sd(httpd_req_t *req)
 
 void node_ota_update_send(void *vpParam)
 {
+
     wifi_sta_list_t sta_list;
     portMUX_TYPE myMutex = portMUX_INITIALIZER_UNLOCKED;
     // Get the list of connected stations

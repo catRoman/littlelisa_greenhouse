@@ -600,6 +600,10 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             event->sensor_data->value = NULL;
             free(event->sensor_data->location);
             event->sensor_data->location = NULL;
+            free(event->sensor_data->module_location);
+            event->sensor_data->module_location = NULL;
+            free(event->sensor_data->module_type);
+            event->sensor_data->module_type = NULL;
             free(event->sensor_data->module_id);
             event->sensor_data->module_id = NULL;
             free(event->sensor_data);
