@@ -452,6 +452,11 @@ esp_err_t initiate_sensor_tasks()
                 //->TODO check if lop+1 is still valid
                 for (int sensor_id = 1; sensor_id < module_info_gt->sensor_arr[sensor_type] + SQL_ID_SYNC_VAL; sensor_id++)
                 {
+
+                        //====================non blocking delay
+
+                        //======================
+
                         local_sensor[sensor_id - 1] = (sensor_data_t *)malloc(sizeof(sensor_data_t));
                         if (local_sensor[sensor_id - 1] == NULL)
                         {
@@ -520,6 +525,7 @@ esp_err_t initiate_sensor_tasks()
                                         ESP_LOGD("Free Memory", "Available heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
                                         ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
                                 }
+
                                 break;
                         case SOIL_MOISTURE:
                                 ESP_LOGE(TAG, "Trying to access non existant sensor tasks, error in sensor list");

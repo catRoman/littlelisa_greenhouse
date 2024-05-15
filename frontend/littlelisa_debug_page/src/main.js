@@ -98,7 +98,7 @@ otaUpdateForm.addEventListener("submit", async (event) => {
   }
 });
 //+++++++++++++++++++++logRefreshEvent
-function logRefreshEvent(){
+function logRefreshEvent() {
   if (logDataSocket !== undefined) {
     logDataSocket.close();
     console.log("refreshing log socket...");
@@ -108,25 +108,25 @@ function logRefreshEvent(){
 }
 logRefreshBtn.addEventListener("click", (e) => {
   logRefreshEvent();
-  });
+});
 logRefreshBtn.addEventListener("touchend", (e) => {
-e.preventDefault();
+  e.preventDefault();
   logRefreshEvent();
 });
 //++++++++++sensorRefresh
-function sensorRefreshEvent(){
+function sensorRefreshEvent() {
   if (sensorDataSocket !== undefined) {
     sensorDataSocket.close();
     setTimeout(() => initiateSensorSocket(moduleData), 3000);
   }
-
 }
 sensorRefreshBtn.addEventListener("click", (e) => {
-sensorRefreshEvent();
+  sensorRefreshEvent();
 });
 sensorRefreshBtn.addEventListener("touchend", (e) => {
-e.preventDefault()
-  sensorRefreshEv;ent();
+  e.preventDefault();
+  sensorRefreshEv;
+  ent();
 });
 //=============nav selectors================
 const openButton = document.querySelector(".icon-open");
@@ -137,14 +137,13 @@ const navClose = document.querySelector(".nav-btn.close");
 const menuBtns = document.querySelectorAll(".nav-btn");
 //========================================
 
-function menuEvent(e,classList){
-  
+function menuEvent(e, classList) {
   e.stopPropagation;
   const classes = [...classList];
   switch (classes[classes.length - 1]) {
     case "dev_btn":
       toggleInfoTab(".device-info");
-  
+
       break;
     case "net_btn":
       toggleInfoTab(".network-info");
@@ -169,7 +168,7 @@ function menuEvent(e,classList){
       main.classList.toggle("hidden");
       menu.classList.toggle("hidden");
       main.style.pointerEvents = "none";
-  
+
       setTimeout(() => {
         main.style.pointerEvents = "auto";
       }, 100);
@@ -180,28 +179,26 @@ function menuEvent(e,classList){
 menuBtns.forEach((el) => {
   el.addEventListener("click", function (e) {
     menuEvent(e, this.classList);
-    });
+  });
 });
 menuBtns.forEach((el) => {
   el.addEventListener("touchend", function (e) {
     e.preventDefault();
     menuEvent(e, this.classList);
-    });
+  });
 });
 //+++++++++++++++openEvent
-function openEvent(){
+function openEvent() {
   openButton.classList.toggle("hidden");
   main.classList.toggle("hidden");
   menu.classList.toggle("hidden");
-
 }
 openButton.addEventListener("click", (e) => {
-
-openEvent();
+  openEvent();
 });
 openButton.addEventListener("touchend", (e) => {
-e.preventDefault()
-openEvent();
+  e.preventDefault();
+  openEvent();
 });
 function toggleInfoTab(navClass) {
   console.log(navClass);
@@ -211,8 +208,7 @@ function toggleInfoTab(navClass) {
 }
 
 //+++++++++closeEvent
-function closeEvent(){
-
+function closeEvent() {
   const menuTabs = document.querySelector(".menu-select");
   Array.from(menuTabs.children).forEach((el) => {
     if (
@@ -225,12 +221,11 @@ function closeEvent(){
   });
 }
 closeButton.addEventListener("click", (e) => {
-
-  closeEvent()
-  });
+  closeEvent();
+});
 closeButton.addEventListener("touchend", (e) => {
-e.preventDefault();
-closeEvent()
+  e.preventDefault();
+  closeEvent();
 });
 
 function toggleNavMenu() {}
@@ -658,7 +653,7 @@ function updateSensorData(wsSensorData) {
   );
 
   const sensorToUpdate = sensorType?.querySelector(
-    `.local-sensor-${moduleInfoObj.sensor_id}`
+    `.local-sensor-${sensorDataObj.local_sensor_id}`
   );
   if (sensorToUpdate != undefined) {
     sensorToUpdate.querySelector(".timestamp").textContent =
