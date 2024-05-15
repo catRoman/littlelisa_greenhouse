@@ -511,6 +511,7 @@ void DHT22_task(void *vpParameter)
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
 		taskYIELD();
-		vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+		vTaskDelay(15000 / portTICK_PERIOD_MS);
 	}
 }

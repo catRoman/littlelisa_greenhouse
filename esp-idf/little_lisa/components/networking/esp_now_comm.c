@@ -55,6 +55,7 @@ void esp_now_comm_outgoing_data_task(void *pvParameters)
         if (xQueueReceive(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdTRUE)
         {
 
+            //  vTaskDelay(pdMS_TO_TICKS(4000));
             // vTaskDelay(pdMS_TO_TICKS(5000));
             // TODO: add blinky light for every succesful send
             esp_err_t result = esp_now_send(queue_packet->mac_addr, queue_packet->data, queue_packet->len);
@@ -64,7 +65,7 @@ void esp_now_comm_outgoing_data_task(void *pvParameters)
             }
             else
             {
-                ESP_LOGD(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
+                ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
                          queue_packet->mac_addr[0], queue_packet->mac_addr[1], queue_packet->mac_addr[2],
                          queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
             }
@@ -155,7 +156,7 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
                         extern QueueHandle_t sensor_queue_handle;
                         if (xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS)
                         {
-                            ESP_LOGD(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
+                            ESP_LOGI(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
                                      espnow_queue_packet->mac_addr[0], espnow_queue_packet->mac_addr[1], espnow_queue_packet->mac_addr[2],
                                      espnow_queue_packet->mac_addr[3], espnow_queue_packet->mac_addr[4], espnow_queue_packet->mac_addr[5]);
 

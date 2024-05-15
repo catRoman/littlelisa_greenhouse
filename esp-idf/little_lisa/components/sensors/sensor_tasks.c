@@ -611,11 +611,6 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             free(event);
             event = NULL;
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d Memory cleaned up successfully",
-                     module_id,
-                     sensor_id,
-                     sensor_type,
-                     curr_send_id);
             // }
             // else
             // {
@@ -627,8 +622,18 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             //          curr_send_id);
             // }
 
-            ESP_LOGW("mem-cleanup", "free min total size:%lu", esp_get_free_heap_size());
-            ESP_LOGW("mem-cleanup", "free min internal size:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+            ESP_LOGW(SENSOR_EVENT_TAG, "\n===================================\n"
+                                       "module->%s\n\tid:%d-%s->send_id:%d\nMemory cleaned up successfully\n"
+                                       "mem-cleanup:-> \n\tfree heap size: %lu\n\tfree internal: %d\n"
+                                       "===================================",
+                     module_id,
+                     sensor_id,
+                     sensor_type,
+                     curr_send_id,
+                     esp_get_free_heap_size(),
+                     heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+            // ESP_LOGW("mem-cleanup", "free min total size:%lu", esp_get_free_heap_size());
+            // ESP_LOGW("mem-cleanup", "free min internal size:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
