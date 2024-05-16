@@ -365,64 +365,66 @@ char *serializeModuleSensorConfigArray(Module_sensor_config_t **configs, int num
     for (int i = 0; i < numConfigs; i++)
     { // loop through sensors
         // Serialize sensor_loc_arr- for each sensor-loop and print location
-        for (int j = 0; j <= module_info_gt->sensor_arr[i]; /*sensor list has total num of sensors*/ j++)
+        if (module_info_gt->sensor_arr[i] > 0)
         {
-            strcat(serializedString, configs[i]->sensor_loc_arr[j]);
-            strcat(serializedString, ";");
+            for (int j = 0; j <= module_info_gt->sensor_arr[i]; /*sensor list has total num of sensors*/ j++)
+            {
+                strcat(serializedString, configs[i]->sensor_loc_arr[j]);
+                strcat(serializedString, ";");
+            }
+
+            // Replace last semicolon with pipe
+            serializedString[strlen(serializedString) - 1] = '|';
+
+            // Serialize sensor_pin_arr
+            char pinBuffer[5] = {0}; // Buffer for pin number as string
+            for (int j = 0; j <= module_info_gt->sensor_arr[i]; j++)
+            {
+
+                int8ToString(configs[i]->sensor_pin_arr[j], pinBuffer);
+                strcat(serializedString, pinBuffer);
+                strcat(serializedString, ";");
+            }
+
+            // Replace last semicolon with pipe
+            serializedString[strlen(serializedString) - 1] = '|';
+
+            // Serialize square_pos_arr
+            char squarePosBuffer[5] = {0}; // Buffer for pin number as string
+            for (int j = 0; j <= module_info_gt->sensor_arr[i]; j++)
+            {
+
+                int8ToString(configs[i]->square_pos[j][0], squarePosBuffer);
+                strcat(serializedString, squarePosBuffer);
+                strcat(serializedString, "*");
+                int8ToString(configs[i]->square_pos[j][1], squarePosBuffer);
+                strcat(serializedString, squarePosBuffer);
+                strcat(serializedString, ";");
+            }
+            serializedString[strlen(serializedString) - 1] = '|';
+            // Serialize zn_rel_pos_arr
+            char znRelPosBuffer[5] = {0}; // Buffer for pin number as string
+            for (int j = 0; j <= module_info_gt->sensor_arr[i]; j++)
+            {
+
+                int8ToString(configs[i]->zn_rel_pos[j][0], znRelPosBuffer);
+                strcat(serializedString, znRelPosBuffer);
+                strcat(serializedString, "*");
+                int8ToString(configs[i]->zn_rel_pos[j][1], znRelPosBuffer);
+                strcat(serializedString, znRelPosBuffer);
+                strcat(serializedString, "*");
+                int8ToString(configs[i]->zn_rel_pos[j][2], znRelPosBuffer);
+                strcat(serializedString, znRelPosBuffer);
+                strcat(serializedString, ";");
+            }
+            serializedString[strlen(serializedString) - 1] = '|';
+            // Replace the last semicolon with a newline character to separate configs
+            serializedString[strlen(serializedString) - 1] = '$';
         }
-
-        // Replace last semicolon with pipe
-        serializedString[strlen(serializedString) - 1] = '|';
-
-        // Serialize sensor_pin_arr
-        char pinBuffer[5] = {0}; // Buffer for pin number as string
-        for (int j = 0; j <= module_info_gt->sensor_arr[i]; j++)
-        {
-
-            int8ToString(configs[i]->sensor_pin_arr[i], pinBuffer);
-            strcat(serializedString, pinBuffer);
-            strcat(serializedString, ";");
-        }
-
-        // Replace last semicolon with pipe
-        serializedString[strlen(serializedString) - 1] = '|';
-
-        // Serialize square_pos_arr
-        char squarePosBuffer[5] = {0}; // Buffer for pin number as string
-        for (int j = 0; j <= module_info_gt->sensor_arr[i]; j++)
-        {
-
-            int8ToString(configs[i]->square_pos[i][0], squarePosBuffer);
-            strcat(serializedString, squarePosBuffer);
-            strcat(serializedString, ";");
-            int8ToString(configs[i]->square_pos[i][1], squarePosBuffer);
-            strcat(serializedString, squarePosBuffer);
-            strcat(serializedString, ";");
-        }
-        strcat(serializedString, "|");
-        // Serialize zn_rel_pos_arr
-        char znRelPosBuffer[5] = {0}; // Buffer for pin number as string
-        for (int j = 0; j <= module_info_gt->sensor_arr[i]; j++)
-        {
-
-            int8ToString(configs[i]->zn_rel_pos[i][0], znRelPosBuffer);
-            strcat(serializedString, znRelPosBuffer);
-            strcat(serializedString, ";");
-            int8ToString(configs[i]->zn_rel_pos[i][1], znRelPosBuffer);
-            strcat(serializedString, znRelPosBuffer);
-            strcat(serializedString, ";");
-            int8ToString(configs[i]->zn_rel_pos[i][2], znRelPosBuffer);
-            strcat(serializedString, znRelPosBuffer);
-            strcat(serializedString, ";");
-        }
-        strcat(serializedString, "|");
-        // Replace the last semicolon with a newline character to separate configs
-        serializedString[strlen(serializedString) - 1] = '$';
     }
-
     // Remove the last newline character
     serializedString[strlen(serializedString) - 1] = '\0';
-
+    printf("%s\n", serializedString);
     return serializedString;
 }
 
@@ -430,8 +432,9 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
 {
 
     int8_t outer = 0;
-    int8_t inner = 0;
-    int8_t final = 0;
+    int8_t numBracketDivisions = 0;
+    int8_t numSemiColinDivsions = 0;
+    int8_t numStarDivsions = 0;
 
     char **serialized_sensor_str_arr = splits_string('$', serialized_string, &outer);
     Module_sensor_config_t **sensor_config_arr = (Module_sensor_config_t **)malloc(sizeof(Module_sensor_config_t) * outer);
@@ -439,33 +442,68 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
     for (int i = 0; i < numSensors; i++)
     {
         // printf("count: %d\n",count[i]);
-        //  printf("%s\n", serialized_sensor_str_arr[i]); //prints whole sensor serialized
+        // printf("%s\n", serialized_sensor_str_arr[i]);                                            // prints whole sensor serialized
         sensor_config_arr[i] = (Module_sensor_config_t *)malloc(sizeof(Module_sensor_config_t)); // sensor config struct
-        char **serialized_split_loc = splits_string('|', serialized_sensor_str_arr[i], &inner);
-        for (int j = 0; j < inner; j++)
+        char **serialized_split_loc = splits_string('|', serialized_sensor_str_arr[i], &numBracketDivisions);
+        for (int j = 0; j < numBracketDivisions; j++)
         {
+            printf("%s\n", serialized_split_loc[j]);
             //  printf("\t%s\n", serialized_split_loc[j]); //prints locationcombined with pin num serialized
-            char **serialized_split_arr_data = splits_string(';', serialized_split_loc[j], &final);
+            char **serialized_split_arr_data = splits_string(';', serialized_split_loc[j], &numSemiColinDivsions);
             if (j == 0)
             {
-                sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * final);
-                sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * final);
-                sensor_config_arr[i]->total_sensor = final;
+                sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * numSemiColinDivsions);
+                sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * numSemiColinDivsions);
+                sensor_config_arr[i]->square_pos = (int8_t(*)[3])malloc(sizeof(int8_t[2]) * numSemiColinDivsions);
+                sensor_config_arr[i]->zn_rel_pos = (int8_t(*)[3])malloc(sizeof(int8_t[3]) * numSemiColinDivsions);
+                sensor_config_arr[i]->total_sensor = numSemiColinDivsions;
             }
-            for (int k = 0; k < final; k++)
+            for (int k = 0; k < numSemiColinDivsions; k++)
             {
-                // printf("\t%s\n", serialized_split_arr_data[k]); //prints the values, first loc then pin
-                if (j < 1)
+
+                //    printf("\t%s\n", serialized_split_arr_data[k]); // prints the values, first loc then pin
+                if (j == 0) // loc
                 {
                     sensor_config_arr[i]->sensor_loc_arr[k] = (char *)malloc(sizeof(char) * strlen(serialized_split_arr_data[k]) + 1);
                     strcpy(sensor_config_arr[i]->sensor_loc_arr[k], serialized_split_arr_data[k]);
                 }
-                else
+                else if (j == 1) // pin
                 {
                     sensor_config_arr[i]->sensor_pin_arr[k] = (int8_t)atoi(serialized_split_arr_data[k]);
                 }
-
+                else if (j == 2) // sqaure_pos arr
+                {
+                    char **serialized_split_pos = splits_string('*', serialized_split_arr_data[k], &numStarDivsions);
+                    printf("arr->%s\n", serialized_split_arr_data[k]);
+                    for (int l = 0; l < numStarDivsions; l++)
+                    {
+                        // printf("->aquare_sting->%s\n", serialized_split_pos[l]);
+                        sensor_config_arr[i]->square_pos[k][l] = (int8_t)atoi(serialized_split_pos[l]);
+                        // printf("square_pos->%d\n", sensor_config_arr[i]->square_pos[k][l]);
+                        free(serialized_split_pos[l]);
+                    }
+                    free(serialized_split_pos);
+                }
+                else if (j == 3) // zn_rel_pos arr
+                {
+                    // printf("%s", serialized_split_loc[j]);
+                    char **serialized_split_pos = splits_string('*', serialized_split_arr_data[k], &numStarDivsions);
+                    printf("arr->%s\n", serialized_split_arr_data[k]);
+                    for (int l = 0; l < numStarDivsions; l++)
+                    {
+                        //  printf("->zn_sting->%s\n", serialized_split_pos[l]);
+                        sensor_config_arr[i]->zn_rel_pos[k][l] = (int8_t)atoi(serialized_split_pos[l]);
+                        //  printf("zn_rel_loc->%d\n", sensor_config_arr[i]->zn_rel_pos[k][l]);
+                        free(serialized_split_pos[l]);
+                    }
+                    free(serialized_split_pos);
+                }
+                else
+                {
+                    ESP_LOGE(TAG, "Uh ahh ah, shouldnt be here");
+                }
                 free(serialized_split_arr_data[k]);
+                // free(serialized_split_pos);
             }
             free(serialized_split_loc[j]);
             free(serialized_split_arr_data);
