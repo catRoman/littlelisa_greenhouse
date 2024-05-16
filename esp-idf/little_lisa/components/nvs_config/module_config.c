@@ -124,42 +124,42 @@ void initiate_config()
                         ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
                 }
 
-                memcpy(dht22_zn_rel_pos[0], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3])); // initaly empty
-                memcpy(dht22_square_pos[0], (int8_t[]){-1, -1}, sizeof(int8_t[2]));     // initaly empty
+                memcpy(dht22_zn_rel_pos[0], (int8_t[]){-9, -8, -7}, sizeof(int8_t[3])); // initaly empty
+                memcpy(dht22_square_pos[0], (int8_t[]){-1, -2}, sizeof(int8_t[2]));     // initaly empty
 #ifdef CONFIG_SQUARE_POS_DHT22_1
                 memcpy(dht22_zn_rel_pos[1], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[1], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_1, CONFIG_SQUARE_POS_COL_DHT22_1}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_1
                 memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_1, CONFIG_ZN_REL_POS_Y_DHT22_1, CONFIG_ZN_REL_POS_Z_DHT22_1}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+                memcpy(dht22_square_pos[1], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_2
                 memcpy(dht22_zn_rel_pos[2], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[2], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_2, CONFIG_SQUARE_POS_COL_DHT22_2}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_2
-                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_2, CONFIG_ZN_REL_POS_Y_DHT22_2, CONFIG_ZN_REL_POS_Z_DHT22_2}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+                memcpy(dht22_zn_rel_pos[2], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_2, CONFIG_ZN_REL_POS_Y_DHT22_2, CONFIG_ZN_REL_POS_Z_DHT22_2}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[2], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_3
                 memcpy(dht22_zn_rel_pos[3], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[3], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_3, CONFIG_SQUARE_POS_COL_DHT22_3}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_3
-                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_3, CONFIG_ZN_REL_POS_Y_DHT22_3, CONFIG_ZN_REL_POS_Z_DHT22_3}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+                memcpy(dht22_zn_rel_pos[3], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_3, CONFIG_ZN_REL_POS_Y_DHT22_3, CONFIG_ZN_REL_POS_Z_DHT22_3}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[3], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_4
                 memcpy(dht22_zn_rel_pos[4], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[4], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_4, CONFIG_SQUARE_POS_COL_DHT22_4}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_4
-                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_4, CONFIG_ZN_REL_POS_Y_DHT22_4, CONFIG_ZN_REL_POS_Z_DHT22_4}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+                memcpy(dht22_zn_rel_pos[4], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_4, CONFIG_ZN_REL_POS_Y_DHT22_4, CONFIG_ZN_REL_POS_Z_DHT22_4}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[4], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_5
                 memcpy(dht22_zn_rel_pos[5], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[5], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_5, CONFIG_SQUARE_POS_COL_DHT22_5}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_5
-                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_5, CONFIG_ZN_REL_POS_Y_DHT22_5, CONFIG_ZN_REL_POS_Z_DHT22_5}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+                memcpy(dht22_zn_rel_pos[5], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_5, CONFIG_ZN_REL_POS_Y_DHT22_5, CONFIG_ZN_REL_POS_Z_DHT22_5}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[5], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 
                 Module_sensor_config_t *dht22_sensor_config =
@@ -750,7 +750,7 @@ Module_sensor_config_t *createModuleSensorConfig(int8_t (*zn_rel_pos)[3],
 
                 sensor_config->zn_rel_pos[j][0] = zn_rel_pos[j][0];
                 sensor_config->zn_rel_pos[j][1] = zn_rel_pos[j][1];
-                sensor_config->zn_rel_pos[j][3] = zn_rel_pos[j][3];
+                sensor_config->zn_rel_pos[j][2] = zn_rel_pos[j][2];
         }
 
         return sensor_config;
@@ -810,10 +810,18 @@ Module_info_t *create_module_from_NVS()
         // prevent optimizing out string for debug
         ESP_LOGI(TAG, "deserialized string: %s", deserialized_string);
 
+        int8_t validSensorsCount = 0;
+        for (int i = 0; i < sensor_arr_total; i++)
+        {
+                if (created_module->sensor_arr[i] > 0)
+                {
+                        validSensorsCount++;
+                }
+        }
         // allocates memory inside function
         created_module->sensor_config_arr =
             deserialize_string(deserialized_string,
-                               sensor_arr_total);
+                               validSensorsCount);
 
         free(temp_module.type);
         temp_module.type = NULL;
