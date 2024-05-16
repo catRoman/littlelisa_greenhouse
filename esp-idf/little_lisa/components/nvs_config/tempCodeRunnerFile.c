@@ -1,0 +1,1 @@
+dht22_zn_rel_pos[5] = CONFIG_SENSOR_DHT22_5_PIN;
