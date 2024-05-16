@@ -350,12 +350,39 @@ void initiate_config()
 
                 // one more as list start at index 1 with 0=null for sql sync
 
+#ifdef CONFIG_SQUARE_POS
+                int8_t square_pos[2] = {CONFIG_SQUARE_POS_ROW, CONFIG_SQUARE_POS_COL};
+                int8_t zn_rel_pos[3] = {-1, -1, -1};
+
+#else
+                int8_t square_pos[2] = {-1, -1};
+                int8_t zn_rel_pos[3] = {CONFIG_ZN_REL_POS_X, CONFIG_ZN_REL_POS_Y, CONFIG_ZN_REL_POS_Z};
+#endif
+
 #ifdef CONFIG_MODULE_TYPE_CONTROLLER
 
-                module_info_gt = create_module_from_config("controller", CONFIG_MODULE_LOCATION, sensor_arr, sensor_config_arr);
+                module_info_gt =
+                    create_module_from_config(
+                        "controller",
+                        CONFIG_GREENHOUSE_ID,
+                        CONFIG_ZONE_ID,
+                        zn_rel_pos,
+                        square_pos,
+                        CONFIG_MODULE_LOCATION,
+                        sensor_arr,
+                        sensor_config_arr);
 #elif CONFIG_MODULE_TYPE_NODE
 
-                module_info_gt = create_module_from_config("node", CONFIG_MODULE_LOCATION, sensor_arr, sensor_config_arr);
+                module_info_gt =
+                    create_module_from_config(
+                        "node",
+                        CONFIG_GREENHOUSE_ID,
+                        CONFIG_ZONE_ID,
+                        zn_rel_pos,
+                        square_pos,
+                        CONFIG_MODULE_LOCATION,
+                        sensor_arr,
+                        sensor_config_arr);
 
 #else
                 ESP_LOGE(TAG, "module type not selected, use menuconfig");
@@ -371,7 +398,14 @@ void initiate_config()
                     ));
         */
 
-                nvs_set_module(module_info_gt->type, module_info_gt->location, module_info_gt->identity);
+                nvs_set_module(
+                    module_info_gt->greenhouse_id,
+                    module_info_gt->zone_id,
+                    module_info_gt->square_pos,
+                    module_info_gt->zn_rel_pos,
+                    module_info_gt->type,
+                    module_info_gt->location,
+                    module_info_gt->identity);
                 nvs_set_sensor_arr(module_info_gt->sensor_arr, SENSOR_LIST_TOTAL);
                 save_serialized_sensor_loc_arr_to_nvs(
                     serializeModuleSensorConfigArray(
@@ -601,6 +635,16 @@ Module_info_t *create_module_from_NVS()
         created_module->location = (char *)malloc(sizeof(char) * (strlen(temp_module.location) + 1));
         created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
 
+        created_module->greenhouse_id = temp_module.greenhouse_id;
+        created_module->zone_id = temp_module.zone_id;
+
+        created_module->square_pos[0] = temp_module.square_pos[0];
+        created_module->square_pos[1] = temp_module.square_pos[1];
+
+        created_module->zn_rel_pos[0] = temp_module.zn_rel_pos[0];
+        created_module->zn_rel_pos[1] = temp_module.zn_rel_pos[1];
+        created_module->zn_rel_pos[2] = temp_module.zn_rel_pos[2];
+
         strcpy(created_module->type, temp_module.type);
         strcpy(created_module->location, temp_module.location);
 
@@ -633,6 +677,11 @@ Module_info_t *create_module_from_NVS()
 
 // Function to create a Module_info_t instance
 Module_info_t *create_module_from_config(char *type,
+
+                                         int8_t greenhouse_id,
+                                         int8_t zone_id,
+                                         int8_t zn_rel_pos[3],
+                                         int8_t square_pos[2],
                                          char *location,
                                          int8_t *sensor_arr,
                                          Module_sensor_config_t **sensor_config_arr)
@@ -646,6 +695,16 @@ Module_info_t *create_module_from_config(char *type,
         created_module->type = (char *)malloc(sizeof(char) * strlen(type) + 1);
         created_module->location = (char *)malloc(sizeof(char) * strlen(location) + 1);
         created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
+
+        created_module->greenhouse_id = greenhouse_id;
+        created_module->zone_id = zone_id;
+
+        created_module->square_pos[0] = square_pos[0];
+        created_module->square_pos[1] = square_pos[1];
+
+        created_module->zn_rel_pos[0] = zn_rel_pos[0];
+        created_module->zn_rel_pos[1] = zn_rel_pos[1];
+        created_module->zn_rel_pos[2] = zn_rel_pos[2];
 
         strcpy(created_module->type, type);
         strcpy(created_module->location, location);
