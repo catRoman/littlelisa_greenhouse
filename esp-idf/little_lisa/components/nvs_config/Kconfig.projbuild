@@ -2,6 +2,10 @@
 
 menu "NVS Module Info"
 
+
+
+
+
     choice
         prompt "Select Module Type"
 
@@ -17,7 +21,56 @@ menu "NVS Module Info"
         string "Module Location"
         default "UNKNOWN"
         help
-            Module location information
+            Module location description
+
+    config GREENHOUSE_ID
+        int "Greenhouse id"
+        default 1
+
+
+    config ZONE_ID
+        int "zone id"
+        default 1
+
+
+    choice
+        prompt "select location type"
+
+        config SQUARE_POS
+            bool "square id"
+            depends on ZONE_ID > 1
+
+        config ZN_REL_POS
+            bool "zone relative"
+
+        help
+            select square id
+    endchoice
+
+    config SQUARE_POS_ROW
+        depends on SQUARE_POS
+        int "square row"
+        default -1
+
+    config SQUARE_POS_COL
+        depends on SQUARE_POS
+        int "square column"
+        default -1
+
+
+    config ZN_REL_POS_X
+        int "x coordinate"
+        default -1
+        depends on ZN_REL_POS
+    config ZN_REL_POS_Y
+        int "y coordinate"
+        default -1
+        depends on ZN_REL_POS
+    config ZN_REL_POS_Z
+        int "z coordinate"
+        default -1
+        depends on ZN_REL_POS
+
 
     menu "Sensor List"
 
