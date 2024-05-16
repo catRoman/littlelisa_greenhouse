@@ -56,8 +56,8 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     }
 
     // TODO: add error ahdling
-    cJSON *square_pos = cJSON_CreateObject();
-    cJSON *zn_rel_pos = cJSON_CreateObject();
+    // cJSON *module_square_pos = cJSON_CreateObject();
+    // cJSON *module_zn_rel_pos = cJSON_CreateObject();
 
     cJSON_AddItemToObject(root, "greenhouse_info", greenhouse_info);
     // temp for now will retrieve from module info eventually
@@ -82,27 +82,28 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     cJSON_AddStringToObject(module_info, "identifier", sensor_data_recv->module_id);
     cJSON_AddStringToObject(module_info, "location", sensor_data_recv->module_location); //<== here
 
-    if (module_info_gt->square_pos[0] == -1)
-    {
-        cJSON_AddItemToObject(module_info, "square_pos", cJSON_CreateNull());
-    }
-    else
-    {
-        cJSON_AddItemToObject(module_info, "square_pos", square_pos);
-        cJSON_AddNumberToObject(square_pos, "row", module_info_gt->square_pos[0]);
-        cJSON_AddNumberToObject(square_pos, "col", module_info_gt->square_pos[1]);
-    }
-    if (module_info_gt->zn_rel_pos[0] == -1)
-    {
-        cJSON_AddItemToObject(module_info, "zn_rel_pos", cJSON_CreateNull());
-    }
-    else
-    {
-        cJSON_AddItemToObject(module_info, "zn_rel_pos", zn_rel_pos);
-        cJSON_AddNumberToObject(zn_rel_pos, "x", module_info_gt->zn_rel_pos[0]);
-        cJSON_AddNumberToObject(zn_rel_pos, "y", module_info_gt->zn_rel_pos[1]);
-        cJSON_AddNumberToObject(zn_rel_pos, "z", module_info_gt->zn_rel_pos[2]);
-    }
+    // TODO:need to come from sensor_dat_recv :(
+    // if (sensor_data_recv->module_square_pos[0] == -1)
+    // {
+    //     cJSON_AddItemToObject(module_info, "square_pos", cJSON_CreateNull());
+    // }
+    // else
+    // {
+    //     cJSON_AddItemToObject(module_info, "square_pos", module_square_pos);
+    //     cJSON_AddNumberToObject(module_square_pos, "row", sensor_data_recv->module_square_pos[0]);
+    //     cJSON_AddNumberToObject(module_square_pos, "col", sensor_data_recv->module_square_pos[1]);
+    // }
+    // if (sensor_data_recv->module_zn_rel_pos[0] == -1)
+    // {
+    //     cJSON_AddItemToObject(module_info, "zn_rel_pos", cJSON_CreateNull());
+    // }
+    // else
+    // {
+    //     cJSON_AddItemToObject(module_info, "zn_rel_pos", module_zn_rel_pos);
+    //     cJSON_AddNumberToObject(module_zn_rel_pos, "x", sensor_data_recv->module_zn_rel_pos[0]);
+    //     cJSON_AddNumberToObject(module_zn_rel_pos, "y", sensor_data_recv->module_zn_rel_pos[1]);
+    //     cJSON_AddNumberToObject(module_zn_rel_pos, "z", sensor_data_recv->module_zn_rel_pos[2]);
+    // }
 
     cJSON_AddItemToObject(root, "sensor_info", sensor_info);
     cJSON_AddNumberToObject(sensor_info, "local_sensor_id", sensor_data_recv->local_sensor_id);
@@ -114,6 +115,32 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
 
     cJSON_AddStringToObject(sensor_info, "timestamp", timestamp);
     cJSON_AddStringToObject(sensor_info, "location", sensor_data_recv->location);
+
+    // cJSON *sensor_square_pos = cJSON_CreateObject();
+    // cJSON *sensor_zn_rel_pos = cJSON_CreateObject();
+    // TODO:needs to come from sensor_recv :(
+    //  if (sensor_data_recv->sensor_square_pos[0] == -1)
+    //  {
+    //      cJSON_AddItemToObject(sensor_info, "square_pos", cJSON_CreateNull());
+    //  }
+    //  else
+    //  {
+    //      cJSON_AddItemToObject(module_info, "square_pos", sensor_square_pos);
+    //      cJSON_AddNumberToObject(sensor_square_pos, "row", sensor_data_recv->sensor_square_pos[0]);
+    //      cJSON_AddNumberToObject(sensor_square_pos, "col", sensor_data_recv->sensor_square_pos[1]);
+    //  }
+    //  if (sensor_data_recv->sensor_zn_rel_pos[0] == -1)
+    //  {
+    //      cJSON_AddItemToObject(sensor_info, "zn_rel_pos", cJSON_CreateNull());
+    //  }
+    //  else
+    //  {
+    //      cJSON_AddItemToObject(sensor_info, "zn_rel_pos", sensor_zn_rel_pos);
+    //      cJSON_AddNumberToObject(sensor_zn_rel_pos, "x", sensor_data_recv->sensor_zn_rel_pos[0]);
+    //      cJSON_AddNumberToObject(sensor_zn_rel_pos, "y", sensor_data_recv->sensor_zn_rel_pos[1]);
+    //      cJSON_AddNumberToObject(sensor_zn_rel_pos, "z", sensor_data_recv->sensor_zn_rel_pos[2]);
+    //  }
+
     cJSON_AddItemToObject(sensor_info, "data", sensor_data);
 
     switch (sensor_data_recv->sensor_type)

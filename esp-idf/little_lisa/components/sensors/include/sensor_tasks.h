@@ -39,6 +39,10 @@ typedef struct sensor_data_t
     time_t timestamp;
     char *module_type;
     char *module_location;
+    int8_t sensor_square_pos[2];
+    int8_t sensor_zn_rel_pos[3];
+    int8_t module_square_pos[2];
+    int8_t module_zn_rel_pos[3];
 
 } sensor_data_t;
 
