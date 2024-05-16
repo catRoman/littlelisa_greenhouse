@@ -113,8 +113,59 @@ void initiate_config()
                 dht22_sensor_pin_number[5] = CONFIG_SENSOR_DHT22_5_PIN;
 #endif
 
+                int8_t(*dht22_zn_rel_pos)[3] = malloc(sizeof(int8_t[3]) * (sensor_arr[DHT22] + SQL_ID_SYNC_VAL));
+                if (!dht22_zn_rel_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_zn_rel_pos array");
+                }
+                int8_t(*dht22_square_pos)[2] = malloc(sizeof(int8_t[2]) * (sensor_arr[DHT22] + SQL_ID_SYNC_VAL));
+                if (!dht22_square_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
+                }
+
+                memcpy(dht22_zn_rel_pos[0], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3])); // initaly empty
+                memcpy(dht22_square_pos[0], (int8_t[]){-1, -1}, sizeof(int8_t[2]));     // initaly empty
+#ifdef CONFIG_SQUARE_POS_DHT22_1
+                memcpy(dht22_zn_rel_pos[1], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[1], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_1, CONFIG_SQUARE_POS_COL_DHT22_1}, sizeof(int8_t[2]));
+#elif CONFIG_ZN_REL_POS_DHT22_1
+                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_1, CONFIG_ZN_REL_POS_Y_DHT22_1, CONFIG_ZN_REL_POS_Z_DHT22_1}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+#endif
+#ifdef CONFIG_SQUARE_POS_DHT22_2
+                memcpy(dht22_zn_rel_pos[2], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[2], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_2, CONFIG_SQUARE_POS_COL_DHT22_2}, sizeof(int8_t[2]));
+#elif CONFIG_ZN_REL_POS_DHT22_2
+                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_2, CONFIG_ZN_REL_POS_Y_DHT22_2, CONFIG_ZN_REL_POS_Z_DHT22_2}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+#endif
+#ifdef CONFIG_SQUARE_POS_DHT22_3
+                memcpy(dht22_zn_rel_pos[3], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[3], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_3, CONFIG_SQUARE_POS_COL_DHT22_3}, sizeof(int8_t[2]));
+#elif CONFIG_ZN_REL_POS_DHT22_3
+                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_3, CONFIG_ZN_REL_POS_Y_DHT22_3, CONFIG_ZN_REL_POS_Z_DHT22_3}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+#endif
+#ifdef CONFIG_SQUARE_POS_DHT22_4
+                memcpy(dht22_zn_rel_pos[4], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[4], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_4, CONFIG_SQUARE_POS_COL_DHT22_4}, sizeof(int8_t[2]));
+#elif CONFIG_ZN_REL_POS_DHT22_4
+                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_4, CONFIG_ZN_REL_POS_Y_DHT22_4, CONFIG_ZN_REL_POS_Z_DHT22_4}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+#endif
+#ifdef CONFIG_SQUARE_POS_DHT22_5
+                memcpy(dht22_zn_rel_pos[5], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[5], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_5, CONFIG_SQUARE_POS_COL_DHT22_5}, sizeof(int8_t[2]));
+#elif CONFIG_ZN_REL_POS_DHT22_5
+                memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_5, CONFIG_ZN_REL_POS_Y_DHT22_5, CONFIG_ZN_REL_POS_Z_DHT22_5}, sizeof(int8_t[3]));
+                memcpy(dht22_square_pos[1], (int8_t[]){-1, -1}, sizeof(int8_t[2]));
+#endif
+
                 Module_sensor_config_t *dht22_sensor_config =
                     createModuleSensorConfig(
+                        dht22_zn_rel_pos,
+                        dht22_square_pos,
                         dht22_sensor_locations,
                         dht22_sensor_pin_number,
                         sensor_arr[DHT22] + SQL_ID_SYNC_VAL);
@@ -157,8 +208,26 @@ void initiate_config()
                 soil_moisture_sensor_pin_number[5] = CONFIG_SENSOR_SOIL_MOISTURE_5_PIN;
 #endif
 
+                //===============ADD THE REST OF THE SENSOR INFO SEE DHT22
+                //+++++WARNING THESE ARE PLACE HOLDERS AND WILL RESULT IN RUNTIME ERROR if sensors are chossen++++++++
+
+                int8_t(*soil_moisture_zn_rel_pos)[3] = malloc(sizeof(int8_t[3]) * (sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL));
+                if (!soil_moisture_zn_rel_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_zn_rel_pos array");
+                }
+                int8_t(*soil_moisture_square_pos)[2] = malloc(sizeof(int8_t[2]) * (sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL));
+                if (!soil_moisture_square_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
+                }
+                //++++++++++
+                //===============
+
                 Module_sensor_config_t *soil_moisture_sensor_config =
                     createModuleSensorConfig(
+                        soil_moisture_zn_rel_pos,
+                        soil_moisture_square_pos,
                         soil_moisture_sensor_locations,
                         soil_moisture_sensor_pin_number,
                         sensor_arr[SOIL_MOISTURE] + SQL_ID_SYNC_VAL);
@@ -201,8 +270,26 @@ void initiate_config()
                 light_sensor_pin_number[5] = CONFIG_SENSOR_LIGHT_5_PIN;
 #endif
 
+                //===============ADD THE REST OF THE SENSOR INFO SEE DHT22
+                //+++++WARNING THESE ARE PLACE HOLDERS AND WILL RESULT IN RUNTIME ERROR if sensors are chossen++++++++
+
+                int8_t(*light_sensor_zn_rel_pos)[3] = malloc(sizeof(int8_t[3]) * (sensor_arr[LIGHT] + SQL_ID_SYNC_VAL));
+                if (!light_sensor_zn_rel_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_zn_rel_pos array");
+                }
+                int8_t(*light_sensor_square_pos)[2] = malloc(sizeof(int8_t[2]) * (sensor_arr[LIGHT] + SQL_ID_SYNC_VAL));
+                if (!light_sensor_square_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
+                }
+                //++++++++++
+                //===============
+
                 Module_sensor_config_t *light_sensor_config =
                     createModuleSensorConfig(
+                        light_sensor_zn_rel_pos,
+                        light_sensor_square_pos,
                         light_sensor_locations,
                         light_sensor_pin_number,
                         sensor_arr[LIGHT] + SQL_ID_SYNC_VAL);
@@ -245,8 +332,26 @@ void initiate_config()
                 sound_sensor_pin_number[5] = CONFIG_SENSOR_SOUND_5_PIN;
 #endif
 
+                //===============ADD THE REST OF THE SENSOR INFO SEE DHT22
+                //+++++WARNING THESE ARE PLACE HOLDERS AND WILL RESULT IN RUNTIME ERROR if sensors are chossen++++++++
+
+                int8_t(*sound_sensor_zn_rel_pos)[3] = malloc(sizeof(int8_t[3]) * (sensor_arr[SOUND] + SQL_ID_SYNC_VAL));
+                if (!sound_sensor_zn_rel_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_zn_rel_pos array");
+                }
+                int8_t(*sound_sensor_square_pos)[2] = malloc(sizeof(int8_t[2]) * (sensor_arr[SOUND] + SQL_ID_SYNC_VAL));
+                if (!sound_sensor_square_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
+                }
+                //++++++++++
+                //===============
+
                 Module_sensor_config_t *sound_sensor_config =
                     createModuleSensorConfig(
+                        sound_sensor_zn_rel_pos,
+                        sound_sensor_square_pos,
                         sound_sensor_locations,
                         sound_sensor_pin_number,
                         sensor_arr[SOUND] + SQL_ID_SYNC_VAL);
@@ -289,8 +394,26 @@ void initiate_config()
                 movement_sensor_pin_number[5] = CONFIG_SENSOR_MOVEMENT_5_PIN;
 #endif
 
+                //===============ADD THE REST OF THE SENSOR INFO SEE DHT22
+                //+++++WARNING THESE ARE PLACE HOLDERS AND WILL RESULT IN RUNTIME ERROR if sensors are chossen++++++++
+
+                int8_t(*movement_sensor_zn_rel_pos)[3] = malloc(sizeof(int8_t[3]) * (sensor_arr[MOVEMENT] + SQL_ID_SYNC_VAL));
+                if (!movement_sensor_zn_rel_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_zn_rel_pos array");
+                }
+                int8_t(*movement_sensor_square_pos)[2] = malloc(sizeof(int8_t[2]) * (sensor_arr[MOVEMENT] + SQL_ID_SYNC_VAL));
+                if (!movement_sensor_square_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
+                }
+                //++++++++++
+                //===============
+
                 Module_sensor_config_t *movement_sensor_config =
                     createModuleSensorConfig(
+                        movement_sensor_zn_rel_pos,
+                        movement_sensor_square_pos,
                         movement_sensor_locations,
                         movement_sensor_pin_number,
                         sensor_arr[MOVEMENT] + SQL_ID_SYNC_VAL);
@@ -326,15 +449,33 @@ void initiate_config()
 #ifdef CONFIG_SENSOR_CAMERA_3_PIN
                 camera_sensor_pin_number[3] = CONFIG_SENSOR_CAMERA_3_PIN;
 #endif
-#ifdef CONFIG_SENSOR_SOIL_MOISTURE_4_PIN
+#ifdef CONFIG_SENSOR_CAMERA_4_PIN
                 camera_sensor_pin_number[4] = CONFIG_SENSOR_SOIL_MOISTURE_4_PIN;
 #endif
-#ifdef CONFIG_SENSOR_SOIL_MOISTURE_5_PIN
+#ifdef CONFIG_SENSOR_CAMERA_5_PIN
                 camera_sensor_pin_number[5] = CONFIG_SENSOR_SOIL_MOISTURE_5_PIN;
 #endif
 
+                //===============ADD THE REST OF THE SENSOR INFO SEE DHT22
+                //+++++WARNING THESE ARE PLACE HOLDERS AND WILL RESULT IN RUNTIME ERROR if sensors are chossen++++++++
+
+                int8_t(*camera_sensor_zn_rel_pos)[3] = malloc(sizeof(int8_t[3]) * (sensor_arr[CAMERA] + SQL_ID_SYNC_VAL));
+                if (!camera_sensor_zn_rel_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_zn_rel_pos array");
+                }
+                int8_t(*camera_sensor_square_pos)[2] = malloc(sizeof(int8_t[2]) * (sensor_arr[CAMERA] + SQL_ID_SYNC_VAL));
+                if (!camera_sensor_square_pos)
+                {
+                        ESP_LOGE(TAG, "Failed to allocate memory for DHT22_square_pos array");
+                }
+                //++++++++++
+                //===============
+
                 Module_sensor_config_t *camera_sensor_config =
                     createModuleSensorConfig(
+                        camera_sensor_zn_rel_pos,
+                        camera_sensor_zn_rel_pos,
                         camera_sensor_locations,
                         camera_sensor_pin_number,
                         sensor_arr[CAMERA] + SQL_ID_SYNC_VAL);
@@ -585,14 +726,16 @@ esp_err_t initiate_sensor_tasks()
         return ESP_OK;
 }
 
-Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins, int numLocations)
+Module_sensor_config_t *createModuleSensorConfig(int8_t (*zn_rel_pos)[3],
+                                                 int8_t (*square_pos)[2], char **locations, int8_t *pins, int numLocations)
 {
         Module_sensor_config_t *sensor_config = malloc(sizeof(Module_sensor_config_t));
         if (!sensor_config)
                 return NULL;
 
         // Allocate and initialize sensor_config_arr
-
+        sensor_config->square_pos = (int8_t(*)[2])malloc(sizeof(int8_t[2]) * numLocations);
+        sensor_config->zn_rel_pos = (int8_t(*)[3])malloc(sizeof(int8_t[3]) * numLocations);
         sensor_config->sensor_loc_arr = (char **)malloc(sizeof(char *) * numLocations);
         sensor_config->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * numLocations);
         for (int j = 0; j < numLocations; j++)
@@ -601,6 +744,13 @@ Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins,
                 strcpy(sensor_config->sensor_loc_arr[j], locations[j]);
 
                 sensor_config->sensor_pin_arr[j] = pins[j];
+
+                sensor_config->square_pos[j][0] = square_pos[j][0];
+                sensor_config->square_pos[j][1] = square_pos[j][1];
+
+                sensor_config->zn_rel_pos[j][0] = zn_rel_pos[j][0];
+                sensor_config->zn_rel_pos[j][1] = zn_rel_pos[j][1];
+                sensor_config->zn_rel_pos[j][3] = zn_rel_pos[j][3];
         }
 
         return sensor_config;

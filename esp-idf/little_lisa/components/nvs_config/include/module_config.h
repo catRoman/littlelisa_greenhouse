@@ -7,8 +7,11 @@
 
 typedef struct Module_sensor_config_t
 {
+    int8_t (*zn_rel_pos)[3];
+    int8_t (*square_pos)[2];
     char **sensor_loc_arr;
     int8_t *sensor_pin_arr;
+
     int8_t total_sensor;
 } Module_sensor_config_t;
 
@@ -30,7 +33,8 @@ esp_err_t initiate_sensor_tasks(void);
 
 void initiate_config(void);
 
-Module_sensor_config_t *createModuleSensorConfig(char **locations, int8_t *pins, int numLocations);
+Module_sensor_config_t *createModuleSensorConfig(int8_t (*zn_rel_pos)[3],
+                                                 int8_t (*square_pos)[2], char **locations, int8_t *pins, int numLocations);
 
 void freeModuleSensorConfig(Module_sensor_config_t *config);
 
