@@ -28,8 +28,8 @@ menu "NVS Module Info"
         default 1
 
 
-    config ZONE_ID
-        int "zone id"
+    config ZONE_NUM
+        int "zone num"
         default 1
 
 
@@ -38,7 +38,7 @@ menu "NVS Module Info"
 
         config SQUARE_POS
             bool "square id"
-            depends on ZONE_ID > 1
+            depends on ZONE_NUM > 0
 
         config ZN_REL_POS
             bool "zone relative"
@@ -47,14 +47,14 @@ menu "NVS Module Info"
             select square id
     endchoice
 
-    config SQUARE_POS_ROW
+    config SQUARE_POS_Y
         depends on SQUARE_POS
-        int "square row"
+        int "square Y"
         default 1
 
-    config SQUARE_POS_COL
+    config SQUARE_POS_X
         depends on SQUARE_POS
-        int "square column"
+        int "square X"
         default 1
 
 
@@ -123,7 +123,7 @@ menu "NVS Module Info"
                             depends on SENSOR_DHT22 >= 1
                             config SQUARE_POS_DHT22_1
                                 bool "square id"
-                                depends on ZONE_ID > 1
+                                depends on ZONE_NUM > 0
 
                             config ZN_REL_POS_DHT22_1
                                 bool "zone relative"
@@ -133,14 +133,14 @@ menu "NVS Module Info"
                                 select square id
                         endchoice
 
-                        config SQUARE_POS_ROW_DHT22_1
+                        config SQUARE_POS_Y_DHT22_1
                             depends on SQUARE_POS_DHT22_1
-                            int "sensor 1 square row"
+                            int "sensor 1 square Y"
                             default 1
 
-                        config SQUARE_POS_COL_DHT22_1
+                        config SQUARE_POS_X_DHT22_1
                             depends on SQUARE_POS_DHT22_1
-                            int "sensor 1 square column"
+                            int "sensor 1 square X"
                             default 1
 
 
@@ -179,7 +179,7 @@ menu "NVS Module Info"
                                         depends on SENSOR_DHT22 >= 2
                                         config SQUARE_POS_DHT22_2
                                             bool "square id"
-                                            depends on ZONE_ID > 1
+                                            depends on ZONE_NUM > 0
 
                                         config ZN_REL_POS_DHT22_2
                                             bool "zone relative"
@@ -189,14 +189,14 @@ menu "NVS Module Info"
                                             select square id
                                     endchoice
 
-                                    config SQUARE_POS_ROW_DHT22_2
+                                    config SQUARE_POS_Y_DHT22_2
                                         depends on SQUARE_POS_DHT22_2
-                                        int "sensor 2 square row"
+                                        int "sensor 2 square Y"
                                         default 1
 
-                                    config SQUARE_POS_COL_DHT22_2
+                                    config SQUARE_POS_X_DHT22_2
                                         depends on SQUARE_POS_DHT22_2
-                                        int "sensor 2 square column"
+                                        int "sensor 2 square X"
                                         default 1
 
 
@@ -244,7 +244,7 @@ menu "NVS Module Info"
                                             depends on SENSOR_DHT22 >= 3
                                             config SQUARE_POS_DHT22_3
                                                 bool "square id"
-                                                depends on ZONE_ID > 1
+                                                depends on ZONE_NUM > 0
 
                                             config ZN_REL_POS_DHT22_3
                                                 bool "zone relative"
@@ -254,14 +254,14 @@ menu "NVS Module Info"
                                                 select square id
                                         endchoice
 
-                                        config SQUARE_POS_ROW_DHT22_3
+                                        config SQUARE_POS_Y_DHT22_3
                                             depends on SQUARE_POS_DHT22_3
-                                            int "sensor 3 square row"
+                                            int "sensor 3 square Y"
                                             default 1
 
-                                        config SQUARE_POS_COL_DHT22_3
+                                        config SQUARE_POS_X_DHT22_3
                                             depends on SQUARE_POS_DHT22_3
-                                            int "sensor 3 square column"
+                                            int "sensor 3 square X"
                                             default 1
 
 
@@ -313,7 +313,7 @@ menu "NVS Module Info"
                                             depends on SENSOR_DHT22 >= 4
                                             config SQUARE_POS_DHT22_4
                                                 bool "square id"
-                                                depends on ZONE_ID > 1
+                                                depends on ZONE_NUM > 0
 
                                             config ZN_REL_POS_DHT22_4
                                                 bool "zone relative"
@@ -323,14 +323,14 @@ menu "NVS Module Info"
                                                 select square id
                                         endchoice
 
-                                        config SQUARE_POS_ROW_DHT22_4
+                                        config SQUARE_POS_Y_DHT22_4
                                             depends on SQUARE_POS_DHT22_4
-                                            int "sensor 4 square row"
+                                            int "sensor 4 square Y"
                                             default 1
 
-                                        config SQUARE_POS_COL_DHT22_4
+                                        config SQUARE_POS_X_DHT22_4
                                             depends on SQUARE_POS_DHT22_4
-                                            int "sensor 4 square column"
+                                            int "sensor 4 square X"
                                             default 1
 
 
@@ -377,7 +377,7 @@ menu "NVS Module Info"
                                             depends on SENSOR_DHT22 >= 5
                                             config SQUARE_POS_DHT22_5
                                                 bool "square id"
-                                                depends on ZONE_ID > 1
+                                                depends on ZONE_NUM > 0
 
                                             config ZN_REL_POS_DHT22_5
                                                 bool "zone relative"
@@ -387,14 +387,14 @@ menu "NVS Module Info"
                                                 select square id
                                         endchoice
 
-                                        config SQUARE_POS_ROW_DHT22_5
+                                        config SQUARE_POS_Y_DHT22_5
                                             depends on SQUARE_POS_DHT22_5
-                                            int "sensor 5 square row"
+                                            int "sensor 5 square Y"
                                             default 1
 
-                                        config SQUARE_POS_COL_DHT22_5
+                                        config SQUARE_POS_X_DHT22_5
                                             depends on SQUARE_POS_DHT22_5
-                                            int "sensor 5 square column"
+                                            int "sensor 5 square X"
                                             default 1
 
 

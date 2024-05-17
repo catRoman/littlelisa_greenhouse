@@ -52,5 +52,26 @@
 -- NOTICE: ALTER TABLE debug_log.littlelisa_proto DROP CONSTRAINT fk_debug_log_module;
 -- NOTICE: ALTER TABLE enviroment_action_log.littlelisa_proto DROP CONSTRAINT fk_env_action_log_square;
 
-delete from littlelisa_proto.modules;
-ALTER SEQUENCE modules_module_id_seq RESTART WITH 1;
+
+
+---------------------------------------------------
+--clear sensor/modules/controllers/nodes etc
+-------------------------------------------------
+-- delete from littlelisa_proto.sensors;
+-- ALTER SEQUENCE sensors_sensor_id_seq RESTART WITH 1;
+
+-- delete from littlelisa_proto.dht22_data;
+-- ALTER SEQUENCE sensor_data_data_id_seq RESTART WITH 1;
+
+-- delete from littlelisa_proto.modules;
+-- ALTER SEQUENCE modules_module_id_seq RESTART WITH 1;
+
+-- delete from littlelisa_proto.controllers;
+
+
+-- delete from littlelisa_proto.nodes;
+
+truncate table greenhouses cascade;
+
+-- alter table zones
+-- add column height int;
