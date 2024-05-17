@@ -506,7 +506,7 @@ void initiate_config()
                     create_module_from_config(
                         "controller",
                         CONFIG_GREENHOUSE_ID,
-                        CONFIG_ZONE_ID,
+                        CONFIG_ZONE_NUM,
                         zn_rel_pos,
                         square_pos,
                         CONFIG_MODULE_LOCATION,

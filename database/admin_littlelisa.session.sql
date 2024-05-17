@@ -71,7 +71,41 @@
 
 -- delete from littlelisa_proto.nodes;
 
-truncate table greenhouses cascade;
+-- truncate table greenhouses cascade;
+
+
+-- CREATE OR REPLACE FUNCTION point3d_in(cstring)
+-- RETURNS point3d AS $$
+-- DECLARE
+--     x NUMERIC;
+--     y NUMERIC;
+--     z NUMERIC;
+-- BEGIN
+--     -- Parse input string (assuming format: '(x,y,z)')
+--     x := split_part($1, ',', 1); -- Extract x from between parentheses
+--     y := split_part($1, ',', 2);
+--     z := split_part($1, ',', 3);
+
+--     -- Validation (Optional - ensure values are numeric)
+--     IF x::NUMERIC IS NULL OR y::NUMERIC IS NULL OR z::NUMERIC IS NULL THEN
+--         RAISE EXCEPTION 'Invalid input for point3d: %', $1;
+--     END IF;
+
+--     -- Return the constructed point3d
+--     RETURN (x::NUMERIC, y::NUMERIC, z::NUMERIC); -- Assuming (x,y,z) is how your type is constructed
+-- END;
+-- $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
 -- alter table zones
 -- add column height int;
+
+-- -- Grant privileges to postgres
+-- GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON zn_rel_pos TO postgres;
+
+-- -- Grant privileges to little_lisa
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON zn_rel_pos TO little_lisa;
+-- Grant privileges to postgres on the sequence
+GRANT USAGE, SELECT ON SEQUENCE models_zn_rel_pos_model_zn_rel_pos_id_seq TO postgres;
+
+-- Grant privileges to little_lisa on the sequence
+GRANT USAGE ON SEQUENCE models_zn_rel_pos_model_zn_rel_pos_id_seq TO little_lisa;
