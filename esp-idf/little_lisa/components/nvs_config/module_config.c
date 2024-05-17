@@ -128,35 +128,35 @@ void initiate_config()
                 memcpy(dht22_square_pos[0], (int8_t[]){-1, -2}, sizeof(int8_t[2]));     // initaly empty
 #ifdef CONFIG_SQUARE_POS_DHT22_1
                 memcpy(dht22_zn_rel_pos[1], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[1], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_1, CONFIG_SQUARE_POS_COL_DHT22_1}, sizeof(int8_t[2]));
+                memcpy(dht22_square_pos[1], (int8_t[]){CONFIG_SQUARE_POS_X_DHT22_1, CONFIG_SQUARE_POS_Y_DHT22_1}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_1
                 memcpy(dht22_zn_rel_pos[1], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_1, CONFIG_ZN_REL_POS_Y_DHT22_1, CONFIG_ZN_REL_POS_Z_DHT22_1}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[1], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_2
                 memcpy(dht22_zn_rel_pos[2], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[2], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_2, CONFIG_SQUARE_POS_COL_DHT22_2}, sizeof(int8_t[2]));
+                memcpy(dht22_square_pos[2], (int8_t[]){CONFIG_SQUARE_POS_X_DHT22_2, CONFIG_SQUARE_POS_Y_DHT22_2}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_2
                 memcpy(dht22_zn_rel_pos[2], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_2, CONFIG_ZN_REL_POS_Y_DHT22_2, CONFIG_ZN_REL_POS_Z_DHT22_2}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[2], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_3
                 memcpy(dht22_zn_rel_pos[3], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[3], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_3, CONFIG_SQUARE_POS_COL_DHT22_3}, sizeof(int8_t[2]));
+                memcpy(dht22_square_pos[3], (int8_t[]){CONFIG_SQUARE_POS_X_DHT22_3, CONFIG_SQUARE_POS_Y_DHT22_3}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_3
                 memcpy(dht22_zn_rel_pos[3], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_3, CONFIG_ZN_REL_POS_Y_DHT22_3, CONFIG_ZN_REL_POS_Z_DHT22_3}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[3], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_4
                 memcpy(dht22_zn_rel_pos[4], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[4], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_4, CONFIG_SQUARE_POS_COL_DHT22_4}, sizeof(int8_t[2]));
+                memcpy(dht22_square_pos[4], (int8_t[]){CONFIG_SQUARE_POS_X_DHT22_4, CONFIG_SQUARE_POS_Y_DHT22_4}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_4
                 memcpy(dht22_zn_rel_pos[4], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_4, CONFIG_ZN_REL_POS_Y_DHT22_4, CONFIG_ZN_REL_POS_Z_DHT22_4}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[4], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
 #endif
 #ifdef CONFIG_SQUARE_POS_DHT22_5
                 memcpy(dht22_zn_rel_pos[5], (int8_t[]){-1, -1, -1}, sizeof(int8_t[3]));
-                memcpy(dht22_square_pos[5], (int8_t[]){CONFIG_SQUARE_POS_ROW_DHT22_5, CONFIG_SQUARE_POS_COL_DHT22_5}, sizeof(int8_t[2]));
+                memcpy(dht22_square_pos[5], (int8_t[]){CONFIG_SQUARE_POS_X_DHT22_5, CONFIG_SQUARE_POS_Y_DHT22_5}, sizeof(int8_t[2]));
 #elif CONFIG_ZN_REL_POS_DHT22_5
                 memcpy(dht22_zn_rel_pos[5], (int8_t[]){CONFIG_ZN_REL_POS_X_DHT22_5, CONFIG_ZN_REL_POS_Y_DHT22_5, CONFIG_ZN_REL_POS_Z_DHT22_5}, sizeof(int8_t[3]));
                 memcpy(dht22_square_pos[5], (int8_t[]){-1, -2}, sizeof(int8_t[2]));
@@ -492,7 +492,7 @@ void initiate_config()
                 // one more as list start at index 1 with 0=null for sql sync
 
 #ifdef CONFIG_SQUARE_POS
-                int8_t square_pos[2] = {CONFIG_SQUARE_POS_ROW, CONFIG_SQUARE_POS_COL};
+                int8_t square_pos[2] = {CONFIG_SQUARE_POS_X, CONFIG_SQUARE_POS_Y};
                 int8_t zn_rel_pos[3] = {-1, -1, -1};
 
 #else
@@ -518,7 +518,7 @@ void initiate_config()
                     create_module_from_config(
                         "node",
                         CONFIG_GREENHOUSE_ID,
-                        CONFIG_ZONE_ID,
+                        CONFIG_ZONE_NUM,
                         zn_rel_pos,
                         square_pos,
                         CONFIG_MODULE_LOCATION,

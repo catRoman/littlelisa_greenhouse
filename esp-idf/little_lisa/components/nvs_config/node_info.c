@@ -88,8 +88,8 @@ char *node_info_get_module_info_json(void)
     cJSON_AddNumberToObject(module_info, "greenhouse_id", module_info_gt->greenhouse_id);
     cJSON_AddNumberToObject(module_info, "zone_id", module_info_gt->zone_id);
     cJSON_AddItemToObject(module_info, "square_pos", square_pos);
-    cJSON_AddNumberToObject(square_pos, "row", module_info_gt->square_pos[0]);
-    cJSON_AddNumberToObject(square_pos, "col", module_info_gt->square_pos[1]);
+    cJSON_AddNumberToObject(square_pos, "x", module_info_gt->square_pos[0]);
+    cJSON_AddNumberToObject(square_pos, "y", module_info_gt->square_pos[1]);
 
     cJSON_AddItemToObject(module_info, "zn_rel_pos", zn_rel_pos);
     cJSON_AddNumberToObject(zn_rel_pos, "x", module_info_gt->zn_rel_pos[0]);
@@ -127,8 +127,8 @@ char *node_info_get_module_info_json(void)
                     cJSON_AddNumberToObject(sensors[i], "pin", module_info_gt->sensor_config_arr[sensor]->sensor_pin_arr[i + 1]);
 
                     cJSON_AddItemToObject(sensors[i], "square_pos", square_pos_list[i]);
-                    cJSON_AddNumberToObject(square_pos_list[i], "row", module_info_gt->sensor_config_arr[sensor]->square_pos[i + 1][0]);
-                    cJSON_AddNumberToObject(square_pos_list[i], "col", module_info_gt->sensor_config_arr[sensor]->square_pos[i + 1][1]);
+                    cJSON_AddNumberToObject(square_pos_list[i], "x", module_info_gt->sensor_config_arr[sensor]->square_pos[i + 1][0]);
+                    cJSON_AddNumberToObject(square_pos_list[i], "y", module_info_gt->sensor_config_arr[sensor]->square_pos[i + 1][1]);
 
                     cJSON_AddItemToObject(sensors[i], "zn_rel_pos", zn_rel_pos_list[i]);
                     cJSON_AddNumberToObject(zn_rel_pos_list[i], "x", module_info_gt->sensor_config_arr[sensor]->zn_rel_pos[i + 1][0]);

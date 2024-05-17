@@ -127,7 +127,7 @@ begin
                 if not exists (
                     select 1
                     from controllers
-                    join modules on controllers.module_id = modules.module_id
+                    join modules on controllers.controller_id = modules.module_id
                     where modules.identifier = c_id)
                 then
                     raise exception 'node-controller issue: controller with identifier % does not exist, rollling back...', c_id;
@@ -135,7 +135,7 @@ begin
                     --get controller id for node table
                     begin
                         select controller_id into con_id
-                        from controllers join modules on controllers.module_id = modules.module_id
+                        from controllers join modules on controllers.controller_id = modules.module_id
                         where modules.identifier = c_id;
 
                         --add the node to the list

@@ -62,7 +62,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     cJSON_AddItemToObject(root, "greenhouse_info", greenhouse_info);
     // temp for now will retrieve from module info eventually
     cJSON_AddNumberToObject(greenhouse_info, "greenhouse_id", module_info_gt->greenhouse_id);
-    cJSON_AddNumberToObject(greenhouse_info, "zone_id", module_info_gt->zone_id);
+    cJSON_AddNumberToObject(greenhouse_info, "zone_num", module_info_gt->zone_id);
     //
     cJSON_AddItemToObject(root, "module_info", module_info);
 
@@ -90,8 +90,8 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     else
     {
         cJSON_AddItemToObject(module_info, "square_pos", module_square_pos);
-        cJSON_AddNumberToObject(module_square_pos, "row", sensor_data_recv->module_square_pos[0]);
-        cJSON_AddNumberToObject(module_square_pos, "col", sensor_data_recv->module_square_pos[1]);
+        cJSON_AddNumberToObject(module_square_pos, "x", sensor_data_recv->module_square_pos[0]);
+        cJSON_AddNumberToObject(module_square_pos, "y", sensor_data_recv->module_square_pos[1]);
     }
     if (sensor_data_recv->module_zn_rel_pos[0] < 0)
     {
@@ -127,9 +127,9 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     }
     else
     {
-        cJSON_AddItemToObject(module_info, "square_pos", sensor_square_pos);
-        cJSON_AddNumberToObject(sensor_square_pos, "row", sensor_data_recv->sensor_square_pos[0]);
-        cJSON_AddNumberToObject(sensor_square_pos, "col", sensor_data_recv->sensor_square_pos[1]);
+        cJSON_AddItemToObject(sensor_info, "square_pos", sensor_square_pos);
+        cJSON_AddNumberToObject(sensor_square_pos, "x", sensor_data_recv->sensor_square_pos[0]);
+        cJSON_AddNumberToObject(sensor_square_pos, "y", sensor_data_recv->sensor_square_pos[1]);
     }
     if (sensor_data_recv->sensor_zn_rel_pos[0] < 0)
     {
