@@ -108,6 +108,21 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
                     data_packet->total_values = sensor_data->total_values;
                     data_packet->local_sensor_id = sensor_data->local_sensor_id;
 
+                    // sensor_square_pos
+                    data_packet->sensor_square_pos[0] = sensor_data->sensor_square_pos[0];
+                    data_packet->sensor_square_pos[1] = sensor_data->sensor_square_pos[1];
+                    // sensor_sn_rel_pos
+                    data_packet->sensor_zn_rel_pos[0] = sensor_data->sensor_zn_rel_pos[0];
+                    data_packet->sensor_zn_rel_pos[1] = sensor_data->sensor_zn_rel_pos[1];
+                    data_packet->sensor_zn_rel_pos[2] = sensor_data->sensor_zn_rel_pos[2];
+                    // module_square_pos
+                    data_packet->module_square_pos[0] = sensor_data->module_square_pos[0];
+                    data_packet->module_square_pos[1] = sensor_data->module_square_pos[1];
+                    // module_zn_rel_pos
+                    data_packet->module_zn_rel_pos[0] = sensor_data->module_zn_rel_pos[0];
+                    data_packet->module_zn_rel_pos[1] = sensor_data->module_zn_rel_pos[1];
+                    data_packet->module_zn_rel_pos[2] = sensor_data->module_zn_rel_pos[2];
+
                     data_packet->timestamp = sensor_data->timestamp;
 
                     // TODO: mem error handling
@@ -363,6 +378,8 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
     // Calculate the size needed for serialization
 
     size_t total_size = sizeof(int8_t) * 3 +                 // pin_number, total_values, local_sensor_id
+                        sizeof(int8_t) * 4 +                 // sensor square pos/ module square pos
+                        sizeof(int8_t) * 6 +                 // sensor zn_rel pos/ module zn_rel pos
                         sizeof(Sensor_List) +                // sensor_type
                         sizeof(float) * data->total_values + // value array
                         sizeof(char) * SERIAL_STR_BUFF +     // location (including null terminator)
@@ -391,6 +408,32 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
     offset += sizeof(int8_t);
 
     memcpy(serialized_data + offset, &(data->local_sensor_id), sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    // sensor sqr pos
+    memcpy(serialized_data + offset, &(data->sensor_square_pos[0]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(serialized_data + offset, &(data->sensor_square_pos[1]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    // module sqr pos
+    memcpy(serialized_data + offset, &(data->module_square_pos[0]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(serialized_data + offset, &(data->module_square_pos[1]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    // sensor zn rel pos
+    memcpy(serialized_data + offset, &(data->sensor_zn_rel_pos[0]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(serialized_data + offset, &(data->sensor_zn_rel_pos[1]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(serialized_data + offset, &(data->sensor_zn_rel_pos[2]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    // module zn rel pos
+    memcpy(serialized_data + offset, &(data->module_zn_rel_pos[0]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(serialized_data + offset, &(data->module_zn_rel_pos[1]), sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(serialized_data + offset, &(data->module_zn_rel_pos[2]), sizeof(int8_t));
     offset += sizeof(int8_t);
 
     memcpy(serialized_data + offset, &(data->sensor_type), sizeof(Sensor_List));
@@ -444,6 +487,31 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     offset += sizeof(int8_t);
 
     memcpy(&(deserialized_data->local_sensor_id), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    // sensor sq pos
+    memcpy(&(deserialized_data->sensor_square_pos[0]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->sensor_square_pos[1]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    // module sq pos
+    memcpy(&(deserialized_data->module_square_pos[0]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->module_square_pos[1]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    // sensor zn rel
+    memcpy(&(deserialized_data->sensor_zn_rel_pos[0]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->sensor_zn_rel_pos[1]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->sensor_zn_rel_pos[2]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    // module zn rel
+    memcpy(&(deserialized_data->module_zn_rel_pos[0]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->module_zn_rel_pos[1]), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+    memcpy(&(deserialized_data->module_zn_rel_pos[2]), serialized_data + offset, sizeof(int8_t));
     offset += sizeof(int8_t);
 
     memcpy(&(deserialized_data->sensor_type), serialized_data + offset, sizeof(Sensor_List));

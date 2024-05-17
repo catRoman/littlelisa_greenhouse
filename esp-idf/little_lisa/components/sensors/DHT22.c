@@ -106,6 +106,22 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 		data_packet->total_values = 2;
 		data_packet->local_sensor_id = sensor_t->local_sensor_id;
 		data_packet->module_id = (char *)malloc(strlen(sensor_t->module_id) + 1);
+
+		// sensor_square_pos
+		data_packet->sensor_square_pos[0] = sensor_t->sensor_square_pos[0];
+		data_packet->sensor_square_pos[1] = sensor_t->sensor_square_pos[1];
+		// sensor_sn_rel_pos
+		data_packet->sensor_zn_rel_pos[0] = sensor_t->sensor_zn_rel_pos[0];
+		data_packet->sensor_zn_rel_pos[1] = sensor_t->sensor_zn_rel_pos[1];
+		data_packet->sensor_zn_rel_pos[2] = sensor_t->sensor_zn_rel_pos[2];
+		// module_square_pos
+		data_packet->module_square_pos[0] = sensor_t->module_square_pos[0];
+		data_packet->module_square_pos[1] = sensor_t->module_square_pos[1];
+		// module_zn_rel_pos
+		data_packet->module_zn_rel_pos[0] = sensor_t->module_zn_rel_pos[0];
+		data_packet->module_zn_rel_pos[1] = sensor_t->module_zn_rel_pos[1];
+		data_packet->module_zn_rel_pos[2] = sensor_t->module_zn_rel_pos[2];
+
 		if (data_packet->module_id == NULL)
 		{
 			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_id");

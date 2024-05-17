@@ -684,6 +684,21 @@ esp_err_t initiate_sensor_tasks()
 
                         local_sensor[sensor_id - 1]->timestamp = 0;
 
+                        // sensor_square_pos
+                        local_sensor[sensor_id - 1]->sensor_square_pos[0] = module_info_gt->sensor_config_arr[sensor_type]->square_pos[sensor_id][0];
+                        local_sensor[sensor_id - 1]->sensor_square_pos[1] = module_info_gt->sensor_config_arr[sensor_type]->square_pos[sensor_id][1];
+                        // sensor_sn_rel_pos
+                        local_sensor[sensor_id - 1]->sensor_zn_rel_pos[0] = module_info_gt->sensor_config_arr[sensor_type]->zn_rel_pos[sensor_id][0];
+                        local_sensor[sensor_id - 1]->sensor_zn_rel_pos[1] = module_info_gt->sensor_config_arr[sensor_type]->zn_rel_pos[sensor_id][1];
+                        local_sensor[sensor_id - 1]->sensor_zn_rel_pos[2] = module_info_gt->sensor_config_arr[sensor_type]->zn_rel_pos[sensor_id][2];
+                        // module_square_pos
+                        local_sensor[sensor_id - 1]->module_square_pos[0] = module_info_gt->square_pos[0];
+                        local_sensor[sensor_id - 1]->module_square_pos[1] = module_info_gt->square_pos[1];
+                        // module_zn_rel_pos
+                        local_sensor[sensor_id - 1]->module_zn_rel_pos[0] = module_info_gt->zn_rel_pos[0];
+                        local_sensor[sensor_id - 1]->module_zn_rel_pos[1] = module_info_gt->zn_rel_pos[1];
+                        local_sensor[sensor_id - 1]->module_zn_rel_pos[2] = module_info_gt->zn_rel_pos[2];
+
                         // TODO:map local sensor id to unique sensortype id so to better be applyed to debug page
                         switch (sensor_type)
                         {
