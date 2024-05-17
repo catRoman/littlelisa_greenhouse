@@ -447,7 +447,7 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
         char **serialized_split_loc = splits_string('|', serialized_sensor_str_arr[i], &numBracketDivisions);
         for (int j = 0; j < numBracketDivisions; j++)
         {
-            printf("%s\n", serialized_split_loc[j]);
+            // printf("%s\n", serialized_split_loc[j]);
             //  printf("\t%s\n", serialized_split_loc[j]); //prints locationcombined with pin num serialized
             char **serialized_split_arr_data = splits_string(';', serialized_split_loc[j], &numSemiColinDivsions);
             if (j == 0)
@@ -474,7 +474,7 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
                 else if (j == 2) // sqaure_pos arr
                 {
                     char **serialized_split_pos = splits_string('*', serialized_split_arr_data[k], &numStarDivsions);
-                    printf("arr->%s\n", serialized_split_arr_data[k]);
+                    // printf("arr->%s\n", serialized_split_arr_data[k]);
                     for (int l = 0; l < numStarDivsions; l++)
                     {
                         // printf("->aquare_sting->%s\n", serialized_split_pos[l]);
@@ -488,7 +488,7 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
                 {
                     // printf("%s", serialized_split_loc[j]);
                     char **serialized_split_pos = splits_string('*', serialized_split_arr_data[k], &numStarDivsions);
-                    printf("arr->%s\n", serialized_split_arr_data[k]);
+                    // printf("arr->%s\n", serialized_split_arr_data[k]);
                     for (int l = 0; l < numStarDivsions; l++)
                     {
                         //  printf("->zn_sting->%s\n", serialized_split_pos[l]);
