@@ -82,10 +82,10 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     cJSON_AddStringToObject(module_info, "identifier", sensor_data_recv->module_id);
     cJSON_AddStringToObject(module_info, "location", sensor_data_recv->module_location); //<== here
 
-    // TODO:need to come from sensor_dat_recv :(
     if (sensor_data_recv->module_square_pos[0] < 0)
     {
         cJSON_AddItemToObject(module_info, "square_pos", cJSON_CreateNull());
+        cJSON_Delete(module_square_pos);
     }
     else
     {
@@ -96,6 +96,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     if (sensor_data_recv->module_zn_rel_pos[0] < 0)
     {
         cJSON_AddItemToObject(module_info, "zn_rel_pos", cJSON_CreateNull());
+        cJSON_Delete(module_zn_rel_pos);
     }
     else
     {
@@ -118,10 +119,11 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
 
     cJSON *sensor_square_pos = cJSON_CreateObject();
     cJSON *sensor_zn_rel_pos = cJSON_CreateObject();
-    // TODO:needs to come from sensor_recv :(
+
     if (sensor_data_recv->sensor_square_pos[0] < -0)
     {
         cJSON_AddItemToObject(sensor_info, "square_pos", cJSON_CreateNull());
+        cJSON_Delete(sensor_square_pos);
     }
     else
     {
@@ -132,6 +134,7 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
     if (sensor_data_recv->sensor_zn_rel_pos[0] < 0)
     {
         cJSON_AddItemToObject(sensor_info, "zn_rel_pos", cJSON_CreateNull());
+        cJSON_Delete(sensor_zn_rel_pos);
     }
     else
     {

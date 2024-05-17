@@ -368,10 +368,10 @@ void sensor_post_processing_task(void *pvParameters)
             event->sensor_data->timestamp = currentTime;
 
             // debug senor data to console
-            char *log_string = create_sensor_data_json(event->sensor_data);
-            ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
-            free(log_string);
-            log_string = NULL;
+            // char *log_string = create_sensor_data_json(event->sensor_data);
+            // ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
+            // free(log_string);
+            // log_string = NULL;
 
             // prepare to send to multiple tasks for furter proccessing
 
@@ -603,6 +603,16 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             event->sensor_data->location = NULL;
             free(event->sensor_data->module_location);
             event->sensor_data->module_location = NULL;
+
+            //  free(event->sensor_data->sensor_square_pos);
+            // event->sensor_data->sensor_square_pos = NULL;
+            // free(event->sensor_data->sensor_zn_rel_pos);
+            // event->sensor_data->sensor_zn_rel_pos = NULL;
+            // free(event->sensor_data->module_square_pos);
+            //    event->sensor_data->module_square_pos = NULL;
+            // free(event->sensor_data->module_zn_rel_pos);
+            //   event->sensor_data->module_location = NULL;
+
             free(event->sensor_data->module_type);
             event->sensor_data->module_type = NULL;
             free(event->sensor_data->module_id);
