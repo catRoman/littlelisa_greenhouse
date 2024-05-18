@@ -166,8 +166,8 @@ void http_client_get_test(char *url)
         esp_http_client_cleanup(client);
     }
 }
-
-#define MAX_RETRIES 300
+// TODO: not using this in pipeline remove?
+#define MAX_RETRIES 3
 void post_sensor_data_backend(const char *sensor_json)
 {
     // esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
@@ -175,6 +175,9 @@ void post_sensor_data_backend(const char *sensor_json)
     esp_http_client_config_t config = {
         .url = BACKEND_URL,
         .method = HTTP_METHOD_POST,
+        .keep_alive_enable = true,
+        .timeout_ms = 300,
+        .keep_alive_interval = 30
 
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
@@ -187,22 +190,22 @@ void post_sensor_data_backend(const char *sensor_json)
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, sensor_json, strlen(sensor_json));
     int retries = 0;
-    do
+    // do
+    //{
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK)
     {
-        esp_err_t err = esp_http_client_perform(client);
-        if (err == ESP_OK)
-        {
-            ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
-                     esp_http_client_get_status_code(client),
-                     esp_http_client_get_content_length(client));
-        }
-        else
-        {
-            ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
-            vTaskDelay((1 << retries) * 1000 / portTICK_PERIOD_MS);
-            ESP_LOGE("HTTP_CLIENT", "retring post: retry: %d", retries);
-        }
-    } while (++retries < MAX_RETRIES);
+        ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
+                 esp_http_client_get_status_code(client),
+                 esp_http_client_get_content_length(client));
+    }
+    else
+    {
+        ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed here: %s", esp_err_to_name(err));
+        //      vTaskDelay((1 << retries) * 1000 / portTICK_PERIOD_MS);
+        //    ESP_LOGE("HTTP_CLIENT", "retring post: retry: %d", retries);
+    }
+    //} while (++retries < MAX_RETRIES);
 
     free(sensor_json);
     // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);

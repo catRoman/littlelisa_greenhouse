@@ -14,7 +14,8 @@ idf_component_register(
         main
         esp_wifi
         app_update
-        
+
+
 
 
     PRIV_REQUIRES

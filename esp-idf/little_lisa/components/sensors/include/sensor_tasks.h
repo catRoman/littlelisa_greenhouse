@@ -14,6 +14,7 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 #include "esp_err.h"
+#include "esp_http_client.h"
 #include <time.h>
 
 typedef enum Sensor_List
@@ -78,5 +79,6 @@ void sensor_send_to_sd_db_task(void *pvParameters);
 void sensor_send_to_server_db_task(void *pvParameters);
 void sensor_queue_mem_cleanup_task(void *pvParameters);
 void sensor_send_to_websocket_server_task(void *pvParameters);
+esp_http_client_handle_t initialize_http_client(void);
 
 #endif
