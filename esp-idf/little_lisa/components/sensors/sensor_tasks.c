@@ -488,26 +488,56 @@ void sensor_send_to_sd_db_task(void *pvParameters)
         }
     }
 }
-
-void sensor_send_to_server_task(void *pvParameters)
+esp_http_client_handle_t initialize_http_client()
 {
-    sensor_queue_wrapper_t *event;
-
+    char *url = BACKEND_URL;
     //====================================
     esp_http_client_config_t config = {
-        .url = BACKEND_URL,
+        .url = url,
         .method = HTTP_METHOD_POST,
-        .keep_alive_enable = true,
-        .keep_alive_interval = 35000};
-
+        .keep_alive_enable = false,
+        .timeout_ms = 5000,
+        //.event_handler = client_event_post_handler
+    };
+    //=====================
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (client == NULL)
     {
         ESP_LOGE("HTTP_CLIENT", "Failed to initialize HTTP client");
     }
-    esp_http_client_set_header(client, "Content-Type", "application/json");
-    //=====================
+    else
+    {
 
+        esp_http_client_set_header(client, "Content-Type", "application/json");
+    }
+    return client;
+}
+
+static SemaphoreHandle_t client_mutex = NULL;
+void sensor_send_to_server_task(void *pvParameters)
+{
+    if (!client_mutex)
+    {
+        client_mutex = xSemaphoreCreateMutex();
+    }
+    sensor_queue_wrapper_t *event;
+    // char *url = BACKEND_URL;
+    // //====================================
+    // esp_http_client_config_t config = {
+    //     .url = url,
+    //     .method = HTTP_METHOD_POST,
+    //     .keep_alive_enable = false,
+    //     .timeout_ms = 5000,
+    //     //.event_handler = client_event_post_handler
+    // };
+    // //=====================
+    // esp_http_client_handle_t client = esp_http_client_init(&config);
+    // if (client == NULL)
+    // {
+    //     ESP_LOGE("HTTP_CLIENT", "Failed to initialize HTTP client");
+    // }
+    // esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_http_client_handle_t client = initialize_http_client();
     for (;;)
     {
         if (xQueueReceive(sensor_send_to_server_handle, &event, portMAX_DELAY) == pdTRUE)
@@ -527,27 +557,45 @@ void sensor_send_to_server_task(void *pvParameters)
                 // ESP_LOGW("send-server-mem", "allocated at %p", sensor_data_json);
                 if (sensor_data_json != NULL)
                 {
-                    //===============================================
-
-                    esp_http_client_set_post_field(client, sensor_data_json, strlen(sensor_data_json));
-                    esp_err_t err = esp_http_client_perform(client);
-                    if (err == ESP_OK)
+                    if (xSemaphoreTake(client_mutex, portMAX_DELAY) == pdTRUE)
                     {
-                        ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
-                                 esp_http_client_get_status_code(client),
-                                 esp_http_client_get_content_length(client));
+                        //===============================================
+                        ESP_LOGE("HTTP_CLIENT", "mutex taken by module->%s-id:%d-%s->send_id:%d", event->sensor_data->module_id,
+                                 event->sensor_data->local_sensor_id,
+                                 sensor_type_to_string(event->sensor_data->sensor_type),
+                                 event->current_send_id);
+                        esp_http_client_set_post_field(client, sensor_data_json, strlen(sensor_data_json));
+                        esp_err_t err = esp_http_client_perform(client);
+                        if (err == ESP_OK)
+                        {
+                            ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
+                                     esp_http_client_get_status_code(client),
+                                     esp_http_client_get_content_length(client));
+                        }
+                        else
+                        {
+                            ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed here: %s", esp_err_to_name(err));
+
+                            esp_http_client_cleanup(client);
+                            // // retry_count++;
+                            ESP_LOGI("http_TAG", "Retrying... ");
+                            vTaskDelay(pdMS_TO_TICKS(1000)); // wait for 1 second before retrying
+                            client = initialize_http_client();
+                            // esp_http_client_set_header(client, "Content-Type", "application/json");
+                        }
+
+                        free(sensor_data_json);
+                        // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);
+                        sensor_data_json = NULL;
+
+                        //============================================
+                        xSemaphoreGive(client_mutex);
+                        ESP_LOGE("HTTP_CLIENT", "mutex gievn");
                     }
                     else
                     {
-                        ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
+                        ESP_LOGE("HTTP_CLIENT", "mutex error");
                     }
-
-                    free(sensor_data_json);
-                    // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);
-                    sensor_data_json = NULL;
-
-                    //============================================
-
                     // post_sensor_data_backend(sensor_data_json);
                     ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sensor data sent posting to servers",
                              event->sensor_data->module_id,
@@ -559,6 +607,7 @@ void sensor_send_to_server_task(void *pvParameters)
                     //     free(sensor_data_json);
                     // }
                     // ESP_LOGW("send-to-server-after-post", "free min size:%lu", esp_get_free_heap_size());
+                    // esp_http_client_cleanup(client);
                     vTaskDelay(pdMS_TO_TICKS(500));
                 }
             }
@@ -568,6 +617,7 @@ void sensor_send_to_server_task(void *pvParameters)
             // ESP_LOGW("send-to-server-end", "free min size:%lu", esp_get_free_heap_size());
             taskYIELD();
         }
+
         // esp_http_client_cleanup(client);
     }
 }

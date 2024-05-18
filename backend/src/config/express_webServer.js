@@ -11,7 +11,7 @@ import path from "path";
 //=======================================
 // buffer for esp cam stream
 //=================================
-
+// const connectedSockets = [];
 class CamBuffer extends EventEmitter {
   constructor(initialData) {
     super();
@@ -132,6 +132,16 @@ export function startWebServer() {
   });
   //recieve sensor json from esp
   webApp.post("/api/sensorStream", async (req, res) => {
+    // connectedSockets.push(res.socket);
+
+    // req.on("close", () => {
+    //   // Remove the socket from the array when the connection is closed
+    //   const index = connectedSockets.indexOf(res.socket);
+    //   if (index > -1) {
+    //     connectedSockets.splice(index, 1);
+    //   }
+    // });
+
     try {
       const sensorData = req.body;
       // debug logging incoming sensor data
@@ -154,3 +164,31 @@ export function startWebServer() {
 
   return webApp;
 }
+
+// process.on("SIGINT", () => {
+//   console.log("Received SIGINT. Shutting down gracefully...");
+//   shutdownServer();
+// });
+
+// process.on("SIGTERM", () => {
+//   console.log("Received SIGTERM. Shutting down gracefully...");
+//   shutdownServer();
+// });
+
+// async function shutdownServer() {
+//   // ... (your other shutdown logic, e.g., closing DB connections) ...
+
+//   // Close any active connections with 'Connection: close' header
+//   connectedSockets.forEach((socket) => {
+//     if (!socket.destroyed) {
+//       socket.setKeepAlive(false); // Optional: Disable keep-alive
+//       socket.set("Connection", "close"); // Set the header
+//       socket.end(); // Close the connection
+//     }
+//   });
+
+//   // Wait for a short period to allow in-flight requests to complete
+//   await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+
+//   process.exit(0);
+// }
