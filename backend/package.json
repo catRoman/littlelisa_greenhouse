@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "express webserver, serial communication and postgresql database integration for esp32 enabled automated greenhouse webapp",
   "main": "index.js",
-  "type":"module",
+  "type": "module",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "migrate": "node-pg-migrate"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "config": "^3.3.11",
     "express": "^4.18.2",
     "node-fetch": "^3.3.2",
+    "node-pg-migrate": "^7.3.2",
     "pg": "^8.11.5"
   }
 }
