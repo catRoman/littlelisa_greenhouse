@@ -61,8 +61,8 @@ char *create_sensor_data_json(sensor_data_t *sensor_data_recv)
 
     cJSON_AddItemToObject(root, "greenhouse_info", greenhouse_info);
     // temp for now will retrieve from module info eventually
-    cJSON_AddNumberToObject(greenhouse_info, "greenhouse_id", module_info_gt->greenhouse_id);
-    cJSON_AddNumberToObject(greenhouse_info, "zone_num", module_info_gt->zone_id);
+    cJSON_AddNumberToObject(greenhouse_info, "greenhouse_id", sensor_data_recv->greenhouse_id);
+    cJSON_AddNumberToObject(greenhouse_info, "zone_num", sensor_data_recv->zone_num);
     //
     cJSON_AddItemToObject(root, "module_info", module_info);
 

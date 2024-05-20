@@ -20,7 +20,7 @@
 #define NVS_MODULE_NAMESPACE "module_info"
 
 #define NVS_MODULE_GREENHOUSE_ID_INDEX "greenhouse_id"
-#define NVS_MODULE_ZONE_ID_INDEX "zone_id"
+#define NVS_MODULE_ZONE_NUM_INDEX "zone_num"
 #define NVS_MODULE_TYPE_INDEX "module_type"
 #define NVS_MODULE_LOCATION_INDEX "module_location"
 #define NVS_MODULE_IDENTIFIER_INDEX "module_ident"
@@ -87,7 +87,7 @@ void nvs_erase(void);
 
 esp_err_t nvs_get_module_info(Module_info_t *module_info);
 
-void nvs_set_module(int8_t greenhouse_id, int8_t zone_id, int8_t square_pos[2], int8_t zn_rel_pos[3], char *module_type, char *module_location, char *moduleNum);
+void nvs_set_module(int8_t greenhouse_id, int8_t zone_num, int8_t square_pos[2], int8_t zn_rel_pos[3], char *module_type, char *module_location, char *moduleNum);
 
 esp_err_t nvs_get_sensor_arr(int8_t **sensor_arr, int8_t *arrLength);
 

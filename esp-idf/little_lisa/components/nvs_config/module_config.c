@@ -541,7 +541,7 @@ void initiate_config()
 
                 nvs_set_module(
                     module_info_gt->greenhouse_id,
-                    module_info_gt->zone_id,
+                    module_info_gt->zone_num,
                     module_info_gt->square_pos,
                     module_info_gt->zn_rel_pos,
                     module_info_gt->type,
@@ -801,7 +801,7 @@ Module_info_t *create_module_from_NVS()
         created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
 
         created_module->greenhouse_id = temp_module.greenhouse_id;
-        created_module->zone_id = temp_module.zone_id;
+        created_module->zone_num = temp_module.zone_num;
 
         created_module->square_pos[0] = temp_module.square_pos[0];
         created_module->square_pos[1] = temp_module.square_pos[1];
@@ -852,7 +852,7 @@ Module_info_t *create_module_from_NVS()
 Module_info_t *create_module_from_config(char *type,
 
                                          int8_t greenhouse_id,
-                                         int8_t zone_id,
+                                         int8_t zone_num,
                                          int8_t zn_rel_pos[3],
                                          int8_t square_pos[2],
                                          char *location,
@@ -870,7 +870,7 @@ Module_info_t *create_module_from_config(char *type,
         created_module->sensor_arr = (int8_t *)malloc(sizeof(int8_t) * SENSOR_LIST_TOTAL);
 
         created_module->greenhouse_id = greenhouse_id;
-        created_module->zone_id = zone_id;
+        created_module->zone_num = zone_num;
 
         created_module->square_pos[0] = square_pos[0];
         created_module->square_pos[1] = square_pos[1];

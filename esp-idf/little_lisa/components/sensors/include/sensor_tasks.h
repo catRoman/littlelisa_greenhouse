@@ -30,6 +30,8 @@ typedef enum Sensor_List
 
 typedef struct sensor_data_t
 {
+    int8_t greenhouse_id;
+    int8_t zone_num;
     int8_t pin_number;
     Sensor_List sensor_type;
     float *value;

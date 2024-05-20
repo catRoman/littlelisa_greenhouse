@@ -190,16 +190,16 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info)
         return err;
     }
 
-    // greenhouse and zone_id
+    // greenhouse and zone_num
 
     int8_t greenhouse_id;
     err = nvs_get_i8(nvs_module_handle, NVS_MODULE_GREENHOUSE_ID_INDEX, &greenhouse_id);
     module_info->greenhouse_id = greenhouse_id;
 
-    int8_t zone_id;
+    int8_t zone_num;
 
-    err = nvs_get_i8(nvs_module_handle, NVS_MODULE_ZONE_ID_INDEX, &zone_id);
-    module_info->zone_id = zone_id;
+    err = nvs_get_i8(nvs_module_handle, NVS_MODULE_ZONE_NUM_INDEX, &zone_num);
+    module_info->zone_num = zone_num;
 
     // sqaure pos and sn_rel_pos arrays
     // square_pos
@@ -237,7 +237,7 @@ esp_err_t nvs_get_module_info(Module_info_t *module_info)
     return err;
 }
 
-void nvs_set_module(int8_t greenhouse_id, int8_t zone_id, int8_t square_pos[2], int8_t zn_rel_pos[3], char *module_type, char *module_location, char *moduleNum)
+void nvs_set_module(int8_t greenhouse_id, int8_t zone_num, int8_t square_pos[2], int8_t zn_rel_pos[3], char *module_type, char *module_location, char *moduleNum)
 {
 
     if (nvs_open(NVS_MODULE_NAMESPACE, NVS_READWRITE, &nvs_module_handle) == ESP_OK)
@@ -248,7 +248,7 @@ void nvs_set_module(int8_t greenhouse_id, int8_t zone_id, int8_t square_pos[2], 
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_LOCATION_INDEX, module_location));
     ESP_ERROR_CHECK(nvs_set_str(nvs_module_handle, NVS_MODULE_IDENTIFIER_INDEX, moduleNum));
     ESP_ERROR_CHECK(nvs_set_i8(nvs_module_handle, NVS_MODULE_GREENHOUSE_ID_INDEX, greenhouse_id));
-    ESP_ERROR_CHECK(nvs_set_i8(nvs_module_handle, NVS_MODULE_ZONE_ID_INDEX, zone_id));
+    ESP_ERROR_CHECK(nvs_set_i8(nvs_module_handle, NVS_MODULE_ZONE_NUM_INDEX, zone_num));
     ESP_ERROR_CHECK(nvs_set_blob(nvs_module_handle, NVS_MODULE_SQUARE_POS_INDEX, square_pos, sizeof(int8_t) * 2));
     ESP_ERROR_CHECK(nvs_set_blob(nvs_module_handle, NVS_MODULE_ZN_REL_POS_INDEX, zn_rel_pos, sizeof(int8_t) * 3));
 
@@ -454,7 +454,7 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
             {
                 sensor_config_arr[i]->sensor_loc_arr = (char **)malloc(sizeof(char *) * numSemiColinDivsions);
                 sensor_config_arr[i]->sensor_pin_arr = (int8_t *)malloc(sizeof(int8_t) * numSemiColinDivsions);
-                sensor_config_arr[i]->square_pos = (int8_t(*)[3])malloc(sizeof(int8_t[2]) * numSemiColinDivsions);
+                sensor_config_arr[i]->square_pos = (int8_t(*)[2])malloc(sizeof(int8_t[2]) * numSemiColinDivsions);
                 sensor_config_arr[i]->zn_rel_pos = (int8_t(*)[3])malloc(sizeof(int8_t[3]) * numSemiColinDivsions);
                 sensor_config_arr[i]->total_sensor = numSemiColinDivsions;
             }

@@ -86,7 +86,7 @@ char *node_info_get_module_info_json(void)
     cJSON_AddStringToObject(module_info, "location", module_info_gt->location);
     cJSON_AddStringToObject(module_info, "identifier", module_info_gt->identity);
     cJSON_AddNumberToObject(module_info, "greenhouse_id", module_info_gt->greenhouse_id);
-    cJSON_AddNumberToObject(module_info, "zone_id", module_info_gt->zone_id);
+    cJSON_AddNumberToObject(module_info, "zone_num", module_info_gt->zone_num);
     cJSON_AddItemToObject(module_info, "square_pos", square_pos);
     cJSON_AddNumberToObject(square_pos, "x", module_info_gt->square_pos[0]);
     cJSON_AddNumberToObject(square_pos, "y", module_info_gt->square_pos[1]);

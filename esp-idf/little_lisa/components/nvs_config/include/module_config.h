@@ -21,7 +21,7 @@ typedef struct Module_info_t
     char *location;
     char *identity;
     int8_t greenhouse_id;
-    int8_t zone_id;
+    int8_t zone_num;
     int8_t zn_rel_pos[3];
     int8_t square_pos[2];
     int8_t *sensor_arr;
@@ -40,7 +40,7 @@ void freeModuleSensorConfig(Module_sensor_config_t *config);
 
 Module_info_t *create_module_from_config(char *type,
                                          int8_t greenhouse_id,
-                                         int8_t zone_id,
+                                         int8_t zone_num,
                                          int8_t zn_rel_pos[3],
                                          int8_t square_pos[2],
                                          char *location,
