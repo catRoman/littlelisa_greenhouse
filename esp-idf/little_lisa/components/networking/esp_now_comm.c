@@ -107,6 +107,8 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
                     data_packet->sensor_type = sensor_data->sensor_type;
                     data_packet->total_values = sensor_data->total_values;
                     data_packet->local_sensor_id = sensor_data->local_sensor_id;
+                    data_packet->zone_num = sensor_data->zone_num;
+                    data_packet->greenhouse_id = sensor_data->greenhouse_id;
 
                     // sensor_square_pos
                     data_packet->sensor_square_pos[0] = sensor_data->sensor_square_pos[0];
@@ -377,7 +379,7 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
 {
     // Calculate the size needed for serialization
 
-    size_t total_size = sizeof(int8_t) * 3 +                 // pin_number, total_values, local_sensor_id
+    size_t total_size = sizeof(int8_t) * 5 +                 // pin_number, total_values, local_sensor_id, zone_num, greenhouse_id
                         sizeof(int8_t) * 4 +                 // sensor square pos/ module square pos
                         sizeof(int8_t) * 6 +                 // sensor zn_rel pos/ module zn_rel pos
                         sizeof(Sensor_List) +                // sensor_type
@@ -408,6 +410,12 @@ uint8_t *serialize_sensor_data(const sensor_data_t *data, size_t *size)
     offset += sizeof(int8_t);
 
     memcpy(serialized_data + offset, &(data->local_sensor_id), sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    memcpy(serialized_data + offset, &(data->zone_num), sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    memcpy(serialized_data + offset, &(data->greenhouse_id), sizeof(int8_t));
     offset += sizeof(int8_t);
 
     // sensor sqr pos
@@ -487,6 +495,12 @@ sensor_data_t *deserialize_sensor_data(const uint8_t *serialized_data, size_t si
     offset += sizeof(int8_t);
 
     memcpy(&(deserialized_data->local_sensor_id), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    memcpy(&(deserialized_data->zone_num), serialized_data + offset, sizeof(int8_t));
+    offset += sizeof(int8_t);
+
+    memcpy(&(deserialized_data->greenhouse_id), serialized_data + offset, sizeof(int8_t));
     offset += sizeof(int8_t);
 
     // sensor sq pos
