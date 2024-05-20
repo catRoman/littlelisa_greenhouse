@@ -560,10 +560,10 @@ void sensor_send_to_server_task(void *pvParameters)
                     if (xSemaphoreTake(client_mutex, portMAX_DELAY) == pdTRUE)
                     {
                         //===============================================
-                        ESP_LOGE("HTTP_CLIENT", "mutex taken by module->%s-id:%d-%s->send_id:%d", event->sensor_data->module_id,
-                                 event->sensor_data->local_sensor_id,
-                                 sensor_type_to_string(event->sensor_data->sensor_type),
-                                 event->current_send_id);
+                        // ESP_LOGE("HTTP_CLIENT", "mutex taken by module->%s-id:%d-%s->send_id:%d", event->sensor_data->module_id,
+                        //          event->sensor_data->local_sensor_id,
+                        //          sensor_type_to_string(event->sensor_data->sensor_type),
+                        //          event->current_send_id);
                         esp_http_client_set_post_field(client, sensor_data_json, strlen(sensor_data_json));
                         esp_err_t err = esp_http_client_perform(client);
                         if (err == ESP_OK)
@@ -590,7 +590,7 @@ void sensor_send_to_server_task(void *pvParameters)
 
                         //============================================
                         xSemaphoreGive(client_mutex);
-                        ESP_LOGE("HTTP_CLIENT", "mutex gievn");
+                        // ESP_LOGE("HTTP_CLIENT", "mutex gievn");
                     }
                     else
                     {
