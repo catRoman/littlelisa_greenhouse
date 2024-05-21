@@ -4,7 +4,7 @@ import helmet from "helmet";
 
 import camRoutes from "../../../../streaming/camRoutes.js";
 import sensorDataRoutes from "../../routes/sensorDataRoutes.js";
-import userRoutes from "../../routes/userRoutes.js"
+import userRoutes from "../../routes/userRoutes.js";
 
 export function startWebServer() {
   const app = express();
@@ -12,7 +12,7 @@ export function startWebServer() {
   // Middleware
   app.use(helmet());
   app.use(json());
-  app.use(urlencoded());
+  app.use(urlencoded({ extended: true }));
 
   // Serve static files
   app.use("/", express.static("public"));
