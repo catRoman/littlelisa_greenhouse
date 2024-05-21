@@ -1,12 +1,12 @@
 import zonesRepo from "../repos/zoneRepo.js";
 
-const getAllZones = async (userId) => {
-  const zones = await zonesRepo.getAllByParentId(userId);
+const getAllZones = async (greenhouseId) => {
+  const zones = await zonesRepo.getAllByParentId(greenhouseId);
   return zones || null;
 };
 
-const getZoneById = async (userId, zoneId) => {
-  const zone = await zonesRepo.getById(userId, zoneId);
+const getZoneById = async (greenhouseId, zoneId) => {
+  const zone = await zonesRepo.getById(greenhouseId, zoneId);
   return zone || null;
 };
 
