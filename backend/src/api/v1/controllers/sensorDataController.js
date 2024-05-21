@@ -1,4 +1,4 @@
-import { handleSensorData } from "../../../services/pg_db.js";
+import { handleSensorData } from "../services/pg_db.js";
 
 export const sensorDataStream = async (req, res) => {
     try {
