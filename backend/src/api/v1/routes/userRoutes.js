@@ -1,12 +1,13 @@
 import { Router } from "express";
 import userController from "../controllers/userController.js";
 import greenhouseRoutes from "../routes/greenhouseRoutes.js";
-import addParentId from "../Middleware/addParentId.js";
+import validateParamId from "../Middleware/validateParamId.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
+router.param("userId", validateParamId("users"));
 
 router.get("/users", userController.getAllUsers);
-router.get("/users/:id", userController.getUserById);
+router.get("/users/:userId", userController.getUserById);
 
-router.use("/users/:id/greenhouses", addParentId, greenhouseRoutes);
+router.use("/users/:userId/greenhouses", greenhouseRoutes);
 export default router;

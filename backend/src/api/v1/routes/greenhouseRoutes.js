@@ -1,13 +1,14 @@
 import { Router } from "express";
 import greenhouseController from "../controllers/greenhouseController.js";
-import addParentId from "../Middleware/addParentId.js";
 import zoneRoutes from "./zoneRoutes.js";
+import validateParamId from "../Middleware/validateParamId.js";
 
-const router = Router();
+const router = Router({ mergeParams: true });
+router.param("greenhouseId", validateParamId("greenhouses"));
 
 router.get("/", greenhouseController.getAllGreenhouses);
-router.get("/:id", greenhouseController.getGreenhouseById);
+router.get("/:greenhouseId", greenhouseController.getGreenhouseById);
 
-router.use("/:id/zones", addParentId, zoneRoutes);
+router.use("/:greenhouseId/zones", zoneRoutes);
 
 export default router;

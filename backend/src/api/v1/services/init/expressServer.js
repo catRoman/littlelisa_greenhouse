@@ -14,16 +14,16 @@ export function startWebServer() {
   app.use(json());
   app.use(urlencoded({ extended: true }));
 
-  // Serve static files
   app.use("/", express.static("public"));
-
-  // Use the streaming routes with the /api prefix
   app.use("/api/cam", camRoutes);
 
-  // Use the sensor routes with the /api prefix
-  // app.use('/api/data', sensorDataRoutes);
   app.use("/api", sensorDataRoutes);
   app.use("/api", userRoutes);
+
+  app.use((err, req, res, next) => {
+    //console.error("Error stack:", err.stack);
+    res.status(err.status || 500).json({ error: err.message });
+  });
 
   const PORT = config.get("web.port");
   const SERVER_IP = config.get("web.serverIp");

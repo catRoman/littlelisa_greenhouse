@@ -12,14 +12,11 @@ const getAllUsers = async (req, res, next) => {
 
 const getUserById = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.params.userId;
     const user = await usersService.getUserById(userId);
     console.log("/users/:id requested");
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-    } else {
-      res.json(user);
-    }
+
+    res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

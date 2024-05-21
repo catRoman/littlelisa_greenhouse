@@ -2,16 +2,11 @@ import greenhouseService from "../services/greenhouseService.js";
 
 const getAllGreenhouses = async (req, res) => {
   try {
-    const userId = req.parentId;
+    const userId = req.params.userId;
     const greenhouses = await greenhouseService.getAllGreenhouses(userId);
     console.log(`/users/${userId}/greenhouses requested`);
-    if (!greenhouses) {
-      res
-        .status(404)
-        .json({ error: `No greenhouses found for user_id:${userId}` });
-    } else {
-      res.json(greenhouses);
-    }
+
+    res.json(greenhouses);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -19,20 +14,15 @@ const getAllGreenhouses = async (req, res) => {
 
 const getGreenhouseById = async (req, res) => {
   try {
-    const userId = req.parentId;
-    const greenhouseId = req.params.id;
+    const userId = req.params.userId;
+    const greenhouseId = req.params.greenhouseId;
     const greenhouse = await greenhouseService.getGreenhouseById(
       userId,
       greenhouseId
     );
-    console.log(`/greenhouse/${greenhouseId} requested`);
-    if (!greenhouse) {
-      res.status(404).json({
-        error: `No greenhouses found for greenhouse_id:${greenhouseId} for user ${userId}`,
-      });
-    } else {
-      res.json(greenhouse);
-    }
+    console.log(`/greenhouses/${greenhouseId} requested`);
+
+    res.json(greenhouse);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

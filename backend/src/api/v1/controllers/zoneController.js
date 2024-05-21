@@ -2,17 +2,12 @@ import zoneService from "../services/zoneService.js";
 
 const getAllZones = async (req, res) => {
   try {
-    const greenhouseId = req.parentId;
+    const greenhouseId = req.params.greenhouseId;
 
-    const zones = await zoneService.getAllZones(userId);
-    console.log(`/users/${userId}/Zones requested`);
-    if (!zones) {
-      res.status(404).json({
-        error: `No zones found for greenhouse id:${greenhouseId} `,
-      });
-    } else {
-      res.json(zones);
-    }
+    const zones = await zoneService.getAllZones(greenhouseId);
+    console.log(`/users/${greenhouseId}/Zones requested`);
+
+    res.json(zones);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -20,17 +15,13 @@ const getAllZones = async (req, res) => {
 
 const getZoneById = async (req, res) => {
   try {
-    const userId = req.parentId;
-    const zoneId = req.params.id;
-    const zone = await zoneService.getZoneById(userId, zoneId);
+    const greenhouseId = req.params.greenhouseId;
+    const zoneId = req.params.zoneId;
+    const zone = await zoneService.getZoneById(greenhouseId, zoneId);
     console.log(`/zones/${zoneId} requested`);
-    if (!zone) {
-      res.status(404).json({
-        error: `No zone found for zone_id:${zoneId} for user ${userId}`,
-      });
-    } else {
-      res.json(zone);
-    }
+    console.log(`greenhouse ${greenhouseId}`);
+
+    res.json(zone);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

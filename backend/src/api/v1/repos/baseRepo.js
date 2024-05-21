@@ -23,15 +23,31 @@ export default class BaseRepo {
 
   async getById(parentId, id) {
     const idType = this.tableName.slice(0, -1);
+
     const query = `
         SELECT * FROM ${this.tableName}
         WHERE ${idType}_id = $1 ${
       this.parentName ? `AND ${this.parentName}_id = $2 ` : ""
     };`;
-    return this.query(query, this.parentName ? [id, parentId] : [id]);
+    const results = await this.query(
+      query,
+      this.parentName ? [id, parentId] : [id]
+    );
+    return results[0] ? results[0] : null;
   }
+
   async getAllByParentId(parentId) {
     const query = `SELECT * FROM ${this.tableName} WHERE ${this.parentName}_id = $1`;
     return this.query(query, [parentId]);
+  }
+
+  static async validateParams(tableName, id) {
+    const tableIdName = `${tableName.slice(0, -1)}_id`;
+    const result = await db.query(
+      `SELECT * FROM ${tableName} WHERE ${tableIdName} = $1`,
+      [id]
+    );
+
+    return result.rows[0];
   }
 }
