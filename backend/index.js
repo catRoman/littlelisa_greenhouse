@@ -1,5 +1,5 @@
-import   {startWebServer}  from './src/init/expressServer.js';
-import { connectToDatabase} from './src/init/dbConnect.js';
+import   {startWebServer}  from './src/api/v1/services/init/expressServer.js';
+import { connectToDatabase} from './src/api/v1/services/init/dbConnect.js';
 
 function startServers() {
   try {

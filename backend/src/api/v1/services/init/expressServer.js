@@ -1,14 +1,18 @@
-import express, { json } from "express";
+import express, { json, urlencoded } from "express";
 import config from "config";
+import helmet from "helmet";
 
-import camRoutes from "../streaming/camRoutes.js";
-import sensorDataRoutes from "../api/v1/routes/sensorDataRoutes.js";
+import camRoutes from "../../../../streaming/camRoutes.js";
+import sensorDataRoutes from "../../routes/sensorDataRoutes.js";
+import userRoutes from "../../routes/userRoutes.js"
 
 export function startWebServer() {
   const app = express();
 
   // Middleware
+  app.use(helmet());
   app.use(json());
+  app.use(urlencoded());
 
   // Serve static files
   app.use("/", express.static("public"));
@@ -19,9 +23,10 @@ export function startWebServer() {
   // Use the sensor routes with the /api prefix
   // app.use('/api/data', sensorDataRoutes);
   app.use("/api", sensorDataRoutes);
+  app.use("/api", userRoutes);
 
   const PORT = config.get("web.port");
-  const SERVER_IP = config.get("web.desktop_serverIp");
+  const SERVER_IP = config.get("web.serverIp");
   const server = app.listen(PORT, SERVER_IP, () => {
     console.log(`Server is running at http://${SERVER_IP}:${PORT}`);
   });

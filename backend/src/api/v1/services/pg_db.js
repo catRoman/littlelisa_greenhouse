@@ -1,5 +1,5 @@
 
-import { db_pool } from '../init/dbConnect.js';
+import { db_pool } from './init/dbConnect.js';
 
 export async function handleSensorData(sensorData) {
   try {
