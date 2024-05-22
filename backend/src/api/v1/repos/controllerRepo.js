@@ -1,7 +1,6 @@
 import BaseRepo from "./baseRepo.js";
 import fs from "fs/promises";
 import path from "path";
-import { __dirname } from "../../../../config/globals.js";
 
 class ControllerRepo extends BaseRepo {
   constructor() {
@@ -11,8 +10,8 @@ class ControllerRepo extends BaseRepo {
     const query = async () => {
       try {
         const queryPath = path.join(
-          __dirname,
-          "queries",
+          global.__basedir,
+          "/src/api/v1/repos/queries",
           "/get_greenhouse_controller_info.sql"
         );
         const sqlQuery = await fs.readFile(queryPath);
@@ -22,8 +21,8 @@ class ControllerRepo extends BaseRepo {
         throw error;
       }
     };
-
-    const results = await this.query(query, [greenhouseId]);
+    const sqlQuery = await query();
+    const results = await this.query(sqlQuery, [greenhouseId]);
     return results;
   }
 }
