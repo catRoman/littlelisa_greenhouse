@@ -1,7 +1,7 @@
 import { Router } from "express";
 import userController from "../controllers/userController.js";
 import greenhouseRoutes from "../routes/greenhouseRoutes.js";
-import validateParamId from "../Middleware/validateParamId.js";
+import validateParamId from "../middleware/validateParamId.js";
 
 const router = Router({ mergeParams: true });
 router.param("userId", validateParamId("users"));
