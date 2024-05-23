@@ -1,10 +1,20 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
-import { CameraSettings, Plot, SquareId } from "../../types/common";
+import {
+  CameraSettings,
+  GreenhouseData,
+  Plot,
+  SquareId,
+  ZoneDataFull,
+} from "../../types/common";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import { GreenHouseViewState } from "../../types/enums";
 import { square_data } from "../data/mock_json/square_data";
 export interface GreenHouseContextType {
   //state
+  fetchedGreenhouseData: GreenhouseData | ZoneDataFull | undefined;
+  setFetchedGreenhouseData: (
+    fetchedGreenHouseData: GreenhouseData | ZoneDataFull | undefined,
+  ) => void;
   currentCameraProperties: CameraSettings;
   setCurrentCameraProperties: (currentSettings: CameraSettings) => void;
   setSelectedPlant: (plant: string) => void;
@@ -30,6 +40,8 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  fetchedGreenhouseData: undefined,
+  setFetchedGreenhouseData: () => {},
   selectedSquareId: null,
   setSelectedSquareId: () => {},
   setCurrentCameraProperties: () => {},
@@ -74,6 +86,9 @@ export default function GreenHouseContextProvider({
   );
   const [selectedPlant, setSelectedPlant] = useState<string>("");
   const [selectedPlot, setSelectedPlot] = useState<Plot>();
+  const [fetchedGreenhouseData, setFetchedGreenhouseData] = useState<
+    GreenhouseData | ZoneDataFull
+  >();
   useEffect(() => {
     setSelectedPlot(
       square_data.find((plot) => {
@@ -96,6 +111,8 @@ export default function GreenHouseContextProvider({
   return (
     <GreenHouseContext.Provider
       value={{
+        fetchedGreenhouseData,
+        setFetchedGreenhouseData,
         selectedPlot,
         setSelectedPlot,
         viewState,

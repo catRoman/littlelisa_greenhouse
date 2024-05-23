@@ -37,17 +37,6 @@ class GreenHousesRepo extends BaseRepo {
     results[0].nodes = Number(results[0].nodes);
     return results[0];
   }
-  async getTotalSensors(greenhouseId) {
-    const query = `
-    select count(s.module_id) as sensors
-      from sensors s
-    join modules m
-      on m.module_id = s.module_id
-    where m.greenhouse_id = $1;`;
-    const results = await this.query(query, [greenhouseId]);
-    results[0].sensors = Number(results[0].sensors);
-    return results[0];
-  }
 }
 
 export default new GreenHousesRepo();

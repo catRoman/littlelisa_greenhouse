@@ -1,59 +1,67 @@
 import { Euler, Vector3 } from "three";
 
-export type Coordinate = {
+export type Dimensions = {
   x: number;
   y: number;
-  z: number; // Optional property
+  z: number;
 };
-export type SpaceCoordinate = {
+export type SquarePos = {
   x: number;
   y: number;
 };
 
 export type Sensor = {
-  node: string;
-  type: string;
-  loc_coord: SpaceCoordinate;
+  sensor_id: number;
+  module_id: string;
+  loacal_is: number;
+  location: string;
+  square_id: number | null;
+  zn_rel_pos: Dimensions | undefined;
+  square_pos: SquarePos | undefined;
 };
 
 export type ZoneData = {
-  dimensions: Coordinate;
+  zone_id: number;
+  greenhouse_id: number;
   name: string;
   description: string;
-  loc_coord: Coordinate;
-  sensorsAvailable: boolean;
-  nodes: Module[] | null;
+  zone_start_point: SquarePos;
+  zone_number: number;
+  dimensions: Dimensions;
+};
+export type ZoneDataFull = ZoneData & {
+  sensorAvailable: boolean;
+  nodes: Node[] | null;
   sensors: Sensor[] | null;
-  lightAvailable: boolean;
-  sprinklersAvailable: boolean;
-  sprinklers: SpaceCoordinate[] | null;
-  lastest_enviro: {
-    water: string;
-    fert: string;
-    light_period: {
-      period: string;
-      on: string;
-      off: string;
-    } | null;
-  };
 };
 export type Module = {
-  moduleId: string;
-  loc_coord: { x: number; y: number };
+  module_id: string;
+  location: string;
+  zone_number: number;
+  square_id: number | null;
+  zn_rel_pos: Dimensions | undefined;
+  square_pos: SquarePos | undefined;
+};
+export type Controllers = Module & {
+  controller_id: number;
 };
 
 export type GreenhouseData = {
-  greenhouse: {
-    lat: number;
-    long: number;
-    greenhouse_id: number;
-    greenhouse_location_str: string;
-    dimensions: { x: number; y: number };
-    total_zones: number;
-    total_controllers: number;
-    controllers: Module[];
+  greenhouse_id: number;
+  name: string;
+  location: string;
+  user_id: number;
+  style: string;
+  lat: number;
+  long: number;
+  dimensions: Dimensions;
+  total: {
+    zones: number;
+    controllers: number;
+    nodes: number;
+    sensors: number;
   };
-  zones: ZoneData[];
+  controllers: Controllers[];
 };
 export type CameraSettings = {
   fov: number;
@@ -90,4 +98,7 @@ export type Plot = {
 export type Note = {
   date: string;
   note: string;
+};
+export type Node = Module & {
+  node_id: number;
 };

@@ -2,17 +2,17 @@ import BaseRepo from "./baseRepo.js";
 import fs from "fs/promises";
 import path from "path";
 
-class ControllerRepo extends BaseRepo {
+class NodeRepo extends BaseRepo {
   constructor() {
-    super("controllers", "module");
+    super("nodes", "controller");
   }
-  async getAllGreenhouseControllersInfo(greenhouseId) {
+  async getAllZoneNodeInfo(zoneId) {
     const query = async () => {
       try {
         const queryPath = path.join(
           global.__basedir,
           "/src/api/v1/repos/queries",
-          "/get_greenhouse_controller_info.sql"
+          "/get_zone_node_info.sql"
         );
         const sqlQuery = await fs.readFile(queryPath);
         return sqlQuery.toString();
@@ -22,8 +22,8 @@ class ControllerRepo extends BaseRepo {
       }
     };
     const sqlQuery = await query();
-    const results = await this.query(sqlQuery, [greenhouseId]);
+    const results = await this.query(sqlQuery, [zoneId]);
     return results;
   }
 }
-export default new ControllerRepo();
+export default new NodeRepo();

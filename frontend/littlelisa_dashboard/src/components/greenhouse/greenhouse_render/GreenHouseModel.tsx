@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
-import { GreenhouseData } from "../../../../types/common";
+import { GreenhouseData, ZoneData } from "../../../../types/common";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 import { useSpring, animated } from "@react-spring/three";
@@ -16,9 +16,7 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
   const sceneRef = useRef<THREE.Group>(null!);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
 
-  const {
-    greenhouse: { dimensions },
-  } = model_info;
+  const { dimensions } = model_info;
 
   const {
     selectedZoneId,
@@ -27,6 +25,36 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
     setCurrentCameraProperties,
     currentCameraProperties,
   } = useContext(GreenHouseContext);
+
+  const [zoneData, setZoneData] = useState<ZoneData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchZoneData = async () => {
+      const url = "/api/users/1/greenhouses/1/zones";
+
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setZoneData(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Fetch error:", error);
+        if (error instanceof Error) {
+          setError(error.message);
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchZoneData();
+  }, []);
 
   useEffect(() => {
     if (selectedZoneId) {
@@ -67,6 +95,18 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
     config: { mass: 1, tension: 1, friction: 1, duration: 1000 },
   });
 
+  useEffect(() => {
+    console.log("Updated zones state:");
+  }, [zoneData]);
+
+  if (loading) {
+    console.log("loading: ", loading);
+  }
+
+  if (error) {
+    console.log("error: ", loading);
+  }
+
   return (
     <>
       <animated.group position={pos} rotation={rot}>
@@ -96,14 +136,13 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
         >
           <GreenHouseRender dimensions={dimensions} />
 
-          {model_info.zones.map((zone, index) => {
-            const localZoneId = index + 1;
-
+          {/* skip global zone */}
+          {zoneData!.slice(1).map((zone) => {
             return (
               <ZoneRender
                 zone={zone}
-                key={`zone${index + 1}`}
-                localZoneId={localZoneId}
+                key={`zone${zone.zone_number}`}
+                localZoneId={zone.zone_number}
               />
             );
           })}

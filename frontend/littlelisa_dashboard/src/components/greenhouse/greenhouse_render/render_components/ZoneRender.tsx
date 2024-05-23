@@ -1,9 +1,9 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { Vector3, type Group } from "three";
 import SprinklerListRender from "./SprinklerListRender.tsx";
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider.tsx";
-import { ZoneData } from "../../../../../types/common.ts";
+import { ZoneData, ZoneDataFull } from "../../../../../types/common.ts";
 import PlotRender from "./PlotRender.tsx";
 import { GreenHouseViewState } from "../../../../../types/enums.ts";
 
@@ -14,7 +14,7 @@ type ZoneRenderProps = {
 
 export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   const zoneRef = useRef<Group>(null);
-
+  const [zoneData, setZoneData] = useState<ZoneDataFull>({});
   const {
     previousCameraProperties,
     currentCameraProperties,
@@ -24,12 +24,33 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   } = useContext(GreenHouseContext);
 
   const {
-    loc_coord,
+    zone_id,
+    zone_start_point,
     dimensions: { x: zone_x, y: zone_y, z: zone_z },
-    sensors,
-    sprinklers,
-    nodes,
   } = zone;
+
+  useEffect(() => {
+    const fetchZoneData = async () => {
+      const url = `/api/users/1/greenhouses/1/zones/${zone_id}`;
+
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setZoneData(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
+    };
+
+    fetchZoneData();
+  }, [zone_id]);
+
+  const { sensors, nodes } = zoneData!;
 
   function zoneEventHandler(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
@@ -46,9 +67,9 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
       onClick={zoneEventHandler}
       position={
         new Vector3(
-          loc_coord.x + zone_x / 2,
-          loc_coord.y + zone_y / 2,
-          loc_coord.z + zone_z / 2,
+          zone_start_point.x + zone_x / 2 - 1,
+          zone_start_point.y + zone_y / 2 - 1,
+          zone_z / 2,
         )
       }
     >
@@ -71,11 +92,11 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
         }
         return <>{zone}</>;
       })()}
-      <SprinklerListRender
+      {/* <SprinklerListRender
         sprinklers={sprinklers}
         zoneId={localZoneId}
         zone_dim={zone.dimensions}
-      />
+      /> */}
     </group>
   );
 }
