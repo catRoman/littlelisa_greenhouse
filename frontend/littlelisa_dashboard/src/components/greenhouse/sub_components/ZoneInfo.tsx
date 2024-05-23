@@ -1,8 +1,8 @@
-import { ZoneData } from "../../../../types/common";
+import { ZoneDataFull } from "../../../../types/common";
 import DashAvgChart from "../../dashboard/DashAvgChart";
 
 type ZoneInfoProps = {
-  zone: ZoneData;
+  zone: ZoneDataFull;
   zoneId: number;
 };
 export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
@@ -30,10 +30,16 @@ export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
                   return (
                     <li key={index}>
                       <div className="flex justify-between">
-                        <span>{sensor.type} </span>
-                        <span>
-                          loc: [{sensor.loc_coord.x},{sensor.loc_coord.y}]
-                        </span>
+                        {/* <span>{sensor.type} </span> */}
+                        {sensor.square_id ? (
+                          <span>
+                            loc: [{sensor.square_pos?.x},{sensor.square_pos?.y}]
+                          </span>
+                        ) : (
+                          <span>
+                            loc: [{sensor.zn_rel_pos?.x},{sensor.zn_rel_pos?.y}]
+                          </span>
+                        )}
                       </div>
                     </li>
                   );
@@ -56,7 +62,7 @@ export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
             )}
           </div>
         </div>
-        <div className="col-span-2">
+        {/* <div className="col-span-2">
           <div className="flex flex-col">
             <p className="text-sm  font-bold text-orange-500">
               Latest Watering:
@@ -85,7 +91,7 @@ export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
               <p>No current Light Period Set</p>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
