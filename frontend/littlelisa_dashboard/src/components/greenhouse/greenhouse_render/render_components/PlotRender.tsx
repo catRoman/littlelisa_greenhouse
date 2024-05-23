@@ -162,14 +162,14 @@ export default function PlotRender({
           wireframe={spring.wireframe}
         />
       </animated.mesh>
-      <SensorListRender
+      {/* <SensorListRender
         sensors={sensors}
         plot_height={args[2]}
         localZoneId={localZoneId}
         squareId={squareId}
-      />
+      /> */}
 
-      <NodeListRender nodes={nodes} plot_height={args[2]} squareId={squareId} />
+      {/* <NodeListRender nodes={nodes} plot_height={args[2]} squareId={squareId} /> */}
     </animated.group>
   );
 }
