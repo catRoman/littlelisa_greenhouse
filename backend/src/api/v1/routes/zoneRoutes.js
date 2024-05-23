@@ -1,6 +1,6 @@
 import { Router } from "express";
 import zoneController from "../controllers/zoneController.js";
-import validateParamId from "../Middleware/validateParamId.js";
+import validateParamId from "../middleware/validateParamId.js";
 
 const router = Router({ mergeParams: true });
 

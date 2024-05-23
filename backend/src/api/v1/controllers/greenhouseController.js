@@ -28,7 +28,24 @@ const getGreenhouseById = async (req, res) => {
   }
 };
 
+const getFlatGreenhouseData = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const greenhouseId = req.params.greenhouseId;
+    const greenhouse = await greenhouseService.getFlatGreenhouseData(
+      userId,
+      greenhouseId
+    );
+    console.log(`/greenhouses/${greenhouseId}/flatGreenhouseData requested`);
+
+    res.json(greenhouse);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   getAllGreenhouses,
   getGreenhouseById,
+  getFlatGreenhouseData
 };

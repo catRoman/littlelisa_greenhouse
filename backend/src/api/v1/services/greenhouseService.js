@@ -1,11 +1,14 @@
 import GreenHousesRepo from "../repos/greenhouseRepo.js";
 import ControllersRepo from "../repos/controllerRepo.js";
 import SensorRepo from "../repos/sensorRepo.js";
+import zoneService from "../services/zoneService.js"
 
 const getAllGreenhouses = async (userId) => {
   const greenhouses = await GreenHousesRepo.getAllByParentId(userId);
   return greenhouses || null;
 };
+
+
 
 const getGreenhouseById = async (userId, greenhouseId) => {
   const greenhouse = await GreenHousesRepo.getById(userId, greenhouseId);
@@ -91,7 +94,24 @@ const getGreenhouseById = async (userId, greenhouseId) => {
   );
 };
 
+const getFlatGreenhouseData = async (userId, greenhouseId)=>{
+
+    const greenhouse = await getGreenhouseById(userId, greenhouseId);
+    const numZones = greenhouse.total.zones;
+    const zones= [];
+  
+    for(let i=1; i <= numZones;i++){
+      const tempObj = await zoneService.getZoneById(greenhouseId,i)
+      zones.push(tempObj)
+    }
+       
+    return {...greenhouse, zones} || null;
+ 
+  }
+
+
 export default {
   getAllGreenhouses,
   getGreenhouseById,
+  getFlatGreenhouseData
 };
