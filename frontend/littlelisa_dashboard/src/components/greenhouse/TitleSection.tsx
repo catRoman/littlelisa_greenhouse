@@ -1,10 +1,9 @@
 import { useContext } from "react";
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
-import { greenhouse_data } from "../../data/static_info";
 
 export default function TitleSection() {
-  const { viewState, selectedZoneId, selectedPlot } =
+  const { viewState, selectedZoneId, fetchedGreenhouseData, selectedPlot } =
     useContext(GreenHouseContext);
 
   let header = "";
@@ -17,8 +16,8 @@ export default function TitleSection() {
       break;
 
     case GreenHouseViewState.Zone:
-      header = `Zone ${selectedZoneId} \u2192 ${greenhouse_data.zones[selectedZoneId - 1].name}`;
-      description = `${greenhouse_data.zones[selectedZoneId - 1].description}`;
+      header = `Zone ${selectedZoneId} \u2192 ${fetchedGreenhouseData?.zones[selectedZoneId - 1].name}`;
+      description = `${fetchedGreenhouseData?.zones[selectedZoneId - 1].description}`;
       break;
     case GreenHouseViewState.Plot:
       header = `Plot: ${selectedPlot?.is_empty ? "Empty" : selectedPlot?.plant_type}`;

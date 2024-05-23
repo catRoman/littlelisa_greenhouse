@@ -1,13 +1,18 @@
 import ZoneInfo from "./sub_components/ZoneInfo";
-import { greenhouse_data } from "../../data/static_info";
+
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { useContext, useEffect, useState } from "react";
 import SensorInfo from "./sub_components/SensorInfo";
 
 export default function SectionBody() {
-  const { viewState, selectedZoneId, selectedPlant, setSelectedPlant } =
-    useContext(GreenHouseContext);
+  const {
+    viewState,
+    selectedZoneId,
+    selectedPlant,
+    setSelectedPlant,
+    fetchedGreenhouseData,
+  } = useContext(GreenHouseContext);
 
   const [plantInfo, setPlantInfo] = useState<string>(null!);
   const [mainImage, setMainImage] = useState<string | null>(null);
@@ -47,7 +52,7 @@ export default function SectionBody() {
     case GreenHouseViewState.GreenHouse:
       body = (
         <div className="flex flex-col gap-3">
-          {greenhouse_data.zones.map((zone, index) => {
+          {fetchedGreenhouseData?.zones.map((zone, index) => {
             return (
               <div key={`zone_info_${index}`}>
                 <ZoneInfo zone={zone} zoneId={index + 1} />
@@ -62,11 +67,11 @@ export default function SectionBody() {
       body = (
         <div className="flex flex-col gap-3">
           <ZoneInfo
-            zone={greenhouse_data.zones[selectedZoneId - 1]}
+            zone={fetchedGreenhouseData?.zones[selectedZoneId - 1]}
             zoneId={selectedZoneId}
           />
-          {greenhouse_data.zones[selectedZoneId - 1].sensors &&
-            greenhouse_data.zones[selectedZoneId - 1].sensors?.map(
+          {fetchedGreenhouseData?.zones[selectedZoneId - 1].sensors &&
+            fetchedGreenhouseData?.zones[selectedZoneId - 1].sensors?.map(
               (sensor, index) => {
                 return (
                   <div key={`sensor_info_${index}`}>

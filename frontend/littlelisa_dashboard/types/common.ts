@@ -62,6 +62,7 @@ export type GreenhouseData = {
     sensors: number;
   };
   controllers: Controllers[];
+  zones: ZoneDataFull[];
 };
 export type CameraSettings = {
   fov: number;

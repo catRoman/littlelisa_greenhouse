@@ -4,16 +4,15 @@ import {
   GreenhouseData,
   Plot,
   SquareId,
-  ZoneDataFull,
 } from "../../types/common";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import { GreenHouseViewState } from "../../types/enums";
 import { square_data } from "../data/mock_json/square_data";
 export interface GreenHouseContextType {
   //state
-  fetchedGreenhouseData: GreenhouseData | ZoneDataFull | undefined;
+  fetchedGreenhouseData: GreenhouseData | undefined;
   setFetchedGreenhouseData: (
-    fetchedGreenHouseData: GreenhouseData | ZoneDataFull | undefined,
+    fetchedGreenHouseData: GreenhouseData | undefined,
   ) => void;
   currentCameraProperties: CameraSettings;
   setCurrentCameraProperties: (currentSettings: CameraSettings) => void;
@@ -86,9 +85,8 @@ export default function GreenHouseContextProvider({
   );
   const [selectedPlant, setSelectedPlant] = useState<string>("");
   const [selectedPlot, setSelectedPlot] = useState<Plot>();
-  const [fetchedGreenhouseData, setFetchedGreenhouseData] = useState<
-    GreenhouseData | ZoneDataFull
-  >();
+  const [fetchedGreenhouseData, setFetchedGreenhouseData] =
+    useState<GreenhouseData>();
   useEffect(() => {
     setSelectedPlot(
       square_data.find((plot) => {
