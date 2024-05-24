@@ -10,18 +10,35 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartData } from "../../../../../types/common";
 
 interface SensorChartProps {
   sensorId: number;
 }
+interface SensorChartState {
+  chartData: ChartData[] | null;
+  isLoading: boolean;
+}
+
+// const CustomToolTip = ({ active, payload, label }) => {
+//   if (active && payload && payload.length) {
+//     return (
+//       <div className="custom-tooltip">
+//         <p className="label">{`${label} : ${payload[0].value}`}</p>
+//       </div>
+//     );
+//   }
+
+//   return null;
+// };
 
 export default class SensorChart extends PureComponent<SensorChartProps> {
+  state: SensorChartState = {
+    chartData: null,
+    isLoading: true,
+  };
   constructor(props: SensorChartProps) {
     super(props);
-    this.state = {
-      chartData: null, // Initialize chartData as null while fetching
-      isLoading: true,
-    };
   }
 
   async componentDidMount() {
@@ -29,7 +46,7 @@ export default class SensorChart extends PureComponent<SensorChartProps> {
     const { sensorId } = this.props;
     try {
       const response = await fetch(
-        `/api/users1/greenhouses/1/sensors/${sensorId}/chart?last=7&units=days&grouped=hour`,
+        `/api/users/1/greenhouses/1/sensors/${sensorId}/chart?last=7&units=days&grouped=hour`,
       );
       if (!response.ok) throw new Error("Error fetching data");
       const data = await response.json();
@@ -59,13 +76,23 @@ export default class SensorChart extends PureComponent<SensorChartProps> {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="timestamp" />
+          <XAxis dataKey="period" />
           <YAxis />
+          {/* <Tooltip content={<CustomToolTip />} /> */}
           <Tooltip />
           <Legend verticalAlign="bottom" />
-          <Line type="monotone" dataKey="temperature" stroke="#8884d8" />
-          <Line type="monotone" dataKey="humidity" stroke="#2139c4" />
-          <Line type="monotone" dataKey="soil_moisture" stroke="#dd6d11" />
+          <Line
+            dot={false}
+            type="monotone"
+            dataKey="avgTemp"
+            stroke="#8884d8"
+          />
+          <Line
+            dot={false}
+            type="monotone"
+            dataKey="avgHumidity"
+            stroke="#2139c4"
+          />
         </LineChart>
       </ResponsiveContainer>
     );
