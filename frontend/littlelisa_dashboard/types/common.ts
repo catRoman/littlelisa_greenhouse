@@ -13,8 +13,9 @@ export type SquarePos = {
 export type Sensor = {
   sensor_id: number;
   module_id: string;
-  loacal_is: number;
+  local_id: number;
   location: string;
+  type: string;
   square_id: number | null;
   zn_rel_pos: Dimensions | undefined;
   square_pos: SquarePos | undefined;
@@ -63,6 +64,7 @@ export type GreenhouseData = {
   };
   controllers: Controllers[];
   zones: ZoneDataFull[];
+  squares: Plot[];
 };
 export type CameraSettings = {
   fov: number;
@@ -86,13 +88,14 @@ export type cntrlDataType = {
 export type Plot = {
   square_db_id: number;
   zone_id: number;
+  zone_number: number;
   row: number;
-  column: number;
-  plant_type?: string;
-  date_planted?: string;
-  date_expected_harvest?: string;
-  notes?: Note[];
-  is_transplanted?: boolean;
+  col: number;
+  plant_type: string | null;
+  date_planted: string | null;
+  date_expected_harvest: string | null;
+  notes: Note[] | null;
+  is_transplanted: boolean;
   is_empty: boolean;
 };
 

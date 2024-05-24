@@ -7,7 +7,6 @@ import {
 } from "../../types/common";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import { GreenHouseViewState } from "../../types/enums";
-import { square_data } from "../data/mock_json/square_data";
 export interface GreenHouseContextType {
   //state
   fetchedGreenhouseData: GreenhouseData | undefined;
@@ -88,23 +87,34 @@ export default function GreenHouseContextProvider({
   const [fetchedGreenhouseData, setFetchedGreenhouseData] =
     useState<GreenhouseData>();
   useEffect(() => {
-    setSelectedPlot(
-      square_data.find((plot) => {
-        if (
-          plot.zone_id === selectedZoneId &&
-          plot.row - 1 === selectedSquareId?.y &&
-          plot.column - 1 === selectedSquareId?.x
-        ) {
-          if (plot.plant_type !== undefined && !plot.is_empty) {
-            setSelectedPlant(plot.plant_type);
-          } else {
-            setSelectedPlant("");
+    if (fetchedGreenhouseData && selectedSquareId) {
+      setSelectedPlot(
+        fetchedGreenhouseData.squares.find((plot) => {
+          if (
+            plot.zone_number === selectedZoneId &&
+            plot.row ===
+              selectedSquareId.y +
+                fetchedGreenhouseData.zones[selectedZoneId].zone_start_point
+                  .y &&
+            plot.col ===
+              selectedSquareId.x +
+                fetchedGreenhouseData.zones[selectedZoneId].zone_start_point.x
+          ) {
+            if (plot.plant_type !== null && !plot.is_empty) {
+              setSelectedPlant(plot.plant_type);
+            } else {
+              setSelectedPlant("");
+            }
+            return plot;
           }
-          return plot;
-        }
-      }),
-    );
-  }, [selectedSquareId, selectedZoneId]);
+        }),
+      );
+    }
+  }, [selectedSquareId, selectedZoneId, fetchedGreenhouseData]);
+
+  useEffect(() => {
+    console.log("data fetched: ", fetchedGreenhouseData);
+  }, [fetchedGreenhouseData]);
 
   return (
     <GreenHouseContext.Provider

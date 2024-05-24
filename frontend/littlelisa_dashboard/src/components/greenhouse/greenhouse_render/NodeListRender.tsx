@@ -36,9 +36,16 @@ export default function NodeListRender({
     return (
       <>
         {nodes.map((node, index) => {
-          const {
-            loc_coord: { x: node_x, y: node_y },
-          } = node;
+          let node_x = -1;
+          let node_y = -1;
+
+          if (node.zn_rel_pos) {
+            node_x = node.zn_rel_pos.x - 1;
+            node_y = node.zn_rel_pos.y - 1;
+          } else if (node.square_pos) {
+            node_x = node.square_pos.x - 1;
+            node_y = node.square_pos.y - 1;
+          }
           const boxSides = 0.1;
           const nodeId = index + 1;
           return (
@@ -47,7 +54,7 @@ export default function NodeListRender({
               <group
                 key={index + 1}
                 onClick={(event) =>
-                  sensorEventHandler(event, nodeId, node.moduleId)
+                  sensorEventHandler(event, nodeId, node.module_id)
                 }
                 onPointerEnter={sensorLabelEnterHandler}
                 onPointerLeave={sensorLabelExitHandler}

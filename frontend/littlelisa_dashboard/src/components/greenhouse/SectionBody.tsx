@@ -16,6 +16,7 @@ export default function SectionBody() {
 
   const [plantInfo, setPlantInfo] = useState<string>(null!);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (selectedPlant === "") {
@@ -42,6 +43,8 @@ export default function SectionBody() {
         }
       } catch (error) {
         console.log("whoopsie: ", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPlantPage();
@@ -67,15 +70,15 @@ export default function SectionBody() {
       body = (
         <div className="flex flex-col gap-3">
           <ZoneInfo
-            zone={fetchedGreenhouseData?.zones[selectedZoneId - 1]}
+            zone={fetchedGreenhouseData!.zones[selectedZoneId]}
             zoneId={selectedZoneId}
           />
-          {fetchedGreenhouseData?.zones[selectedZoneId - 1].sensors &&
-            fetchedGreenhouseData?.zones[selectedZoneId - 1].sensors?.map(
+          {fetchedGreenhouseData?.zones[selectedZoneId].sensors &&
+            fetchedGreenhouseData?.zones[selectedZoneId].sensors?.map(
               (sensor, index) => {
                 return (
                   <div key={`sensor_info_${index}`}>
-                    <SensorInfo sensor={sensor} sensorId={index + 1} />
+                    <SensorInfo sensor={sensor} sensorId={sensor.local_id} />
                   </div>
                 );
               },
@@ -90,27 +93,32 @@ export default function SectionBody() {
       } else if (selectedPlant === "unknown") {
         body = <p> Couldnt find an entry on this particluar plant</p>;
       } else {
-        body = (
-          <div>
-            <h3 className="text-md font-bold text-orange-500">
-              Plant Information
-            </h3>
-            <div className="prose max-w-none border-r-4 border-zinc-500 pr-4">
-              {mainImage ? (
-                <img
-                  className="rounded-mdinline float-left mb-4 mr-4 h-48 w-48 object-cover"
-                  src={mainImage}
-                />
-              ) : (
-                ""
-              )}
-              <p>{plantInfo}</p>
+        if (loading) {
+          body = <div>Loading...</div>;
+        } else {
+          body = (
+            <div>
+              <h3 className="text-md font-bold text-orange-500">
+                Plant Information
+              </h3>
+              <div className="prose max-w-none border-r-4 border-zinc-500 pr-4">
+                {mainImage ? (
+                  <img
+                    className="rounded-mdinline float-left mb-4 mr-4 h-48 w-48 object-cover"
+                    src={mainImage}
+                  />
+                ) : (
+                  ""
+                )}
+                <p>{plantInfo}</p>
+              </div>
             </div>
-          </div>
-        );
+          );
+        }
       }
 
       break;
   }
+
   return <div>{body}</div>;
 }

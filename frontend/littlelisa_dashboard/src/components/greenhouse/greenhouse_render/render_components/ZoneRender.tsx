@@ -20,6 +20,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     setSelectedZoneId,
     inZone,
     setViewState,
+    fetchedGreenhouseData,
   } = useContext(GreenHouseContext);
 
   const { dimensions, zone_start_point, sensors, nodes } = zone;
@@ -33,46 +34,50 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     setViewState(GreenHouseViewState.Zone);
   }
 
-  return (
-    <group
-      ref={zoneRef}
-      onClick={zoneEventHandler}
-      position={
-        new Vector3(
-          zone_start_point.x + dimensions.x / 2 - 1,
-          zone_start_point.y + dimensions.y / 2 - 1,
-          dimensions.z / 2,
-        )
-      }
-    >
-      {(function (): JSX.Element {
-        const zone = [];
-        for (let i = 0; i < dimensions.x; i++) {
-          for (let j = 0; j < dimensions.y; j++) {
-            zone.push(
-              <PlotRender
-                key={`square_${i}_${j}`}
-                position={[
-                  i - dimensions.x / 2 + 0.5,
-                  j - dimensions.y / 2 + 0.5,
-                  0,
-                ]}
-                squareId={{ x: i, y: j }}
-                args={[1, 1, dimensions.z]}
-                localZoneId={localZoneId}
-                sensors={sensors}
-                nodes={nodes}
-              />,
-            );
-          }
+  if (fetchedGreenhouseData) {
+    return (
+      <group
+        ref={zoneRef}
+        onClick={zoneEventHandler}
+        position={
+          new Vector3(
+            zone_start_point.x + dimensions.x / 2 - 1,
+            zone_start_point.y + dimensions.y / 2 - 1,
+            dimensions.z / 2,
+          )
         }
-        return <>{zone}</>;
-      })()}
-      {/* <SprinklerListRender
+      >
+        {(function (): JSX.Element {
+          const zone = [];
+          for (let i = 0; i < dimensions.x; i++) {
+            for (let j = 0; j < dimensions.y; j++) {
+              zone.push(
+                <PlotRender
+                  key={`square_${i + 1}_${j + 1}`}
+                  position={[
+                    i - dimensions.x / 2 + 0.5,
+                    j - dimensions.y / 2 + 0.5,
+                    0,
+                  ]}
+                  squareId={{ x: i, y: j }}
+                  args={[1, 1, dimensions.z]}
+                  localZoneId={localZoneId}
+                  sensors={sensors}
+                  nodes={nodes}
+                />,
+              );
+            }
+          }
+          return <>{zone}</>;
+        })()}
+        {/* <SprinklerListRender
         sprinklers={sprinklers}
         zoneId={localZoneId}
         zone_dim={zone.dimensions}
       /> */}
-    </group>
-  );
+      </group>
+    );
+  } else {
+    console.log("loading fetchedGreenhouseData for zone");
+  }
 }

@@ -1,22 +1,20 @@
 import { useContext } from "react";
-import { greenhouse_data } from "../../../data/static_info";
+
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
-import { Plot, ZoneDataFull } from "../../../../types/common";
-import { square_data } from "../../../data/mock_json/square_data";
-import { GreenHouseViewState } from "../../../../types/enums";
+import { Plot } from "../../../../types/common";
 
 export default function ZoneOverview() {
-  const { selectedZoneId, fetchedGreenhouseData, viewState } =
+  const { selectedZoneId, fetchedGreenhouseData } =
     useContext(GreenHouseContext);
 
   if (fetchedGreenhouseData) {
-    const { zones } = greenhouse_data;
-    const zone = zones[selectedZoneId - 1];
-    const { dimensions } = fetchedGreenhouseData as ZoneDataFull;
+    const { zones } = fetchedGreenhouseData;
+    const zone = zones[selectedZoneId];
+    const { dimensions } = fetchedGreenhouseData;
     const zonePlots: Plot[] = [];
 
-    square_data.map((plot) => {
-      if (plot.zone_id === selectedZoneId) {
+    fetchedGreenhouseData.squares.map((plot) => {
+      if (plot.zone_number === selectedZoneId) {
         zonePlots.push(plot);
       }
     });
@@ -41,70 +39,68 @@ export default function ZoneOverview() {
     //   return Array.from(uniqueTypes);
     // }
     // console.log(getUniquePlantTypes(zonePlots));
-    if (viewState === GreenHouseViewState.Zone) {
-      return (
-        <div className="flex flex-col gap-2">
-          <div className="pl-4">
-            <li>
-              <span className="font-bold">Rows: </span>
-              <span className="text-green-300">{dimensions.y}</span>
-            </li>
-            <li>
-              <span className="font-bold">Columns: </span>
-              <span className="text-green-300">{dimensions.x}</span>
-            </li>
-            <li>
-              <span className="font-bold">dimensions: </span>
-              <span className="text-green-300">
-                {dimensions.x} X {dimensions.y} X {dimensions.z}
-              </span>
-            </li>
-            <li>
-              <span className="font-bold">Lights Available: </span>
-              <span className="text-green-300">
-                {zone.lightAvailable ? "Yes" : "No"}
-              </span>
-            </li>
-            {/* {zone.sprinklersAvailable && zone.sprinklers && (
+
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="pl-4">
+          <li>
+            <span className="font-bold">Rows: </span>
+            <span className="text-green-300">{dimensions.y}</span>
+          </li>
+          <li>
+            <span className="font-bold">Columns: </span>
+            <span className="text-green-300">{dimensions.x}</span>
+          </li>
+          <li>
+            <span className="font-bold">dimensions: </span>
+            <span className="text-green-300">
+              {dimensions.x} X {dimensions.y} X {dimensions.z}
+            </span>
+          </li>
+          {/* <li>
+            <span className="font-bold">Lights Available: </span>
+            <span className="text-green-300">
+              {zone.lightAvailable ? "Yes" : "No"}
+            </span>
+          </li> */}
+          {/* {zone.sprinklersAvailable && zone.sprinklers && (
           <li>
             <span className="font-bold">Sprinkler Heads: </span>
             <span className="text-green-300">{zone.sprinklers?.length}</span>
           </li>
         )} */}
-          </div>
-          <div>
-            <h3 className="text-md font-bold text-orange-500">Latest</h3>
-            <ul className="pl-4">
-              <li>
-                <span className="font-bold">Water: </span>
-                <ul className="pl-4">
+        </div>
+        {/* <div>
+          <h3 className="text-md font-bold text-orange-500">Latest</h3>
+          <ul className="pl-4">
+            <li>
+              <span className="font-bold">Water: </span>
+              <ul className="pl-4">
+                <li className="text-green-300">{zone.lastest_enviro.water}</li>
+              </ul>
+            </li>
+            <li>
+              <span className="font-bold">Fert: </span>
+              <ul className="pl-4">
+                <li className="text-green-300">{zone.lastest_enviro.fert}</li>
+              </ul>
+            </li>
+            <li>
+              <span className="font-bold">Light Period: </span>
+              <ul className="pl-4">
+                {zone.lastest_enviro.light_period ? (
                   <li className="text-green-300">
-                    {zone.lastest_enviro.water}
+                    {zone.lastest_enviro.light_period?.on} {" - "}
+                    {zone.lastest_enviro.light_period?.off}
                   </li>
-                </ul>
-              </li>
-              <li>
-                <span className="font-bold">Fert: </span>
-                <ul className="pl-4">
-                  <li className="text-green-300">{zone.lastest_enviro.fert}</li>
-                </ul>
-              </li>
-              <li>
-                <span className="font-bold">Light Period: </span>
-                <ul className="pl-4">
-                  {zone.lastest_enviro.light_period ? (
-                    <li className="text-green-300">
-                      {zone.lastest_enviro.light_period?.on} {" - "}
-                      {zone.lastest_enviro.light_period?.off}
-                    </li>
-                  ) : (
-                    <li className="text-red-300">No light period set</li>
-                  )}
-                </ul>
-              </li>
-            </ul>
-          </div>
-          {/* <div>
+                ) : (
+                  <li className="text-red-300">No light period set</li>
+                )}
+              </ul>
+            </li>
+          </ul>
+        </div> */}
+        {/* <div>
         <h3 className="text-md font-bold text-orange-500">Plots</h3>
 
         <ul className="pl-4">
@@ -139,11 +135,8 @@ export default function ZoneOverview() {
           </li>
         </ul>
       </div> */}
-        </div>
-      );
-    } else {
-      console.log("yup");
-    }
+      </div>
+    );
   } else {
     {
       console.log("loding in zones");
