@@ -7,7 +7,7 @@ import { Module, Sensor, SquareId } from "../../../../../types/common";
 import SensorListRender from "./SensorListRender";
 import { GreenHouseViewState } from "../../../../../types/enums";
 
-import NodeListRender from "../NodeListRender";
+import ModuleListRender from "../ModuleListRender";
 
 type PlotRenderProps = {
   args: [x: number, y: number, z: number];
@@ -178,10 +178,12 @@ export default function PlotRender({
           global={false}
         />
 
-        <NodeListRender
+        <ModuleListRender
           nodes={nodes}
           plot_height={args[2]}
           squareId={squareId}
+          global={false}
+          controller={false}
         />
       </animated.group>
     );

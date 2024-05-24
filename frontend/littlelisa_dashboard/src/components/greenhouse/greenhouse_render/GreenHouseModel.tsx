@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
@@ -7,6 +7,7 @@ import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 import { useSpring, animated } from "@react-spring/three";
 import SensorListRender from "./render_components/SensorListRender";
+import ModuleListRender from "./ModuleListRender";
 
 export default function GreenHouseModel() {
   const sceneRef = useRef<THREE.Group>(null!);
@@ -94,42 +95,41 @@ export default function GreenHouseModel() {
           {/* skip global zone */}
           {fetchedGreenhouseData && (
             <>
+              {/* greenhouse global sensors */}
               {fetchedGreenhouseData.zones[0].sensors?.map((sensor) => {
                 return (
                   <SensorListRender
                     key={`${sensor.zn_rel_pos?.x}-${sensor.zn_rel_pos?.y}-${sensor.zn_rel_pos?.z}`} // Unique key for each SensorListRender
                     sensors={fetchedGreenhouseData.zones[0].sensors}
                     localZoneId={0}
-                    plot_height={
-                      // sensor.zn_rel_pos!.z
-                      0
-                    } // Assuming this is intentional
+                    plot_height={sensor.zn_rel_pos!.z}
                     squareId={{
-                      // x: sensor.zn_rel_pos!.x,
-                      //y: sensor.zn_rel_pos!.y,
-                      x: 1,
-                      y: 1,
+                      x: sensor.zn_rel_pos!.x - 0.5,
+                      y: sensor.zn_rel_pos!.y - 0.5,
                     }}
-                    global={false}
+                    global={true}
                   />
                 );
               })}
-
-              {/* {Array.from({ length: dimensions.x }).map((_, col) =>
-                Array.from({ length: dimensions.y }).map((_, row) => (
-                  <SensorListRender
-                    key={`${col}-${row}`} // Unique key for each SensorListRender
-                    sensors={fetchedGreenhouseData.zones[1].sensors}
-                    localZoneId={0}
-                    plot_height={0} // Assuming this is intentional
-                    squareId={{ x: col, y: row }}
+              {/* greenhouse global controllers */}
+              {fetchedGreenhouseData.controllers?.map((controller) => {
+                return (
+                  <ModuleListRender
+                    key={`${controller.zn_rel_pos?.x}-${controller.zn_rel_pos?.y}-${controller.zn_rel_pos?.z}`}
+                    nodes={fetchedGreenhouseData.controllers}
+                    plot_height={controller.zn_rel_pos!.z}
+                    squareId={{
+                      x: controller.zn_rel_pos!.x - 0.5,
+                      y: controller.zn_rel_pos!.y - 0.5,
+                    }}
                     global={true}
+                    controller={true}
                   />
-                )),
-              )} */}
+                );
+              })}
             </>
           )}
-          {/* {zones!.slice(1).map((zone) => {
+          {zones!.slice(1).map((zone) => {
             return (
               <ZoneRender
                 zone={zone}
@@ -137,7 +137,7 @@ export default function GreenHouseModel() {
                 localZoneId={zone.zone_number}
               />
             );
-          })} */}
+          })}
         </group>
       </PresentationControls>
     </>

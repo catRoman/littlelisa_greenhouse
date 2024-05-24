@@ -4,17 +4,21 @@ import { SquareId } from "../../../../types/common";
 import { useState } from "react";
 import { Module } from "../../../../types/common";
 
-type NodeListRenderProp = {
+type ModuleListRenderProp = {
   nodes: Module[] | null;
   plot_height: number;
   squareId: SquareId;
+  global: boolean;
+  controller: boolean;
 };
 
-export default function NodeListRender({
+export default function ModuleListRender({
   nodes,
   plot_height,
   squareId,
-}: NodeListRenderProp) {
+  global,
+  controller,
+}: ModuleListRenderProp) {
   const [labelHover, setLabelHover] = useState<boolean>(false);
 
   function sensorEventHandler(
@@ -23,7 +27,11 @@ export default function NodeListRender({
     nodeName: string,
   ) {
     event.stopPropagation();
-    console.log(`node ${nodeId} -> ${nodeName} clicked`);
+    if (controller) {
+      console.log(`controller ${nodeId} -> ${nodeName} clicked`);
+    } else {
+      console.log(`node ${nodeId} -> ${nodeName} clicked`);
+    }
   }
   function sensorLabelEnterHandler() {
     setLabelHover(true);
@@ -46,11 +54,27 @@ export default function NodeListRender({
             node_x = node.square_pos.x - 1;
             node_y = node.square_pos.y - 1;
           }
-          const boxSides = 0.1;
+          let boxSides = 0.1;
           const nodeId = index + 1;
+
+          const locCheck = node_x === squareId.x && node_y === squareId.y;
+          const moduleArgs = controller
+            ? { color: "white", wireframe: true }
+            : { color: "purple", wireframe: true };
+          let x_pos = 0;
+          let y_pos = 0;
+          let z_pos = plot_height / 2 + boxSides;
+          let tagHeight = boxSides * 6;
+          if (global) {
+            x_pos = squareId.x;
+            y_pos = squareId.y;
+            z_pos = plot_height;
+            boxSides = 0.5;
+            tagHeight = boxSides * 2;
+          }
+
           return (
-            node_x === squareId.x &&
-            node_y === squareId.y && (
+            (global || locCheck) && (
               <group
                 key={index + 1}
                 onClick={(event) =>
@@ -58,7 +82,7 @@ export default function NodeListRender({
                 }
                 onPointerEnter={sensorLabelEnterHandler}
                 onPointerLeave={sensorLabelExitHandler}
-                position={[0, 0, plot_height / 2 + boxSides]}
+                position={[x_pos, y_pos, z_pos]}
               >
                 {labelHover && (
                   <Html
@@ -74,17 +98,15 @@ export default function NodeListRender({
                     center
                     sprite
                     distanceFactor={10}
-                    position={[0, 0, boxSides * 6]}
+                    position={[0, 0, tagHeight]}
                   >
-                    <p>Node</p>
+                    {controller ? <p>Controller</p> : <p>Node</p>}
                   </Html>
                 )}
 
                 <mesh>
                   <boxGeometry args={[boxSides, boxSides, boxSides]} />
-                  <meshBasicMaterial
-                    args={[{ color: "purple", wireframe: true }]}
-                  />
+                  <meshBasicMaterial args={[moduleArgs]} />
                 </mesh>
               </group>
             )

@@ -3,7 +3,7 @@ import config from "config";
 import helmet from "helmet";
 
 import camRoutes from "../../../../streaming/camRoutes.js";
-import sensorDataRoutes from "../../routes/sensorDataRoutes.js";
+import sensorRoutes from "../../routes/sensorRoutes.js";
 import userRoutes from "../../routes/userRoutes.js";
 
 export function startWebServer() {
@@ -17,7 +17,7 @@ export function startWebServer() {
   app.use("/", express.static("public"));
   app.use("/api/cam", camRoutes);
 
-  app.use("/api", sensorDataRoutes);
+  app.use("/api", sensorRoutes);
   app.use("/api", userRoutes);
 
   app.use((err, req, res, next) => {

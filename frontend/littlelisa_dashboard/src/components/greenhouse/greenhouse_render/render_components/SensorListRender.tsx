@@ -30,7 +30,11 @@ export default function SensorListRender({
   }
   function sensorEventHandler(event: ThreeEvent<MouseEvent>, sensorId: number) {
     event.stopPropagation();
-    console.log(`zone ${localZoneId} sensor ${sensorId} clicked`);
+    if (global) {
+      console.log(`Global sensor ${sensorId} clicked`);
+    } else {
+      console.log(`zone ${localZoneId} sensor ${sensorId} clicked`);
+    }
   }
   function sensorLabelEnterHandler() {
     setLabelHover(true);
@@ -59,14 +63,16 @@ export default function SensorListRender({
 
           const sphereRadius = 0.1;
           const sensorId = index + 1;
-          return (
+          const locCheck =
             sensor_x ===
               squareId.x +
                 fetchedGreenhouseData!.zones[localZoneId].zone_start_point.x &&
             sensor_y ===
               squareId.y +
-                fetchedGreenhouseData!.zones[localZoneId].zone_start_point
-                  .y && (
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point.y;
+
+          return (
+            (global || locCheck) && (
               <group
                 key={index + 1}
                 onClick={(event) => sensorEventHandler(event, sensorId)}
