@@ -175,6 +175,7 @@ export default function PlotRender({
           plot_height={args[2]}
           localZoneId={localZoneId}
           squareId={squareId}
+          global={false}
         />
 
         <NodeListRender

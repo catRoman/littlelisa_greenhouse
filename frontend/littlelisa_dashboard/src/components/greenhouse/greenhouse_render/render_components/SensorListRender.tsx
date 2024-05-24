@@ -9,6 +9,7 @@ type SensorListRenderProp = {
   plot_height: number;
   localZoneId: number;
   squareId: SquareId;
+  global: boolean;
 };
 
 export default function SensorListRender({
@@ -16,10 +17,17 @@ export default function SensorListRender({
   localZoneId,
   plot_height,
   squareId,
+  global,
 }: SensorListRenderProp) {
   const [labelHover, setLabelHover] = useState<boolean>(false);
   const { fetchedGreenhouseData } = useContext(GreenHouseContext);
 
+  let posX = 0;
+  let posY = 0;
+  if (global) {
+    posX = squareId.x;
+    posY = squareId.y;
+  }
   function sensorEventHandler(event: ThreeEvent<MouseEvent>, sensorId: number) {
     event.stopPropagation();
     console.log(`zone ${localZoneId} sensor ${sensorId} clicked`);
@@ -42,7 +50,7 @@ export default function SensorListRender({
             sensor_y = sensor.zn_rel_pos.y;
           }
 
-          if (squareId) {
+          if (sensor.square_id) {
             if (sensor.square_pos) {
               sensor_x = sensor.square_pos.x;
               sensor_y = sensor.square_pos.y;
@@ -64,7 +72,7 @@ export default function SensorListRender({
                 onClick={(event) => sensorEventHandler(event, sensorId)}
                 onPointerEnter={sensorLabelEnterHandler}
                 onPointerLeave={sensorLabelExitHandler}
-                position={[0, 0, plot_height / 2 + sphereRadius]}
+                position={[posX, posY, plot_height / 2 + sphereRadius]}
               >
                 {labelHover && (
                   <Html
