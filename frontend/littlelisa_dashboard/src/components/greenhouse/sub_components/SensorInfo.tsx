@@ -1,5 +1,6 @@
 import { Sensor } from "../../../../types/common";
-import DashAvgChart from "../../dashboard/DashAvgChart";
+
+import SensorChart from "./charts/SensorChart";
 
 type SensorInfoProps = {
   sensor: Sensor;
@@ -17,7 +18,7 @@ export default function SensorInfo({ sensor, sensorId }: SensorInfoProps) {
           {sensor.type} &rarr; Weekly Avg.
         </h3>
         <div className="mt-2 flex h-36 ">
-          <DashAvgChart />
+          <SensorChart sensorId={sensorId} />
         </div>
       </div>
     </div>
