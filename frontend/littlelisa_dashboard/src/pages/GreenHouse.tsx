@@ -35,11 +35,12 @@ export default function GreenHouse() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
+
         setFetchedGreenhouseData(data);
       } catch (error) {
         console.error("Fetch error:", error);
       } finally {
-        setLoading(false); // End loading
+        setLoading(false);
       }
     };
 

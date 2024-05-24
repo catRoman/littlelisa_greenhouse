@@ -1,16 +1,18 @@
+import { useContext } from "react";
 import { ZoneDataFull } from "../../../../types/common";
 import DashAvgChart from "../../dashboard/DashAvgChart";
+import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 
 type ZoneInfoProps = {
   zone: ZoneDataFull;
   zoneId: number;
 };
-export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
+export default function ZoneInfo({ zone }: ZoneInfoProps) {
+  const { fetchedGreenhouseData } = useContext(GreenHouseContext);
+
   return (
     <div className="">
       <div className="mb-2 flex gap-4">
-        <p className="text-sm  font-bold text-orange-500">Zone:</p>
-        <p className="text-sm">{zoneId}</p>
         <h3 className="text-sm  font-bold text-orange-500">
           <span className="text-blue-300"> {zone.name} </span>
           &rarr; Cumulative Senosr Avg. &#8628;
@@ -19,8 +21,21 @@ export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
       <div className=" col-auto grid  grid-cols-6 rounded-md bg-zinc-800 p-2">
         <div className="">
           <div className="flex text-sm">
-            <p className="font-bold text-orange-500">Nodes:</p>
-            <p className="pl-4 ">{zone.nodes ? zone.nodes.length : 0}</p>
+            {zone.zone_number === 0 ? (
+              <>
+                <p className="font-bold text-orange-500">Controllers:</p>
+                <p className="pl-4 ">
+                  {fetchedGreenhouseData?.total.controllers
+                    ? fetchedGreenhouseData.total.controllers
+                    : 0}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-bold text-orange-500">Nodes:</p>
+                <p className="pl-4 ">{zone.nodes ? zone.nodes.length : 0}</p>
+              </>
+            )}
           </div>
           <div className=" flex h-28 flex-col  text-sm">
             <p className="font-bold text-orange-500">Sensors:</p>
@@ -31,13 +46,22 @@ export default function ZoneInfo({ zone, zoneId }: ZoneInfoProps) {
                     <li key={index}>
                       <div className="flex justify-between">
                         {/* <span>{sensor.type} </span> */}
-                        {sensor.square_id ? (
+                        {sensor.square_id && sensor.square_pos ? (
                           <span>
-                            loc: [{sensor.square_pos?.x},{sensor.square_pos?.y}]
+                            loc: [
+                            {sensor.square_pos.y > zone.dimensions.y
+                              ? sensor.square_pos.x % zone.dimensions.x
+                              : sensor.square_pos.x}
+                            ,
+                            {sensor.square_pos.y > zone.dimensions.y
+                              ? sensor.square_pos.y % zone.dimensions.y
+                              : sensor.square_pos.y}
+                            ]
                           </span>
                         ) : (
                           <span>
-                            loc: [{sensor.zn_rel_pos?.x},{sensor.zn_rel_pos?.y}]
+                            loc: [{sensor.zn_rel_pos?.x},{sensor.zn_rel_pos?.y},
+                            {sensor.zn_rel_pos?.z}]
                           </span>
                         )}
                       </div>

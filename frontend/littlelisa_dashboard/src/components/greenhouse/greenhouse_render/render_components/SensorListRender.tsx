@@ -1,7 +1,8 @@
 import { Html } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
 import { Sensor, SquareId } from "../../../../../types/common";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
 
 type SensorListRenderProp = {
   sensors: Sensor[] | null;
@@ -17,6 +18,7 @@ export default function SensorListRender({
   squareId,
 }: SensorListRenderProp) {
   const [labelHover, setLabelHover] = useState<boolean>(false);
+  const { fetchedGreenhouseData } = useContext(GreenHouseContext);
 
   function sensorEventHandler(event: ThreeEvent<MouseEvent>, sensorId: number) {
     event.stopPropagation();
@@ -33,14 +35,30 @@ export default function SensorListRender({
     return (
       <>
         {sensors.map((sensor, index) => {
-          const {
-            loc_coord: { x: sensor_x, y: sensor_y },
-          } = sensor;
+          let sensor_x;
+          let sensor_y;
+          if (sensor.zn_rel_pos) {
+            sensor_x = sensor.zn_rel_pos.x;
+            sensor_y = sensor.zn_rel_pos.y;
+          }
+
+          if (squareId) {
+            if (sensor.square_pos) {
+              sensor_x = sensor.square_pos.x;
+              sensor_y = sensor.square_pos.y;
+            }
+          }
+
           const sphereRadius = 0.1;
           const sensorId = index + 1;
           return (
-            sensor_x === squareId.x &&
-            sensor_y === squareId.y && (
+            sensor_x ===
+              squareId.x +
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point.x &&
+            sensor_y ===
+              squareId.y +
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point
+                  .y && (
               <group
                 key={index + 1}
                 onClick={(event) => sensorEventHandler(event, sensorId)}

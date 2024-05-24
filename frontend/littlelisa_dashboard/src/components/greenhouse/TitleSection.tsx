@@ -12,12 +12,12 @@ export default function TitleSection() {
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
       header = `GreenHouse Overview`;
-      description = `Just some crap about using the greenhouse model maybe not sure`;
+      description = `${fetchedGreenhouseData?.location}`;
       break;
 
     case GreenHouseViewState.Zone:
-      header = `Zone ${selectedZoneId} \u2192 ${fetchedGreenhouseData?.zones[selectedZoneId - 1].name}`;
-      description = `${fetchedGreenhouseData?.zones[selectedZoneId - 1].description}`;
+      header = `${fetchedGreenhouseData?.zones[selectedZoneId].name}  `;
+      description = `${fetchedGreenhouseData?.zones[selectedZoneId].description}`;
       break;
     case GreenHouseViewState.Plot:
       header = `Plot: ${selectedPlot?.is_empty ? "Empty" : selectedPlot?.plant_type}`;

@@ -3,7 +3,7 @@ select
     s.local_sensor_id,
     s.location,
     m.identifier as module_id,
-    st.type_name,
+    st.type_name as type,
 
     CASE
         WHEN s.square_id IS NOT NULL THEN s.square_id
@@ -36,7 +36,7 @@ left join modules m
     on s.module_id = m.module_id
 join sensor_types st
     on s.type_id = st.type_id
- LEFT JOIN zn_rel_pos zrp ON m.zn_rel_pos_id = zrp.zn_rel_pos_id
+ LEFT JOIN zn_rel_pos zrp ON s.zn_rel_pos_id = zrp.zn_rel_pos_id
  LEFT JOIN squares sq ON s.square_id = sq.square_id
 where m.zone_id=$1
 order by s.local_sensor_id asc;
