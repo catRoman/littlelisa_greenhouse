@@ -106,3 +106,10 @@ export type Note = {
 export type Node = Module & {
   node_id: number;
 };
+export type ChartData = {
+  period: Date;
+};
+export type DHT22ChartData = ChartData & {
+  avgTemp: number;
+  avgHumidity: number;
+};
