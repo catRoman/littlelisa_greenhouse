@@ -12,30 +12,33 @@ import {
 } from "recharts";
 import { ChartData } from "../../../../../types/common";
 
-interface SensorChartProps {
-  sensorType: string;
-  sensorId: number;
+interface ZoneChartProps {
+  zoneId: number;
 }
-interface SensorChartState {
-  chartData: ChartData[] | null;
+interface ZoneChartState {
+  chartData:
+    | {
+        [key: string]: ChartData[] | null;
+      }
+    | undefined;
   isLoading: boolean;
 }
 
-export default class SensorChart extends PureComponent<SensorChartProps> {
-  state: SensorChartState = {
-    chartData: null,
+export default class ZoneChart extends PureComponent<ZoneChartProps> {
+  state: ZoneChartState = {
+    chartData: undefined,
     isLoading: true,
   };
-  constructor(props: SensorChartProps) {
+  constructor(props: ZoneChartProps) {
     super(props);
   }
 
   async componentDidMount() {
     // Equivalent to useEffect with empty dependency array
-    const { sensorId } = this.props;
+    const { zoneId } = this.props;
     try {
       const response = await fetch(
-        `/api/users/1/greenhouses/1/sensors/${sensorId}/chart?last=7&units=days&grouped=hour`,
+        `/api/users/1/greenhouses/1/zone/${zoneId}/sensors/chart?last=7&units=days&grouped=hour`,
       );
       if (!response.ok) throw new Error("Error fetching data");
       const data = await response.json();
@@ -47,7 +50,7 @@ export default class SensorChart extends PureComponent<SensorChartProps> {
 
   render() {
     const { isLoading, chartData } = this.state;
-    const { sensorType } = this.props;
+
     if (isLoading)
       return (
         <div className="m-auto flex font-bold">
@@ -85,26 +88,31 @@ export default class SensorChart extends PureComponent<SensorChartProps> {
             labelStyle={{ color: "rgba(161,161,170)" }} // Optionally adjust label text color
           />
           <Legend verticalAlign="bottom" />
-          {sensorType === "DHT22" && (
-            <>
-              <Line
-                yAxisId="right"
-                dot={false}
-                type="monotone"
-                dataKey="avgTemp"
-                name="Temperature"
-                stroke="#c75e18"
-              />
-              <Line
-                yAxisId="left"
-                dot={false}
-                type="monotone"
-                name="Humidity"
-                dataKey="avgHumidity"
-                stroke="#19bd27"
-              />
-            </>
-          )}
+          {chartData.types.map((sensorType) => {
+            if (sensorType.type === "DHT22") {
+              return (
+                <>
+                  <Line
+                    yAxisId="right"
+                    dot={false}
+                    type="monotone"
+                    dataKey="avgTemp"
+                    name="Temperature"
+                    stroke="#c75e18"
+                  />
+                  <Line
+                    yAxisId="left"
+                    dot={false}
+                    type="monotone"
+                    name="Humidity"
+                    dataKey="avgHumidity"
+                    stroke="#19bd27"
+                  />
+                </>
+              );
+            }
+            // add more sensors as i install them
+          })}
         </LineChart>
       </ResponsiveContainer>
     );

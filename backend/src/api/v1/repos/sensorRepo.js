@@ -70,11 +70,12 @@ class SensorRepo extends BaseRepo {
           avg(humidity) as avg_humidity
         FROM dht22_data
         WHERE timestamp >= now()  - $2::interval
+          and sensor_id = $3
         GROUP BY grouping
         ORDER BY grouping;
         `,
 
-        [grouping, interval]
+        [grouping, interval, sensorId]
       );
     }
 
@@ -82,12 +83,69 @@ class SensorRepo extends BaseRepo {
       period: moment
         .tz(row.grouping, "UTC")
         .tz("America/Los_Angeles")
-        .format("MMM DD, YYYY HH:mm"),
+        .format("MMM DD, HH:mm"),
+
       avgTemp: parseFloat(parseFloat(row.avg_temp).toFixed(2)), // No need to parseFloat
       avgHumidity: parseFloat(parseFloat(row.avg_humidity).toFixed(2)), // No need to parseFloat
     }));
 
     return formattedData;
+  }
+
+  async getZoneChartData(zoneId, last, unit, grouped) {
+    const types = await this.query(
+      `
+      select distinct
+        st.type_name as type
+      from sensors s
+      join sensor_types st on s.type_id = st.type_id
+      join modules m on m.module_id = s.module_id
+      where m.zone_id = $1;`,
+      [zoneId]
+    );
+
+    const sensorData = [];
+
+    for (let i = 0; i < types.length; i++) {
+      const grouping = `${grouped}`;
+      const interval = `'${last} ${unit}'`;
+      if (types[i].type === "DHT22") {
+        console.log("query time");
+        const query = await this.query(
+          `
+          SELECT
+            DATE_TRUNC($1, timestamp ) AS grouping,
+            AVG(temperature) AS dht22_avg_temp,
+            avg(humidity) as dht22_avg_humidity
+          FROM dht22_data d
+          join sensors s on d.sensor_id = s.sensor_id
+          join modules m on m.module_id = s.module_id
+          WHERE timestamp >= now()  - $2::interval
+            and m.zone_id = $3
+          GROUP BY grouping
+          ORDER BY grouping;
+          `,
+
+          [grouping, interval, zoneId]
+        );
+        const formattedData = query.map((row) => ({
+          period: moment
+            .tz(row.grouping, "UTC")
+            .tz("America/Los_Angeles")
+            .format("MMM DD, HH:mm"),
+
+          dht22_avgTemp: parseFloat(parseFloat(row.dht22_avg_temp).toFixed(2)), // No need to parseFloat
+          dht22_avgHumidity: parseFloat(
+            parseFloat(row.dht22_avg_humidity).toFixed(2)
+          ), // No need to parseFloat
+        }));
+
+        sensorData.push(formattedData);
+      }
+    }
+
+    //TODO: merge with other queries when i have another sensor hooked up for testing
+    return { types, ...sensorData };
   }
 }
 export default new SensorRepo();

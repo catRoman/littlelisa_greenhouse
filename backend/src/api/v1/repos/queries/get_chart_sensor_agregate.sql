@@ -3,6 +3,6 @@ SELECT
     AVG(temperature) AS avg_temp,
     avg(humidity) as avg_humidity
 FROM dht22_data
-WHERE timestamp >= now() - '7 days'::interval
+WHERE timestamp >= now() - '7 days'::interval, sensor_id = 8
 GROUP BY hour
 ORDER BY hour;

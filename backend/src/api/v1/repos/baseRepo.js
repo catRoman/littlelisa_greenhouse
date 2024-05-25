@@ -35,6 +35,25 @@ export default class BaseRepo {
     );
     return results[0] ? results[0] : null;
   }
+  async getByLocalId(parentId, id) {
+    const idType = this.tableName.slice(0, -1);
+    const query = `
+      select *
+      from
+        (
+          select *,
+          row_number() over
+            (partition by user_id order by ${idType}_id as local_id
+          from ${this.tableName}
+        ) as sub_query
+      where local_id =${id};`;
+
+    const results = await this.query(
+      query,
+      this.parentName ? [id, parentId] : [id]
+    );
+    return results[0] ? results[0] : null;
+  }
 
   async getAllByParentId(parentId) {
     const query = `SELECT * FROM ${this.tableName} WHERE ${this.parentName}_id = $1`;

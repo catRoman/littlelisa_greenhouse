@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { ZoneDataFull } from "../../../../types/common";
 import DashAvgChart from "../../dashboard/DashAvgChart";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
+import ZoneChart from "./charts/ZoneChart";
 
 type ZoneInfoProps = {
   zone: ZoneDataFull;
@@ -80,7 +81,7 @@ export default function ZoneInfo({ zone }: ZoneInfoProps) {
         </h3> */}
           <div className="mt-2 flex h-36 ">
             {zone.sensors ? (
-              <DashAvgChart />
+              <ZoneChart zoneId={zone.zone_id} />
             ) : (
               <span className="m-auto">No available sensor Data</span>
             )}
