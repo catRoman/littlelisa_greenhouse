@@ -11,10 +11,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-interface ZoneChartProps {
-  zoneId: number;
+interface GreenhouseChartProps {
+  greenhouseId: number;
 }
-interface ZoneChartState {
+interface GreenhouseChartState {
   chartData:
     | {
         types: string[];
@@ -24,21 +24,21 @@ interface ZoneChartState {
   isLoading: boolean;
 }
 
-export default class ZoneChart extends PureComponent<ZoneChartProps> {
-  state: ZoneChartState = {
+export default class GreenhouseAvgChart extends PureComponent<GreenhouseChartProps> {
+  state: GreenhouseChartState = {
     chartData: undefined,
     isLoading: true,
   };
-  constructor(props: ZoneChartProps) {
+  constructor(props: GreenhouseChartProps) {
     super(props);
   }
 
   async componentDidMount() {
     // Equivalent to useEffect with empty dependency array
-    const { zoneId } = this.props;
+    const { greenhouseId } = this.props;
     try {
       const response = await fetch(
-        `/api/users/1/greenhouses/1/zones/${zoneId}/sensors/chart?last=7&units=days&grouped=hour`,
+        `/api/users/1/greenhouses/${greenhouseId}/sensors/chart?last=7&units=days&grouped=hour`,
       );
       if (!response.ok) throw new Error("Error fetching data");
       const data = await response.json();
@@ -100,7 +100,7 @@ export default class ZoneChart extends PureComponent<ZoneChartProps> {
                       type="monotone"
                       dataKey="dht22_avgTemp"
                       name="Temperature"
-                      stroke="#2a18c7"
+                      stroke="#18b3c7"
                     />
                     <Line
                       yAxisId="left"
@@ -108,7 +108,7 @@ export default class ZoneChart extends PureComponent<ZoneChartProps> {
                       type="monotone"
                       name="Humidity"
                       dataKey="dht22_avgHumidity"
-                      stroke="#bd19b5"
+                      stroke="#bd1934"
                     />
                   </>
                 );
