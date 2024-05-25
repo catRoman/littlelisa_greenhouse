@@ -15,10 +15,10 @@ export default function SensorInfo({ sensor, sensorId }: SensorInfoProps) {
           {sensor.square_id
             ? `[${sensor.square_pos?.x}-${sensor.square_pos?.y}] - `
             : `[${sensor.zn_rel_pos?.x}-${sensor.zn_rel_pos?.y}-${sensor.zn_rel_pos?.z}] - `}
-          {sensor.type} &rarr; Weekly Avg.
+          {sensor.type} &rarr; {sensor.location} &rarr; Last 7 Days...
         </h3>
         <div className="mt-2 flex h-36 ">
-          <SensorChart sensorId={sensorId} />
+          <SensorChart sensorId={sensor.sensor_id} sensorType={sensor.type} />
         </div>
       </div>
     </div>

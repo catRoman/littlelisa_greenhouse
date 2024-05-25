@@ -40,8 +40,28 @@ const getChartData = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const getZoneChartData = async (req, res) => {
+  try {
+    const last = parseInt(req.query.last, 10);
+    const unit = req.query.units;
+    const grouped = req.query.grouped;
+
+    console.log(`requested: ${req.originalUrl}`);
+    const chartData = await sensorService.getZoneChartData(
+      req.params.zoneId,
+      last,
+      unit,
+      grouped
+    );
+
+    res.json(chartData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export default {
   sensorDataStream,
   getChartData,
+  getZoneChartData,
 };

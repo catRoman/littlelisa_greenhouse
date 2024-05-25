@@ -108,6 +108,7 @@ export type Node = Module & {
 };
 export type ChartData = {
   period: Date;
+  sensorType: string;
 };
 export type DHT22ChartData = ChartData & {
   avgTemp: number;

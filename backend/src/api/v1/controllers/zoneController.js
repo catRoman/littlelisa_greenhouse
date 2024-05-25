@@ -5,7 +5,7 @@ const getAllZones = async (req, res) => {
     const greenhouseId = req.params.greenhouseId;
 
     const zones = await zoneService.getAllZones(greenhouseId);
-    console.log(`/users/${greenhouseId}/Zones requested`);
+    console.log(`requested: ${req.originalUrl}`);
 
     res.json(zones);
   } catch (error) {
@@ -18,7 +18,7 @@ const getZoneById = async (req, res) => {
     const greenhouseId = req.params.greenhouseId;
     const zoneId = req.params.zoneId;
     const zone = await zoneService.getZoneById(greenhouseId, zoneId);
-    console.log(`/zones/${zoneId} requested`);
+    console.log(`requested: ${req.originalUrl}`);
     console.log(`greenhouse ${greenhouseId}`);
 
     res.json(zone);
