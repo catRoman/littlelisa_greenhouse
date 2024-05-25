@@ -47,9 +47,9 @@ export default function App() {
         {
           path: "dashboard",
           element: (
-            <React.Suspense fallback="Loading...">
+            <GreenHouseContextProvider>
               <DashBoard />
-            </React.Suspense>
+            </GreenHouseContextProvider>
           ),
         },
         {

@@ -2,7 +2,7 @@ import { Canvas } from "@react-three/fiber";
 
 import GreenHouseModel from "../components/greenhouse/greenhouse_render/GreenHouseModel";
 import { GreenHouseContext } from "../context/GreenHouseContextProvider";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import TitleSection from "../components/greenhouse/TitleSection";
 import SectionBody from "../components/greenhouse/SectionBody";
@@ -12,10 +12,7 @@ import NotesSection from "../components/greenhouse/NotesSection";
 import { GreenHouseViewState } from "../../types/enums";
 
 export default function GreenHouse() {
-  const [loading, setLoading] = useState<boolean>(true);
   const {
-    fetchedGreenhouseData,
-    setFetchedGreenhouseData,
     setSelectedZoneId,
     inZone,
     setSelectedSquareId,
@@ -25,27 +22,6 @@ export default function GreenHouse() {
 
     setViewState,
   } = useContext(GreenHouseContext);
-
-  useEffect(() => {
-    const fetchGreenHouseData = async () => {
-      const url = "/api/users/1/greenhouses/1/flatGreenhouseData";
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-
-        setFetchedGreenhouseData(data);
-      } catch (error) {
-        console.error("Fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchGreenHouseData();
-  }, [setFetchedGreenhouseData]);
 
   const zoomOutHandle = () => {
     if (!zoneSquareSelected.current) {
@@ -60,13 +36,6 @@ export default function GreenHouse() {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!fetchedGreenhouseData) {
-    return <div>No data found</div>;
-  }
   return (
     <div className="mr-4 grid  w-full auto-rows-min  grid-cols-6  gap-6 px-4">
       <div className="col-span-3  ">

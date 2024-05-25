@@ -93,7 +93,7 @@ class SensorRepo extends BaseRepo {
   }
 
   async getZoneChartData(zoneId, last, unit, grouped) {
-    const types = await this.query(
+    const sensorTypes = await this.query(
       `
       select distinct
         st.type_name as type
@@ -103,14 +103,18 @@ class SensorRepo extends BaseRepo {
       where m.zone_id = $1;`,
       [zoneId]
     );
+    const types = [];
+    sensorTypes.forEach((type) => {
+      //console.log(type.type);
+      types.push(type.type);
+    });
 
-    const sensorData = [];
+    const data = [];
 
     for (let i = 0; i < types.length; i++) {
       const grouping = `${grouped}`;
       const interval = `'${last} ${unit}'`;
-      if (types[i].type === "DHT22") {
-        console.log("query time");
+      if (types[i] === "DHT22") {
         const query = await this.query(
           `
           SELECT
@@ -140,12 +144,75 @@ class SensorRepo extends BaseRepo {
           ), // No need to parseFloat
         }));
 
-        sensorData.push(formattedData);
+        data.push(formattedData);
       }
     }
 
     //TODO: merge with other queries when i have another sensor hooked up for testing
-    return { types, ...sensorData };
+    //pass back the merged data in one array
+    return { types: types, data: data[0] };
+  }
+
+  async getGreenhouseChartData(greenhouseId, last, unit, grouped) {
+    const sensorTypes = await this.query(
+      `
+      select distinct
+        st.type_name as type
+      from sensors s
+      join sensor_types st on s.type_id = st.type_id
+      join modules m on m.module_id = s.module_id
+      where m.greenhouse_id = $1;`,
+      [greenhouseId]
+    );
+    const types = [];
+
+    sensorTypes.forEach((type) => {
+      //console.log(type.type);
+      types.push(type.type);
+    });
+
+    const data = [];
+
+    for (let i = 0; i < types.length; i++) {
+      const grouping = `${grouped}`;
+      const interval = `'${last} ${unit}'`;
+      if (types[i] === "DHT22") {
+        const query = await this.query(
+          `
+          SELECT
+            DATE_TRUNC($1, timestamp ) AS grouping,
+            AVG(temperature) AS dht22_avg_temp,
+            avg(humidity) as dht22_avg_humidity
+          FROM dht22_data d
+          join sensors s on d.sensor_id = s.sensor_id
+          join modules m on m.module_id = s.module_id
+          WHERE timestamp >= now()  - $2::interval
+            and m.greenhouse_id = $3
+          GROUP BY grouping
+          ORDER BY grouping;
+          `,
+
+          [grouping, interval, greenhouseId]
+        );
+        const formattedData = query.map((row) => ({
+          period: moment
+            .tz(row.grouping, "UTC")
+            .tz("America/Los_Angeles")
+            .format("MMM DD, HH:mm"),
+
+          dht22_avgTemp: parseFloat(parseFloat(row.dht22_avg_temp).toFixed(2)), // No need to parseFloat
+          dht22_avgHumidity: parseFloat(
+            parseFloat(row.dht22_avg_humidity).toFixed(2)
+          ), // No need to parseFloat
+        }));
+
+        data.push(formattedData);
+      }
+    }
+
+    //TODO: merge with other queries when i have another sensor hooked up for testing
+    //pass back the merged data in one array
+    return { types: types, data: data[0] };
   }
 }
 export default new SensorRepo();

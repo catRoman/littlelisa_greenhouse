@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { ZoneDataFull } from "../../../../types/common";
-import DashAvgChart from "../../dashboard/DashAvgChart";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 import ZoneChart from "./charts/ZoneChart";
 
