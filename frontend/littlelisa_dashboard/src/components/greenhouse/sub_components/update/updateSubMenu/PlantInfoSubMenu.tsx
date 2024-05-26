@@ -3,10 +3,19 @@ import ReactDatePicker from "react-datepicker";
 import { GreenHouseContext } from "../../../../../context/GreenHouseContextProvider";
 
 export default function PlantInfoSubMenu() {
-  const { selectedPlot } = useContext(GreenHouseContext);
+  const {
+    selectedPlot,
+    setRefreshGreenhouseData,
+    refreshGreenhouseData,
+    fetchedGreenhouseData,
+  } = useContext(GreenHouseContext);
+
+  const { user_id: userId, greenhouse_id: greenhouseId } =
+    fetchedGreenhouseData!;
   const [emptyCheck, setEmptyCheck] = useState<boolean>(false);
   const [updateCheck, setUpdateCheck] = useState<boolean>(false);
-  const [plantInfo, setPlantInfo] = useState({
+
+  const defaultPlantInfo = {
     plant_type: selectedPlot ? selectedPlot.plant_type : "",
     date_planted: selectedPlot?.date_planted
       ? new Date(selectedPlot.date_planted!)
@@ -17,7 +26,9 @@ export default function PlantInfoSubMenu() {
     is_transplanted: selectedPlot?.is_transplanted
       ? selectedPlot.is_transplanted
       : false,
-  });
+  };
+
+  const [plantInfo, setPlantInfo] = useState(defaultPlantInfo);
 
   const [errors, setErrors] = useState({
     date_issue: "",
@@ -56,6 +67,49 @@ export default function PlantInfoSubMenu() {
     }
     setErrors(newErrors);
     setUpdateCheck(!updateCheck);
+    if (valid) {
+      const plantInfoFormData = new FormData();
+      plantInfoFormData.append("plant_type", plantInfo.plant_type!);
+      plantInfoFormData.append(
+        "is_transplanted",
+        plantInfo.is_transplanted!.toString(),
+      );
+      plantInfoFormData.append(
+        "date_planted",
+        plantInfo.date_planted!.toString(),
+      );
+      plantInfoFormData.append(
+        "date_expected_harvest",
+        plantInfo.date_expected_harvest!.toString(),
+      );
+
+      const postNote = async () => {
+        try {
+          const response = await fetch(
+            `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot!.square_db_id}`,
+            {
+              method: "POST",
+              body: plantInfoFormData,
+            },
+          );
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const responseData = await response.json();
+          setRefreshGreenhouseData(!refreshGreenhouseData);
+          console.log(responseData);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setPlantInfo(defaultPlantInfo);
+        }
+      };
+
+      postNote();
+    } else {
+      console.log(errors);
+    }
   }
   function emptySubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();

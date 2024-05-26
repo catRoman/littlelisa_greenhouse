@@ -1,18 +1,6 @@
 import notesService from "../services/notesService.js";
-import formidable from "formidable";
 
-const parseForm = (req) => {
-  return new Promise((resolve, reject) => {
-    const form = formidable({ multiples: true });
-    form.parse(req, (err, fields, files) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ fields, files });
-      }
-    });
-  });
-};
+import utility from "./util/utility.js";
 
 const getCategoryNotes = async (req, res) => {
   try {
@@ -76,7 +64,7 @@ const getAllNotes = async (req, res) => {
 
 const postNote = async (req, res) => {
   try {
-    const { fields } = await parseForm(req);
+    const { fields } = await utility.parseForm(req);
     const { title, body } = fields;
 
     console.log(`post requested: ${req.originalUrl}`);

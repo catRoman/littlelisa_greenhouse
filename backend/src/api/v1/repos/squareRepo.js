@@ -27,6 +27,28 @@ class SquareRepo extends BaseRepo {
 
     return query;
   }
+
+  async updateSqaure(
+    plantType,
+    isTransplanted,
+    datePlanted,
+    dateHarvest,
+    squareId
+  ) {
+    const query = await this.query(
+      `update squares
+      set
+        plant_type = $1,
+        s_transplanted = $2,
+        date_planted = $3,
+        date_expected_harvest = $4
+      where square_id = $5
+      returning *`,
+      [plantType, isTransplanted, datePlanted, dateHarvest, squareId]
+    );
+
+    return query[0] ? query[0] : null;
+  }
 }
 
 export default new SquareRepo();

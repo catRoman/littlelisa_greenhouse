@@ -22,6 +22,7 @@ export default function GreenHouse() {
     setCurrentCameraProperties,
     setFetchedGreenhouseData,
     setViewState,
+    refreshGreenhouseData,
   } = useContext(GreenHouseContext);
 
   const [loading, setLoading] = useState<boolean>(true);
@@ -45,7 +46,7 @@ export default function GreenHouse() {
     };
 
     fetchGreenHouseData();
-  }, [setFetchedGreenhouseData]);
+  }, [setFetchedGreenhouseData, refreshGreenhouseData]);
 
   const zoomOutHandle = () => {
     if (!zoneSquareSelected.current) {
