@@ -28,7 +28,7 @@ class SquareRepo extends BaseRepo {
     return query;
   }
 
-  async updateSqaure(
+  async updateById(
     plantType,
     isTransplanted,
     datePlanted,
@@ -39,7 +39,7 @@ class SquareRepo extends BaseRepo {
       `update squares
       set
         plant_type = $1,
-        s_transplanted = $2,
+        is_transplant = $2,
         date_planted = $3,
         date_expected_harvest = $4
       where square_id = $5
