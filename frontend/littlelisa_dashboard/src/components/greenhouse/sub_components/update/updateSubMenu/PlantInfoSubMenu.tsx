@@ -5,6 +5,7 @@ import { GreenHouseContext } from "../../../../../context/GreenHouseContextProvi
 export default function PlantInfoSubMenu() {
   const { selectedPlot } = useContext(GreenHouseContext);
   const [emptyCheck, setEmptyCheck] = useState<boolean>(false);
+  const [updateCheck, setUpdateCheck] = useState<boolean>(false);
   const [plantInfo, setPlantInfo] = useState({
     plant_type: selectedPlot ? selectedPlot.plant_type : "",
     date_planted: selectedPlot?.date_planted
@@ -20,6 +21,7 @@ export default function PlantInfoSubMenu() {
 
   const [errors, setErrors] = useState({
     date_issue: "",
+    plant_type: "",
   });
 
   const plantedChangeHandler = (date: Date) => {
@@ -40,14 +42,20 @@ export default function PlantInfoSubMenu() {
 
   function plantInfoSubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
-    const newErrors = { date_issue: "" };
+    const newErrors = { date_issue: "", plant_type: "" };
     console.log(plantInfo);
     let valid = true;
     if (plantInfo.date_expected_harvest < plantInfo.date_planted) {
       newErrors.date_issue = "Surley you expect a harvest after planting...";
       valid = false;
     }
+    if (!plantInfo.plant_type) {
+      console.log("plant type error");
+      newErrors.plant_type = "Need a plant type, take a geuss...";
+      valid = false;
+    }
     setErrors(newErrors);
+    setUpdateCheck(!updateCheck);
   }
   function emptySubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -59,16 +67,25 @@ export default function PlantInfoSubMenu() {
       <form className="grid grid-cols-2 gap-2 pl-4">
         <div className="col-span-2 flex justify-between">
           <div className="">
-            {!errors.date_issue && !emptyCheck && (
-              <h5 className="  text-purple-300">Plant info...</h5>
-            )}
+            {!errors.date_issue &&
+              !emptyCheck &&
+              !errors.plant_type &&
+              !updateCheck && (
+                <h5 className="  text-purple-300">Plant info...</h5>
+              )}
             {errors.date_issue && (
               <p className="mt-1 text-sm text-red-500">{errors.date_issue}</p>
+            )}
+            {errors.plant_type && (
+              <p className="mt-1 text-sm text-red-500">{errors.plant_type}</p>
             )}
             {emptyCheck && (
               <p className="mt-1 text-sm text-red-500">
                 Are you Sure? This is clear the plot for good
               </p>
+            )}
+            {updateCheck && (
+              <p className="mt-1 text-sm text-green-500">Are you Sure?</p>
             )}
           </div>
 
@@ -90,7 +107,7 @@ export default function PlantInfoSubMenu() {
                 Cancel
               </button>
             </div>
-          ) : (
+          ) : !updateCheck ? (
             <div className="flex justify-end gap-2">
               <button
                 onClick={(event) => {
@@ -102,10 +119,31 @@ export default function PlantInfoSubMenu() {
                 Empty
               </button>
               <button
+                onClick={(event) => {
+                  event.preventDefault();
+                  setUpdateCheck(!updateCheck);
+                }}
+                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
+              >
+                Update
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-end gap-2">
+              <button
                 onClick={plantInfoSubmitHandler}
                 className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
               >
                 Update
+              </button>
+              <button
+                onClick={(event) => {
+                  event.preventDefault();
+                  setUpdateCheck(!updateCheck);
+                }}
+                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
+              >
+                Cancel
               </button>
             </div>
           )}
