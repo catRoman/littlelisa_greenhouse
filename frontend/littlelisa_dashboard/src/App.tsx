@@ -46,11 +46,7 @@ export default function App() {
       children: [
         {
           path: "dashboard",
-          element: (
-            <GreenHouseContextProvider>
-              <DashBoard />
-            </GreenHouseContextProvider>
-          ),
+          element: <DashBoard />,
         },
         {
           path: "greenhouse",

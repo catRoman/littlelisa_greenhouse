@@ -2,7 +2,7 @@ import { Canvas } from "@react-three/fiber";
 
 import GreenHouseModel from "../components/greenhouse/greenhouse_render/GreenHouseModel";
 import { GreenHouseContext } from "../context/GreenHouseContextProvider";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import TitleSection from "../components/greenhouse/TitleSection";
 import SectionBody from "../components/greenhouse/SectionBody";
@@ -19,9 +19,32 @@ export default function GreenHouse() {
     zoneSquareSelected,
     enableControls,
     setCurrentCameraProperties,
-
+    setFetchedGreenhouseData,
     setViewState,
   } = useContext(GreenHouseContext);
+
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchGreenHouseData = async () => {
+      const url = "/api/users/1/greenhouses/1/flatGreenhouseData";
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        setFetchedGreenhouseData(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGreenHouseData();
+  }, [setFetchedGreenhouseData]);
 
   const zoomOutHandle = () => {
     if (!zoneSquareSelected.current) {
@@ -36,6 +59,10 @@ export default function GreenHouse() {
     }
   };
 
+  // if (loading) {
+  //   return
+  // }
+
   return (
     <div className="mr-4 grid  w-full auto-rows-min  grid-cols-6  gap-6 px-4">
       <div className="col-span-3  ">
@@ -48,9 +75,13 @@ export default function GreenHouse() {
         <EventsSection />
       </div>
       <div className="z-1 col-span-3 row-span-2 h-96 cursor-pointer overflow-hidden">
-        <Canvas onPointerMissed={zoomOutHandle}>
-          <GreenHouseModel />
-        </Canvas>
+        {loading ? (
+          <div className="m-auto flex ">Loading...</div>
+        ) : (
+          <Canvas onPointerMissed={zoomOutHandle}>
+            <GreenHouseModel />
+          </Canvas>
+        )}
       </div>
       <div className="col-span-3 h-16 border">
         {GreenHouseViewState.Plot ? <p>Update</p> : <p>Schedule</p>}
