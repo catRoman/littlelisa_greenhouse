@@ -1,4 +1,18 @@
 import notesService from "../services/notesService.js";
+import formidable from "formidable";
+
+const parseForm = (req) => {
+  return new Promise((resolve, reject) => {
+    const form = formidable({ multiples: true });
+    form.parse(req, (err, fields, files) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({ fields, files });
+      }
+    });
+  });
+};
 
 const getCategoryNotes = async (req, res) => {
   try {
@@ -22,7 +36,7 @@ const getCategoryNotes = async (req, res) => {
       }
     }
 
-    console.log(`requested: ${req.originalUrl}`);
+    console.log(`get requested: ${req.originalUrl}`);
     const noteArr = await notesService.getCategoryNotes(
       req.params.userId,
       cat,
@@ -51,9 +65,7 @@ const getAllNotes = async (req, res) => {
       parentId = req.params.greenhouseId;
     }
 
-    console.log(parentId);
-    console.log(parentIdName);
-    console.log(`requested: ${req.originalUrl}`);
+    console.log(`get requested: ${req.originalUrl}`);
     const noteArr = await notesService.getAllNotes(parentIdName, parentId);
 
     res.json(noteArr);
@@ -62,7 +74,62 @@ const getAllNotes = async (req, res) => {
   }
 };
 
+const postNote = async (req, res) => {
+  try {
+    const { fields } = await parseForm(req);
+    const { title, body } = fields;
+
+    console.log(`post requested: ${req.originalUrl}`);
+
+    let parentIdName;
+    let parentId;
+
+    if (!title || !body) {
+      return res.status(400).json({ error: "Title and content are required" });
+    }
+
+    if (req.params.squareId) {
+      parentIdName = "squares";
+      parentId = req.params.squareId;
+    } else if (req.params.zoneId) {
+      parentIdName = "zones";
+      parentId = req.params.zoneId;
+    } else {
+      parentIdName = "greenhouses";
+      parentId = req.params.greenhouseId;
+    }
+
+    console.log(parentId);
+    console.log(parentIdName);
+    const newNote = await notesService.postNote(
+      title[0],
+      body[0],
+      parentIdName,
+      parentId,
+      req.params.userId
+    );
+
+    res.json(newNote);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const removeNote = async (req, res) => {
+  try {
+    console.log(`delete requested:  ${req.originalUrl}`);
+
+    const deletedNote = await notesService.deleteNote(req.params.noteId);
+
+    res.json(deletedNote);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   getCategoryNotes,
   getAllNotes,
+  postNote,
+  removeNote,
 };

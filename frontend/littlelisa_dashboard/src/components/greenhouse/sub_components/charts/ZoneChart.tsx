@@ -43,7 +43,6 @@ export default class ZoneChart extends PureComponent<ZoneChartProps> {
       if (!response.ok) throw new Error("Error fetching data");
       const data = await response.json();
       this.setState({ chartData: data, isLoading: false });
-      console.log(data);
     } catch (err) {
       console.log(err);
     }
@@ -90,7 +89,6 @@ export default class ZoneChart extends PureComponent<ZoneChartProps> {
           <Legend verticalAlign="bottom" />
           {chartData &&
             chartData.types.map((sensorType) => {
-              console.log(sensorType);
               if (sensorType === "DHT22") {
                 return (
                   <>

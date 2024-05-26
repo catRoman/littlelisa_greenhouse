@@ -27,5 +27,33 @@ class NotesRepo extends BaseRepo {
 
     return results ? results : null;
   }
+  async postById(title, body, parentNameId, parentId, userId) {
+    const idType = parentNameId.slice(0, -1);
+
+    const query = `
+
+        insert into ${this.tableName}
+        (title, note, ${idType}_id, user_id )
+        values($1, $2, $3, $4)
+        returning *;
+
+
+        `;
+
+    const newNote = await this.query(query, [title, body, parentId, userId]);
+
+    return newNote[0] ? newNote[0] : null;
+  }
+
+  async deleteNoteById(noteId) {
+    const deletedNote = await this.query(
+      `
+    Delete from notes where note_id = $1 returning *
+    `,
+      [noteId]
+    );
+
+    return deletedNote[0] ? deletedNote[0] : null;
+  }
 }
 export default new NotesRepo();
