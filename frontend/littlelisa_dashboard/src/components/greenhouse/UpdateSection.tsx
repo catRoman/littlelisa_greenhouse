@@ -5,81 +5,21 @@ import {
   SubMenuState,
 } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import PlantInfoSubMenu from "./sub_components/update/updateSubMenu/PlantInfoSubMenu";
 
 export default function UpdateSection() {
-  const { viewState, selectedPlot } = useContext(GreenHouseContext);
+  const { viewState } = useContext(GreenHouseContext);
   const [panelState, setPanelState] = useState<ControlPanelState>(
     ControlPanelState.Closed,
   );
   const [isSelected, setSelected] = useState<string>("Schedule");
   const [isSelectedSubMenu, setSelectedSubMenu] = useState<string>("plantInfo");
 
-  //plant update
-  const [startDate, setStartDate] = useState(
-    new Date(
-      selectedPlot?.date_planted ? selectedPlot.date_planted : "04-09-2000",
-    ),
-  );
-  const [estHarvestDate, setEstHarvestDate] = useState(
-    new Date(
-      selectedPlot?.date_expected_harvest
-        ? selectedPlot.date_expected_harvest
-        : "04-09-2000",
-    ),
-  );
-
   let subMenu = <></>;
   switch (isSelectedSubMenu as SubMenuState) {
     case SubMenuState.PlantInfo:
-      subMenu = (
-        <div className=" py-2 pl-4">
-          <form className="grid grid-cols-2 gap-2 pl-4">
-            <h5 className="  text-purple-300">Plant info...</h5>
-            <div className="mr-4 flex justify-end ">
-              <button
-                onClick={plantInfoSubmitHandler}
-                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
-              >
-                Update
-              </button>
-            </div>
-            <label id="plantType">
-              Plant Type:
-              <input
-                id="plantType"
-                className="mt-1 rounded-md pl-2"
-                placeholder={selectedPlot && selectedPlot.plant_type}
-              ></input>
-            </label>
-            <div className="align-center mt-1 flex gap-4">
-              <label id="isTransplanted" className="inline-flex items-center">
-                Transplanted:
-              </label>
-              <input type="checkbox" />
-            </div>
-
-            <label id="plantType">
-              Planted:
-              <DatePicker
-                className="mt-1 rounded-md pl-2"
-                selected={startDate}
-                onChange={(date: Date) => setStartDate(date)}
-              />
-            </label>
-
-            <label id="plantType">
-              Est. Harvest:
-              <DatePicker
-                className="mt-1 rounded-md pl-2"
-                selected={estHarvestDate}
-                onChange={(date: Date) => setEstHarvestDate(date)}
-              />
-            </label>
-          </form>
-        </div>
-      );
+      subMenu = <PlantInfoSubMenu />;
 
       break;
     case SubMenuState.Nodes:
@@ -210,9 +150,6 @@ export default function UpdateSection() {
     setSelected(buttonId);
   }
 
-  function plantInfoSubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-  }
   return (
     <div className="">
       <h3 className="text-md font-bold text-orange-500">Control Panel</h3>
