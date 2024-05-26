@@ -11,8 +11,27 @@ const getAllNotes = async (parentNameId, parentId) => {
 
   return allNotes || null;
 };
+const postNote = async (title, body, parentNameId, parentId, userId) => {
+  const newNote = await noteRepo.postById(
+    title,
+    body,
+    parentNameId,
+    parentId,
+    userId
+  );
+
+  return newNote || null;
+};
+
+const deleteNote = async (noteId) => {
+  const deletedNote = await noteRepo.deleteNoteById(noteId);
+
+  return deletedNote || null;
+};
 
 export default {
   getCategoryNotes,
   getAllNotes,
+  postNote,
+  deleteNote,
 };
