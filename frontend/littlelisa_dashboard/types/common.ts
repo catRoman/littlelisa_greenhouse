@@ -91,10 +91,10 @@ export type Plot = {
   zone_number: number;
   row: number;
   col: number;
-  plant_type: string | null;
-  date_planted: string | null;
-  date_expected_harvest: string | null;
-  notes: Note[] | null;
+  plant_type: string | undefined;
+  date_planted: string | undefined;
+  date_expected_harvest: string | undefined;
+  // notes: Note[] | undefined;
   is_transplanted: boolean;
   is_empty: boolean;
 };
