@@ -12,7 +12,7 @@ export default function PlantInfoSubMenu() {
 
   const { user_id: userId, greenhouse_id: greenhouseId } =
     fetchedGreenhouseData!;
-  const [emptyCheck, setEmptyCheck] = useState<boolean>(false);
+
   const [updateCheck, setUpdateCheck] = useState<boolean>(false);
 
   const defaultPlantInfo = {
@@ -42,6 +42,11 @@ export default function PlantInfoSubMenu() {
   const harvestChangeHandler = (date: Date) => {
     setPlantInfo({ ...plantInfo, date_expected_harvest: date });
     setErrors({ ...errors, date_issue: "" });
+  };
+  const transplantChangeHandler = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setPlantInfo({ ...plantInfo, is_transplant: event.target.checked });
   };
   const plantInfoChangeHandler = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -73,8 +78,8 @@ export default function PlantInfoSubMenu() {
       const plantInfoFormData = new FormData();
       plantInfoFormData.append("plant_type", plantInfo.plant_type!);
       plantInfoFormData.append(
-        "is_transplanted",
-        plantInfo.is_transplanted!.toString(),
+        "is_transplant",
+        plantInfo.is_transplant! ? "true" : "false",
       );
       plantInfoFormData.append(
         "date_planted",
@@ -108,7 +113,7 @@ export default function PlantInfoSubMenu() {
             plant_type: "",
             date_planted: new Date("04-09-2024"),
             date_expected_harvest: new Date("04-09-2024"),
-            is_transplanted: false,
+            is_transplant: false,
           });
         }
       };
@@ -118,67 +123,29 @@ export default function PlantInfoSubMenu() {
       console.log(errors);
     }
   }
-  function emptySubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
-    event.preventDefault();
-    console.log("emptyied");
-    setEmptyCheck(!emptyCheck);
-  }
+
   return (
     <div className=" py-2 pl-4">
       <form className="grid grid-cols-2 gap-2 pl-4">
         <div className="col-span-2 flex justify-between">
           <div className="">
-            {!errors.date_issue &&
-              !emptyCheck &&
-              !errors.plant_type &&
-              !updateCheck && (
-                <h5 className="  text-purple-300">Plant info...</h5>
-              )}
+            {!errors.date_issue && !errors.plant_type && !updateCheck && (
+              <h5 className="  text-purple-300">Plant info...</h5>
+            )}
             {errors.date_issue && (
               <p className="mt-1 text-sm text-red-500">{errors.date_issue}</p>
             )}
             {errors.plant_type && (
               <p className="mt-1 text-sm text-red-500">{errors.plant_type}</p>
             )}
-            {emptyCheck && (
-              <p className="mt-1 text-sm text-red-500">
-                Are you Sure? This is clear the plot for good
-              </p>
-            )}
+
             {updateCheck && (
               <p className="mt-1 text-sm text-green-500">Are you Sure?</p>
             )}
           </div>
 
-          {emptyCheck ? (
+          {!updateCheck ? (
             <div className="flex justify-end gap-2">
-              <button
-                onClick={emptySubmitHandler}
-                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
-              >
-                Empty
-              </button>
-              <button
-                onClick={(event) => {
-                  event.preventDefault();
-                  setEmptyCheck(!emptyCheck);
-                }}
-                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : !updateCheck ? (
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={(event) => {
-                  event.preventDefault();
-                  setEmptyCheck(!emptyCheck);
-                }}
-                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
-              >
-                Empty
-              </button>
               <button
                 onClick={(event) => {
                   event.preventDefault();
@@ -226,12 +193,12 @@ export default function PlantInfoSubMenu() {
             Transplanted:
           </label>
           <input
-            name="is_transplanted"
+            name="is_transplant"
             type="checkbox"
-            checked={plantInfo.is_transplanted}
-            onChange={plantInfoChangeHandler}
+            checked={plantInfo.is_transplant}
+            onChange={transplantChangeHandler}
             defaultChecked={
-              plantInfo.is_transplanted !== null && plantInfo.is_transplanted
+              plantInfo.is_transplant !== null && plantInfo.is_transplant
             }
           />
         </div>

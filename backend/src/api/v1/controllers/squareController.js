@@ -6,11 +6,11 @@ const updateSquare = async (req, res) => {
     console.log(`requested: ${req.originalUrl}`);
     const squareId = req.params.squareId;
     const { fields } = await utility.parseForm(req);
-    const { plant_type } = fields;
-    console.log(plant_type);
+    const { is_transplant } = fields;
+    console.log(is_transplant);
     if (
       !fields.plant_type ||
-      !fields.is_transplanted ||
+      !fields.is_transplant ||
       !fields.date_planted ||
       !fields.date_expected_harvest
     ) {

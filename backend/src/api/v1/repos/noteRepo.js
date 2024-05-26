@@ -55,5 +55,15 @@ class NotesRepo extends BaseRepo {
 
     return deletedNote[0] ? deletedNote[0] : null;
   }
+  async deleteAllById(parentIdName, parentId) {
+    const idType = parentIdName.slice(0, -1);
+
+    const query = `
+        delete from notes
+        where ${idType}_id = $1 returning *`;
+    const results = await this.query(query, [parentId]);
+
+    return results ? results : null;
+  }
 }
 export default new NotesRepo();

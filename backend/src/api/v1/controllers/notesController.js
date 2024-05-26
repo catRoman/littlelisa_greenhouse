@@ -116,9 +116,41 @@ const removeNote = async (req, res) => {
   }
 };
 
+const deleteAllNotes = async (req, res) => {
+  let parentIdName;
+  let parentId;
+  try {
+    console.log(`delete requested:  ${req.originalUrl}`);
+
+    if (req.params.squareId) {
+      parentIdName = "squares";
+      parentId = req.params.squareId;
+    } else if (req.params.zoneId) {
+      parentIdName = "zones";
+      parentId = req.params.zoneId;
+    } else {
+      parentIdName = "greenhouses";
+      parentId = req.params.greenhouseId;
+    }
+
+    console.log(parentId);
+    console.log(parentIdName);
+
+    const allDeletedNotes = await notesService.deleteAll(
+      parentIdName,
+      parentId
+    );
+
+    res.json(allDeletedNotes);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   getCategoryNotes,
   getAllNotes,
   postNote,
   removeNote,
+  deleteAllNotes,
 };
