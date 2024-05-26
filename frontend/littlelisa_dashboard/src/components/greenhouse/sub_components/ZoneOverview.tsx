@@ -8,8 +8,8 @@ export default function ZoneOverview() {
     useContext(GreenHouseContext);
 
   if (fetchedGreenhouseData) {
-    const { zones } = fetchedGreenhouseData;
-    const zone = zones[selectedZoneId];
+    // const { zones } = fetchedGreenhouseData;
+    // const zone = zones[selectedZoneId];
     const { dimensions } = fetchedGreenhouseData;
     const zonePlots: Plot[] = [];
 

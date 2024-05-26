@@ -12,7 +12,7 @@ type NoteProps = {
 
 function Note({ note, onDelete }: NoteProps) {
   const [showNote, setShowNote] = useState<boolean>(false);
-  const [editing, setEditing] = useState<boolean>(false);
+  //   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
 
   const createdDate = new Date(note.created_at);
@@ -20,9 +20,9 @@ function Note({ note, onDelete }: NoteProps) {
   const formattedTime = format(createdDate, "hh:mm a");
 
   const toggleNoteBody = () => {
-    if (!editing) {
-      setShowNote(!showNote);
-    }
+    // if (!editing) {
+    setShowNote(!showNote);
+    // }
   };
 
   //   function updateNoteHandler(event: React.MouseEvent<HTMLButtonElement>) {
