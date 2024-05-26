@@ -13,6 +13,7 @@ type NoteProps = {
 function Note({ note, onDelete }: NoteProps) {
   const [showNote, setShowNote] = useState<boolean>(false);
   const [editing, setEditing] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
 
   const createdDate = new Date(note.created_at);
   const formattedDate = format(createdDate, "MMM dd");
@@ -56,14 +57,40 @@ function Note({ note, onDelete }: NoteProps) {
             >
               Update
             </button> */}
-            <button
-              onClick={(event) => {
-                onDelete(event, note.note_id);
-              }}
-              className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
-            >
-              Delete
-            </button>
+            {!deleting ? (
+              <button
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setDeleting(true);
+                }}
+                className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
+              >
+                Delete
+              </button>
+            ) : (
+              <div className="flex flex-col gap-2 text-sm">
+                <p className=" text-red-500">Are you sure?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={(event) => {
+                      onDelete(event, note.note_id);
+                    }}
+                    className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setDeleting(false);
+                    }}
+                    className="rounded-md border bg-zinc-700 p-2 text-sm hover:bg-zinc-200 hover:font-bold hover:text-red-900"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (

@@ -151,6 +151,10 @@ export default function NotesSection() {
 
   function clearInputHandler(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
+    setNoteInput({
+      title: "",
+      body: "",
+    });
   }
 
   const noteChangeHandler = (
