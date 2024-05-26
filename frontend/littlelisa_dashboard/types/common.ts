@@ -99,10 +99,6 @@ export type Plot = {
   is_empty: boolean;
 };
 
-export type Note = {
-  date: string;
-  note: string;
-};
 export type Node = Module & {
   node_id: number;
 };
@@ -113,4 +109,14 @@ export type ChartData = {
 export type DHT22ChartData = ChartData & {
   avgTemp: number;
   avgHumidity: number;
+};
+export type Note = {
+  note_id: number;
+  note: string;
+  greenhouse_id: number | null;
+  zone_id: number | null;
+  square_id: number | null;
+  user_id: number;
+  title: string;
+  created_at: string;
 };

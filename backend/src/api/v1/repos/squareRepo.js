@@ -15,7 +15,6 @@ class SquareRepo extends BaseRepo {
             s.plant_type,
             s.date_planted,
             s.date_expected_harvest,
-            s.notes,
             s.is_transplant,
             s.is_empty
 
