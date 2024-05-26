@@ -9,6 +9,8 @@ import { initalCameraProperties } from "../components/greenhouse/greenhouse_rend
 import { GreenHouseViewState } from "../../types/enums";
 export interface GreenHouseContextType {
   //state
+  refreshNoteList: boolean;
+  setRefreshNoteList: (refresh: boolean) => void;
   setRefreshGreenhouseData: (refresh: boolean) => void;
   refreshGreenhouseData: boolean;
   fetchedGreenhouseData: GreenhouseData | undefined;
@@ -40,6 +42,8 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  refreshNoteList: false,
+  setRefreshNoteList: () => {},
   refreshGreenhouseData: false,
   setRefreshGreenhouseData: () => {},
   fetchedGreenhouseData: undefined,
@@ -70,6 +74,7 @@ export const GreenHouseContext =
 export default function GreenHouseContextProvider({
   children,
 }: GreenHouseContextProviderProps) {
+  const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
 
@@ -125,6 +130,8 @@ export default function GreenHouseContextProvider({
   return (
     <GreenHouseContext.Provider
       value={{
+        refreshNoteList,
+        setRefreshNoteList,
         setRefreshGreenhouseData,
         refreshGreenhouseData,
         fetchedGreenhouseData,

@@ -5,11 +5,15 @@ import { Note as NoteType } from "../../../types/common";
 import Note from "./sub_components/notes/Note";
 
 export default function NotesSection() {
-  const { viewState, selectedPlot, selectedZoneId } =
-    useContext(GreenHouseContext);
+  const {
+    viewState,
+    selectedPlot,
+    selectedZoneId,
+    refreshNoteList,
+    setRefreshNoteList,
+  } = useContext(GreenHouseContext);
   const [noteList, setNoteList] = useState<NoteType[]>();
   const [loading, setLoading] = useState<boolean>(true);
-  const [refreshNoteList, setReshreshNoteList] = useState<boolean>(true);
 
   const [noteInput, setNoteInput] = useState({
     title: "",
@@ -70,7 +74,7 @@ export default function NotesSection() {
           throw new Error("Network response was not ok");
         }
         const responseData = await response.json();
-        setReshreshNoteList(!refreshNoteList);
+        setRefreshNoteList(!refreshNoteList);
         console.log(responseData);
       } catch (error) {
         console.log(error);
@@ -131,7 +135,7 @@ export default function NotesSection() {
             throw new Error("Network response was not ok");
           }
           const responseData = await response.json();
-          setReshreshNoteList(!refreshNoteList);
+          setRefreshNoteList(!refreshNoteList);
           console.log(responseData);
         } catch (error) {
           console.log(error);

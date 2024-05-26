@@ -35,6 +35,7 @@ class SquareRepo extends BaseRepo {
     dateHarvest,
     squareId
   ) {
+    console.log("query time");
     const query = await this.query(
       `update squares
       set

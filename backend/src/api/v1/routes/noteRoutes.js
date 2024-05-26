@@ -7,6 +7,7 @@ router.param("noteId", validateParamId("notes"));
 
 router.get("/", notesController.getAllNotes);
 router.post("/", notesController.postNote);
+router.delete("/", notesController.deleteAllNotes);
 router.delete("/:noteId", notesController.removeNote);
 
 export default router;

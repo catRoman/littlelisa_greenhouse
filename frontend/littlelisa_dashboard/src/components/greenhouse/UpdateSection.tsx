@@ -7,6 +7,7 @@ import {
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import "react-datepicker/dist/react-datepicker.css";
 import PlantInfoSubMenu from "./sub_components/update/updateSubMenu/PlantInfoSubMenu";
+import ClearPlotSubMenu from "./sub_components/update/updateSubMenu/ClearPlotSubMenu";
 
 export default function UpdateSection() {
   const { viewState } = useContext(GreenHouseContext);
@@ -33,7 +34,7 @@ export default function UpdateSection() {
       subMenu = <div className="pl-4">hello sprinklers</div>;
       break;
     case SubMenuState.ClearPlot:
-      subMenu = <div className="pl-4">hello clearplot</div>;
+      subMenu = <ClearPlotSubMenu />;
       break;
   }
 
