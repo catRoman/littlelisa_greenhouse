@@ -10,6 +10,7 @@ import EventsSection from "../components/greenhouse/EventsSection";
 import OverviewSection from "../components/greenhouse/OverviewSection";
 import NotesSection from "../components/greenhouse/NotesSection";
 import { GreenHouseViewState } from "../../types/enums";
+import UpdateSection from "../components/greenhouse/UpdateSection";
 
 export default function GreenHouse() {
   const {
@@ -64,17 +65,17 @@ export default function GreenHouse() {
   // }
 
   return (
-    <div className="mr-4 grid  w-full auto-rows-min  grid-cols-6  gap-6 px-4">
+    <div className=" mr-4  grid w-full  auto-rows-min  grid-cols-6 gap-6 px-4">
       <div className="col-span-3  ">
         <TitleSection />
       </div>
-      <div className="row-span-2 h-96">
+      <div className=" row-span-4">
         <OverviewSection />
       </div>
       <div className="col-span-2  row-span-2 ">
         <EventsSection />
       </div>
-      <div className="z-1 col-span-3 row-span-2 h-96 cursor-pointer overflow-hidden">
+      <div className="z-1 col-span-3 h-96 cursor-pointer overflow-hidden">
         {loading ? (
           <div className="m-auto flex ">Loading...</div>
         ) : (
@@ -83,14 +84,16 @@ export default function GreenHouse() {
           </Canvas>
         )}
       </div>
-      <div className="col-span-3 h-16 border">
-        {GreenHouseViewState.Plot ? <p>Update</p> : <p>Schedule</p>}
+
+      <div className="col-span-3 row-span-2   ">
+        <UpdateSection />
+      </div>
+
+      <div className="col-span-2 row-span-3">
+        <NotesSection />
       </div>
       <div className="col-span-4  ">
         <SectionBody />
-      </div>
-      <div className="col-span-2 ">
-        <NotesSection />
       </div>
     </div>
   );

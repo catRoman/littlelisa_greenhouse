@@ -52,13 +52,13 @@ export default function EventsSection() {
     <div>
       <div>
         <h2 className="text-md  font-bold text-orange-500">Upcoming Events:</h2>
-        <ul className="hide-scrollbar mt-1 h-40 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
+        <ul className="hide-scrollbar mt-1 h-52 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
           {upcoming?.map((event) => event)}
         </ul>
       </div>
       <div className="my-2">
         <h2 className=" text-md font-bold text-orange-500">Recent Events:</h2>
-        <ul className="hide-scrollbar mt-1 h-40 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
+        <ul className="hide-scrollbar mt-1 h-52 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
           {recent?.map((event) => event)}
         </ul>
       </div>
