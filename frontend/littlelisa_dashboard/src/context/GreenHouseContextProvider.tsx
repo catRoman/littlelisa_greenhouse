@@ -9,6 +9,8 @@ import { initalCameraProperties } from "../components/greenhouse/greenhouse_rend
 import { GreenHouseViewState } from "../../types/enums";
 export interface GreenHouseContextType {
   //state
+  setRefreshGreenhouseData: (refresh: boolean) => void;
+  refreshGreenhouseData: boolean;
   fetchedGreenhouseData: GreenhouseData | undefined;
   setFetchedGreenhouseData: (
     fetchedGreenHouseData: GreenhouseData | undefined,
@@ -38,6 +40,8 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  refreshGreenhouseData: false,
+  setRefreshGreenhouseData: () => {},
   fetchedGreenhouseData: undefined,
   setFetchedGreenhouseData: () => {},
   selectedSquareId: null,
@@ -69,6 +73,8 @@ export default function GreenHouseContextProvider({
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
 
+  const [refreshGreenhouseData, setRefreshGreenhouseData] =
+    useState<boolean>(false);
   const [selectedSquareId, setSelectedSquareId] = useState<SquareId | null>(
     null,
   );
@@ -101,7 +107,7 @@ export default function GreenHouseContextProvider({
                 fetchedGreenhouseData.zones[selectedZoneId].zone_start_point.x
           ) {
             if (plot.plant_type !== null && !plot.is_empty) {
-              setSelectedPlant(plot.plant_type);
+              plot.plant_type && setSelectedPlant(plot.plant_type);
             } else {
               setSelectedPlant("");
             }
@@ -119,6 +125,8 @@ export default function GreenHouseContextProvider({
   return (
     <GreenHouseContext.Provider
       value={{
+        setRefreshGreenhouseData,
+        refreshGreenhouseData,
         fetchedGreenhouseData,
         setFetchedGreenhouseData,
         selectedPlot,
