@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ReactDatePicker from "react-datepicker";
 import { GreenHouseContext } from "../../../../../context/GreenHouseContextProvider";
 
@@ -16,7 +16,7 @@ export default function PlantInfoSubMenu() {
   const [updateCheck, setUpdateCheck] = useState<boolean>(false);
 
   const defaultPlantInfo = {
-    plant_type: selectedPlot ? selectedPlot.plant_type : "",
+    plant_type: selectedPlot!.plant_type,
     date_planted: selectedPlot?.date_planted
       ? new Date(selectedPlot.date_planted!)
       : new Date("04-09-2000"),
@@ -47,9 +47,11 @@ export default function PlantInfoSubMenu() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
+    console.log(`name: ${name} value:${value}`);
     setPlantInfo({ ...plantInfo, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
+  useEffect(() => {}, [refreshGreenhouseData]);
 
   function plantInfoSubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -83,12 +85,12 @@ export default function PlantInfoSubMenu() {
         plantInfo.date_expected_harvest!.toString(),
       );
 
-      const postNote = async () => {
+      const updateSquare = async () => {
         try {
           const response = await fetch(
             `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot!.square_db_id}`,
             {
-              method: "POST",
+              method: "PUT",
               body: plantInfoFormData,
             },
           );
@@ -106,7 +108,7 @@ export default function PlantInfoSubMenu() {
         }
       };
 
-      postNote();
+      updateSquare();
     } else {
       console.log(errors);
     }
@@ -208,6 +210,7 @@ export default function PlantInfoSubMenu() {
           <input
             name="plant_type"
             id="plantType"
+            value={plantInfo.plant_type}
             className="mt-1 rounded-md pl-2"
             onChange={plantInfoChangeHandler}
             placeholder={plantInfo.plant_type}
@@ -220,6 +223,7 @@ export default function PlantInfoSubMenu() {
           <input
             name="is_transplanted"
             type="checkbox"
+            checked={plantInfo.is_transplanted}
             onChange={plantInfoChangeHandler}
             defaultChecked={
               plantInfo.is_transplanted !== null && plantInfo.is_transplanted

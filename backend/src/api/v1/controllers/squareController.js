@@ -3,8 +3,11 @@ import utility from "./util/utility.js";
 
 const updateSquare = async (req, res) => {
   try {
+    console.log(`requested: ${req.originalUrl}`);
     const squareId = req.params.squareId;
-    const { fields } = utility.parseForm(req);
+    const { fields } = await utility.parseForm(req);
+    const { plant_type } = fields;
+    console.log(plant_type);
     if (
       !fields.plant_type ||
       !fields.is_transplanted ||
@@ -17,14 +20,13 @@ const updateSquare = async (req, res) => {
     }
 
     const updatedSquare = await squaresService.updateSquare(fields, squareId);
-    console.log(`requested: ${req.originalUrl}`);
 
     res.json(updatedSquare);
   } catch (error) {
     res.status(500).json({ error: error.message });
+    console.log(error.message);
   }
 };
-
 export default {
   updateSquare,
 };

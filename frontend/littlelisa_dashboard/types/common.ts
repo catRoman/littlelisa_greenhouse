@@ -95,7 +95,7 @@ export type Plot = {
   date_planted: string | undefined;
   date_expected_harvest: string | undefined;
   // notes: Note[] | undefined;
-  is_transplanted: boolean;
+  is_transplant: boolean;
   is_empty: boolean;
 };
 

@@ -53,7 +53,7 @@ export default function PlotOverview() {
                 <li className="flex flex-col">
                   <span className="font-bold">Transplant: </span>
                   <span className="pl-4 text-green-300">
-                    {selectedPlot?.is_transplanted ? "Yes" : "No"}
+                    {selectedPlot?.is_transplant ? "Yes" : "No"}
                   </span>
                 </li>
                 <li className="flex flex-col">

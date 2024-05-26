@@ -99,6 +99,7 @@ const postNote = async (req, res) => {
 
     res.json(newNote);
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ error: error.message });
   }
 };
