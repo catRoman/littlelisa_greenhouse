@@ -19,12 +19,12 @@ export default function PlantInfoSubMenu() {
     plant_type: selectedPlot!.plant_type,
     date_planted: selectedPlot?.date_planted
       ? new Date(selectedPlot.date_planted!)
-      : new Date("04-09-2000"),
+      : new Date("04-09-2024"),
     date_expected_harvest: selectedPlot?.date_expected_harvest
       ? new Date(selectedPlot.date_expected_harvest!)
-      : new Date("04-09-2000"),
-    is_transplanted: selectedPlot?.is_transplanted
-      ? selectedPlot.is_transplanted
+      : new Date("04-09-2024"),
+    is_transplant: selectedPlot?.is_transplant
+      ? selectedPlot.is_transplant
       : false,
   };
 
@@ -104,7 +104,12 @@ export default function PlantInfoSubMenu() {
         } catch (error) {
           console.log(error);
         } finally {
-          setPlantInfo(defaultPlantInfo);
+          setPlantInfo({
+            plant_type: "",
+            date_planted: new Date("04-09-2024"),
+            date_expected_harvest: new Date("04-09-2024"),
+            is_transplanted: false,
+          });
         }
       };
 
