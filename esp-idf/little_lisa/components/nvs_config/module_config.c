@@ -56,14 +56,14 @@ const bool UPDATE_ENV_CNTRL_ARRAY = false;
 #endif
 
 #ifdef CONFIG_RELAY_TOTAL
-const int8_t TOTAL_RELAYS = CONFIG_RELAY_TOTAL;
+const int8_t total_relays = CONFIG_RELAY_TOTAL;
 #else
- int8_t total_relays = 0;
+int8_t total_relays = 0;
 #endif
 
 static const char TAG[] = "module_config";
 
-Env_state_t **env_state_arr_gt = NULL;
+Env_state_t *env_state_arr_gt = NULL;
 
 Module_info_t *module_info_gt = NULL;
 // for dynamic sensor task handles
@@ -76,18 +76,33 @@ void initiate_config()
         // initiate
         nvs_initiate();
 
-        if (UPDATE_NVS)
+        if (UPDATE_ENV_CNTRL_ARRAY)
         {
-                if (UPDATE_ENV_CNTRL_ARRAY)
+
+                if (create_env_state_from_config(&env_state_arr_gt, total_relays) == ESP_OK)
                 {
 
-                        if(create_env_state_from_config(env_state_arr_gt, total_relays) == ESP_OK){
-
-                                nvs_set_env_state_arr(&env_state_arr_gt, total_relays);
-                        }else{
-                                ESP_LOGE(TAG, "Failed to set env_state_arr to nvs, config failed");
-                        }
+                        nvs_set_env_state_arr(env_state_arr_gt, total_relays);
                 }
+                else
+                {
+                        ESP_LOGE(TAG, "Failed to set env_state_arr to nvs, config failed");
+                }
+        }
+        else
+        {
+                if (nvs_get_env_state_arr(&env_state_arr_gt, &total_relays) == ESP_OK)
+                {
+                        ESP_LOGI(TAG, "state are recieved from nvs succesfully");
+                }
+                else
+                {
+                        ESP_LOGE(TAG, "Error retrieving env state from nvs");
+                }
+        }
+
+        if (UPDATE_NVS)
+        {
 #ifdef CONFIG_ENABLE_NVS_UPDATE
                 int8_t sensor_arr[SENSOR_LIST_TOTAL] = {
                     CONFIG_SENSOR_DHT22,
@@ -585,14 +600,8 @@ void initiate_config()
         { // retrive from nvs only---<--
 
                 module_info_gt = create_module_from_NVS();
-
-                if(nvs_get_env_state_arr_from_NVS(env_state_arr_gt, total_relays) == ESP_OK){
-                        ESP_LOGI(TAG, "state are recieved from nvs succesfully");
-                }else{
-                        ESP_LOGE(TAG, "Error retrieving env state from nvs");
-                }
         }
-ESP_LOGI(TAG, "{==env state==}\n%s\n", env_state_arr_json(total_relays));
+        ESP_LOGI(TAG, "{==env state==}\n%s\n", env_state_arr_json(total_relays));
         ESP_LOGI(TAG, "{==nvs info==}\n%s\n", node_info_get_module_info_json());
         // Start Wifi
         vTaskDelay(pdMS_TO_TICKS(500));

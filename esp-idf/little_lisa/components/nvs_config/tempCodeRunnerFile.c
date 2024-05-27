@@ -1,1 +1,1 @@
-ESP_LOGI(TAG, "{==nvs info==}\n%s\n", node_info_get_module_info_json());
+state_string

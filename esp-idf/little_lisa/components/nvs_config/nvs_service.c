@@ -668,7 +668,7 @@ void nvs_set_env_state_arr(Env_state_t *state_arr_gt, int8_t arrLength){
 
     node_info_log_sensor_list();
 }
-esp_err_t *nvs_get_env_state_arr(Env_state_t **state_arr, int8_t *arrLength){
+esp_err_t nvs_get_env_state_arr(Env_state_t **state_arr, int8_t *arrLength){
     esp_err_t err;
 
     if ((err = nvs_open(NVS_ENV_STATE_CONFIG_NAMESPACE, NVS_READWRITE, &nvs_env_state_arr_handle)) != ESP_OK)
