@@ -31,6 +31,7 @@
 
 #define MAX_TEMP_SENSORS 5 // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
+#define MAX_RELAY 12
 
 // COMPLETED - make state in kconfig to allow for nvs update
 //  check if enable_nvs_update is enabled if it is write config files to nvs by additionally serializing each sensor loc array and adding it to nvs
@@ -57,15 +58,14 @@ const bool UPDATE_ENV_CNTRL_ARRAY = false;
 
 #ifdef CONFIG_RELAY_TOTAL
 const int8_t total_relays = CONFIG_RELAY_TOTAL;
-Env_state_t env_state_arr_gt[total_relays];
 #else
 const int8_t total_relays = 0;
-Env_state_t env_state_arr_gt[total_relays];
+
 #endif
 
 static const char TAG[] = "module_config";
 
-
+Env_state_t env_state_arr_gt[MAX_RELAYS];
 Module_info_t *module_info_gt = NULL;
 // for dynamic sensor task handles
 int8_t total_local_sensors;
