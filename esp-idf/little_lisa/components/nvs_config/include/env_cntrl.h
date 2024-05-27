@@ -34,7 +34,7 @@ typedef struct Env_state_t
     EnvCntrlState state;
 } Env_state_t;
 
-esp_err_t create_env_state_from_config(Env_state_t **state_arr_gt, int8_t total_relays);
+esp_err_t create_env_state_from_config(Env_state_t *state_arr_gt, int8_t total_relays);
 
 char* env_state_arr_json(int8_t total_relays);
 

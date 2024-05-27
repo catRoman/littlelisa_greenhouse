@@ -57,13 +57,14 @@ const bool UPDATE_ENV_CNTRL_ARRAY = false;
 
 #ifdef CONFIG_RELAY_TOTAL
 const int8_t total_relays = CONFIG_RELAY_TOTAL;
+Env_state_t env_state_arr_gt[total_relays];
 #else
-int8_t total_relays = 0;
+const int8_t total_relays = 0;
+Env_state_t env_state_arr_gt[total_relays];
 #endif
 
 static const char TAG[] = "module_config";
 
-Env_state_t *env_state_arr_gt = NULL;
 
 Module_info_t *module_info_gt = NULL;
 // for dynamic sensor task handles
@@ -515,7 +516,7 @@ void initiate_config()
                 Module_sensor_config_t *camera_sensor_config =
                     createModuleSensorConfig(
                         camera_sensor_zn_rel_pos,
-                        camera_sensor_zn_rel_pos,
+                        camera_sensor_square_pos,
                         camera_sensor_locations,
                         camera_sensor_pin_number,
                         sensor_arr[CAMERA] + SQL_ID_SYNC_VAL);
