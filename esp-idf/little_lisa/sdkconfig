@@ -371,7 +371,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Little-Lisa Configuration
+# LittleLisa - Config
+#
+# CONFIG_ENABLE_NVS_UPDATE is not set
+# end of LittleLisa - Config
+
+#
+# Little-Lisa Wifi
 #
 # CONFIG_ESP_ENABLE_AP_MODE is not set
 CONFIG_ESP_WIFI_AP_MODE_SSID="LittleLisa - Greenhouse"
@@ -383,7 +389,7 @@ CONFIG_ESP_WIFI_INIT_STA_MODE_SSID="LittleLisa - Greenhouse"
 CONFIG_ESP_WIFI_INIT_STA_MODE_PASSWORD="Westgate4@"
 CONFIG_MAX_STA_MODE_RETRY_ATTEMPT=10
 CONFIG_ESP_NOW_COMM_RECIEVER_MAC_ADDRESS="08:d1:f9:3a:72:19"
-# end of Little-Lisa Configuration
+# end of Little-Lisa Wifi
 
 #
 # NVS Module Info
@@ -397,6 +403,72 @@ CONFIG_SQUARE_POS=y
 # CONFIG_ZN_REL_POS is not set
 CONFIG_SQUARE_POS_Y=5
 CONFIG_SQUARE_POS_X=1
+
+#
+# Environmental State Config
+#
+CONFIG_RELAY_TOTAL=0
+
+#
+# Relay 1
+#
+# end of Relay 1
+
+#
+# Relay 2
+#
+# end of Relay 2
+
+#
+# Relay 3
+#
+# end of Relay 3
+
+#
+# Relay 4
+#
+# end of Relay 4
+
+#
+# Relay 5
+#
+# end of Relay 5
+
+#
+# Relay 6
+#
+# end of Relay 6
+
+#
+# Relay 7
+#
+# end of Relay 7
+
+#
+# Relay 8
+#
+# end of Relay 8
+
+#
+# Relay 9
+#
+# end of Relay 9
+
+#
+# Relay 10
+#
+# end of Relay 10
+
+#
+# Relay 11
+#
+# end of Relay 11
+
+#
+# Relay 12
+#
+# end of Relay 12
+# end of Environmental State Config
 
 #
 # Sensor List
@@ -1907,17 +1979,6 @@ CONFIG_WIFI_PROV_STA_ALL_CHANNEL_SCAN=y
 # end of Wi-Fi Provisioning Manager
 
 #
-# LittleLisa - Config
-#
-CONFIG_ENABLE_NVS_UPDATE=y
-# end of LittleLisa - Config
-
-#
-# Camera configuration
-#
-# end of Camera configuration
-
-#
 # mDNS
 #
 CONFIG_MDNS_MAX_INTERFACES=3
@@ -1946,6 +2007,11 @@ CONFIG_MDNS_PREDEF_NETIF_AP=y
 CONFIG_MDNS_PREDEF_NETIF_ETH=y
 # end of MDNS Predefined interfaces
 # end of mDNS
+
+#
+# Camera configuration
+#
+# end of Camera configuration
 # end of Component config
 
 # CONFIG_IDF_EXPERIMENTAL_FEATURES is not set
