@@ -113,20 +113,37 @@ export default function GreenHouseModel() {
               })}
               {/* greenhouse global controllers */}
               {fetchedGreenhouseData.controllers?.map((controller) => {
+               if(controller.square_id){
+                return(
+                  <ModuleListRender
+                  key={`${controller.square_pos?.x}-${controller.square_pos?.y}}`}
+                  nodes={fetchedGreenhouseData.controllers}
+                  plot_height={fetchedGreenhouseData.zones[fetchedGreenhouseData.squares[controller.square_id].zone_number].dimensions.z }
+                  squareId={{
+                    x: controller.square_pos!.x -0.5,
+                    y: controller.square_pos!.y -0.5,
+                  }}
+                  global={true
+                  }
+                  controller={true}
+                />
+
+                )
+               }else {
                 return (
                   <ModuleListRender
-                    key={`${controller.zn_rel_pos?.x}-${controller.zn_rel_pos?.y}-${controller.zn_rel_pos?.z}`}
-                    nodes={fetchedGreenhouseData.controllers}
-                    plot_height={controller.zn_rel_pos!.z}
-                    squareId={{
-                      x: controller.zn_rel_pos!.x - 0.5,
-                      y: controller.zn_rel_pos!.y - 0.5,
-                    }}
-                    global={true}
-                    controller={true}
-                  />
-                );
-              })}
+                  key={`${controller.zn_rel_pos?.x}-${controller.zn_rel_pos?.y}-${controller.zn_rel_pos?.z}`}
+                  nodes={fetchedGreenhouseData.controllers}
+                  plot_height={controller.zn_rel_pos!.z}
+                  squareId={{
+                    x: controller.zn_rel_pos!.x - 0.5,
+                    y: controller.zn_rel_pos!.y - 0.5,
+                  }}
+                  global={true}
+                  controller={true}
+                />
+              )
+            }})}
             </>
           )}
           {zones!.slice(1).map((zone) => {
