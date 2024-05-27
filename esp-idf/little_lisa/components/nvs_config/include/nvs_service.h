@@ -34,6 +34,9 @@
 #define NVS_SENSOR_CONFIG_NAMESPACE "s_config_list"
 #define NVS_SENSOR_CONFIG_ARR_INDEX "s_config_arr"
 
+#define NVS_ENV_STATE_CONFIG_NAMESPACE "env_state_config_list"
+#define NVS_ENV_STATE_CONFIG_ARR_INDEX "env_state_config_arr"
+#define NVS_ENV_STATE_TOTAL_INDEX "env_state_config_total"
 /**
  *
  * char **temp_sensor_loc_arr;
@@ -114,5 +117,9 @@ Module_sensor_config_t **deserialize_string(char *serialized_string, int8_t numS
 int8_t stringToInt8(const char *str);
 
 char **splits_string(char delim, char *serialized_string, int8_t *numStrings);
+
+void nvs_set_env_state_arr(Env_state_t *state_arr_gt, int8_t arrLength);
+
+esp_err_t nvs_get_env_state_arr(Env_state_t **state_arr, int8_t *arrLength);
 
 #endif /*NVS_CONFIG_NVS_SERVICE_H*/
