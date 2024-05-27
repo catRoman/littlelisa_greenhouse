@@ -561,7 +561,7 @@
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_7
                     depends on RELAY_TOTAL >= 7
 
                     config POWER_INTERNAL_7
