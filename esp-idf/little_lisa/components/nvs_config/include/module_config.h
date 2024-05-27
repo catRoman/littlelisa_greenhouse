@@ -29,6 +29,36 @@ typedef struct Module_info_t
 
 } Module_info_t;
 
+typedef enum
+{
+    UNKNOWN = 0,
+    LIGHT = 1,
+    WATER = 2,
+    FAN = 3,
+    HEATER = 4
+} EnvCntrlType;
+
+typedef enum
+{
+    POWER_INTERNAL = 0,
+    POWER_EXTERNAL = 1
+} EnvRelayPwrSrc;
+
+typedef enum
+{
+    OFF = 0,
+    ON = 1,
+} EnvCntrlState;
+
+typedef struct Env_state_t
+{
+    int8_t id;
+    int8_t pin;
+    EnvCntrlType type;
+    EnvRelayPwrSrc pwr_src;
+    EnvCntrlState state;
+} Env_state_t;
+
 esp_err_t initiate_sensor_tasks(void);
 
 void initiate_config(void);
