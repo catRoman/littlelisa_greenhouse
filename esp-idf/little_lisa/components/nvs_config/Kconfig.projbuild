@@ -69,7 +69,15 @@ menu "NVS Module Info"
 
         menu "Environmental State Config"
 
+            config ENABLE_ENV_CNTRL_STATE_UPDATE
+                bool "Enable nvs enviroment control relay state update"
+                default n
+                    help
+                        allows for updateing nvs stored eniromental control state array
+
+
             config RELAY_TOTAL
+                depends on ENABLE_ENV_CNTRL_STATE_UPDATE
                 int "Number of Relays"
                 default 0
                 range 0 12

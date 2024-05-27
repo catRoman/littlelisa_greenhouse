@@ -1,1 +1,1 @@
-dht22_zn_rel_pos[5] = CONFIG_SENSOR_DHT22_5_PIN;
+ESP_LOGI(TAG, "{==nvs info==}\n%s\n", node_info_get_module_info_json());

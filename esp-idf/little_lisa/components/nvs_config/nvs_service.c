@@ -11,6 +11,7 @@
 #include "nvs_service.h"
 #include "node_info.h"
 #include "module_config.h"
+#include "env_cntrl.h"
 
 static const char TAG[] = "nvs_service";
 
@@ -22,6 +23,7 @@ nvs_handle_t nvs_module_handle;
 nvs_handle_t nvs_sensor_arr_handle;
 nvs_handle_t nvs_node_arr_handle;
 nvs_handle_t nvs_sensor_loc_arr_handle;
+nvs_handle_t nvs_env_state_arr_handle;
 
 esp_err_t nvs_initiate(void)
 {
@@ -646,4 +648,65 @@ char *retrieve_serialized_string_from_nvs(nvs_handle_t loc_arr_handle,
     nvs_close(loc_arr_handle);
 
     return serialized_loc_arr; // Caller is responsible for freeing this memory
+}
+
+void nvs_set_env_state_arr(Env_state_t *state_arr_gt, int8_t arrLength){
+
+    if (nvs_open(NVS_ENV_STATE_CONFIG_NAMESPACE, NVS_READWRITE, &nvs_env_state_arr_handle) == ESP_OK)
+    {
+        ESP_LOGI(TAG, "{==env state list==} opened");
+    }
+
+    ESP_ERROR_CHECK(nvs_set_blob(nvs_env_state_arr_handle, NVS_ENV_STATE_CONFIG_ARR_INDEX, state_arr_gt, arrLength));
+    ESP_ERROR_CHECK(nvs_set_i8(nvs_env_state_arr_handle, NVS_ENV_STATE_TOTAL_INDEX, arrLength));
+
+    if (nvs_commit(nvs_env_state_arr_handle) == ESP_OK)
+    {
+        ESP_LOGI(TAG, "{==env state list==} changes succeffully commited-> env state arr added");
+    }
+    nvs_close(nvs_env_state_arr_handle);
+
+    node_info_log_sensor_list();
+}
+esp_err_t *nvs_get_env_state_arr(Env_state_t **state_arr, int8_t *arrLength){
+    esp_err_t err;
+
+    if ((err = nvs_open(NVS_ENV_STATE_CONFIG_NAMESPACE, NVS_READWRITE, &nvs_env_state_arr_handle)) != ESP_OK)
+    {
+        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+        return err;
+    }
+
+    size_t env_state_arr_required_size;
+
+    if ((err = nvs_get_blob(nvs_env_state_arr_handle, NVS_ENV_STATE_CONFIG_ARR_INDEX, NULL, &env_state_arr_required_size)) != ESP_OK)
+    {
+        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+        return err;
+    }
+
+    *state_arr = (Env_state_t *)malloc(env_state_arr_required_size * sizeof(Env_state_t));
+
+    if (*state_arr == NULL)
+    {
+        // Handle memory allocation failure
+        ESP_LOGE(TAG, "Memory allocation failed- sensor arr\n");
+        return ESP_ERR_NO_MEM;
+    }
+
+    if ((err = nvs_get_blob(nvs_env_state_arr_handle, NVS_ENV_STATE_CONFIG_ARR_INDEX, *state_arr, &env_state_arr_required_size)) != ESP_OK)
+    {
+        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+        return err;
+    }
+
+    if ((err = nvs_get_i8(nvs_env_state_arr_handle, NVS_ENV_STATE_TOTAL_INDEX, arrLength)) != ESP_OK)
+    {
+        ESP_LOGW(TAG, "%s", esp_err_to_name(err));
+        return err;
+    }
+
+    nvs_close(nvs_env_state_arr_handle);
+
+    return err;
 }

@@ -3,6 +3,7 @@ idf_component_register(
         nvs_service.c
         node_info.c
         module_config.c
+        env_cntrl.c
 
     REQUIRES
         sensors
