@@ -72,9 +72,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_1
-                    bool
-                    default y if POWER_EXTERNAL_1
-                    default n if POWER_INTERNAL_1
+                    int
+                    default 1 if POWER_EXTERNAL_1
+                    default 0 if POWER_INTERNAL_1
                     depends on RELAY_TOTAL >= 1
 
                 choice
@@ -94,9 +94,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_1
-                    bool
-                    default y if STATE_ON_1
-                    default n if STATE_OFF_1
+                    int
+                    default 1 if STATE_ON_1
+                    default 0 if STATE_OFF_1
                     depends on RELAY_TOTAL >= 1
 
             endmenu
@@ -156,9 +156,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_2
-                    bool
-                    default y if POWER_EXTERNAL_2
-                    default n if POWER_INTERNAL_2
+                    int
+                    default 1 if POWER_EXTERNAL_2
+                    default 0 if POWER_INTERNAL_2
                     depends on RELAY_TOTAL >= 2
 
                 choice
@@ -178,9 +178,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_2
-                    bool
-                    default y if STATE_ON_2
-                    default n if STATE_OFF_2
+                    int
+                    default 1 if STATE_ON_2
+                    default 0 if STATE_OFF_2
                     depends on RELAY_TOTAL >= 2
 
             endmenu
@@ -240,9 +240,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_3
-                    bool
-                    default y if POWER_EXTERNAL_3
-                    default n if POWER_INTERNAL_3
+                    int
+                    default 1 if POWER_EXTERNAL_3
+                    default 0 if POWER_INTERNAL_3
                     depends on RELAY_TOTAL >= 3
 
                 choice
@@ -262,9 +262,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_3
-                    bool
-                    default y if STATE_ON_3
-                    default n if STATE_OFF_3
+                    int
+                    default 1 if STATE_ON_3
+                    default 0 if STATE_OFF_3
                     depends on RELAY_TOTAL >= 3
 
             endmenu
@@ -324,9 +324,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_4
-                    bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    int
+                    default 1 if POWER_EXTERNAL
+                    default 0 if POWER_INTERNAL
                     depends on RELAY_TOTAL >= 4
 
                 choice
@@ -346,9 +346,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_4
-                    bool
-                    default y if STATE_ON_4
-                    default n if STATE_OFF_4
+                    int
+                    default 1 if STATE_ON_4
+                    default 0 if STATE_OFF_4
                     depends on RELAY_TOTAL >= 4
 
             endmenu
@@ -408,9 +408,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_5
-                    bool
-                    default y if POWER_EXTERNAL_5
-                    default n if POWER_INTERNAL_5
+                    int
+                    default 1 if POWER_EXTERNAL_5
+                    default 0 if POWER_INTERNAL_5
                     depends on RELAY_TOTAL >= 5
 
                 choice
@@ -430,9 +430,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_5
-                    bool
-                    default y if STATE_ON_5
-                    default n if STATE_OFF_5
+                    int
+                    default 1 if STATE_ON_5
+                    default 0 if STATE_OFF_5
                     depends on RELAY_TOTAL >= 5
 
             endmenu
@@ -492,9 +492,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_6
-                    bool
-                    default y if POWER_EXTERNAL_6
-                    default n if POWER_INTERNAL_6
+                    int
+                    default 1 if POWER_EXTERNAL_6
+                    default 0 if POWER_INTERNAL_6
                     depends on RELAY_TOTAL >= 6
 
                 choice
@@ -514,9 +514,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_6
-                    bool
-                    default y if STATE_ON_6
-                    default n if STATE_OFF_6
+                    int
+                    default 1 if STATE_ON_6
+                    default 0 if STATE_OFF_6
                     depends on RELAY_TOTAL >= 6
 
             endmenu
@@ -576,9 +576,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_7
-                    bool
-                    default y if POWER_EXTERNAL_7
-                    default n if POWER_INTERNAL_7
+                    int
+                    default 1 if POWER_EXTERNAL_7
+                    default 0 if POWER_INTERNAL_7
                     depends on RELAY_TOTAL >= 7
 
                 choice
@@ -598,9 +598,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_7
-                    bool
-                    default y if STATE_ON_7
-                    default n if STATE_OFF_7
+                    int
+                    default 1 if STATE_ON_7
+                    default 0 if STATE_OFF_7
                     depends on RELAY_TOTAL >= 7
 
             endmenu
@@ -660,9 +660,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_8
-                    bool
-                    default y if POWER_EXTERNAL_8
-                    default n if POWER_INTERNAL_8
+                    int
+                    default 1 if POWER_EXTERNAL_8
+                    default 0 if POWER_INTERNAL_8
                     depends on RELAY_TOTAL >= 8
 
                 choice
@@ -682,9 +682,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_8
-                    bool
-                    default y if STATE_ON_8
-                    default n if STATE_OFF_8
+                    int
+                    default 1 if STATE_ON_8
+                    default 0 if STATE_OFF_8
                     depends on RELAY_TOTAL >= 8
 
             endmenu
@@ -744,9 +744,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_9
-                    bool
-                    default y if POWER_EXTERNAL_9
-                    default n if POWER_INTERNAL_9
+                    int
+                    default 1 if POWER_EXTERNAL_9
+                    default 0 if POWER_INTERNAL_9
                     depends on RELAY_TOTAL >= 9
 
                 choice
@@ -766,9 +766,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_9
-                    bool
-                    default y if STATE_ON_9
-                    default n if STATE_OFF_9
+                    int
+                    default 1 if STATE_ON_9
+                    default 0 if STATE_OFF_9
                     depends on RELAY_TOTAL >= 9
 
             endmenu
@@ -828,9 +828,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_10
-                    bool
-                    default y if POWER_EXTERNAL_10
-                    default n if POWER_INTERNAL_10
+                    int
+                    default 1 if POWER_EXTERNAL_10
+                    default 0 if POWER_INTERNAL_10
                     depends on RELAY_TOTAL >= 10
 
                 choice
@@ -850,9 +850,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_10
-                    bool
-                    default y if STATE_ON_10
-                    default n if STATE_OFF_10
+                    int
+                    default 1 if STATE_ON_10
+                    default 0 if STATE_OFF_10
                     depends on RELAY_TOTAL >= 10
 
             endmenu
@@ -912,9 +912,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_11
-                    bool
-                    default y if POWER_EXTERNAL_11
-                    default n if POWER_INTERNAL_11
+                    int
+                    default 1 if POWER_EXTERNAL_11
+                    default 0 if POWER_INTERNAL_11
                     depends on RELAY_TOTAL >= 11
 
                 choice
@@ -934,9 +934,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_11
-                    bool
-                    default y if STATE_ON_11
-                    default n if STATE_OFF_11
+                    int
+                    default 1 if STATE_ON_11
+                    default 0 if STATE_OFF_11
                     depends on RELAY_TOTAL >= 11
 
             endmenu
@@ -996,9 +996,9 @@
                 endchoice
 
                 config ENV_CNTRL_EXT_PWR_12
-                    bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    int
+                    default 1 if POWER_EXTERNAL
+                    default 0 if POWER_INTERNAL
                     depends on RELAY_TOTAL >= 12
 
                 choice
@@ -1018,9 +1018,9 @@
                 endchoice
 
                 config ENV_CNTRL_STATE_12
-                    bool
-                    default y if STATE_ON_12
-                    default n if STATE_OFF_12
+                    int
+                    default 1 if STATE_ON_12
+                    default 0 if STATE_OFF_12
                     depends on RELAY_TOTAL >= 12
 
             endmenu
