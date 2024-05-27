@@ -1,71 +1,6 @@
 
 
-menu "NVS Module Info"
 
-    choice
-        prompt "Select Module Type"
-
-        config MODULE_TYPE_NODE
-            bool "node"
-
-        config MODULE_TYPE_CONTROLLER
-            bool "controller"
-
-    endchoice
-
-    config MODULE_LOCATION
-        string "Module Location"
-        default "UNKNOWN"
-        help
-            Module location description
-
-    config GREENHOUSE_ID
-        int "Greenhouse id"
-        default 1
-
-
-    config ZONE_NUM
-        int "zone num"
-        default 1
-
-
-    choice
-        prompt "select location type"
-
-        config SQUARE_POS
-            bool "square id"
-            depends on ZONE_NUM > 0
-
-        config ZN_REL_POS
-            bool "zone relative"
-
-        help
-            select square id
-    endchoice
-
-    config SQUARE_POS_Y
-        depends on SQUARE_POS
-        int "square Y"
-        default 1
-
-    config SQUARE_POS_X
-        depends on SQUARE_POS
-        int "square X"
-        default 1
-
-
-    config ZN_REL_POS_X
-        int "x coordinate"
-        default 0
-        depends on ZN_REL_POS
-    config ZN_REL_POS_Y
-        int "y coordinate"
-        default 0
-        depends on ZN_REL_POS
-    config ZN_REL_POS_Z
-        int "z coordinate"
-        default 0
-        depends on ZN_REL_POS
 
         menu "Environmental State Config"
 
@@ -94,43 +29,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 1
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_1
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_1
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_1
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_1
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_1
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_1
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_1
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_1
+                    default 1 if OPTION_LIGHT_1
+                    default 2 if OPTION_WATER_1
+                    default 3 if OPTION_FAN_1
+                    default 4 if OPTION_HEATER_1
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_1
                     depends on RELAY_TOTAL >= 1
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_1
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_1
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -138,8 +73,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_1
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_1
+                    default n if POWER_INTERNAL_1
                     depends on RELAY_TOTAL >= 1
 
                 choice
@@ -178,43 +113,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 2
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_2
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_2
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_2
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_2
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_2
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_2
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_2
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_2
+                    default 1 if OPTION_LIGHT_2
+                    default 2 if OPTION_WATER_2
+                    default 3 if OPTION_FAN_2
+                    default 4 if OPTION_HEATER_2
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_2
                     depends on RELAY_TOTAL >= 2
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_2
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_2
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -222,8 +157,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_2
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_2
+                    default n if POWER_INTERNAL_2
                     depends on RELAY_TOTAL >= 2
 
                 choice
@@ -262,43 +197,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 3
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_3
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_3
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_3
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_3
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_3
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_3
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_3
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_3
+                    default 1 if OPTION_LIGHT_3
+                    default 2 if OPTION_WATER_3
+                    default 3 if OPTION_FAN_3
+                    default 4 if OPTION_HEATER_3
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_3
                     depends on RELAY_TOTAL >= 3
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_3
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_3
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -306,8 +241,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_3
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_3
+                    default n if POWER_INTERNAL_3
                     depends on RELAY_TOTAL >= 3
 
                 choice
@@ -346,43 +281,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 4
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_4
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_4
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_4
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_4
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_4
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_4
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_4
                     int
                     default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 1 if OPTION_LIGHT_4
+                    default 2 if OPTION_WATER_4
+                    default 3 if OPTION_FAN_4
+                    default 4 if OPTION_HEATER_4
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_4
                     depends on RELAY_TOTAL >= 4
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_4
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_4
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -430,43 +365,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 5
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_5
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_5
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_5
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_5
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_5
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_5
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_5
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_5
+                    default 1 if OPTION_LIGHT_5
+                    default 2 if OPTION_WATER_5
+                    default 3 if OPTION_FAN_5
+                    default 4 if OPTION_HEATER_5
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_5
                     depends on RELAY_TOTAL >= 5
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_5
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_5
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -474,8 +409,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_5
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_5
+                    default n if POWER_INTERNAL_5
                     depends on RELAY_TOTAL >= 5
 
                 choice
@@ -514,43 +449,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 6
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_6
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_6
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_6
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_6
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_6
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_6
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_6
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_6
+                    default 1 if OPTION_LIGHT_6
+                    default 2 if OPTION_WATER_6
+                    default 3 if OPTION_FAN_6
+                    default 4 if OPTION_HEATER_6
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_6
                     depends on RELAY_TOTAL >= 6
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_6
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_6
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -558,8 +493,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_6
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_6
+                    default n if POWER_INTERNAL_6
                     depends on RELAY_TOTAL >= 6
 
                 choice
@@ -598,43 +533,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 7
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_7
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_7
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_7
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_7
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_7
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_7
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_7
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_7
+                    default 1 if OPTION_LIGHT_7
+                    default 2 if OPTION_WATER_7
+                    default 3 if OPTION_FAN_7
+                    default 4 if OPTION_HEATER_7
 
                 choice
                     prompt "Select Power Source"
                     default POWER_INTERNAL
                     depends on RELAY_TOTAL >= 7
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_7
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_7
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -642,8 +577,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_7
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_7
+                    default n if POWER_INTERNAL_7
                     depends on RELAY_TOTAL >= 7
 
                 choice
@@ -682,43 +617,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 8
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_8
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_8
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_8
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_8
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_8
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_8
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_8
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_8
+                    default 1 if OPTION_LIGHT_8
+                    default 2 if OPTION_WATER_8
+                    default 3 if OPTION_FAN_8
+                    default 4 if OPTION_HEATER_8
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_8
                     depends on RELAY_TOTAL >= 8
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_8
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_8
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -726,8 +661,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_8
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_8
+                    default n if POWER_INTERNAL_8
                     depends on RELAY_TOTAL >= 8
 
                 choice
@@ -766,43 +701,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 9
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_9
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_9
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_9
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_9
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_9
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_9
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_9
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_9
+                    default 1 if OPTION_LIGHT_9
+                    default 2 if OPTION_WATER_9
+                    default 3 if OPTION_FAN_9
+                    default 4 if OPTION_HEATER_9
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_9
                     depends on RELAY_TOTAL >= 9
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_9
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_9
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -810,8 +745,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_9
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_9
+                    default n if POWER_INTERNAL_9
                     depends on RELAY_TOTAL >= 9
 
                 choice
@@ -850,43 +785,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 10
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_10
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_10
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_10
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_10
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_10
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_10
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_10
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_10
+                    default 1 if OPTION_LIGHT_10
+                    default 2 if OPTION_WATER_10
+                    default 3 if OPTION_FAN_10
+                    default 4 if OPTION_HEATER_10
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_10
                     depends on RELAY_TOTAL >= 10
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_10
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_10
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -894,8 +829,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_10
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_10
+                    default n if POWER_INTERNAL_10
                     depends on RELAY_TOTAL >= 10
 
                 choice
@@ -934,43 +869,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 11
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_11
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_11
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_11
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_11
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_11
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_11
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_11
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_11
+                    default 1 if OPTION_LIGHT_11
+                    default 2 if OPTION_WATER_11
+                    default 3 if OPTION_FAN_11
+                    default 4 if OPTION_HEATER_11
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_11
                     depends on RELAY_TOTAL >= 11
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_11
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_11
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -978,8 +913,8 @@ menu "NVS Module Info"
 
                 config ENV_CNTRL_EXT_PWR_11
                     bool
-                    default y if POWER_EXTERNAL
-                    default n if POWER_INTERNAL
+                    default y if POWER_EXTERNAL_11
+                    default n if POWER_INTERNAL_11
                     depends on RELAY_TOTAL >= 11
 
                 choice
@@ -1018,43 +953,43 @@ menu "NVS Module Info"
                 choice
                     prompt "Select Control Type"
                     depends on RELAY_TOTAL >= 12
-                    default OPTION_UNKNOWN
+                    default OPTION_UNKNOWN_12
 
-                    config OPTION_UNKNOWN
+                    config OPTION_UNKNOWN_12
                         bool "unknown"
 
-                    config OPTION_LIGHT
+                    config OPTION_LIGHT_12
                         bool "Light"
 
-                    config OPTION_WATER
+                    config OPTION_WATER_12
                         bool "Water"
 
-                    config OPTION_FAN
+                    config OPTION_FAN_12
                         bool "Fan"
 
-                    config OPTION_HEATER
+                    config OPTION_HEATER_12
                         bool "Heater"
                 endchoice
 
                 config ENV_CNTRL_TYPE_12
                     int
-                    default 0 if OPTION_UNKNOWN
-                    default 1 if OPTION_LIGHT
-                    default 2 if OPTION_WATER
-                    default 3 if OPTION_FAN
-                    default 4 if OPTION_HEATER
+                    default 0 if OPTION_UNKNOWN_12
+                    default 1 if OPTION_LIGHT_12
+                    default 2 if OPTION_WATER_12
+                    default 3 if OPTION_FAN_12
+                    default 4 if OPTION_HEATER_12
 
                 choice
                     prompt "Select Power Source"
-                    default POWER_INTERNAL
+                    default POWER_INTERNAL_12
                     depends on RELAY_TOTAL >= 12
 
-                    config POWER_INTERNAL
+                    config POWER_INTERNAL_12
                         bool "Internal"
                         help
                             Select this if power is from ESP.
 
-                    config POWER_EXTERNAL
+                    config POWER_EXTERNAL_12
                         bool "External"
                         help
                             Select this if power is external using JVCC.
@@ -1093,6 +1028,73 @@ menu "NVS Module Info"
 
 
         endmenu
+
+        menu "NVS Module Info"
+
+            choice
+                prompt "Select Module Type"
+
+                config MODULE_TYPE_NODE
+                    bool "node"
+
+                config MODULE_TYPE_CONTROLLER
+                    bool "controller"
+
+            endchoice
+
+            config MODULE_LOCATION
+                string "Module Location"
+                default "UNKNOWN"
+                help
+                    Module location description
+
+            config GREENHOUSE_ID
+                int "Greenhouse id"
+                default 1
+
+
+            config ZONE_NUM
+                int "zone num"
+                default 1
+
+
+            choice
+                prompt "select location type"
+
+                config SQUARE_POS
+                    bool "square id"
+                    depends on ZONE_NUM > 0
+
+                config ZN_REL_POS
+                    bool "zone relative"
+
+                help
+                    select square id
+            endchoice
+
+            config SQUARE_POS_Y
+                depends on SQUARE_POS
+                int "square Y"
+                default 1
+
+            config SQUARE_POS_X
+                depends on SQUARE_POS
+                int "square X"
+                default 1
+
+
+            config ZN_REL_POS_X
+                int "x coordinate"
+                default 0
+                depends on ZN_REL_POS
+            config ZN_REL_POS_Y
+                int "y coordinate"
+                default 0
+                depends on ZN_REL_POS
+            config ZN_REL_POS_Z
+                int "z coordinate"
+                default 0
+                depends on ZN_REL_POS
 
 
     menu "Sensor List"

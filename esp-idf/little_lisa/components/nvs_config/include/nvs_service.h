@@ -10,8 +10,10 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 
+
 // components
 #include "module_config.h"
+#include "env_cntrl.h"
 
 #define NVS_WIFI_NAMESPACE "wifi"
 #define NVS_WIFI_SSID_INDEX "ssid"
@@ -34,9 +36,9 @@
 #define NVS_SENSOR_CONFIG_NAMESPACE "s_config_list"
 #define NVS_SENSOR_CONFIG_ARR_INDEX "s_config_arr"
 
-#define NVS_ENV_STATE_CONFIG_NAMESPACE "env_state_config_list"
-#define NVS_ENV_STATE_CONFIG_ARR_INDEX "env_state_config_arr"
-#define NVS_ENV_STATE_TOTAL_INDEX "env_state_config_total"
+#define NVS_ENV_STATE_CONFIG_NAMESPACE "es_config_list"
+#define NVS_ENV_STATE_CONFIG_ARR_INDEX "es_config_arr"
+#define NVS_ENV_STATE_TOTAL_INDEX "es_config_total"
 /**
  *
  * char **temp_sensor_loc_arr;

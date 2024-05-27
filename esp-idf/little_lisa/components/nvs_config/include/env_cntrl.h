@@ -6,11 +6,11 @@
 
 typedef enum
 {
-    UNKNOWN = 0,
-    LIGHT = 1,
-    WATER = 2,
-    FAN = 3,
-    HEATER = 4
+    ENV_CNTRL_UNKNOWN = 0,
+    ENV_CNTRL_LIGHT = 1,
+    ENV_CNTRL_WATER = 2,
+    ENV_CNTRL_FAN = 3,
+    ENV_CNTRL_HEATER = 4
 } EnvCntrlType;
 
 typedef enum
@@ -21,8 +21,8 @@ typedef enum
 
 typedef enum
 {
-    OFF = 0,
-    ON = 1,
+    ENV_CNTRL_OFF = 0,
+    ENV_CNTRL_ON = 1,
 } EnvCntrlState;
 
 typedef struct Env_state_t
@@ -36,6 +36,10 @@ typedef struct Env_state_t
 
 esp_err_t create_env_state_from_config(Env_state_t **state_arr_gt, int8_t total_relays);
 
-void env_state_arr_json(int8_t total_relays);
+char* env_state_arr_json(int8_t total_relays);
+
+char *cntrl_state_to_string(EnvCntrlState state);
+char *relay_pwr_src_to_string(EnvRelayPwrSrc power_src);
+char *cntrl_state_type_to_string(EnvCntrlType state_type);
 
 #endif /*ENV_CNTRL_H*/
