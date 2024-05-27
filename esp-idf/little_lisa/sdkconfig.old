@@ -229,7 +229,7 @@ CONFIG_IDF_TOOLCHAIN="gcc"
 CONFIG_IDF_TARGET_ARCH_XTENSA=y
 CONFIG_IDF_TARGET_ARCH="xtensa"
 CONFIG_IDF_TARGET="esp32"
-CONFIG_IDF_INIT_VERSION="$IDF_INIT_VERSION"
+CONFIG_IDF_INIT_VERSION="5.2.1"
 CONFIG_IDF_TARGET_ESP32=y
 CONFIG_IDF_FIRMWARE_CHIP_ID=0x0000
 
@@ -371,7 +371,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Little-Lisa Configuration
+# LittleLisa - Config
+#
+CONFIG_ENABLE_NVS_UPDATE=y
+# end of LittleLisa - Config
+
+#
+# Little-Lisa Wifi
 #
 # CONFIG_ESP_ENABLE_AP_MODE is not set
 CONFIG_ESP_WIFI_AP_MODE_SSID="LittleLisa - Greenhouse"
@@ -383,7 +389,7 @@ CONFIG_ESP_WIFI_INIT_STA_MODE_SSID="LittleLisa - Greenhouse"
 CONFIG_ESP_WIFI_INIT_STA_MODE_PASSWORD="Westgate4@"
 CONFIG_MAX_STA_MODE_RETRY_ATTEMPT=10
 CONFIG_ESP_NOW_COMM_RECIEVER_MAC_ADDRESS="08:d1:f9:3a:72:19"
-# end of Little-Lisa Configuration
+# end of Little-Lisa Wifi
 
 #
 # NVS Module Info
@@ -1907,17 +1913,6 @@ CONFIG_WIFI_PROV_STA_ALL_CHANNEL_SCAN=y
 # end of Wi-Fi Provisioning Manager
 
 #
-# LittleLisa - Config
-#
-CONFIG_ENABLE_NVS_UPDATE=y
-# end of LittleLisa - Config
-
-#
-# Camera configuration
-#
-# end of Camera configuration
-
-#
 # mDNS
 #
 CONFIG_MDNS_MAX_INTERFACES=3
@@ -1946,6 +1941,11 @@ CONFIG_MDNS_PREDEF_NETIF_AP=y
 CONFIG_MDNS_PREDEF_NETIF_ETH=y
 # end of MDNS Predefined interfaces
 # end of mDNS
+
+#
+# Camera configuration
+#
+# end of Camera configuration
 # end of Component config
 
 # CONFIG_IDF_EXPERIMENTAL_FEATURES is not set

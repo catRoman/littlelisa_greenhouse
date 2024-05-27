@@ -1,4 +1,4 @@
-menu "Little-Lisa Configuration"
+menu "Little-Lisa Wifi"
 
     config ESP_ENABLE_AP_MODE
         bool "Enable Ap"
@@ -62,5 +62,5 @@ menu "Little-Lisa Configuration"
             This configuration option allows setting a default MAC address
             that nodes will use for sending sensor data to.
 
-            
+
 endmenu

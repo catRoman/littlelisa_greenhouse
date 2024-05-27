@@ -3,15 +3,17 @@ menu "LittleLisa - Config"
         bool "Enable nvs module data update"
         default n
             help
-                when enabling updates all values must be verified and checked as the 
+                when enabling updates all values must be verified and checked as the
                 current nvs data will revert to configuration defaults
 
+
+                source "../components/nvs_config/Kconfig.projbuild"
+
+
+                source "../components/networking/Kconfig.projbuild"
 endmenu
 
-# rsource "components/networking/Kconfig.projbuild"
 
-# if ENABLE_NVS_UPDATE
 
-# rsource "components/nvs_config/Kconfig.projbuild"
 
 # endif
