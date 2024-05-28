@@ -96,9 +96,11 @@ export default function GreenHouseModel() {
           {fetchedGreenhouseData && (
             <>
               {/* greenhouse global sensors */}
-              {fetchedGreenhouseData.zones[0].sensors?.map((sensor) => {
-                return (
-                  <SensorListRender
+              {fetchedGreenhouseData.zones[0]?.sensors && fetchedGreenhouseData.zones[0].sensors?.map((sensor) => {
+                if(sensor.square_id){
+
+                  return (
+                    <SensorListRender
                     key={`${sensor.zn_rel_pos?.x}-${sensor.zn_rel_pos?.y}-${sensor.zn_rel_pos?.z}`} // Unique key for each SensorListRender
                     sensors={fetchedGreenhouseData.zones[0].sensors}
                     localZoneId={0}
@@ -108,8 +110,9 @@ export default function GreenHouseModel() {
                       y: sensor.zn_rel_pos!.y - 0.5,
                     }}
                     global={true}
-                  />
-                );
+                    />
+                  );
+                }
               })}
               {/* greenhouse global controllers */}
               {fetchedGreenhouseData.controllers?.map((controller) => {

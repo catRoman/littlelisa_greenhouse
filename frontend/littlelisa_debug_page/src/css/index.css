@@ -492,3 +492,31 @@ input[type="file"]::file-selector-button:active {
   margin-top: 0 !important;
   font-size: 1.4rem;
 }
+.env-status{
+  display:flex;
+  border: 2px solid whitesmoke;
+  border-radius: 10%;
+align-items: center;
+  width: 5rem;
+  justify-content: center;
+  margin-left: 1rem;
+  color: black;
+  font-weight: 500;
+}
+.env-li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  margin-right: 0rem;
+
+
+}
+.env-status-on{
+  background-color: green;
+}
+.env-status-off{
+  background-color: red;
+}
+.env-title{
+  padding: 1rem 0;
+}
