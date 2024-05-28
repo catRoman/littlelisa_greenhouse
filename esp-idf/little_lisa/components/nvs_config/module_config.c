@@ -31,7 +31,7 @@
 
 #define MAX_TEMP_SENSORS 5 // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
-#define MAX_RELAY 12
+#define MAX_RELAYS 12
 
 // COMPLETED - make state in kconfig to allow for nvs update
 //  check if enable_nvs_update is enabled if it is write config files to nvs by additionally serializing each sensor loc array and adding it to nvs
