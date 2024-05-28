@@ -122,6 +122,6 @@ char **splits_string(char delim, char *serialized_string, int8_t *numStrings);
 
 void nvs_set_env_state_arr(Env_state_t *state_arr_gt, int8_t arrLength);
 
-esp_err_t nvs_get_env_state_arr(Env_state_t **state_arr, int8_t *arrLength);
+esp_err_t nvs_get_env_state_arr(Env_state_t *state_arr, int8_t *arrLength);
 
 #endif /*NVS_CONFIG_NVS_SERVICE_H*/

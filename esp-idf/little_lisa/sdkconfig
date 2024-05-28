@@ -373,7 +373,7 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # LittleLisa - Config
 #
-CONFIG_ENABLE_NVS_UPDATE=y
+# CONFIG_ENABLE_NVS_UPDATE is not set
 # end of LittleLisa - Config
 
 #
@@ -394,25 +394,11 @@ CONFIG_ESP_NOW_COMM_RECIEVER_MAC_ADDRESS="08:d1:f9:3a:72:19"
 #
 # Environmental State Config
 #
-CONFIG_ENABLE_ENV_CNTRL_STATE_UPDATE=y
-CONFIG_RELAY_TOTAL=1
+# CONFIG_ENABLE_ENV_CNTRL_STATE_UPDATE is not set
 
 #
 # Relay 1
 #
-CONFIG_ENV_CNTRL_PIN_1=05
-# CONFIG_OPTION_UNKNOWN_1 is not set
-# CONFIG_OPTION_LIGHT_1 is not set
-CONFIG_OPTION_WATER_1=y
-# CONFIG_OPTION_FAN_1 is not set
-# CONFIG_OPTION_HEATER_1 is not set
-CONFIG_ENV_CNTRL_TYPE_1=2
-CONFIG_POWER_INTERNAL_1=y
-# CONFIG_POWER_EXTERNAL_1 is not set
-CONFIG_ENV_CNTRL_EXT_PWR_1=0
-CONFIG_STATE_OFF_1=y
-# CONFIG_STATE_ON_1 is not set
-CONFIG_ENV_CNTRL_STATE_1=0
 # end of Relay 1
 
 #
@@ -2005,11 +1991,6 @@ CONFIG_WIFI_PROV_STA_ALL_CHANNEL_SCAN=y
 # end of Wi-Fi Provisioning Manager
 
 #
-# Camera configuration
-#
-# end of Camera configuration
-
-#
 # mDNS
 #
 CONFIG_MDNS_MAX_INTERFACES=3
@@ -2038,6 +2019,11 @@ CONFIG_MDNS_PREDEF_NETIF_AP=y
 CONFIG_MDNS_PREDEF_NETIF_ETH=y
 # end of MDNS Predefined interfaces
 # end of mDNS
+
+#
+# Camera configuration
+#
+# end of Camera configuration
 # end of Component config
 
 # CONFIG_IDF_EXPERIMENTAL_FEATURES is not set
