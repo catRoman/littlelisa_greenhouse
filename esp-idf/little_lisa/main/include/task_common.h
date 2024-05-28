@@ -121,6 +121,11 @@
 #define OTA_PROP_TASK_PRIORITY 19
 #define OTA_PROP_TASK_CORE_ID 1
 
+// env cntrl Task
+#define ENV_CNTRL_STACK_SIZE 3000
+#define ENV_CNTRL_TASK_PRIORITY 7
+#define ENV_CNTRL_TASK_CORE_ID 1
+
 void pauseSensorPipelineTasks(void);
 void resumeSensorPipelineTasks(void);
 

@@ -3,10 +3,11 @@ idf_component_register(
         nvs_service.c
         node_info.c
         module_config.c
-        env_cntrl.c
 
     REQUIRES
         sensors
+        periphials
+        nvs_flash
 
     PRIV_REQUIRES
         networking
@@ -15,7 +16,6 @@ idf_component_register(
         periphials
         esp_wifi
         esp_http_server
-        nvs_flash
         json
         esp_timer
 
