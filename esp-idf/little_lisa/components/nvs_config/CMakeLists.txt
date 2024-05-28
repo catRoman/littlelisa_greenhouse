@@ -3,17 +3,17 @@ idf_component_register(
         nvs_service.c
         node_info.c
         module_config.c
+        env_cntrl.c
 
     REQUIRES
         sensors
-        periphials
         nvs_flash
 
-    PRIV_REQUIRES
+        PRIV_REQUIRES
+        periphials
         networking
         sensors
         database_ctrl
-        periphials
         esp_wifi
         esp_http_server
         json
@@ -23,3 +23,4 @@ idf_component_register(
 
 )
 #target_compile_options(${COMPONENT_LIB} PRIVATE "-fsanitize=undefined" "-O0")
+# set_property(TARGET ${periphials} APPEND PROPERTY LINK_INTERFACE_MULTIPLICITY 3)
