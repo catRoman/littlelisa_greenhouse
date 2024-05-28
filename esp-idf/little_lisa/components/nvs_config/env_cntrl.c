@@ -336,30 +336,33 @@ void env_cntrl_task(void *vpParameter)
 
             char * state_type = cntrl_state_type_to_string(env_state_arr_gt[state_event.id].type);
             char * relay_power =relay_pwr_src_to_string(env_state_arr_gt[state_event.id].pwr_src);
-            char * cntrl_state =cntrl_state_to_string(env_state_arr_gt[state_event.id].state);
+            char * current_state =cntrl_state_to_string(env_state_arr_gt[state_event.id].state);
             ESP_LOGW(TAG, "env_cntrl state change recieved");
             ESP_LOGW(TAG, "current state ->id:%d-pin:%d-type:%s-pwr_src:%s--->state:%s",
             env_state_arr_gt[state_event.id].id,
             env_state_arr_gt[state_event.id].pin,
-            state_type,relay_power,cntrl_state
+            state_type,relay_power,current_state
             );
 
-            env_state_arr_gt[state_event.id].state =!env_state_arr_gt[state_event.id].state;
+                env_state_arr_gt[state_event.id].state = !env_state_arr_gt[state_event.id].state;
+
+            char * new_state =cntrl_state_to_string(env_state_arr_gt[state_event.id].state);
+
             gpio_set_level(env_state_arr_gt[state_event.id].pin, env_state_arr_gt[state_event.id].state);
-            vTaskDelay(pdMS_TO_TICKS(100));
+
 
             ESP_LOGW(TAG, "new state -> id:%d-pin:%d-type:%s-pwr_src:%s--->state: %s",
             env_state_arr_gt[state_event.id].id,
             env_state_arr_gt[state_event.id].pin,
-           state_type,relay_power,cntrl_state
+           state_type,relay_power,new_state
             );
             //i th8ink thhis is unesecarily reducing the life of flash
             //  ESP_LOGW(TAG, "updating nvs");
             // nvs_set_env_state_arr(env_state_arr_gt, total_relays);
-
+free(current_state);
     free(state_type);
     free(relay_power);
-    free(cntrl_state);
+    free(new_state);
             taskYIELD();
         }
     }
@@ -394,7 +397,10 @@ esp_err_t initiate_env_cntrl()
         gpio_config(&io_conf[i]);
 
 
+
+
 	gpio_set_level(env_state_arr_gt[i].pin, env_state_arr_gt[i].state);
+
 
 
     }
