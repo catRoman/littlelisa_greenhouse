@@ -368,10 +368,10 @@ void sensor_post_processing_task(void *pvParameters)
             event->sensor_data->timestamp = currentTime;
 
             // debug senor data to console
-            char *log_string = create_sensor_data_json(event->sensor_data);
-            ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
-            free(log_string);
-            log_string = NULL;
+            // char *log_string = create_sensor_data_json(event->sensor_data);
+            // ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
+            // free(log_string);
+            // log_string = NULL;
 
             // prepare to send to multiple tasks for furter proccessing
 

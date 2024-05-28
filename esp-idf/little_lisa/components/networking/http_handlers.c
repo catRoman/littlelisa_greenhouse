@@ -23,6 +23,8 @@
 #include "spi_sd_card.h"
 #include "http_client.h"
 #include "helper.h"
+#include "env_cntrl.h"
+#include "cJSON.h"
 
 #include "task_common.h"
 
@@ -228,6 +230,24 @@ void register_http_server_handlers(void)
         .handler = get_system_state_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &system_state);
+
+     // enviro cntrl get state handler
+    httpd_uri_t env_state = {
+        .uri = "/api/envState",
+        .method = HTTP_GET,
+        .handler = env_get_state_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &env_state);
+
+      // enviro cntrl update handler
+    httpd_uri_t env_state_update = {
+        .uri = "/api/envStateUpdate",
+        .method = HTTP_PUT,
+        .handler = env_state_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &env_state_update);
+
+
 }
 // static debug landing page content serve
 
@@ -883,4 +903,79 @@ void node_ota_update_send(void *vpParam)
 
         vTaskDelete(NULL);
     }
+}
+
+
+esp_err_t env_state_handler(httpd_req_t *req)
+{
+
+// Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "env_state_update requested");
+
+
+    char buf[10];
+    int ret;
+
+    /* Read the data for the request */
+    if ((ret = httpd_req_recv(req, buf, MIN(req->content_len, sizeof(buf) - 1))) <= 0) {
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+            httpd_resp_send_408(req);
+        }
+        return ESP_FAIL;
+    }
+
+    /* Null-terminate the received data */
+    buf[ret] = '\0';
+
+    /* Convert the received string to an integer */
+    int state_id = atoi(buf);
+char * state_type = cntrl_state_type_to_string(state_id);
+    ESP_LOGW(HTTP_HANDLER_TAG, "Received state change request state_id: %s",state_type);
+free(state_type);
+     State_event_t state_event =
+        {
+            .id = state_id
+        };
+
+
+    extern QueueHandle_t env_cntrl_queue_handle;
+    if (xQueueSend(env_cntrl_queue_handle, &state_event, portMAX_DELAY) == pdPASS)
+    {
+        ESP_LOGW(HTTP_HANDLER_TAG, "id recieved from put passed to env_cntrl");
+    }
+
+
+   extern int8_t total_relays;
+    char *current_state = env_state_arr_json(total_relays);
+
+
+    /* Send JSON response */
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, current_state, HTTPD_RESP_USE_STRLEN);
+
+  free(current_state);
+    return ESP_OK;
+}
+
+
+esp_err_t env_get_state_handler(httpd_req_t *req)
+{
+    // Add CORS headers to the response
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "systemState requested");
+
+    extern int8_t total_relays;
+    char *current_state = env_state_arr_json(total_relays);
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, current_state, HTTPD_RESP_USE_STRLEN);
+    free(current_state);
+    return ESP_OK;
 }

@@ -37,7 +37,7 @@ typedef struct Env_state_t
 typedef struct State_event
 {
     int8_t id;
-    EnvCntrlState state;
+    // EnvCntrlState state;
 } State_event_t;
 
 esp_err_t create_env_state_from_config(Env_state_t *state_arr_gt, int8_t total_relays);
