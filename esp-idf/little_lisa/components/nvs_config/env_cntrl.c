@@ -14,7 +14,7 @@
 // components
 #include "env_cntrl.h"
 
-//static const char TAG[] = "env_cntrl";
+static const char TAG[] = "env_cntrl";
 
 esp_err_t create_env_state_from_config(Env_state_t *env_cntrl_arr, int8_t total_relays)
 {
@@ -214,15 +214,16 @@ char *env_state_arr_json(int8_t total_configs)
     {
         // name, type,location, sensor arr, sensor config arr
 
-        extern Env_state_t *env_state_arr_gt;
+        extern Env_state_t env_state_arr_gt[MAX_RELAYS];
 
         cJSON *root = cJSON_CreateObject();
         cJSON *config[total_configs];
 
         for (int i = 0; i < total_configs; i++)
         {
+            ESP_LOGE(TAG, "%d", i);
             config[i] = cJSON_CreateObject();
-            char buffer[10];
+            char buffer[20];
             snprintf(buffer, sizeof(buffer), "relay_%d", (i + 1));
             cJSON_AddItemToObject(root, buffer, config[i]);
             cJSON_AddNumberToObject(config[i], "id", env_state_arr_gt[i].id);

@@ -31,7 +31,7 @@
 
 #define MAX_TEMP_SENSORS 5 // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
-#define MAX_RELAYS 12
+
 
 // COMPLETED - make state in kconfig to allow for nvs update
 //  check if enable_nvs_update is enabled if it is write config files to nvs by additionally serializing each sensor loc array and adding it to nvs
@@ -57,9 +57,9 @@ const bool UPDATE_ENV_CNTRL_ARRAY = false;
 #endif
 
 #ifdef CONFIG_RELAY_TOTAL
-const int8_t total_relays = CONFIG_RELAY_TOTAL;
+ int8_t total_relays = CONFIG_RELAY_TOTAL;
 #else
-const int8_t total_relays = 0;
+ int8_t total_relays = 0;
 
 #endif
 
@@ -80,7 +80,7 @@ void initiate_config()
         if (UPDATE_ENV_CNTRL_ARRAY)
         {
 
-                if (create_env_state_from_config(&env_state_arr_gt, total_relays) == ESP_OK)
+                if (create_env_state_from_config(env_state_arr_gt, total_relays) == ESP_OK)
                 {
 
                         nvs_set_env_state_arr(env_state_arr_gt, total_relays);
@@ -92,9 +92,9 @@ void initiate_config()
         }
         else
         {
-                if (nvs_get_env_state_arr(&env_state_arr_gt, &total_relays) == ESP_OK)
+                if (nvs_get_env_state_arr(env_state_arr_gt, &total_relays) == ESP_OK)
                 {
-                        ESP_LOGI(TAG, "state are recieved from nvs succesfully");
+                        ESP_LOGI(TAG, "state arr recieved from nvs succesfully");
                 }
                 else
                 {

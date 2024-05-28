@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 #include "esp_err.h"
-
+#define MAX_RELAYS 12
 typedef enum
 {
     ENV_CNTRL_UNKNOWN = 0,
