@@ -30,7 +30,7 @@ idf_component_register(
         freertos
         esp_http_client
         esp_https_ota
-
+        json
 
     INCLUDE_DIRS "include"
 

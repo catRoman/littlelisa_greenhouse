@@ -81,4 +81,6 @@ void node_ota_update_send(void *vpParam);
 esp_err_t get_system_state_handler(httpd_req_t *req);
 
 esp_err_t ota_restart_handler(httpd_req_t *req);
+esp_err_t env_state_handler(httpd_req_t *req);
+esp_err_t env_get_state_handler(httpd_req_t *req);
 #endif

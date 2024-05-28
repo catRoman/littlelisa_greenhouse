@@ -636,11 +636,12 @@ void initiate_config()
         ESP_LOGI(TAG, "Starting common services");
 
 
-         initiate_sensor_queue();
 
-        ESP_ERROR_CHECK(initiate_sensor_tasks());
 
         esp_now_comm_start();
+        vTaskDelay(pdMS_TO_TICKS(10000));
+         initiate_sensor_queue();
+        ESP_ERROR_CHECK(initiate_sensor_tasks());
         // ESP_LOGW(TAG, "ota upload succesful~");
 }
 

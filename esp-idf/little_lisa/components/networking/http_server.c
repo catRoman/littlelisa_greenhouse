@@ -84,7 +84,7 @@ static httpd_handle_t http_server_configuration(void)
     config.core_id = HTTP_SERVER_TASK_CORE_ID;
     config.task_priority = HTTP_SERVER_TASK_PRIORITY;
     config.stack_size = HTTP_SERVER_TASK_STACK_SIZE;
-    config.max_uri_handlers = 20;
+    config.max_uri_handlers = 30;
     config.max_open_sockets = 13;
     config.recv_wait_timeout = 100;
     config.send_wait_timeout = 100;

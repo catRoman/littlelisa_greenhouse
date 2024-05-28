@@ -10,6 +10,7 @@
 #include "esp_err.h"
 #include "esp_system.h"
 #include "cJSON.h"
+#include "driver/gpio.h"
 
 // components
 #include "env_cntrl.h"
@@ -20,7 +21,8 @@ static const char TAG[] = "env_cntrl";
 
 QueueHandle_t env_cntrl_queue_handle = NULL;
 TaskHandle_t env_cntrl_task_handle = NULL;
-
+extern int8_t total_relays;
+extern Env_state_t env_state_arr_gt[MAX_RELAYS];
 
 esp_err_t create_env_state_from_config(Env_state_t *env_cntrl_arr, int8_t total_relays)
 {
@@ -220,23 +222,30 @@ char *env_state_arr_json(int8_t total_configs)
     {
         // name, type,location, sensor arr, sensor config arr
 
-        extern Env_state_t env_state_arr_gt[MAX_RELAYS];
+
 
         cJSON *root = cJSON_CreateObject();
         cJSON *config[total_configs];
 
         for (int i = 0; i < total_configs; i++)
         {
-            ESP_LOGE(TAG, "%d", i);
+            char* state_type =cntrl_state_type_to_string(env_state_arr_gt[i].type);
+char * relay_power = relay_pwr_src_to_string(env_state_arr_gt[i].pwr_src);
+            char* cntrl_state = cntrl_state_to_string(env_state_arr_gt[i].state);
+
             config[i] = cJSON_CreateObject();
             char buffer[20];
             snprintf(buffer, sizeof(buffer), "relay_%d", (i + 1));
             cJSON_AddItemToObject(root, buffer, config[i]);
             cJSON_AddNumberToObject(config[i], "id", env_state_arr_gt[i].id);
             cJSON_AddNumberToObject(config[i], "pin", env_state_arr_gt[i].pin);
-            cJSON_AddStringToObject(config[i], "type", cntrl_state_type_to_string(env_state_arr_gt[i].type));
-            cJSON_AddStringToObject(config[i], "pwr_src", relay_pwr_src_to_string(env_state_arr_gt[i].pwr_src));
-            cJSON_AddStringToObject(config[i], "state", cntrl_state_to_string(env_state_arr_gt[i].state));
+            cJSON_AddStringToObject(config[i], "type", state_type);
+            cJSON_AddStringToObject(config[i], "pwr_src", relay_power);
+            cJSON_AddStringToObject(config[i], "state", cntrl_state);
+
+            free(state_type);
+            free(relay_power);
+            free(cntrl_state);
         }
 
         char *json_string = cJSON_Print(root);
@@ -318,33 +327,39 @@ void env_cntrl_task(void *vpParameter)
     extern Env_state_t env_state_arr_gt[MAX_RELAYS];
     extern int8_t total_relays;
     ESP_LOGI(TAG, "env_cntrl task started");
-    State_event_t *state_event;
+    State_event_t state_event;
 
   for (;;)
     {
         if (xQueueReceive(env_cntrl_queue_handle, &state_event, portMAX_DELAY) == pdTRUE)
         {
+
+            char * state_type = cntrl_state_type_to_string(env_state_arr_gt[state_event.id].type);
+            char * relay_power =relay_pwr_src_to_string(env_state_arr_gt[state_event.id].pwr_src);
+            char * cntrl_state =cntrl_state_to_string(env_state_arr_gt[state_event.id].state);
             ESP_LOGW(TAG, "env_cntrl state change recieved");
-            ESP_LOGW(TAG, "current state -> \nid: %d\npin:%d\ntype: %s\n pwr_src: %s\n->state:%s",
-            env_state_arr_gt[state_event->id].id,
-            env_state_arr_gt[state_event->id].pin,
-            cntrl_state_type_to_string(env_state_arr_gt[state_event->id].type),
-            relay_pwr_src_to_string(env_state_arr_gt[state_event->id].pwr_src),
-            cntrl_state_to_string(env_state_arr_gt[state_event->id].state)
+            ESP_LOGW(TAG, "current state ->id:%d-pin:%d-type:%s-pwr_src:%s--->state:%s",
+            env_state_arr_gt[state_event.id].id,
+            env_state_arr_gt[state_event.id].pin,
+            state_type,relay_power,cntrl_state
             );
-            env_state_arr_gt[state_event->id].state = state_event->state;
 
-             ESP_LOGW(TAG, "new state -> \nid: %d\npin:%d\ntype: %s\n pwr_src: %s\n->state:%s",
-            env_state_arr_gt[state_event->id].id,
-            env_state_arr_gt[state_event->id].pin,
-            cntrl_state_type_to_string(env_state_arr_gt[state_event->id].type),
-            relay_pwr_src_to_string(env_state_arr_gt[state_event->id].pwr_src),
-            cntrl_state_to_string(env_state_arr_gt[state_event->id].state)
+            env_state_arr_gt[state_event.id].state =!env_state_arr_gt[state_event.id].state;
+            gpio_set_level(env_state_arr_gt[state_event.id].pin, env_state_arr_gt[state_event.id].state);
+            vTaskDelay(pdMS_TO_TICKS(100));
+
+            ESP_LOGW(TAG, "new state -> id:%d-pin:%d-type:%s-pwr_src:%s--->state: %s",
+            env_state_arr_gt[state_event.id].id,
+            env_state_arr_gt[state_event.id].pin,
+           state_type,relay_power,cntrl_state
             );
-             ESP_LOGW(TAG, "updating nvs");
-            nvs_set_env_state_arr(env_state_arr_gt, total_relays);
+            //i th8ink thhis is unesecarily reducing the life of flash
+            //  ESP_LOGW(TAG, "updating nvs");
+            // nvs_set_env_state_arr(env_state_arr_gt, total_relays);
 
-
+    free(state_type);
+    free(relay_power);
+    free(cntrl_state);
             taskYIELD();
         }
     }
@@ -354,26 +369,34 @@ void env_cntrl_task(void *vpParameter)
 esp_err_t initiate_env_cntrl()
 {
 
-    //===========================heap tracing=================
-    // #define NUM_RECORDS 100                                    // Adjust this number based on available memory and needed trace duration
-    //     static heap_trace_record_t trace_records[NUM_RECORDS]; // Allocate memory for trace records
 
-    //     esp_err_t ret = heap_trace_init_standalone(trace_records, NUM_RECORDS);
-    //     if (ret != ESP_OK)
-    //     {
-    //         printf("Heap trace initialization failed\n");
-    //     }
-
-    //===========================================
 
     ESP_LOGI(TAG, "env_cntrl queue init started");
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
-    env_cntrl_queue_handle = xQueueCreate(10, sizeof(State_event_t));
+    env_cntrl_queue_handle = xQueueCreate(5, sizeof(State_event_t));
     if (env_cntrl_queue_handle == NULL)
     {
         ESP_LOGE(TAG, "queue not created");
         return ESP_ERR_NO_MEM;
+    }
+
+    ESP_LOGI(TAG, "initializing relay pins for enviromental state control to nvs set state");
+
+    gpio_config_t io_conf[total_relays];
+    for(int i =0; i < total_relays; i++){
+
+        io_conf[i].intr_type = GPIO_INTR_DISABLE;
+        io_conf[i].mode = GPIO_MODE_OUTPUT;
+        io_conf[i].pin_bit_mask = (1ULL<<(gpio_num_t)(env_state_arr_gt[i].pin));
+        io_conf[i].pull_up_en = 0;
+        io_conf[i].pull_down_en = 1;
+        gpio_config(&io_conf[i]);
+
+
+	gpio_set_level(env_state_arr_gt[i].pin, env_state_arr_gt[i].state);
+
+
     }
 
    BaseType_t task_code;

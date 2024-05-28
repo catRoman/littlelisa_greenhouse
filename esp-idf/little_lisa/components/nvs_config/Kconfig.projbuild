@@ -1140,7 +1140,7 @@
                     config SENSOR_DHT22_1_PIN
                         int "Pin Number of Temp Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 1
 
                         choice
@@ -1195,7 +1195,7 @@
                             config SENSOR_DHT22_2_PIN
                                 int "Pin Number of Temp Sensor 2"
                                 default 0
-                                range 0 35
+                                range 0 40
                                 depends on SENSOR_DHT22 >= 2
 
 
@@ -1258,7 +1258,7 @@
                     config SENSOR_DHT22_3_PIN
                         int "Pin Number of Temp Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 3
 
 
@@ -1325,7 +1325,7 @@
                     config SENSOR_DHT22_4_PIN
                         int "Pin Number of Temp Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 4
 
 
@@ -1389,7 +1389,7 @@
                     config SENSOR_DHT22_5_PIN
                         int "Pin Number of Temp Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 5
 
 
@@ -1457,7 +1457,7 @@
                     config SENSOR_SOIL_MOISTURE_1_PIN
                         int "Pin Number of Soil Moisture Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 1
 
                 config SENSOR_SOIL_MOISTURE_2_LOCATION
@@ -1468,7 +1468,7 @@
                     config SENSOR_SOIL_MOISTURE_2_PIN
                         int "Pin Number of Soil Moisture Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 2
 
                 config SENSOR_SOIL_MOISTURE_3_LOCATION
@@ -1479,7 +1479,7 @@
                     config SENSOR_SOIL_MOISTURE_3_PIN
                         int "Pin Number of Soil Moisture Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 3
 
                 config SENSOR_SOIL_MOISTURE_4_LOCATION
@@ -1490,7 +1490,7 @@
                     config SENSOR_SOIL_MOISTURE_4_PIN
                         int "Pin Number of Soil Moisture Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 4
 
                 config SENSOR_SOIL_MOISTURE_5_LOCATION
@@ -1501,7 +1501,7 @@
                     config SENSOR_SOIL_MOISTURE_5_PIN
                         int "Pin Number of Soil Moisture Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 5
 
             endmenu
@@ -1517,7 +1517,7 @@
                     config SENSOR_LIGHT_1_PIN
                         int "Pin Number of LIGHT Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 1
 
                 config SENSOR_LIGHT_2_LOCATION
@@ -1528,7 +1528,7 @@
                      config SENSOR_LIGHT_2_PIN
                         int "Pin Number of LIGHT Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 2
 
                 config SENSOR_LIGHT_3_LOCATION
@@ -1539,7 +1539,7 @@
                      config SENSOR_LIGHT_3_PIN
                         int "Pin Number of LIGHT Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 3
 
                 config SENSOR_LIGHT_4_LOCATION
@@ -1550,7 +1550,7 @@
                      config SENSOR_LIGHT_4_PIN
                         int "Pin Number of LIGHT Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 4
 
                 config SENSOR_LIGHT_5_LOCATION
@@ -1561,7 +1561,7 @@
                      config SENSOR_LIGHT_5_PIN
                         int "Pin Number of LIGHT Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 5
 
             endmenu
@@ -1578,7 +1578,7 @@
                      config SENSOR_SOUND_1_PIN
                         int "Pin Number of Sound Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 1
 
                 config SENSOR_SOUND_2_LOCATION
@@ -1589,7 +1589,7 @@
                     config SENSOR_SOUND_2_PIN
                         int "Pin Number of Sound Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 2
 
                 config SENSOR_SOUND_3_LOCATION
@@ -1600,7 +1600,7 @@
                     config SENSOR_SOUND_3_PIN
                         int "Pin Number of Sound Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 3
 
                 config SENSOR_SOUND_4_LOCATION
@@ -1611,7 +1611,7 @@
                     config SENSOR_SOUND_4_PIN
                         int "Pin Number of Sound Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 4
 
                 config SENSOR_SOUND_5_LOCATION
@@ -1622,7 +1622,7 @@
                     config SENSOR_SOUND_5_PIN
                         int "Pin Number of Sound Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 5
 
             endmenu
@@ -1638,7 +1638,7 @@
                     config SENSOR_MOVEMENT_1_PIN
                         int "Pin Number of Movement Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 1
 
                 config SENSOR_MOVEMENT_2_LOCATION
@@ -1649,7 +1649,7 @@
                     config SENSOR_MOVEMENT_2_PIN
                         int "Pin Number of Movement Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 2
 
                 config SENSOR_MOVEMENT_3_LOCATION
@@ -1660,7 +1660,7 @@
                     config SENSOR_MOVEMENT_3_PIN
                         int "Pin Number of Movement Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 3
 
                 config SENSOR_MOVEMENT_4_LOCATION
@@ -1671,7 +1671,7 @@
                     config SENSOR_MOVEMENT_4_PIN
                         int "Pin Number of Movement Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 4
 
                 config SENSOR_MOVEMENT_5_LOCATION
@@ -1682,7 +1682,7 @@
                     config SENSOR_MOVEMENT_5_PIN
                         int "Pin Number of Movement Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 5
 
             endmenu
@@ -1699,7 +1699,7 @@
                     config SENSOR_CAMERA_1_PIN
                         int "Pin Number of Camera 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 1
 
                 config SENSOR_CAMERA_2_LOCATION
@@ -1710,7 +1710,7 @@
                     config SENSOR_CAMERA_2_PIN
                         int "Pin Number of Camera 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 2
 
                 config SENSOR_CAMERA_3_LOCATION
@@ -1721,7 +1721,7 @@
                     config SENSOR_CAMERA_3_PIN
                         int "Pin Number of Camera 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 3
 
                 config SENSOR_CAMERA_4_LOCATION
@@ -1732,7 +1732,7 @@
                     config SENSOR_CAMERA_4_PIN
                         int "Pin Number of Camera 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 4
 
                 config SENSOR_CAMERA_5_LOCATION
@@ -1743,7 +1743,7 @@
                     config SENSOR_CAMERA_5_PIN
                         int "Pin Number of Camera 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 5
 
             endmenu

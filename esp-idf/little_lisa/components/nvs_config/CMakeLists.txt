@@ -8,7 +8,7 @@ idf_component_register(
     REQUIRES
         sensors
         nvs_flash
-
+        driver
         PRIV_REQUIRES
         periphials
         networking
