@@ -971,6 +971,7 @@ esp_err_t env_get_state_handler(httpd_req_t *req)
 
     ESP_LOGI(HTTP_HANDLER_TAG, "systemState requested");
 
+
     extern int8_t total_relays;
     char *current_state = env_state_arr_json(total_relays);
 

@@ -21,8 +21,8 @@ typedef enum
 
 typedef enum
 {
-    ENV_CNTRL_OFF = 0,
-    ENV_CNTRL_ON = 1,
+    ENV_CNTRL_OFF = 1,
+    ENV_CNTRL_ON = 0,
 } EnvCntrlState;
 
 typedef struct Env_state_t
