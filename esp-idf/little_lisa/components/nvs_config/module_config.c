@@ -615,7 +615,11 @@ void initiate_config()
                 spi_sd_card_init();
                 // vTaskDelay(pdMS_TO_TICKS(100));
                 // spi_sd_card_test();
-
+                esp_err_t err;
+        if((err= initiate_sensor_queue()) != ESP_OK){
+                ESP_LOGE(TAG, "Error initiating env_cntrl %s", esp_err_to_name(err));
+        }
+                initiate_env_cntrl();
                 // sd_db_init();
         }
         else if (strcmp(module_info_gt->type, "node") == 0)
@@ -630,7 +634,10 @@ void initiate_config()
 
         // common to both node and controller
         ESP_LOGI(TAG, "Starting common services");
-        initiate_sensor_queue();
+
+
+         initiate_sensor_queue();
+
         ESP_ERROR_CHECK(initiate_sensor_tasks());
 
         esp_now_comm_start();

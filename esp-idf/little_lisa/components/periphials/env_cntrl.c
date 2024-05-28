@@ -13,8 +13,14 @@
 
 // components
 #include "env_cntrl.h"
+#include "task_common.h"
+#include "nvs_service.h"
 
 static const char TAG[] = "env_cntrl";
+
+QueueHandle_t env_cntrl_queue_handle = NULL;
+TaskHandle_t env_cntrl_task_handle = NULL;
+
 
 esp_err_t create_env_state_from_config(Env_state_t *env_cntrl_arr, int8_t total_relays)
 {
@@ -22,7 +28,7 @@ esp_err_t create_env_state_from_config(Env_state_t *env_cntrl_arr, int8_t total_
 
     for (int i = 0; i < total_relays; i++)
     {
-        env_cntrl_arr[i].id = i + 1;
+        env_cntrl_arr[i].id = i ;
     }
 // relay 1===========================
 #ifdef CONFIG_ENV_CNTRL_PIN_1
@@ -305,4 +311,85 @@ char *cntrl_state_type_to_string(EnvCntrlType state_type)
 
     state_type_string[10] = '\0';
     return state_type_string;
+}
+
+void env_cntrl_task(void *vpParameter)
+{
+    extern Env_state_t env_state_arr_gt[MAX_RELAYS];
+    extern int8_t total_relays;
+    ESP_LOGI(TAG, "env_cntrl task started");
+    State_event_t *state_event;
+
+  for (;;)
+    {
+        if (xQueueReceive(env_cntrl_queue_handle, &state_event, portMAX_DELAY) == pdTRUE)
+        {
+            ESP_LOGW(TAG, "env_cntrl state change recieved");
+            ESP_LOGW(TAG, "current state -> \nid: %d\npin:%d\ntype: %s\n pwr_src: %s\n->state:%s",
+            env_state_arr_gt[state_event->id].id,
+            env_state_arr_gt[state_event->id].pin,
+            cntrl_state_type_to_string(env_state_arr_gt[state_event->id].type),
+            relay_pwr_src_to_string(env_state_arr_gt[state_event->id].pwr_src),
+            cntrl_state_to_string(env_state_arr_gt[state_event->id].state)
+            );
+            env_state_arr_gt[state_event->id].state = state_event->state;
+
+             ESP_LOGW(TAG, "new state -> \nid: %d\npin:%d\ntype: %s\n pwr_src: %s\n->state:%s",
+            env_state_arr_gt[state_event->id].id,
+            env_state_arr_gt[state_event->id].pin,
+            cntrl_state_type_to_string(env_state_arr_gt[state_event->id].type),
+            relay_pwr_src_to_string(env_state_arr_gt[state_event->id].pwr_src),
+            cntrl_state_to_string(env_state_arr_gt[state_event->id].state)
+            );
+             ESP_LOGW(TAG, "updating nvs");
+            nvs_set_env_state_arr(env_state_arr_gt, total_relays);
+
+
+            taskYIELD();
+        }
+    }
+
+}
+
+esp_err_t initiate_env_cntrl()
+{
+
+    //===========================heap tracing=================
+    // #define NUM_RECORDS 100                                    // Adjust this number based on available memory and needed trace duration
+    //     static heap_trace_record_t trace_records[NUM_RECORDS]; // Allocate memory for trace records
+
+    //     esp_err_t ret = heap_trace_init_standalone(trace_records, NUM_RECORDS);
+    //     if (ret != ESP_OK)
+    //     {
+    //         printf("Heap trace initialization failed\n");
+    //     }
+
+    //===========================================
+
+    ESP_LOGI(TAG, "env_cntrl queue init started");
+    esp_log_level_set(TAG, ESP_LOG_INFO);
+
+    env_cntrl_queue_handle = xQueueCreate(10, sizeof(State_event_t));
+    if (env_cntrl_queue_handle == NULL)
+    {
+        ESP_LOGE(TAG, "queue not created");
+        return ESP_ERR_NO_MEM;
+    }
+
+   BaseType_t task_code;
+    task_code = xTaskCreatePinnedToCore(
+        env_cntrl_task,
+        "evn_state_m",
+        ENV_CNTRL_STACK_SIZE,
+        NULL,
+        ENV_CNTRL_TASK_PRIORITY,
+        &env_cntrl_task_handle,
+        ENV_CNTRL_TASK_CORE_ID);
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+        return ESP_ERR_NO_MEM;
+    }
+return ESP_OK;
 }
