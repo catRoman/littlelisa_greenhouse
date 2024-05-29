@@ -1,5 +1,5 @@
 import EnvirCntrlBtn from "./EnviroCntrlBtn";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect,  useState } from "react";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { EnvState } from "../../../types/common";
 import { cntrlDataList } from "../../data/static_info";
@@ -7,12 +7,18 @@ import { cntrlDataList } from "../../data/static_info";
 export default function DashEnviroCntrl() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
-  const [envState, setEnvState] = useState<EnvState[]>();
 
-  const {fetchedGreenhouseData} = useContext(GreenHouseContext);
 
-  useEffect(() => {
-    const fetchEnvState = async () => {
+  const {fetchedGreenhouseData, setEnvCntrlStates, envCntrlStates} = useContext(GreenHouseContext);
+
+  const updateEnvState = (newState:EnvState[])=>{
+    setEnvCntrlStates(newState);
+  }
+
+
+
+  const fetchStateList = useCallback( async() => {
+
       const {user_id, greenhouse_id} = fetchedGreenhouseData!;
       const url = `/api/users/${user_id}/greenhouses/${greenhouse_id}/envState`;
       try {
@@ -21,20 +27,25 @@ export default function DashEnviroCntrl() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
+        const newState = Object.values(data) as  EnvState[]
 
-        setEnvState(data);
+
+          updateEnvState(newState);
+
       } catch (error) {
         console.error("Fetch error:", error);
         setError(true);
       } finally {
         setLoading(false);
       }
-    };
-    fetchEnvState();
+
+
 
   },[fetchedGreenhouseData])
 
-
+  useEffect(() => {
+    fetchStateList();
+  }, [fetchStateList]);
 
   return (
     <div className="flex flex-col h-36 justify-between pt-4">
@@ -42,14 +53,14 @@ export default function DashEnviroCntrl() {
 
       <ul className="grid grid-cols-3 align-center   flex-col justify-center gap-3  ">
 
-        {envState?.map((cntrl) => {
+        {envCntrlStates.length > 0 && envCntrlStates.map((cntrl) => {
           const icon = cntrlDataList.find((icon)=>{
             if (icon.cntrl === cntrl.type){
               return icon;
             }
           })
           return (
-            <EnvirCntrlBtn key={cntrl.id} state={cntrl.state} iconPath={icon?.iconPath}>
+            <EnvirCntrlBtn refresh={fetchStateList} key={cntrl.id} id={cntrl.id} state={cntrl.state} iconPath={icon?.iconPath}>
               {cntrl.type}
             </EnvirCntrlBtn>
           );

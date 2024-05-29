@@ -16,7 +16,7 @@ import DashEnviroCntrl from "../enviroCntrl/DashEnviroCntrl";
 export default function ControlPanel() {
   const { viewState } = useContext(GreenHouseContext);
   const [panelState, setPanelState] = useState<ControlPanelState>(
-    ControlPanelState.Closed,
+    ControlPanelState.Enviroment,
   );
   const [isSelected, setSelected] = useState<string>("Enviroment");
   const [isSelectedSubMenu, setSelectedSubMenu] = useState<string>("plantInfo");
