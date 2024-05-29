@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import {
   CameraSettings,
   GreenhouseData,
@@ -130,13 +130,24 @@ export default function GreenHouseContextProvider({
     }
   }, [selectedSquareId, selectedZoneId, fetchedGreenhouseData]);
 
+  const addUnassignedSensor= useCallback((sensor: Sensor)=>{
+    setUnassignedSensorList((prevList) => [...prevList, sensor]);
+    console.log(`unasigned sensor added: `,sensor)
+  }, []);
+
   useEffect(() => {
     console.log("data fetched: ", fetchedGreenhouseData);
-  }, [fetchedGreenhouseData]);
+      if(fetchedGreenhouseData?.zones[0].sensors){
 
-  const addUnassignedSensor = (sensor: Sensor) => {
-    setUnassignedSensorList((prevList) => [...prevList, sensor]);
-  };
+    fetchedGreenhouseData.zones[0].sensors.forEach((sensor)=>{
+      if(sensor.zn_rel_pos?.x === -1 && sensor.zn_rel_pos?.y === -1 && sensor.zn_rel_pos?.z === -1){
+        addUnassignedSensor(sensor);
+
+      }
+    })
+  }
+  }, [fetchedGreenhouseData, addUnassignedSensor]);
+
 
   return (
     <GreenHouseContext.Provider
