@@ -44,6 +44,23 @@ const getZoneById = async (greenhouseId, zoneId) => {
 
   if (nodes) {
     nodes = nodes.map((node) => {
+
+      if(node.square_id === null){
+        if(!node.zrp_x_pos  || !node.zrp_y_pos || !node.zrp_z_pos  ){
+          node.zrp_x_pos = -1;
+          node.zrp_y_pos = -1;
+          node.zrp_z_pos = -1;
+        }
+      }else{
+        if(!node.s_x_pos || !node.s_y_pos){
+          node.square_id = null;
+          node.zrp_x_pos = -1;
+          node.zrp_y_pos = -1;
+          node.zrp_z_pos = -1;
+        }
+      }
+
+
       if (node.zrp_x_pos) {
         return {
           node_id: node.node_id,
@@ -76,6 +93,22 @@ const getZoneById = async (greenhouseId, zoneId) => {
   if (sensors) {
     zone = { ...zone, sensorsAvailable: true };
     sensors = sensors.map((sensor) => {
+      if(sensor.square_id === null){
+        if(!sensor.zrp_x_pos  || !sensor.zrp_y_pos || !sensor.zrp_z_pos  ){
+          sensor.zrp_x_pos = -1;
+          sensor.zrp_y_pos = -1;
+          sensor.zrp_z_pos = -1;
+        }
+      }else{
+        if(!sensor.s_x_pos || !sensor.s_y_pos){
+          sensor.square_id = null;
+          sensor.zrp_x_pos = -1;
+          sensor.zrp_y_pos = -1;
+          sensor.zrp_z_pos = -1;
+        }
+      }
+
+
       if (sensor.zrp_x_pos) {
         return {
           sensor_id: sensor.sensor_id,
@@ -91,7 +124,6 @@ const getZoneById = async (greenhouseId, zoneId) => {
           },
         };
       } else {
-        zone = { ...zone, sensorsAvailable: false };
         return {
           sensor_id: sensor.sensor_id,
           module_id: sensor.module_id,
@@ -106,6 +138,8 @@ const getZoneById = async (greenhouseId, zoneId) => {
         };
       }
     });
+  }else{
+    zone = { ...zone, sensorsAvailable: false };
   }
   return { ...zone, dimensions, nodes, sensors } || null;
 };

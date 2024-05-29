@@ -3,12 +3,15 @@ import {
   CameraSettings,
   GreenhouseData,
   Plot,
+  Sensor,
   SquareId,
 } from "../../types/common";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import { GreenHouseViewState } from "../../types/enums";
 export interface GreenHouseContextType {
   //state
+  unassignedSensorList: Sensor[]
+  addUnassignedSensor: (sensor: Sensor) => void;
   refreshNoteList: boolean;
   setRefreshNoteList: (refresh: boolean) => void;
   setRefreshGreenhouseData: (refresh: boolean) => void;
@@ -42,6 +45,9 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  unassignedSensorList: [],
+addUnassignedSensor: () =>{},
+
   refreshNoteList: false,
   setRefreshNoteList: () => {},
   refreshGreenhouseData: false,
@@ -74,6 +80,7 @@ export const GreenHouseContext =
 export default function GreenHouseContextProvider({
   children,
 }: GreenHouseContextProviderProps) {
+  const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>([]);
   const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
@@ -127,9 +134,15 @@ export default function GreenHouseContextProvider({
     console.log("data fetched: ", fetchedGreenhouseData);
   }, [fetchedGreenhouseData]);
 
+  const addUnassignedSensor = (sensor: Sensor) => {
+    setUnassignedSensorList((prevList) => [...prevList, sensor]);
+  };
+
   return (
     <GreenHouseContext.Provider
       value={{
+        unassignedSensorList,
+        addUnassignedSensor,
         refreshNoteList,
         setRefreshNoteList,
         setRefreshGreenhouseData,
