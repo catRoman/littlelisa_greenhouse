@@ -33,11 +33,20 @@ export default function WeatherAp() {
     <aside className="align-end flex flex-col gap-2">
       <h3 className="self-center text-xs font-bold">Current Weather</h3>
       {isLoading ? (
-        <p> Loading Current Weather...</p>
+        <>
+        <p className="text-xs">Loading </p>
+        <p className="text-xs">Current </p>
+        <p className="text-xs">Weather...</p>
+        </>
       ) : currentWeather ? (
         <WeatherInfo data={currentWeather} />
       ) : (
-        <p>Error Loading Weather Data...</p>
+        <>
+        <p className="text-xs">Error</p>
+        <p className="text-xs">Loading</p>
+        <p className="text-xs">Weather</p>
+        <p className="text-xs">Data...</p>
+        </>
       )}
     </aside>
   );

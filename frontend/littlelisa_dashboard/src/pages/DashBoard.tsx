@@ -32,14 +32,14 @@ function DashBoard() {
           <DashAvgChart greenhouseId={greenhouse_id} />
         </div>
       </div>
-      <div className="hide-scrollbar row-span-2 h-auto overflow-auto">
+      {/* <div className="hide-scrollbar row-span-2 h-auto overflow-auto">
         <h3 className="text-md  font-bold text-orange-500">
           Enviromental Control
         </h3>
         <div>
           <DashEnviroCntrl />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

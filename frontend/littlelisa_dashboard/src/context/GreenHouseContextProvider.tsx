@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
 import {
   CameraSettings,
+  EnvState,
   GreenhouseData,
   Plot,
   Sensor,
@@ -10,8 +11,12 @@ import { initalCameraProperties } from "../components/greenhouse/greenhouse_rend
 import { GreenHouseViewState } from "../../types/enums";
 export interface GreenHouseContextType {
   //state
+  envCntrlStates: EnvState[];
+  setEnvCntrlStates: (state: EnvState[]) => void;
   unassignedSensorList: Sensor[]
   addUnassignedSensor: (sensor: Sensor) => void;
+  refreshEnvCntrlList: boolean;
+  setRefreshEnvCntrlList: (refresh: boolean) => void;
   refreshNoteList: boolean;
   setRefreshNoteList: (refresh: boolean) => void;
   setRefreshGreenhouseData: (refresh: boolean) => void;
@@ -45,9 +50,12 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  envCntrlStates: [],
+   setEnvCntrlStates: ()=>{},
   unassignedSensorList: [],
 addUnassignedSensor: () =>{},
-
+refreshEnvCntrlList: false,
+setRefreshEnvCntrlList: () => {},
   refreshNoteList: false,
   setRefreshNoteList: () => {},
   refreshGreenhouseData: false,
@@ -80,12 +88,15 @@ export const GreenHouseContext =
 export default function GreenHouseContextProvider({
   children,
 }: GreenHouseContextProviderProps) {
+  const [envCntrlStates, setEnvCntrlStates] = useState<EnvState[]>([]);
   const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>([]);
   const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
 
   const [refreshGreenhouseData, setRefreshGreenhouseData] =
+    useState<boolean>(false);
+    const [refreshEnvCntrlList, setRefreshEnvCntrlList] =
     useState<boolean>(false);
   const [selectedSquareId, setSelectedSquareId] = useState<SquareId | null>(
     null,
@@ -135,6 +146,8 @@ export default function GreenHouseContextProvider({
     console.log(`unasigned sensor added: `,sensor)
   }, []);
 
+
+
   useEffect(() => {
     console.log("data fetched: ", fetchedGreenhouseData);
       if(fetchedGreenhouseData?.zones[0].sensors){
@@ -152,8 +165,12 @@ export default function GreenHouseContextProvider({
   return (
     <GreenHouseContext.Provider
       value={{
+        envCntrlStates,
+        setEnvCntrlStates,
         unassignedSensorList,
         addUnassignedSensor,
+        refreshEnvCntrlList,
+        setRefreshEnvCntrlList,
         refreshNoteList,
         setRefreshNoteList,
         setRefreshGreenhouseData,

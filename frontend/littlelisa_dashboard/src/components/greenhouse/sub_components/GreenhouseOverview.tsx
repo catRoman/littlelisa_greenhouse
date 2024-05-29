@@ -5,7 +5,7 @@ import { GreenhouseData } from "../../../../types/common";
 import { GreenHouseViewState } from "../../../../types/enums";
 
 export default function GreenHouseOverview() {
-  const { fetchedGreenhouseData, viewState } = useContext(GreenHouseContext);
+  const { fetchedGreenhouseData, viewState, envCntrlStates } = useContext(GreenHouseContext);
 
   if (fetchedGreenhouseData) {
     const { lat, long, style, total, dimensions } =
@@ -63,56 +63,22 @@ export default function GreenHouseOverview() {
               </h3>
             </li>
             <div className="pl-4">
-              <li>
-                <span className="font-bold">Fans: </span>
-                <span>
-                  {current_enviromental.fans ? (
-                    <span className="text-green-500">On</span>
-                  ) : (
-                    <span className="text-red-500">Off</span>
-                  )}
-                </span>
-              </li>
-              <li>
-                <span className="font-bold">Lights: </span>
-                <span>
-                  {current_enviromental.lights ? (
-                    <span className="text-green-500">On</span>
-                  ) : (
-                    <span className="text-red-500">Off</span>
-                  )}
-                </span>
-              </li>
-              <li>
-                <span className="font-bold">Water: </span>
-                <span>
-                  {current_enviromental.water ? (
-                    <span className="text-green-500">Watering</span>
-                  ) : (
-                    <span className="text-red-500">Off</span>
-                  )}
-                </span>
-              </li>
-              <li>
-                <span className="font-bold">Vents: </span>
-                <span>
-                  {current_enviromental.fans ? (
-                    <span className="text-green-500">Open</span>
-                  ) : (
-                    <span className="text-red-500">Shut</span>
-                  )}
-                </span>
-              </li>
-              <li>
-                <span className="font-bold">Fertilizer: </span>
-                <span>
-                  {current_enviromental.fertilizers ? (
-                    <span className="text-green-500">Spraying</span>
-                  ) : (
-                    <span className="text-red-500">Off</span>
-                  )}
-                </span>
-              </li>
+              {envCntrlStates.map((cntrl)=>{
+                return (
+                  <li>
+                  <span className="font-bold">{cntrl.type} </span>
+                  <span>
+                    {cntrl.state  === "on" ? (
+                      <span className="text-green-500">On</span>
+                    ) : (
+                      <span className="text-red-500">Off</span>
+                    )}
+                  </span>
+                </li>
+                )
+              })}
+
+
             </div>
           </div>
         </div>

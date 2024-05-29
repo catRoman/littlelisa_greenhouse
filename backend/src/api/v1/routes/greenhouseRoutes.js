@@ -1,5 +1,6 @@
 import { Router } from "express";
 import greenhouseController from "../controllers/greenhouseController.js";
+import envStateController from '../controllers/envStateController.js'
 import zoneRoutes from "./zoneRoutes.js";
 import validateParamId from "../middleware/validateParamId.js";
 import sensorRoutes from "./sensorRoutes.js";
@@ -16,9 +17,12 @@ router.get(
   "/:greenhouseId/flatGreenhouseData",
   greenhouseController.getFlatGreenhouseData
 );
+router.get("/:greenhouseId/envState", envStateController.getEnvState);
+router.put("/:greenhouseId/updateEnvState", envStateController.updateEnvState);
 
 router.use("/:greenhouseId/sensors", sensorRoutes);
 router.use("/:greenhouseId/zones", zoneRoutes);
 router.use("/:greenhouseId/notes", noteRoutes);
 router.use("/:greenhouseId/squares", squareRoutes);
+
 export default router;
