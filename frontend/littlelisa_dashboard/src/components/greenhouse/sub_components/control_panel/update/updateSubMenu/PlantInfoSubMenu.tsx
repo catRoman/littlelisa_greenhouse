@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import ReactDatePicker from "react-datepicker";
-import { GreenHouseContext } from "../../../../../context/GreenHouseContextProvider";
+import { GreenHouseContext } from "../../../../../../context/GreenHouseContextProvider";
 
 export default function PlantInfoSubMenu() {
   const {

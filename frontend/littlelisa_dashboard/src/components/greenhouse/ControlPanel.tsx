@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext,  useState } from "react";
 import {
   ControlPanelState,
   GreenHouseViewState,
@@ -6,15 +6,19 @@ import {
 } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import "react-datepicker/dist/react-datepicker.css";
-import PlantInfoSubMenu from "./sub_components/update/updateSubMenu/PlantInfoSubMenu";
-import ClearPlotSubMenu from "./sub_components/update/updateSubMenu/ClearPlotSubMenu";
+import PlantInfoSubMenu from "./sub_components/control_panel/update/updateSubMenu/PlantInfoSubMenu";
+import ClearPlotSubMenu from "./sub_components/control_panel/update/updateSubMenu/ClearPlotSubMenu";
 
-export default function UpdateSection() {
+import DashEnviroCntrl from "../enviroCntrl/DashEnviroCntrl";
+
+
+
+export default function ControlPanel() {
   const { viewState } = useContext(GreenHouseContext);
   const [panelState, setPanelState] = useState<ControlPanelState>(
     ControlPanelState.Closed,
   );
-  const [isSelected, setSelected] = useState<string>("Schedule");
+  const [isSelected, setSelected] = useState<string>("Enviroment");
   const [isSelectedSubMenu, setSelectedSubMenu] = useState<string>("plantInfo");
 
   let subMenu = <></>;
@@ -40,6 +44,21 @@ export default function UpdateSection() {
 
   let controlPanel = <></>;
   switch (panelState) {
+    case ControlPanelState.Enviroment:
+      controlPanel = (
+        <>
+
+          <div>
+            <h4>Enviromental Controls
+            </h4>
+            <div className="h-36 overflow-y-auto ">
+              <DashEnviroCntrl/>
+            </div>
+          </div>
+        </>
+      );
+
+      break;
     case ControlPanelState.Reminder:
       controlPanel = (
         <>
@@ -155,6 +174,13 @@ export default function UpdateSection() {
     <div className="">
       <h3 className="text-md font-bold text-orange-500">Control Panel</h3>
       <div className="flex gap-2  pt-2">
+      <button
+          id="Enviroment"
+          onClick={panelSelectHandler}
+          className={`rounded-tl-md rounded-tr-md border p-2 ${isSelected === "Enviroment" ? "bg-zinc-500" : "bg-zinc-700  hover:bg-zinc-200 hover:font-bold hover:text-red-900"}`}
+        >
+          Enviroment
+        </button>
         <button
           id="Schedule"
           onClick={panelSelectHandler}

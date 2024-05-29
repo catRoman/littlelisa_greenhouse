@@ -120,3 +120,10 @@ export type Note = {
   title: string;
   created_at: string;
 };
+export type EnvState = {
+  id: number;
+  pin: number,
+  type: string;
+  pwr_src: string;
+  state: string;
+}
