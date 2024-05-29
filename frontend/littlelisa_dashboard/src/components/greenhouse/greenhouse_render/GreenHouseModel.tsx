@@ -21,7 +21,7 @@ export default function GreenHouseModel() {
     previousCameraProperties,
     setCurrentCameraProperties,
     currentCameraProperties,
-    addUnassignedSensor
+
   } = useContext(GreenHouseContext);
 
   useEffect(() => {
@@ -64,6 +64,8 @@ export default function GreenHouseModel() {
   });
 
   const { dimensions, zones } = fetchedGreenhouseData!;
+
+
   return (
     <>
       <animated.group position={pos} rotation={rot}>
@@ -98,12 +100,14 @@ export default function GreenHouseModel() {
             <>
               {/* greenhouse global sensors */}
               {fetchedGreenhouseData.zones[0]?.sensors && fetchedGreenhouseData.zones[0].sensors?.map((sensor) => {
+
+
                 if(sensor.square_id){
 
                   return (
 
                       <SensorListRender
-                      key={`${sensor.square_pos?.x}-${sensor.square_pos?.y}`} // Unique key for each SensorListRender
+                      key={`${sensor.square_pos?.x}-${sensor.square_pos?.y}`}
                       sensors={fetchedGreenhouseData.zones[0].sensors}
                       localZoneId={0}
                       plot_height={0}
@@ -115,16 +119,13 @@ export default function GreenHouseModel() {
                       />
                     );
 
-                }else{
-                  if(sensor.zn_rel_pos?.x == -1&& sensor.zn_rel_pos?.y == -1 && sensor.zn_rel_pos?.z == -1){
-                    addUnassignedSensor(sensor);
-                  }else{
+                }else if(sensor.zn_rel_pos?.x !== -1 && sensor.zn_rel_pos?.y !== -1 && sensor.zn_rel_pos?.z !== -1){
 
                     return(
 
 
                     <SensorListRender
-                    key={`${sensor.zn_rel_pos?.x}-${sensor.zn_rel_pos?.y}-${sensor.zn_rel_pos?.z}`} // Unique key for each SensorListRender
+                    key={`${sensor.zn_rel_pos?.x}-${sensor.zn_rel_pos?.y}-${sensor.zn_rel_pos?.z}`}
                     sensors={fetchedGreenhouseData.zones[0].sensors}
                     localZoneId={0}
                     plot_height={sensor.zn_rel_pos!.z}
@@ -136,7 +137,7 @@ export default function GreenHouseModel() {
                     />
                   )
 
-                }
+
                 }
               })}
               {/* greenhouse global controllers */}
@@ -185,6 +186,7 @@ export default function GreenHouseModel() {
           })}
         </group>
       </PresentationControls>
+
     </>
   );
 }
