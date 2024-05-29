@@ -39,7 +39,7 @@ export type Module = {
   module_id: string;
   location: string;
   zone_number: number;
-  square_id: number | null;
+  square_id: number | undefined;
   zn_rel_pos: Dimensions | undefined;
   square_pos: SquarePos | undefined;
 };
