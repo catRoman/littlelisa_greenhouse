@@ -4,6 +4,7 @@ export enum GreenHouseViewState {
   Plot,
 }
 export enum ControlPanelState {
+  Enviroment = "Enviroment",
   Update = "Update",
   Schedule = "Schedule",
   Reminder = "Reminder",

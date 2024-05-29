@@ -10,7 +10,8 @@ import EventsSection from "../components/greenhouse/EventsSection";
 import OverviewSection from "../components/greenhouse/OverviewSection";
 import NotesSection from "../components/greenhouse/NotesSection";
 import { GreenHouseViewState } from "../../types/enums";
-import UpdateSection from "../components/greenhouse/UpdateSection";
+
+import ControlPanel from "../components/greenhouse/ControlPanel";
 
 export default function GreenHouse() {
   const {
@@ -87,7 +88,7 @@ export default function GreenHouse() {
       </div>
 
       <div className="col-span-3 row-span-2   ">
-        <UpdateSection />
+        <ControlPanel />
       </div>
 
       <div className="col-span-2 row-span-3">
