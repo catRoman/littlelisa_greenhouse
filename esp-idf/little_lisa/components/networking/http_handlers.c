@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <sys/param.h>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_http_server.h"
@@ -231,7 +233,7 @@ void register_http_server_handlers(void)
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &system_state);
 
-     // enviro cntrl get state handler
+    // enviro cntrl get state handler
     httpd_uri_t env_state = {
         .uri = "/api/envState",
         .method = HTTP_GET,
@@ -239,15 +241,13 @@ void register_http_server_handlers(void)
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &env_state);
 
-      // enviro cntrl update handler
+    // enviro cntrl update handler
     httpd_uri_t env_state_update = {
         .uri = "/api/envStateUpdate",
         .method = HTTP_PUT,
         .handler = env_state_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &env_state_update);
-
-
 }
 // static debug landing page content serve
 
@@ -690,8 +690,8 @@ esp_err_t ota_restart_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type, X-Requested-With");
 
     ESP_LOGE("OTA_UPDATE", "restart messageRecieved. rebooting in 5 seconds");
-      httpd_resp_send(req, "OTA restart recieved. rebooting", HTTPD_RESP_USE_STRLEN);
-vTaskDelay(pdMS_TO_TICKS(1000));
+    httpd_resp_send(req, "OTA restart recieved. rebooting", HTTPD_RESP_USE_STRLEN);
+    vTaskDelay(pdMS_TO_TICKS(1000));
     ESP_LOGI("OTA_UPDATE", "ensuring all suspended task restarted before restart");
     resumeSensorPipelineTasks();
     esp_restart();
@@ -905,24 +905,24 @@ void node_ota_update_send(void *vpParam)
     }
 }
 
-
 esp_err_t env_state_handler(httpd_req_t *req)
 {
 
-// Add CORS headers to the response
+    // Add CORS headers to the response
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
     ESP_LOGI(HTTP_HANDLER_TAG, "env_state_update requested");
 
-
     char buf[10];
     int ret;
 
     /* Read the data for the request */
-    if ((ret = httpd_req_recv(req, buf, MIN(req->content_len, sizeof(buf) - 1))) <= 0) {
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+    if ((ret = httpd_req_recv(req, buf, MIN(req->content_len, sizeof(buf) - 1))) <= 0)
+    {
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+        {
             httpd_resp_send_408(req);
         }
         return ESP_FAIL;
@@ -933,34 +933,48 @@ esp_err_t env_state_handler(httpd_req_t *req)
 
     /* Convert the received string to an integer */
     int state_id = atoi(buf);
-char * state_type = cntrl_state_type_to_string(state_id);
-    ESP_LOGW(HTTP_HANDLER_TAG, "Received state change request state_id: %s",state_type);
-free(state_type);
-     State_event_t state_event =
+    char *state_type = cntrl_state_type_to_string(state_id);
+    ESP_LOGW(HTTP_HANDLER_TAG, "Received state change request state_id: %s", state_type);
+    free(state_type);
+    State_event_t state_event =
         {
-            .id = state_id
-        };
+            .id = state_id};
 
-
+    extern SemaphoreHandle_t xStateChangeSemaphore;
     extern QueueHandle_t env_cntrl_queue_handle;
     if (xQueueSend(env_cntrl_queue_handle, &state_event, portMAX_DELAY) == pdPASS)
     {
+
         ESP_LOGW(HTTP_HANDLER_TAG, "id recieved from put passed to env_cntrl");
     }
+    else
+    {
+        ESP_LOGD(HTTP_HANDLER_TAG, "failed to pass id to env_cntrl que");
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
 
+    extern int8_t total_relays;
 
-   extern int8_t total_relays;
-    char *current_state = env_state_arr_json(total_relays);
+    if (xSemaphoreTake(xStateChangeSemaphore, portMAX_DELAY) == pdTRUE)
+    {
+        char *current_state = env_state_arr_json(total_relays);
 
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_send(req, current_state, HTTPD_RESP_USE_STRLEN);
+        free(current_state);
+        return ESP_OK;
+    }
+    else
+    {
+
+        httpd_resp_send_500(req);
+
+        return ESP_FAIL;
+    }
 
     /* Send JSON response */
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, current_state, HTTPD_RESP_USE_STRLEN);
-
-  free(current_state);
-    return ESP_OK;
 }
-
 
 esp_err_t env_get_state_handler(httpd_req_t *req)
 {
@@ -970,7 +984,6 @@ esp_err_t env_get_state_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
     ESP_LOGI(HTTP_HANDLER_TAG, "systemState requested");
-
 
     extern int8_t total_relays;
     char *current_state = env_state_arr_json(total_relays);
