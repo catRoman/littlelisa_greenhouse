@@ -19,7 +19,7 @@ function DashBoard() {
         </div>
       </div>
       <div className="col-span-2 row-start-2 ">
-        <DashSchedule />
+        {/* <DashSchedule /> */}
       </div>
       <div className="col-span-3 flex flex-col gap-4">
         <DashCameraContainer />

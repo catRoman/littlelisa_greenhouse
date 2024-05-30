@@ -22,7 +22,7 @@ class NotesRepo extends BaseRepo {
 
     const query = `
         SELECT * FROM ${this.tableName}
-        WHERE ${idType}_id = $1 `;
+        WHERE ${idType}_id = $1 order by created_at desc `;
     const results = await this.query(query, [parentId]);
 
     return results ? results : null;
