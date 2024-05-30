@@ -43,11 +43,11 @@ const updateEnvState = async (req, res) => {
         // sensorId,
         // note_id
           const stateObject = Object.values(result);
-          console.log(id)
+          console.log(Number(id))
           console.log(stateObject)
 
 
-          const selectedState = stateObject.find(state=>state.id === id);
+          const selectedState = stateObject.find(state=> state.id === Number(id));
           console.log(selectedState)
           const addEvent = await eventLogRepo.addEvent(
             selectedState.type,
