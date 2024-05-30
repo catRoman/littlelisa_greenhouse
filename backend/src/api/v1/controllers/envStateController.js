@@ -1,3 +1,4 @@
+import eventLogRepo from "../repos/eventLogRepo.js";
 import envStateService from "../services/envStateService.js";
 import fetch from 'node-fetch'
 const getEnvState = async (req, res) => {
@@ -18,25 +19,55 @@ const updateEnvState = async (req, res) => {
 
     console.log(`requested: ${req.originalUrl}`);
 
-
-
     const id = req.body;
-
+    const greenhouseId = req.params.greenhouseId
 
     const forwardPut = async ()=>{
-      console.log(id)
+
       try {
         const response = await fetch('http://10.0.0.86/api/envStateUpdate',{
           method: 'PUT',
           body: id
         });
         const result = await response.json();
+        console.log(result)
+        if(response.ok){
+             //PARAMS:
+        // eventType,
+        // eventAction,
+        // details,
+        // greenhouseId,
+        // zoneId,
+        // squareId,
+        // moduleId,
+        // sensorId,
+        // note_id
+          const stateObject = Object.values(result);
+          console.log(id)
+          console.log(stateObject)
+
+
+          const selectedState = stateObject.find(state=>state.id === id);
+          console.log(selectedState)
+          const addEvent = await eventLogRepo.addEvent(
+            selectedState.type,
+            selectedState.state,
+            '',
+            greenhouseId,
+            null,
+            null,
+            null,
+            null,
+            null
+          )
+        }
         return result;
       } catch (error) {
         console.error('Error forwarding:', error);
       }
     }
     const forwardedResponse = await forwardPut();
+
 
     res.json(forwardedResponse);
   } catch (error) {

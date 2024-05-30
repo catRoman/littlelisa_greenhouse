@@ -11,6 +11,6 @@ router.get("/users", userController.getAllUsers);
 router.get("/users/:userId", userController.getUserById);
 
 router.use("/users/:userId/greenhouses", greenhouseRoutes);
-router.use("/users/:userId/notes", noteRoutes);
+
 
 export default router;

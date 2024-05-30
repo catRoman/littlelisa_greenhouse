@@ -20,8 +20,21 @@ export default class BaseRepo {
     const query = `SELECT * FROM ${this.tableName}`;
     return this.query(query);
   }
+  async getById(id) {
+    const idType = this.tableName.slice(0, -1);
 
-  async getById(parentId, id) {
+    const query = `
+        SELECT * FROM ${this.tableName}
+        WHERE ${idType}_id = $1;`;
+    const results = await this.query(
+      query,
+       [id]
+    );
+    return results[0] ? results[0] : null;
+  }
+
+
+  async getByParentId(parentId, id) {
     const idType = this.tableName.slice(0, -1);
 
     const query = `

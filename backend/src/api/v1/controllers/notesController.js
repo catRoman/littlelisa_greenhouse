@@ -68,7 +68,7 @@ const postNote = async (req, res) => {
     const { title, body } = fields;
 
     console.log(`post requested: ${req.originalUrl}`);
-
+    console.log(`greenid: ${req.params.greenhouseId}` )
     let parentIdName;
     let parentId;
 
@@ -87,14 +87,15 @@ const postNote = async (req, res) => {
       parentId = req.params.greenhouseId;
     }
 
-    console.log(parentId);
-    console.log(parentIdName);
+
     const newNote = await notesService.postNote(
       title[0],
       body[0],
       parentIdName,
       parentId,
-      req.params.userId
+      req.params.userId,
+      req.params.greenhouseId,
+
     );
 
     res.json(newNote);
@@ -107,8 +108,11 @@ const postNote = async (req, res) => {
 const removeNote = async (req, res) => {
   try {
     console.log(`delete requested:  ${req.originalUrl}`);
-
-    const deletedNote = await notesService.deleteNote(req.params.noteId);
+    console.log(`greenid: ${req.params.greenhouseId}` )
+    const deletedNote = await notesService.deleteNote(
+      req.params.noteId,
+      req.params.greenhouseId,
+    );
 
     res.json(deletedNote);
   } catch (error) {
@@ -121,25 +125,41 @@ const deleteAllNotes = async (req, res) => {
   let parentId;
   try {
     console.log(`delete requested:  ${req.originalUrl}`);
-
+    let allDeletedNotes;
     if (req.params.squareId) {
       parentIdName = "squares";
       parentId = req.params.squareId;
+       allDeletedNotes = await notesService.deleteAll(
+        parentIdName,
+        parentId,
+        req.params.greenhouseId,
+        null,
+        req.params.squareId,
+      );
     } else if (req.params.zoneId) {
       parentIdName = "zones";
       parentId = req.params.zoneId;
+       allDeletedNotes = await notesService.deleteAll(
+        parentIdName,
+        parentId,
+        req.params.greenhouseId,
+        req.params.zoneId,
+        null,
+      );
     } else {
       parentIdName = "greenhouses";
       parentId = req.params.greenhouseId;
+       allDeletedNotes = await notesService.deleteAll(
+        parentIdName,
+        parentId,
+        req.params.greenhouseId,
+        null,
+        null,
+      );
     }
 
-    console.log(parentId);
-    console.log(parentIdName);
 
-    const allDeletedNotes = await notesService.deleteAll(
-      parentIdName,
-      parentId
-    );
+
 
     res.json(allDeletedNotes);
   } catch (error) {

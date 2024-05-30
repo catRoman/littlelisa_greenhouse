@@ -54,7 +54,7 @@ export default function SectionBody() {
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
       body = (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 mb-10">
           {fetchedGreenhouseData?.zones.map((zone, index) => {
             return (
               <div key={`zone_info_${index}`}>
@@ -68,7 +68,7 @@ export default function SectionBody() {
 
     case GreenHouseViewState.Zone:
       body = (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 mb-10">
           <ZoneInfo
             zone={fetchedGreenhouseData!.zones[selectedZoneId]}
             zoneId={selectedZoneId}
@@ -81,7 +81,7 @@ export default function SectionBody() {
                     <SensorInfo sensor={sensor} sensorId={sensor.local_id} />
                   </div>
                 );
-              },
+              }
             )}
         </div>
       );
@@ -98,7 +98,7 @@ export default function SectionBody() {
         } else {
           body = (
             <div>
-              <h3 className="text-md font-bold text-orange-500">
+              <h3 className="mb-10 text-md font-bold text-orange-500">
                 Plant Information
               </h3>
               <div className="prose max-w-none border-r-4 border-zinc-500 pr-4">

@@ -52,7 +52,7 @@ export default function App() {
           path: "greenhouse",
           element: (
             <GreenHouseContextProvider>
-              <GreenHouse />,
+              <GreenHouse />
             </GreenHouseContextProvider>
           ),
         },
@@ -77,7 +77,7 @@ export default function App() {
     {
       path: "/login",
       element: <Login />,
-    },
+    }
   ]);
 
   return <RouterProvider router={router} />;
