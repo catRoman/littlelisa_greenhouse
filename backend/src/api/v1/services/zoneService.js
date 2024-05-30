@@ -26,7 +26,7 @@ const getAllZones = async (greenhouseId) => {
 };
 
 const getZoneById = async (greenhouseId, zoneId) => {
-  let zone = await zonesRepo.getById(greenhouseId, zoneId);
+  let zone = await zonesRepo.getByParentId(greenhouseId, zoneId);
   const x_length = zone.x_length;
   const y_length = zone.y_length;
   const z_length = zone.z_length;

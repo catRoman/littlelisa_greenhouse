@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { GreenHouseViewState } from "../../../types/enums";
 import { Note as NoteType } from "../../../types/common";
@@ -11,10 +11,13 @@ export default function NotesSection() {
     selectedZoneId,
     refreshNoteList,
     setRefreshNoteList,
+    fetchedGreenhouseData
   } = useContext(GreenHouseContext);
+  const greenhouseRef = useRef(fetchedGreenhouseData?.greenhouse_id)
+  const userRef = useRef(fetchedGreenhouseData?.user_id)
+
   const [noteList, setNoteList] = useState<NoteType[]>();
   const [loading, setLoading] = useState<boolean>(true);
-
   const [noteInput, setNoteInput] = useState({
     title: "",
     body: "",
@@ -25,19 +28,26 @@ export default function NotesSection() {
     body: "",
   });
 
-  useEffect(() => {
-    const fetchGreenHouseData = async () => {
+  useEffect(()=>{
+    greenhouseRef.current = fetchedGreenhouseData?.greenhouse_id;
+    userRef.current = fetchedGreenhouseData?.user_id;
+  }, [fetchedGreenhouseData])
+
+
+
+    useEffect(() => {
+      const fetchNotes = async () => {
       let url;
       switch (viewState) {
         case GreenHouseViewState.GreenHouse:
-          url = "/api/users/1/greenhouses/1/notes";
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/notes`;
           break;
 
         case GreenHouseViewState.Zone:
-          url = `/api/users/1/greenhouses/1/zones/${selectedZoneId}/notes`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${selectedZoneId}/notes`;
           break;
         case GreenHouseViewState.Plot:
-          url = `/api/users/1/greenhouses/1/squares/${selectedPlot!.square_db_id}/notes`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot!.square_db_id}/notes`;
           break;
       }
       try {
@@ -55,8 +65,9 @@ export default function NotesSection() {
       }
     };
 
-    fetchGreenHouseData();
-  }, [setNoteList, viewState, selectedZoneId, selectedPlot, refreshNoteList]);
+    fetchNotes();
+  }, [setNoteList, viewState, selectedZoneId, selectedPlot, refreshNoteList, fetchedGreenhouseData]);
+
 
   function deleteNoteHandler(
     event: React.MouseEvent<HTMLButtonElement>,
@@ -66,7 +77,7 @@ export default function NotesSection() {
 
     const deleteNote = async () => {
       try {
-        const response = await fetch(`/api/users/1/notes/${noteId}`, {
+        const response = await fetch(`/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/notes/${noteId}`, {
           method: "DELETE",
         });
 
@@ -74,8 +85,8 @@ export default function NotesSection() {
           throw new Error("Network response was not ok");
         }
         const responseData = await response.json();
-        setRefreshNoteList(!refreshNoteList);
         console.log(responseData);
+        setRefreshNoteList(!refreshNoteList);
       } catch (error) {
         console.log(error);
       }
@@ -112,16 +123,16 @@ export default function NotesSection() {
 
         switch (viewState) {
           case GreenHouseViewState.GreenHouse:
-            url = "/api/users/1/greenhouses/1/notes";
+            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/notes`;
 
             break;
 
           case GreenHouseViewState.Zone:
-            url = `/api/users/1/greenhouses/1/zones/${selectedZoneId}/notes`;
+            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${selectedZoneId}/notes`;
 
             break;
           case GreenHouseViewState.Plot:
-            url = `/api/users/1/greenhouses/1/squares/${selectedPlot!.square_db_id}/notes`;
+            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot!.square_db_id}/notes`;
 
             break;
         }

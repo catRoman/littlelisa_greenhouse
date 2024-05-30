@@ -10,7 +10,7 @@ const getAllGreenhouses = async (userId) => {
 };
 
 const getGreenhouseById = async (userId, greenhouseId) => {
-  const greenhouse = await GreenHousesRepo.getById(userId, greenhouseId);
+  const greenhouse = await GreenHousesRepo.getByParentId(userId, greenhouseId);
   //aggregates
   const total_zones = await GreenHousesRepo.getTotalZones(greenhouseId);
   const total_controllers = await GreenHousesRepo.getTotalControllers(
