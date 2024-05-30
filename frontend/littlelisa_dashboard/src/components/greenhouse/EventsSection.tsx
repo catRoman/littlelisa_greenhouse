@@ -58,44 +58,13 @@ export default function EventsSection() {
   },[selectedZoneId, selectedPlot, viewState, fetchedGreenhouseData, envCntrlStates , refreshNoteList])
 
 
-  switch (viewState) {
-    case GreenHouseViewState.GreenHouse:
 
-      //getGreenHouseRecentEvents();
-      //upcoming--sxcheduled events
-      // upcoming_event_data.map((event) => {
-      //   upcoming.push(<EventLog event={event} />);
-      // });
-      //event log
-      recentEventLog.map((event) => {
+
+
+     recentEventLog && recentEventLog.map((event) => {
         recent.push(<EventLog event={event} />);
       });
-      break;
-  //   case GreenHouseViewState.Zone:
-  //     upcoming_event_data.map((event) => {
-  //       if (event.zone === selectedZoneId.toString()) {
-  //         upcoming.push(<EventLog event={event} />);
-  //       }
-  //     });
-  //     recent_event_data.map((event) => {
-  //       if (event.zone === selectedZoneId.toString()) {
-  //         recent.push(<EventLog event={event} />);
-  //       }
-  //     });
-  //     break;
-  //   case GreenHouseViewState.Plot:
-  //     upcoming_event_data.map((event) => {
-  //       if (event.zone === selectedZoneId.toString()) {
-  //         upcoming.push(<EventLog event={event} />);
-  //       }
-  //     });
-  //     recent_event_data.map((event) => {
-  //       if (event.zone === selectedZoneId.toString()) {
-  //         recent.push(<EventLog event={event} />);
-  //       }
-  //     });
-  //     break;
-  }
+
 
   return (
     <div>
@@ -109,7 +78,7 @@ export default function EventsSection() {
         <h2 className=" text-md font-bold text-orange-500">Recent Events:</h2>
         <ul className="flex  flex-col hide-scrollbar mt-1 h-52 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
         {loadingRecent ? <p className="flex m-auto">Loading Recent Events...</p> :
-          recent?.map((event) => event)
+         recent.length > 0 ? recent?.map((event) => event) : <p className="flex m-auto">No recorded events</p>
          }
         </ul>
       </div>

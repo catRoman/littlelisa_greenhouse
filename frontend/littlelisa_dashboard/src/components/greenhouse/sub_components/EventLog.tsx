@@ -1,5 +1,8 @@
 import {format, parseISO} from 'date-fns'
 import { EventLog as EventLogType} from '../../../../types/common';
+import { useContext } from 'react';
+import { GreenHouseContext } from '../../../context/GreenHouseContextProvider';
+import { GreenHouseViewState } from '../../../../types/enums';
 
 type EventLogProps = {
   event: EventLogType;
@@ -7,6 +10,25 @@ type EventLogProps = {
 export default function EventLog({ event }: EventLogProps) {
   const timestamp = parseISO(event.created_at)
   const formattedTime = format(timestamp, 'MMM dd HH:mm a')
+  const {viewState} = useContext(GreenHouseContext)
+
+  let sectionHeader;
+  switch (viewState) {
+    case GreenHouseViewState.GreenHouse:
+      sectionHeader = (<><span className="font-bold">{event.zone_id? 'Zone:' : 'Greenhouse'} </span>
+          <span>{event.zone_id ? event.zone_id : null}   - </span></>)
+      break;
+
+    case GreenHouseViewState.Zone:
+      sectionHeader = (<><span className="font-bold">{event.square_id? 'Square:' : 'Zone'} </span>
+      <span>{event.square_id ? event.square_id : null} - </span></>)
+      break;
+    case GreenHouseViewState.Plot:
+      sectionHeader = (<><span className="font-bold">{event.zone_id? 'Zone:' : 'Greenhouse'} </span>
+      <span>{event.zone_id ? event.zone_id : null} - </span></>)
+      break;
+  }
+
 
   return (
     <div>
@@ -14,8 +36,7 @@ export default function EventLog({ event }: EventLogProps) {
     <div className="mb-[0.5] flex justify-between">
       <div>
         <p>
-          <span className="font-bold">{event.zone_id? 'Zone:' : 'Greenhouse'} </span>
-          <span>{event.zone_id ? event.zone_id : null}   - </span>
+          {sectionHeader}
           <span>
             {event.type.toLowerCase() === "light" ? (
               <span className="font-bold  text-purple-300">{event.type} </span>

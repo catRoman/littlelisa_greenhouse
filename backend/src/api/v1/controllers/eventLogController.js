@@ -20,7 +20,7 @@ const getAllEventsByParentId = async (req, res) => {
     }
 
     console.log(`get requested: ${req.originalUrl}`);
-    const eventArr = await eventLogsService.getAllEventsByParentId(parentIdName, parentId);
+    const eventArr = await eventLogsService.getAllEventsByParentId(parentIdName, parentId, req.params.greenhouseId);
 
     res.json(eventArr);
   } catch (error) {
