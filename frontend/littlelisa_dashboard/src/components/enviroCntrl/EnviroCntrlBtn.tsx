@@ -1,23 +1,24 @@
-import React, { useCallback, useContext,  useRef, useState } from "react";
+import React, {  useContext,   useRef, useState } from "react";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
+import { EnvState } from "../../../types/common";
 
 
 type EnvirCntrlBtnProps = {
   iconPath: string | undefined;
   state: string;
   id: number;
-  refresh: ()=>void;
+
   children: React.ReactNode;
 };
 
 export default function EnvirCntrlBtn({
-  refresh,
+
   iconPath,
   state,
   id,
   children,
 }: EnvirCntrlBtnProps) {
- const {fetchedGreenhouseData} = useContext(GreenHouseContext);
+ const {fetchedGreenhouseData, setEnvCntrlStates} = useContext(GreenHouseContext);
   const [showSubMenu, setShowSubMenu] = useState<boolean>(false);
 
   const user_id = useRef(fetchedGreenhouseData?.user_id);
@@ -29,7 +30,8 @@ export default function EnvirCntrlBtn({
 
 
 
-  const updateEnvState = useCallback(async() => {
+
+    const updateEnvState = async() => {
     console.log(cntrlId.current)
       const url = `/api/users/${user_id.current}/greenhouses/${greenhouse_id.current}/updateEnvState`;
       try {
@@ -45,16 +47,16 @@ export default function EnvirCntrlBtn({
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        const data = await response.json();
-        console.log(data);
-        refresh();
+        const resultObj = await response.json();
+        const newState = Object.values(resultObj) as EnvState[];
+        console.log(newState);
+        setEnvCntrlStates(newState);
       } catch(error){
         console.log(error)
       }
 
+    }
 
-
-  },[refresh])
 
 
 

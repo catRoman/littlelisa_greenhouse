@@ -38,7 +38,16 @@ class EventLogRepo extends BaseRepo {
     return log[0];
   }
 
+
+  async getAllByParentId(parentNameId, parentId) {
+    const idType = parentNameId.slice(0, -1);
+
+    const query = `
+    SELECT * FROM event_log
+    WHERE ${idType}_id = $1 order by created_at desc`;
+    const logs = await this.query(query, [parentId]);
+
+    return logs ? logs : null;
+  }
 }
-
-
 export default new EventLogRepo();
