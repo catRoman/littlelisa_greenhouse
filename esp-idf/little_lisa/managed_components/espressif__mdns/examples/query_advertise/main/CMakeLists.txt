@@ -1,2 +1,2 @@
-idf_component_register(SRCS "mdns_example_main.c"
+idf_component_register(SRCS
                     INCLUDE_DIRS ".")

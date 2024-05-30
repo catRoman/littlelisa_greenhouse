@@ -328,12 +328,6 @@ void env_cntrl_task(void *vpParameter)
     extern int8_t total_relays;
     ESP_LOGI(TAG, "env_cntrl task started");
     State_event_t state_event;
-    xStateChangeSemaphore = xSemaphoreCreatebinary();
-    if (xStateChangeSemaphore == NULL)
-    {
-        ESP_LOGE(TAG, "Event Change not created deleting task");
-        vTaskDelete(NULL);
-    }
 
     for (;;)
     {
@@ -382,6 +376,12 @@ esp_err_t initiate_env_cntrl()
     if (env_cntrl_queue_handle == NULL)
     {
         ESP_LOGE(TAG, "queue not created");
+        return ESP_ERR_NO_MEM;
+    }
+    xStateChangeSemaphore = xSemaphoreCreateBinary();
+    if (xStateChangeSemaphore == NULL)
+    {
+        ESP_LOGE(TAG, "Event Change semaphore not created");
         return ESP_ERR_NO_MEM;
     }
 
