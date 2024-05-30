@@ -958,6 +958,7 @@ esp_err_t env_state_handler(httpd_req_t *req)
 
     if (xSemaphoreTake(xStateChangeSemaphore, portMAX_DELAY) == pdTRUE)
     {
+        ESP_LOGI(HTTP_HANDLER_TAG, "sempahore taken for evn state change");
         char *current_state = env_state_arr_json(total_relays);
 
         httpd_resp_set_type(req, "application/json");
@@ -983,7 +984,7 @@ esp_err_t env_get_state_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS, PATCH");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "systemState requested");
+    ESP_LOGI(HTTP_HANDLER_TAG, "envState requested");
 
     extern int8_t total_relays;
     char *current_state = env_state_arr_json(total_relays);
