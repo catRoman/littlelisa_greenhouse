@@ -357,6 +357,7 @@ void env_cntrl_task(void *vpParameter)
             //   ESP_LOGW(TAG, "updating nvs");
             //  nvs_set_env_state_arr(env_state_arr_gt, total_relays);
             xSemaphoreGive(xStateChangeSemaphore);
+            ESP_LOGI(TAG, "semaphore given from task");
             free(current_state);
             free(state_type);
             free(relay_power);
