@@ -127,3 +127,17 @@ export type EnvState = {
   pwr_src: string;
   state: string;
 }
+export type EventLog = {
+
+    event_id: number,
+    created_at: string,
+    type: string,
+    action: string,
+    details: string | null
+    greenhouse_id: number,
+    zone_id: number | null,
+    square_id: number | null,
+    module_id: number | null,
+    sensor_id: number | null,
+    note_id: number | null
+}

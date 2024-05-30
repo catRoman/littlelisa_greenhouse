@@ -1,6 +1,6 @@
 import DashAvgChart from "../components/dashboard/GreenhouseAvgChart";
 import DashCameraContainer from "../components/dashboard/DashCameraContainer";
-import DashEnviroCntrl from "../components/enviroCntrl/DashEnviroCntrl";
+
 import DashSchedule from "../components/dashboard/DashSchedule";
 import Title from "../components/dashboard/Title";
 import Calendar from "react-calendar";

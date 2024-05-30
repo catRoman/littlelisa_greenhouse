@@ -36,8 +36,8 @@ const postNote = async (title, body, parentNameId, parentId, userId, greenhouseI
     // note_id
     await eventLogRepo.addEvent(
       'Note',
-      `Added id:${newNote.note_id}`,
-      `ID:${newNote.note_id} Title: ${title}`,
+      `Added`,
+      `added title: ${title}`,
       greenhouseId,
       newNote.zone_id? newNote.zone_id : null,
       newNote.square_id? newNote.square_id : null,
@@ -59,8 +59,8 @@ const deleteNote = async (noteId, greenhouseId) => {
 
     await eventLogRepo.addEvent(
       'Note',
-      `Delete `,
-      `ID:${noteId}`,
+      `Deleted`,
+      `deleted title:${noteToDelete.title}`,
       greenhouseId,
       noteToDelete.zone_id? noteToDelete.zone_id : null,
       noteToDelete.square_id? noteToDelete.square_id : null,
@@ -80,7 +80,7 @@ const deleteAll = async (parentIdName, parentId, greenhouseId, zoneId, squareId)
 
     await eventLogRepo.addEvent(
       'Note',
-      `Delete All `,
+      `Deleted All `,
       ``,
       greenhouseId,
       zoneId? zoneId : null,

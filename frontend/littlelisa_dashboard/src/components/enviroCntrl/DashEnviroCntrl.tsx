@@ -1,5 +1,5 @@
 import EnvirCntrlBtn from "./EnviroCntrlBtn";
-import { useCallback, useContext, useEffect,  useState } from "react";
+import { useContext, useEffect,  useState } from "react";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { EnvState } from "../../../types/common";
 import { cntrlDataList } from "../../data/static_info";
@@ -11,13 +11,13 @@ export default function DashEnviroCntrl() {
 
   const {fetchedGreenhouseData, setEnvCntrlStates, envCntrlStates} = useContext(GreenHouseContext);
 
-  const updateEnvState = (newState:EnvState[])=>{
-    setEnvCntrlStates(newState);
-  }
 
 
 
-  const fetchStateList = useCallback( async() => {
+useEffect(()=>{
+
+
+  const fetchStateList = async() => {
 
       const {user_id, greenhouse_id} = fetchedGreenhouseData!;
       const url = `/api/users/${user_id}/greenhouses/${greenhouse_id}/envState`;
@@ -30,7 +30,7 @@ export default function DashEnviroCntrl() {
         const newState = Object.values(data) as  EnvState[]
 
 
-          updateEnvState(newState);
+          setEnvCntrlStates(newState);
 
       } catch (error) {
         console.error("Fetch error:", error);
@@ -38,14 +38,13 @@ export default function DashEnviroCntrl() {
       } finally {
         setLoading(false);
       }
-
-
-
-  },[fetchedGreenhouseData])
-
-  useEffect(() => {
+    }
     fetchStateList();
-  }, [fetchStateList]);
+
+
+  },[setEnvCntrlStates, fetchedGreenhouseData])
+
+
 
   return (
     <div className="flex flex-col h-36 justify-between pt-4">
@@ -60,7 +59,7 @@ export default function DashEnviroCntrl() {
             }
           })
           return (
-            <EnvirCntrlBtn refresh={fetchStateList} key={cntrl.id} id={cntrl.id} state={cntrl.state} iconPath={icon?.iconPath}>
+            <EnvirCntrlBtn  key={cntrl.id} id={cntrl.id} state={cntrl.state} iconPath={icon?.iconPath}>
               {cntrl.type}
             </EnvirCntrlBtn>
           );
