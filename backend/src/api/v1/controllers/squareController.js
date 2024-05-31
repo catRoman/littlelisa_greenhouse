@@ -1,4 +1,4 @@
-import squaresService from "../services/squaresService.js";
+import squareService from "../services/squareService.js";
 import utility from "./util/utility.js";
 
 const updateSquare = async (req, res) => {
@@ -19,7 +19,7 @@ const updateSquare = async (req, res) => {
         .json({ message: "Incomplete form data... missing some values" });
     }
 
-    const updatedSquare = await squaresService.updateSquare(fields, squareId);
+    const updatedSquare = await squareService.updateSquare(fields, squareId, req.params.greenhouseId);
 
     res.json(updatedSquare);
   } catch (error) {

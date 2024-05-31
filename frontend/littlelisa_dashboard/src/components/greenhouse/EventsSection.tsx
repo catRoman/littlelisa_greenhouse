@@ -24,6 +24,8 @@ export default function EventsSection() {
   const upcoming: JSX.Element[] = [];
   const recent: JSX.Element[] = [];
 
+
+
   useEffect(()=>{
     const fetchEventLog = async () => {
       let url;
@@ -33,10 +35,10 @@ export default function EventsSection() {
           break;
 
         case GreenHouseViewState.Zone:
-          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${selectedZoneId}/eventLog`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneId].zone_id}/eventLog`;
           break;
         case GreenHouseViewState.Plot:
-          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot!.square_db_id}/eventLog`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot?.square_db_id}/eventLog`;
           break;
       }
       try {
@@ -76,7 +78,7 @@ export default function EventsSection() {
       </div>
       <div className="my-2">
         <h2 className=" text-md font-bold text-orange-500">Recent Events:</h2>
-        <ul className="flex  flex-col hide-scrollbar mt-1 h-52 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
+        <ul className="flex  flex-col hide-scrollbar mt-1 h-52 overflow-scroll rounded-md bg-zinc-800 py-2">
         {loadingRecent ? <p className="flex m-auto">Loading Recent Events...</p> :
          recent.length > 0 ? recent?.map((event) => event) : <p className="flex m-auto">No recorded events</p>
          }

@@ -44,10 +44,10 @@ export default function NotesSection() {
           break;
 
         case GreenHouseViewState.Zone:
-          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${selectedZoneId}/notes`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneId].zone_id}/notes`;
           break;
         case GreenHouseViewState.Plot:
-          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot!.square_db_id}/notes`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot?.square_db_id}/notes`;
           break;
       }
       try {
@@ -128,7 +128,7 @@ export default function NotesSection() {
             break;
 
           case GreenHouseViewState.Zone:
-            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${selectedZoneId}/notes`;
+            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneId].zone_id}/notes`;
 
             break;
           case GreenHouseViewState.Plot:
