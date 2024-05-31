@@ -1,47 +1,18 @@
-import { useContext, useState } from "react";
-import {
-  ControlPanelState,
-  GreenHouseViewState,
-  UpdatePlotSubMenuState,
-} from "../../../types/enums";
-import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
+import { useState } from "react";
+import { ControlPanelState } from "../../../types/enums";
+
 import "react-datepicker/dist/react-datepicker.css";
-import PlantInfoSubMenu from "./sub_components/control_panel/update/updateSubMenu/PlantInfoSubMenu";
-import ClearPlotSubMenu from "./sub_components/control_panel/update/updateSubMenu/ClearPlotSubMenu";
 
 import DashEnviroCntrl from "../enviroCntrl/DashEnviroCntrl";
 import Update from "./sub_components/control_panel/update/Update";
 
 export default function ControlPanel() {
-  const { viewState } = useContext(GreenHouseContext);
   const [panelState, setPanelState] = useState<ControlPanelState>(
     ControlPanelState.Enviroment,
   );
   const [isSelected, setSelected] = useState<string>("Enviroment");
-  const [isSelectedSubMenu, setSelectedSubMenu] =
-    useState<string>("Plant Info");
-
-  let subMenu = <></>;
-  switch (isSelectedSubMenu as UpdatePlotSubMenuState) {
-    case UpdatePlotSubMenuState.PlantInfo:
-      subMenu = <PlantInfoSubMenu />;
-      break;
-    case UpdatePlotSubMenuState.Nodes:
-      subMenu = <div className="pl-4">hello nodes</div>;
-      break;
-    case UpdatePlotSubMenuState.Sensors:
-      subMenu = <div className="pl-4">hello sensors</div>;
-      break;
-    case UpdatePlotSubMenuState.Sprinklers:
-      subMenu = <div className="pl-4">hello sprinklers</div>;
-      break;
-    case UpdatePlotSubMenuState.ClearPlot:
-      subMenu = <ClearPlotSubMenu />;
-      break;
-  }
 
   let controlPanel = <></>;
-  let updateSubMenu;
   switch (panelState) {
     case ControlPanelState.Enviroment:
       controlPanel = (
@@ -64,25 +35,7 @@ export default function ControlPanel() {
       );
       break;
     case ControlPanelState.Update:
-      switch (viewState) {
-        case GreenHouseViewState.GreenHouse:
-          updateSubMenu = UpdatePlotSubMenuState;
-          break;
-        case GreenHouseViewState.Zone:
-          updateSubMenu = UpdatePlotSubMenuState;
-          break;
-        case GreenHouseViewState.Plot:
-          updateSubMenu = UpdatePlotSubMenuState;
-          break;
-      }
-      controlPanel = (
-        <Update
-          subMenu={subMenu}
-          subMenuHandler={subMenuHandler}
-          isSelectedSubMenu={isSelectedSubMenu}
-          subMenuList={updateSubMenu}
-        />
-      );
+      controlPanel = <Update />;
       break;
     case ControlPanelState.Schedule:
       controlPanel = (
@@ -91,14 +44,6 @@ export default function ControlPanel() {
         </>
       );
       break;
-  }
-
-  function subMenuHandler(event: React.MouseEvent<HTMLButtonElement>) {
-    console.log((event.target as HTMLButtonElement).id);
-    event.preventDefault();
-    const buttonId = (event.target as HTMLButtonElement).id;
-
-    setSelectedSubMenu(buttonId);
   }
 
   function panelSelectHandler(event: React.MouseEvent<HTMLButtonElement>) {

@@ -8,7 +8,7 @@ import SensorInfo from "./sub_components/SensorInfo";
 export default function SectionBody() {
   const {
     viewState,
-    selectedZoneId,
+    selectedZoneNumber,
     selectedPlant,
     setSelectedPlant,
     fetchedGreenhouseData,
@@ -54,7 +54,7 @@ export default function SectionBody() {
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
       body = (
-        <div className="flex flex-col gap-3 mb-10">
+        <div className="mb-10 flex flex-col gap-3">
           {fetchedGreenhouseData?.zones.map((zone, index) => {
             return (
               <div key={`zone_info_${index}`}>
@@ -68,20 +68,20 @@ export default function SectionBody() {
 
     case GreenHouseViewState.Zone:
       body = (
-        <div className="flex flex-col gap-3 mb-10">
+        <div className="mb-10 flex flex-col gap-3">
           <ZoneInfo
-            zone={fetchedGreenhouseData!.zones[selectedZoneId]}
-            zoneId={selectedZoneId}
+            zone={fetchedGreenhouseData!.zones[selectedZoneNumber]}
+            zoneId={selectedZoneNumber}
           />
-          {fetchedGreenhouseData?.zones[selectedZoneId].sensors &&
-            fetchedGreenhouseData?.zones[selectedZoneId].sensors?.map(
+          {fetchedGreenhouseData?.zones[selectedZoneNumber].sensors &&
+            fetchedGreenhouseData?.zones[selectedZoneNumber].sensors?.map(
               (sensor, index) => {
                 return (
                   <div key={`sensor_info_${index}`}>
                     <SensorInfo sensor={sensor} sensorId={sensor.local_id} />
                   </div>
                 );
-              }
+              },
             )}
         </div>
       );
@@ -98,7 +98,7 @@ export default function SectionBody() {
         } else {
           body = (
             <div>
-              <h3 className="mb-10 text-md font-bold text-orange-500">
+              <h3 className="text-md mb-10 font-bold text-orange-500">
                 Plant Information
               </h3>
               <div className="prose max-w-none border-r-4 border-zinc-500 pr-4">

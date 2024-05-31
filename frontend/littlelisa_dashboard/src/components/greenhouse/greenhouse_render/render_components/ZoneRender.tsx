@@ -17,7 +17,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   const {
     previousCameraProperties,
     currentCameraProperties,
-    setSelectedZoneId,
+    setSelectedZoneNumber,
     inZone,
     setViewState,
     fetchedGreenhouseData,
@@ -29,7 +29,7 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
     event.stopPropagation();
     previousCameraProperties.current = currentCameraProperties;
     // console.log(previousCameraProperties.current);
-    setSelectedZoneId(localZoneId);
+    setSelectedZoneNumber(localZoneId);
     inZone.current = true;
     setViewState(GreenHouseViewState.Zone);
   }

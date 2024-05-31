@@ -11,11 +11,14 @@ export enum ControlPanelState {
   Closed = "Closed",
 }
 
-
-export enum UpdatePlotSubMenuState {
+export enum UpdateSubMenu {
+  Greenhouse = "Greenhouse",
+  Zone = "Zone",
+  Controller = "Controller",
+  GlobalSensors = "Gloabl Sensors",
   PlantInfo = "Plant Info",
   Nodes = "Nodes",
   Sensors = "Sensors",
   Sprinklers = "Sprinklers",
-  ClearPlot = "Clear Plot",
+  Clear = "Clear",
 }

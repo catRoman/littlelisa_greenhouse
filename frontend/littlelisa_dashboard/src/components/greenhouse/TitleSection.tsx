@@ -3,7 +3,7 @@ import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 
 export default function TitleSection() {
-  const { viewState, selectedZoneId, fetchedGreenhouseData, selectedPlot } =
+  const { viewState, selectedZoneNumber, fetchedGreenhouseData, selectedPlot } =
     useContext(GreenHouseContext);
 
   let header = "";
@@ -16,8 +16,8 @@ export default function TitleSection() {
       break;
 
     case GreenHouseViewState.Zone:
-      header = `${fetchedGreenhouseData?.zones[selectedZoneId].name}  `;
-      description = `${fetchedGreenhouseData?.zones[selectedZoneId].description}`;
+      header = `${fetchedGreenhouseData?.zones[selectedZoneNumber].name}  `;
+      description = `${fetchedGreenhouseData?.zones[selectedZoneNumber].description}`;
       break;
     case GreenHouseViewState.Plot:
       header = `Plot: ${selectedPlot?.is_empty ? "Empty" : selectedPlot?.plant_type}`;

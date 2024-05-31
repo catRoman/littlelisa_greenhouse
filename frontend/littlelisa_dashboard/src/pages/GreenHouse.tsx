@@ -15,7 +15,7 @@ import ControlPanel from "../components/greenhouse/ControlPanel";
 
 export default function GreenHouse() {
   const {
-    setSelectedZoneId,
+    setSelectedZoneNumber,
     inZone,
     setSelectedSquareId,
     zoneSquareSelected,
@@ -55,7 +55,7 @@ export default function GreenHouse() {
       inZone.current = false;
       enableControls.current = true;
       setSelectedSquareId(null);
-      setSelectedZoneId(0);
+      setSelectedZoneNumber(0);
       setViewState(GreenHouseViewState.GreenHouse);
 
       setCurrentCameraProperties(initalCameraProperties);
