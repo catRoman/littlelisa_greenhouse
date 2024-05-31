@@ -41,12 +41,12 @@ const emptyAll = async (req, res) => {
       return res
         .status(400)
         .json({ message: "Incomplete form data... missing some values" });
-    } else if (!fields.greenhouse_id) {
+    } else if (fields.zone_id) {
       emptyArea = await squareService.emptyZone(
-        req.params.zone_id,
+        req.params.zoneId,
         req.params.greenhouseId
       );
-    } else {
+    } else if (!fields.zone_id) {
       emptyArea = await squareService.emptyGreenhouse(req.params.greenhouseId);
     }
 

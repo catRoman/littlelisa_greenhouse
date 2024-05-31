@@ -127,7 +127,7 @@ const emptyGreenhouse = async (greenhouseId) => {
 
 const emptyZone = async (zoneId, greenhouseId) => {
   //emptied plot
-
+  console.log("hello");
   const emptyZone = await squareRepo.emptyZone(zoneId);
 
   if (emptyZone) {
