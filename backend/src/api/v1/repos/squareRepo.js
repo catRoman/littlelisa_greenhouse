@@ -53,13 +53,13 @@ class SquareRepo extends BaseRepo {
 
   async emptyZone(zoneId) {
     const query = await this.query(
-      `update squares
+      `update squares s
       set
         plant_type = null,
         is_transplant = false,
         date_planted = null,
         date_expected_harvest = null
-      where zone_id = $1
+        where s.zone_id = $1
       returning *`,
       [zoneId]
     );
@@ -72,12 +72,13 @@ class SquareRepo extends BaseRepo {
     const query = await this.query(
       `update squares s
       set
-        s.plant_type = null,
-        s.is_transplant = false,
-        s.date_planted = null,
-        s.date_expected_harvest = null
-      join zones z on s.zone_id = z.zone_id
-      where z.greenhouse_id = $1
+        plant_type = null,
+        is_transplant = false,
+        date_planted = null,
+        date_expected_harvest = null
+      from zones z
+      where s.zone_id = z.zone_id
+      and z.greenhouse_id = $1
       returning *`,
       [greenhouseId]
     );
