@@ -27,20 +27,32 @@ class NotesRepo extends BaseRepo {
 
     return results ? results : null;
   }
-  async postById(title, body, parentNameId, parentId, userId) {
+  async postById(title, body, parentNameId, parentId, userId, greenhouseId) {
     const idType = parentNameId.slice(0, -1);
 
-    const query = `
+    let query;
+    let queryParams = [];
+    if (idType === "greenhouse") {
+      query = `
+
+      insert into ${this.tableName}
+      (title, note, ${idType}_id, user_id)
+      values($1, $2, $3, $4)
+      returning *;
+      `;
+      queryParams = [title, body, parentId, userId];
+    } else {
+      query = `
 
         insert into ${this.tableName}
-        (title, note, ${idType}_id, user_id )
-        values($1, $2, $3, $4)
+        (title, note, ${idType}_id, user_id, greenhouse_id)
+        values($1, $2, $3, $4, $5)
         returning *;
-
-
         `;
+      queryParams = [title, body, parentId, userId, greenhouseId];
+    }
 
-    const newNote = await this.query(query, [title, body, parentId, userId]);
+    const newNote = await this.query(query, queryParams);
 
     return newNote[0] ? newNote[0] : null;
   }

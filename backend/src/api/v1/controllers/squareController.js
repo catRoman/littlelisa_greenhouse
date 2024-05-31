@@ -6,8 +6,7 @@ const updateSquare = async (req, res) => {
     console.log(`requested: ${req.originalUrl}`);
     const squareId = req.params.squareId;
     const { fields } = await utility.parseForm(req);
-    const { is_transplant } = fields;
-    console.log(is_transplant);
+
     if (
       !fields.plant_type ||
       !fields.is_transplant ||
@@ -19,7 +18,11 @@ const updateSquare = async (req, res) => {
         .json({ message: "Incomplete form data... missing some values" });
     }
 
-    const updatedSquare = await squareService.updateSquare(fields, squareId, req.params.greenhouseId);
+    const updatedSquare = await squareService.updateSquare(
+      fields,
+      squareId,
+      req.params.greenhouseId
+    );
 
     res.json(updatedSquare);
   } catch (error) {
@@ -27,6 +30,34 @@ const updateSquare = async (req, res) => {
     console.log(error.message);
   }
 };
+
+const emptyAll = async (req, res) => {
+  try {
+    console.log(`requested: ${req.originalUrl}`);
+
+    const { fields } = await utility.parseForm(req);
+    let emptyArea;
+    if (!fields.greenhouse_id && !fields.zone_id) {
+      return res
+        .status(400)
+        .json({ message: "Incomplete form data... missing some values" });
+    } else if (!fields.greenhouse_id) {
+      emptyArea = await squareService.emptyZone(
+        req.params.zone_id,
+        req.params.greenhouseId
+      );
+    } else {
+      emptyArea = await squareService.emptyGreenhouse(req.params.greenhouseId);
+    }
+
+    res.json(emptyArea);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log(error.message);
+  }
+};
+
 export default {
   updateSquare,
+  emptyAll,
 };

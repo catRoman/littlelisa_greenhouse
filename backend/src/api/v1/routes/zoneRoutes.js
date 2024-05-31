@@ -5,6 +5,7 @@ import sensorController from "../controllers/sensorController.js";
 import noteRoutes from "../routes/noteRoutes.js";
 import squareRoutes from "../routes/squareRoutes.js";
 import eventLogController from "../controllers/eventLogController.js";
+import squareController from "../controllers/squareController.js";
 
 const router = Router({ mergeParams: true });
 
@@ -15,5 +16,6 @@ router.get("/:zoneId", zoneController.getZoneById);
 router.get("/:zoneId/sensors/chart", sensorController.getZoneChartData);
 router.get("/:zoneId/eventLog", eventLogController.getAllEventsByParentId);
 router.use("/:zoneId/notes", noteRoutes);
+router.put("/:zoneId/emptyAll", squareController.emptyAll);
 
 export default router;
