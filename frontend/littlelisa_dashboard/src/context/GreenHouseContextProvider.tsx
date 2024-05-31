@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   CameraSettings,
   EnvState,
@@ -13,7 +19,7 @@ export interface GreenHouseContextType {
   //state
   envCntrlStates: EnvState[];
   setEnvCntrlStates: (state: EnvState[]) => void;
-  unassignedSensorList: Sensor[]
+  unassignedSensorList: Sensor[];
   addUnassignedSensor: (sensor: Sensor) => void;
   refreshEnvCntrlList: boolean;
   setRefreshEnvCntrlList: (refresh: boolean) => void;
@@ -31,8 +37,8 @@ export interface GreenHouseContextType {
   selectedPlant: string;
   selectedSquareId: SquareId | null;
   setSelectedSquareId: (position: SquareId | null) => void;
-  selectedZoneId: number;
-  setSelectedZoneId: (value: number) => void;
+  selectedZoneNumber: number;
+  setSelectedZoneNumber: (value: number) => void;
   selectedPlot: Plot | undefined;
   setSelectedPlot: (plot: Plot | undefined) => void;
   //ref
@@ -51,11 +57,11 @@ type GreenHouseContextProviderProps = {
 const defaultContextValue: GreenHouseContextType = {
   //state
   envCntrlStates: [],
-   setEnvCntrlStates: ()=>{},
+  setEnvCntrlStates: () => {},
   unassignedSensorList: [],
-addUnassignedSensor: () =>{},
-refreshEnvCntrlList: false,
-setRefreshEnvCntrlList: () => {},
+  addUnassignedSensor: () => {},
+  refreshEnvCntrlList: false,
+  setRefreshEnvCntrlList: () => {},
   refreshNoteList: false,
   setRefreshNoteList: () => {},
   refreshGreenhouseData: false,
@@ -75,8 +81,8 @@ setRefreshEnvCntrlList: () => {},
 
   //refs
   previousCameraProperties: { current: initalCameraProperties },
-  setSelectedZoneId: () => {},
-  selectedZoneId: 0,
+  setSelectedZoneNumber: () => {},
+  selectedZoneNumber: 0,
   enableControls: { current: true },
   inZone: { current: false },
   zoneSquareSelected: { current: false },
@@ -89,14 +95,16 @@ export default function GreenHouseContextProvider({
   children,
 }: GreenHouseContextProviderProps) {
   const [envCntrlStates, setEnvCntrlStates] = useState<EnvState[]>([]);
-  const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>([]);
+  const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>(
+    [],
+  );
   const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
 
   const [refreshGreenhouseData, setRefreshGreenhouseData] =
     useState<boolean>(false);
-    const [refreshEnvCntrlList, setRefreshEnvCntrlList] =
+  const [refreshEnvCntrlList, setRefreshEnvCntrlList] =
     useState<boolean>(false);
   const [selectedSquareId, setSelectedSquareId] = useState<SquareId | null>(
     null,
@@ -107,7 +115,7 @@ export default function GreenHouseContextProvider({
   const enableControls = useRef<boolean>(true);
   const inZone = useRef<boolean>(false);
   const zoneSquareSelected = useRef<boolean>(false);
-  const [selectedZoneId, setSelectedZoneId] = useState<number>(0);
+  const [selectedZoneNumber, setSelectedZoneNumber] = useState<number>(0);
   const [viewState, setViewState] = useState<GreenHouseViewState>(
     GreenHouseViewState.GreenHouse,
   );
@@ -120,14 +128,15 @@ export default function GreenHouseContextProvider({
       setSelectedPlot(
         fetchedGreenhouseData.squares.find((plot) => {
           if (
-            plot.zone_number === selectedZoneId &&
+            plot.zone_number === selectedZoneNumber &&
             plot.row ===
               selectedSquareId.y +
-                fetchedGreenhouseData.zones[selectedZoneId].zone_start_point
+                fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point
                   .y &&
             plot.col ===
               selectedSquareId.x +
-                fetchedGreenhouseData.zones[selectedZoneId].zone_start_point.x
+                fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point
+                  .x
           ) {
             if (plot.plant_type !== null && !plot.is_empty) {
               plot.plant_type && setSelectedPlant(plot.plant_type);
@@ -139,28 +148,27 @@ export default function GreenHouseContextProvider({
         }),
       );
     }
-  }, [selectedSquareId, selectedZoneId, fetchedGreenhouseData]);
+  }, [selectedSquareId, selectedZoneNumber, fetchedGreenhouseData]);
 
-  const addUnassignedSensor= useCallback((sensor: Sensor)=>{
+  const addUnassignedSensor = useCallback((sensor: Sensor) => {
     setUnassignedSensorList((prevList) => [...prevList, sensor]);
-    console.log(`unasigned sensor added: `,sensor)
+    console.log(`unasigned sensor added: `, sensor);
   }, []);
-
-
 
   useEffect(() => {
     console.log("data fetched: ", fetchedGreenhouseData);
-      if(fetchedGreenhouseData?.zones[0].sensors){
-
-    fetchedGreenhouseData.zones[0].sensors.forEach((sensor)=>{
-      if(sensor.zn_rel_pos?.x === -1 && sensor.zn_rel_pos?.y === -1 && sensor.zn_rel_pos?.z === -1){
-        addUnassignedSensor(sensor);
-
-      }
-    })
-  }
+    if (fetchedGreenhouseData?.zones[0].sensors) {
+      fetchedGreenhouseData.zones[0].sensors.forEach((sensor) => {
+        if (
+          sensor.zn_rel_pos?.x === -1 &&
+          sensor.zn_rel_pos?.y === -1 &&
+          sensor.zn_rel_pos?.z === -1
+        ) {
+          addUnassignedSensor(sensor);
+        }
+      });
+    }
   }, [fetchedGreenhouseData, addUnassignedSensor]);
-
 
   return (
     <GreenHouseContext.Provider
@@ -181,8 +189,8 @@ export default function GreenHouseContextProvider({
         setSelectedPlot,
         viewState,
         setViewState,
-        selectedZoneId,
-        setSelectedZoneId,
+        selectedZoneNumber,
+        setSelectedZoneNumber,
         previousCameraProperties,
         currentCameraProperties,
         setCurrentCameraProperties,

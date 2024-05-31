@@ -8,13 +8,13 @@ export default function NotesSection() {
   const {
     viewState,
     selectedPlot,
-    selectedZoneId,
+    selectedZoneNumber,
     refreshNoteList,
     setRefreshNoteList,
-    fetchedGreenhouseData
+    fetchedGreenhouseData,
   } = useContext(GreenHouseContext);
-  const greenhouseRef = useRef(fetchedGreenhouseData?.greenhouse_id)
-  const userRef = useRef(fetchedGreenhouseData?.user_id)
+  const greenhouseRef = useRef(fetchedGreenhouseData?.greenhouse_id);
+  const userRef = useRef(fetchedGreenhouseData?.user_id);
 
   const [noteList, setNoteList] = useState<NoteType[]>();
   const [loading, setLoading] = useState<boolean>(true);
@@ -28,15 +28,13 @@ export default function NotesSection() {
     body: "",
   });
 
-  useEffect(()=>{
+  useEffect(() => {
     greenhouseRef.current = fetchedGreenhouseData?.greenhouse_id;
     userRef.current = fetchedGreenhouseData?.user_id;
-  }, [fetchedGreenhouseData])
+  }, [fetchedGreenhouseData]);
 
-
-
-    useEffect(() => {
-      const fetchNotes = async () => {
+  useEffect(() => {
+    const fetchNotes = async () => {
       let url;
       switch (viewState) {
         case GreenHouseViewState.GreenHouse:
@@ -44,7 +42,7 @@ export default function NotesSection() {
           break;
 
         case GreenHouseViewState.Zone:
-          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneId].zone_id}/notes`;
+          url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneNumber].zone_id}/notes`;
           break;
         case GreenHouseViewState.Plot:
           url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/squares/${selectedPlot?.square_db_id}/notes`;
@@ -66,8 +64,14 @@ export default function NotesSection() {
     };
 
     fetchNotes();
-  }, [setNoteList, viewState, selectedZoneId, selectedPlot, refreshNoteList, fetchedGreenhouseData]);
-
+  }, [
+    setNoteList,
+    viewState,
+    selectedZoneNumber,
+    selectedPlot,
+    refreshNoteList,
+    fetchedGreenhouseData,
+  ]);
 
   function deleteNoteHandler(
     event: React.MouseEvent<HTMLButtonElement>,
@@ -77,9 +81,12 @@ export default function NotesSection() {
 
     const deleteNote = async () => {
       try {
-        const response = await fetch(`/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/notes/${noteId}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/notes/${noteId}`,
+          {
+            method: "DELETE",
+          },
+        );
 
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -128,7 +135,7 @@ export default function NotesSection() {
             break;
 
           case GreenHouseViewState.Zone:
-            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneId].zone_id}/notes`;
+            url = `/api/users/${userRef.current}/greenhouses/${greenhouseRef.current}/zones/${fetchedGreenhouseData?.zones[selectedZoneNumber].zone_id}/notes`;
 
             break;
           case GreenHouseViewState.Plot:

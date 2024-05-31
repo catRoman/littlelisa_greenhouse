@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 export default function PlotOverview() {
   const {
-    selectedZoneId,
+    selectedZoneNumber,
 
     selectedPlot,
     fetchedGreenhouseData,
@@ -18,13 +18,14 @@ export default function PlotOverview() {
           </li>
           <li>
             <span className="font-bold">Zone: </span>
-            <span className="text-green-300">{selectedZoneId}</span>
+            <span className="text-green-300">{selectedZoneNumber}</span>
           </li>
           <li>
             <span className="font-bold">Row: </span>
             <span className="text-green-300">
               {selectedPlot.row -
-                fetchedGreenhouseData.zones[selectedZoneId].zone_start_point.y +
+                fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point
+                  .y +
                 1}
             </span>
           </li>
@@ -32,7 +33,8 @@ export default function PlotOverview() {
             <span className="font-bold">Column: </span>
             <span className="text-green-300">
               {selectedPlot.col -
-                fetchedGreenhouseData.zones[selectedZoneId].zone_start_point.x +
+                fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point
+                  .x +
                 1}
             </span>
           </li>

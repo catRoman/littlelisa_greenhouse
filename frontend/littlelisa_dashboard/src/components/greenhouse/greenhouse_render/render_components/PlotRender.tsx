@@ -30,7 +30,7 @@ export default function PlotRender({
 
   const {
     inZone,
-    selectedZoneId,
+    selectedZoneNumber,
     setSelectedSquareId,
     selectedSquareId,
     previousCameraProperties,
@@ -61,25 +61,25 @@ export default function PlotRender({
     color:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId) ||
-      (localZoneId === selectedZoneId && hovering) ||
-      (selectedZoneId === 0 && hovering)
+        localZoneId === selectedZoneNumber) ||
+      (localZoneId === selectedZoneNumber && hovering) ||
+      (selectedZoneNumber === 0 && hovering)
         ? "orange"
         : color,
     wireframe:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId) ||
-      (localZoneId === selectedZoneId && hovering) ||
-      (selectedZoneId === 0 && hovering)
+        localZoneId === selectedZoneNumber) ||
+      (localZoneId === selectedZoneNumber && hovering) ||
+      (selectedZoneNumber === 0 && hovering)
         ? false
         : true,
     position:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId) ||
-      (localZoneId === selectedZoneId && hovering) ||
-      (selectedZoneId === 0 && hovering)
+        localZoneId === selectedZoneNumber) ||
+      (localZoneId === selectedZoneNumber && hovering) ||
+      (selectedZoneNumber === 0 && hovering)
         ? [position[0], position[1], position[2] + 0.5]
         : position,
     config: {
@@ -99,7 +99,7 @@ export default function PlotRender({
   }
   function squareClickedHandler(event: ThreeEvent<MouseEvent>) {
     if (inZone.current) event.stopPropagation();
-    if (localZoneId === selectedZoneId) {
+    if (localZoneId === selectedZoneNumber) {
       setSelectedSquareId(squareId);
       setViewState(GreenHouseViewState.Plot);
       previousCameraProperties.current = currentCameraProperties;
@@ -125,7 +125,7 @@ export default function PlotRender({
         plotInfo !== undefined &&
         selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId &&
+        localZoneId === selectedZoneNumber &&
         !plotInfo?.is_empty &&
         plotInfo?.plant_type !== undefined &&
         plotInfo.plant_type !== null

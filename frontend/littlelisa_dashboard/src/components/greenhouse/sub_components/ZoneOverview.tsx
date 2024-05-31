@@ -4,17 +4,17 @@ import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 import { Plot } from "../../../../types/common";
 
 export default function ZoneOverview() {
-  const { selectedZoneId, fetchedGreenhouseData, envCntrlStates } =
+  const { selectedZoneNumber, fetchedGreenhouseData, envCntrlStates } =
     useContext(GreenHouseContext);
 
   if (fetchedGreenhouseData) {
     // const { zones } = fetchedGreenhouseData;
-    // const zone = zones[selectedZoneId];
+    // const zone = zones[selectedZoneNumber];
     const { dimensions } = fetchedGreenhouseData;
     const zonePlots: Plot[] = [];
 
     fetchedGreenhouseData.squares.map((plot) => {
-      if (plot.zone_number === selectedZoneId) {
+      if (plot.zone_number === selectedZoneNumber) {
         zonePlots.push(plot);
       }
     });
@@ -135,31 +135,29 @@ export default function ZoneOverview() {
           </li>
         </ul>
       </div> */}
-       <div>
-            <li className="">
-              <h3 className="text-md font-bold text-orange-500">
-                Enviromental Status
-              </h3>
-            </li>
-            <div className="pl-4">
-              {envCntrlStates.map((cntrl)=>{
-                return (
-                  <li>
+        <div>
+          <li className="">
+            <h3 className="text-md font-bold text-orange-500">
+              Enviromental Status
+            </h3>
+          </li>
+          <div className="pl-4">
+            {envCntrlStates.map((cntrl) => {
+              return (
+                <li>
                   <span className="font-bold">{cntrl.type} </span>
                   <span>
-                    {cntrl.state  === "on" ? (
+                    {cntrl.state === "on" ? (
                       <span className="text-green-500">On</span>
                     ) : (
                       <span className="text-red-500">Off</span>
                     )}
                   </span>
                 </li>
-                )
-              })}
-
-
-            </div>
+              );
+            })}
           </div>
+        </div>
       </div>
     );
   } else {
