@@ -16,12 +16,12 @@ export default function PlantInfoSubMenu() {
   const [updateCheck, setUpdateCheck] = useState<boolean>(false);
 
   const defaultPlantInfo = {
-    plant_type: selectedPlot!.plant_type,
+    plant_type: selectedPlot?.plant_type,
     date_planted: selectedPlot?.date_planted
-      ? new Date(selectedPlot.date_planted!)
+      ? new Date(selectedPlot.date_planted)
       : new Date("04-09-2024"),
     date_expected_harvest: selectedPlot?.date_expected_harvest
-      ? new Date(selectedPlot.date_expected_harvest!)
+      ? new Date(selectedPlot.date_expected_harvest)
       : new Date("04-09-2024"),
     is_transplant: selectedPlot?.is_transplant
       ? selectedPlot.is_transplant
@@ -83,17 +83,17 @@ export default function PlantInfoSubMenu() {
       );
       plantInfoFormData.append(
         "date_planted",
-        plantInfo.date_planted!.toString(),
+        plantInfo.date_planted?.toString(),
       );
       plantInfoFormData.append(
         "date_expected_harvest",
-        plantInfo.date_expected_harvest!.toString(),
+        plantInfo.date_expected_harvest?.toString(),
       );
 
       const updateSquare = async () => {
         try {
           const response = await fetch(
-            `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot!.square_db_id}`,
+            `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot?.square_db_id}`,
             {
               method: "PUT",
               body: plantInfoFormData,

@@ -10,35 +10,41 @@ type EventLogProps = {
 export default function EventLog({ event }: EventLogProps) {
   const timestamp = parseISO(event.created_at)
   const formattedTime = format(timestamp, 'MMM dd HH:mm a')
-  const {viewState} = useContext(GreenHouseContext)
+  const {viewState, fetchedGreenhouseData} = useContext(GreenHouseContext)
 
+  const zone_number = fetchedGreenhouseData?.zones.find(zone=>event.zone_id === zone.zone_id)?.zone_number;
+  const row = fetchedGreenhouseData?.squares.find(square=>event.square_id === square.square_db_id)?.row;
+  const col = fetchedGreenhouseData?.squares.find(square=>event.square_id === square.square_db_id)?.col;
+  const squareHeader = `Row: ${row} - Col: ${col}`
   let sectionHeader;
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
-      sectionHeader = (<><span className="font-bold">{event.zone_id? 'Zone:' : 'Greenhouse'} </span>
-          <span>{event.zone_id ? event.zone_id : null}   - </span></>)
+      sectionHeader = (<><span className="font-bold">{event.zone_id &&event.zone_id > 0 ? 'Zone:' : 'Greenhouse'} </span>
+          <span>{event.zone_id && event.zone_id ? zone_number : null}   - </span></>)
       break;
 
     case GreenHouseViewState.Zone:
-      sectionHeader = (<><span className="font-bold">{event.square_id? 'Square:' : 'Zone'} </span>
-      <span>{event.square_id ? event.square_id : null} - </span></>)
+      sectionHeader = (<><span className="font-bold">{event.square_id ? <span className='text-xs'>{squareHeader}</span> : 'Zone'} - </span></>)
+
       break;
     case GreenHouseViewState.Plot:
-      sectionHeader = (<><span className="font-bold">{event.zone_id? 'Zone:' : 'Greenhouse'} </span>
-      <span>{event.zone_id ? event.zone_id : null} - </span></>)
+      sectionHeader = null
       break;
   }
 
 
   return (
-    <div>
+    <div className='hover:bg-zinc-700 px-4 '>
 
-    <div className="mb-[0.5] flex justify-between">
+    <div className="mb-[0.5] flex justify-between ">
       <div>
         <p>
           {sectionHeader}
           <span>
-            {event.type.toLowerCase() === "light" ? (
+            {event.type.toLowerCase() === "plot" ? (
+              <span className="font-bold  text-orange-300">{event.type} </span>
+            ):
+            event.type.toLowerCase() === "light" ? (
               <span className="font-bold  text-purple-300">{event.type} </span>
             ) : event.type.toLowerCase() === "fan" ? (
               <span className="font-bold text-yellow-300">{event.type} </span>
@@ -48,7 +54,9 @@ export default function EventLog({ event }: EventLogProps) {
               <span className="font-bold text-lime-300">{event.type} </span>
             )}
             -
-            {event.action === "on" || event.action.toLowerCase().includes("added") ? (
+            {event.action === "on" ||
+            event.action.toLowerCase().includes("added") ||
+            event.action.toLowerCase().includes("updated")? (
               <span className="text-green-300"> {event.action}</span>
             ) : (
               <span className="text-red-300"> {event.action}</span>
