@@ -10,10 +10,12 @@ export enum ControlPanelState {
   Reminder = "Reminder",
   Closed = "Closed",
 }
-export enum SubMenuState {
-  PlantInfo = "plantInfo",
-  Nodes = "nodes",
-  Sensors = "sensors",
-  Sprinklers = "sprinklers",
-  ClearPlot = "clearPlot",
+
+
+export enum UpdatePlotSubMenuState {
+  PlantInfo = "Plant Info",
+  Nodes = "Nodes",
+  Sensors = "Sensors",
+  Sprinklers = "Sprinklers",
+  ClearPlot = "Clear Plot",
 }
