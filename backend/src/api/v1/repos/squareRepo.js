@@ -50,6 +50,40 @@ class SquareRepo extends BaseRepo {
 
     return query[0] ? query[0] : null;
   }
+
+  async emptyZone(zoneId) {
+    const query = await this.query(
+      `update squares
+      set
+        plant_type = null,
+        is_transplant = false,
+        date_planted = null,
+        date_expected_harvest = null
+      where zone_id = $1
+      returning *`,
+      [zoneId]
+    );
+
+    return query ? query : null;
+  }
+
+  async emptyGreenhouse(greenhouseId) {
+    console.log("query time");
+    const query = await this.query(
+      `update squares s
+      set
+        s.plant_type = null,
+        s.is_transplant = false,
+        s.date_planted = null,
+        s.date_expected_harvest = null
+      join zones z on s.zone_id = z.zone_id
+      where z.greenhouse_id = $1
+      returning *`,
+      [greenhouseId]
+    );
+
+    return query ? query : null;
+  }
 }
 
 export default new SquareRepo();

@@ -1,13 +1,13 @@
 import { Router } from "express";
 import greenhouseController from "../controllers/greenhouseController.js";
-import envStateController from '../controllers/envStateController.js'
-import eventLogController from '../controllers/eventLogController.js'
+import envStateController from "../controllers/envStateController.js";
+import eventLogController from "../controllers/eventLogController.js";
 import zoneRoutes from "./zoneRoutes.js";
 import validateParamId from "../middleware/validateParamId.js";
 import sensorRoutes from "./sensorRoutes.js";
 import noteRoutes from "../routes/noteRoutes.js";
 import squareRoutes from "../routes/squareRoutes.js";
-
+import squareController from "../controllers/squareController.js";
 
 const router = Router({ mergeParams: true });
 router.param("greenhouseId", validateParamId("greenhouses"));
@@ -21,7 +21,11 @@ router.get(
 );
 router.get("/:greenhouseId/envState", envStateController.getEnvState);
 router.put("/:greenhouseId/updateEnvState", envStateController.updateEnvState);
-router.get("/:greenhouseId/eventLog", eventLogController.getAllEventsByParentId);
+router.put("/:greenhouseId/emptyAll", squareController.emptyAll);
+router.get(
+  "/:greenhouseId/eventLog",
+  eventLogController.getAllEventsByParentId
+);
 
 router.use("/:greenhouseId/sensors", sensorRoutes);
 router.use("/:greenhouseId/zones", zoneRoutes);
