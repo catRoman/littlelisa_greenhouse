@@ -19,7 +19,7 @@ export function connectToDatabase() {
     if (err) {
       console.error("uh oh...connection error", err.stack);
     } else {
-      console.log("Hellow There! Connected to the database");
+      //console.log("Hellow There! Connected to the database");
     }
   });
 }

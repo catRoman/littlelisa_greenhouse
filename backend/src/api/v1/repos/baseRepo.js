@@ -1,4 +1,7 @@
-import { db_pool as db } from "../services/init/dbConnect.js";
+import {
+  connectToDatabase,
+  db_pool as db,
+} from "../services/init/dbConnect.js";
 
 export default class BaseRepo {
   constructor(tableName, parentName) {
@@ -7,12 +10,15 @@ export default class BaseRepo {
   }
 
   async query(text, params) {
+    connectToDatabase();
     try {
       const res = await db.query(text, params);
       const response = res.rowCount < 1 ? null : res.rows;
       return response;
     } catch (err) {
       throw err;
+    } finally {
+      db.release();
     }
   }
 
@@ -26,13 +32,9 @@ export default class BaseRepo {
     const query = `
         SELECT * FROM ${this.tableName}
         WHERE ${idType}_id = $1;`;
-    const results = await this.query(
-      query,
-       [id]
-    );
+    const results = await this.query(query, [id]);
     return results[0] ? results[0] : null;
   }
-
 
   async getByParentId(parentId, id) {
     const idType = this.tableName.slice(0, -1);
