@@ -13,36 +13,68 @@ const updateNode = async (
     //make json
     const updateData = {};
 
-    if (selectedAddNode == "") {
-      updateData["add_node_id"] = 0;
-    } else {
-      updateData["add_node_id"] = selectedAddNode;
+    function parseForm(formDataString) {
+      console.log(formDataString);
+      const parts = formDataString.split("-");
+
+      if (parts.length !== 4) {
+        throw new Error("Input string does not match the expected format: ");
+      }
+
+      const result = {
+        node_id: parts[0],
+        mac_addr: parts[1],
+        x_pos: parts[2],
+        y_pos: parts[3],
+      };
+      console.log("ok");
+      return result;
     }
-    if (selectedAddNode == "") {
-      updateData["remove_node_id"] = 0;
+
+    if (!selectedAddNode) {
+      updateData["add_node_data"] = 0;
     } else {
-      updateData["remove_node_id"] = selectedRemoveNode;
+      console.log("add");
+      const addNodeData = parseForm(selectedAddNode);
+      updateData["add_node_data"] = addNodeData;
     }
-    if (selectedTagNode == "") {
-      updateData["tag_node_id"] = 0;
+    if (!selectedRemoveNode) {
+      updateData["remove_node_data"] = 0;
     } else {
-      updateData["tag_node_id"] = selectedTagNode;
+      const removeNodeData = parseForm(selectedRemoveNode);
+      updateData["remove_node_data"] = removeNodeData;
+    }
+    if (!selectedTagNode) {
+      updateData["tag_node_data"] = 0;
+    } else {
+      console.log("tag");
+      const tagNodeData = parseForm(selectedTagNode);
+      updateData["tag_node_data"] = tagNodeData;
       updateData["new_node_tag"] = newNodeTag;
     }
     updateData["zone_id"] = zoneId;
+
+    console.log(updateData);
 
     const proxyControllerPut = async () => {
       try {
         const response = await fetch("http://10.0.0.86/api/updateNode", {
           method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(updateData),
         });
+        // Check if the response is ok
+        if (!response.ok) {
+          // Try to read the response as text to get more information about the error
+          const errorText = await response.text();
+          console.error("Error response text:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const result = await response.json();
         console.log(result);
-        if (response.ok) {
-          console.log("proxyied response is deadly");
-        }
-        return result;
+        return response;
       } catch (error) {
         console.error("Error from modules:", error);
       }
@@ -105,9 +137,8 @@ const updateNode = async (
         );
       }
     }
-    res.json(proxiedResponse);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
   }
 };
 

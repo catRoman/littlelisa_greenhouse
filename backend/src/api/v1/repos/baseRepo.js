@@ -10,15 +10,12 @@ export default class BaseRepo {
   }
 
   async query(text, params) {
-    connectToDatabase();
     try {
       const res = await db.query(text, params);
       const response = res.rowCount < 1 ? null : res.rows;
       return response;
     } catch (err) {
       throw err;
-    } finally {
-      db.release();
     }
   }
 
