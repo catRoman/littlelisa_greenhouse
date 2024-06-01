@@ -9,7 +9,7 @@ const sensorDataStream = async (req, res) => {
     if (!req.body || Object.keys(req.body).length === 0) {
       throw new Error("No data received in sensor stream post");
     }
-    // console.log(sensorData);
+    console.log(sensorData);
     handleSensorData(sensorData);
 
     res.status(200).send("Sensor stream post successful");

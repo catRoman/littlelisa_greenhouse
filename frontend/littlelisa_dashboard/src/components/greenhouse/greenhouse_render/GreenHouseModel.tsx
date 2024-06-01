@@ -152,6 +152,7 @@ export default function GreenHouseModel() {
                       }}
                       global={true}
                       controller={true}
+                      localZoneId={0}
                     />
                   );
                 } else {
@@ -166,6 +167,7 @@ export default function GreenHouseModel() {
                       }}
                       global={true}
                       controller={true}
+                      localZoneId={0}
                     />
                   );
                 }

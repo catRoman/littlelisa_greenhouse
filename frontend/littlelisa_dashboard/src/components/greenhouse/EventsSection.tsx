@@ -54,7 +54,25 @@ export default function EventsSection() {
         console.error("Fetch error:", error);
       }
     };
-    fetchEventLog();
+
+    switch (viewState) {
+      case GreenHouseViewState.GreenHouse:
+        if (fetchedGreenhouseData) {
+          fetchEventLog();
+        }
+        break;
+
+      case GreenHouseViewState.Zone:
+        if (fetchedGreenhouseData && selectedZoneNumber) {
+          fetchEventLog();
+        }
+        break;
+      case GreenHouseViewState.Plot:
+        if (fetchedGreenhouseData && selectedZoneNumber && selectedPlot) {
+          fetchEventLog();
+        }
+        break;
+    }
   }, [
     selectedZoneNumber,
     selectedPlot,
