@@ -88,11 +88,12 @@ export default class ZoneChart extends PureComponent<ZoneChartProps> {
           />
           <Legend verticalAlign="bottom" />
           {chartData &&
-            chartData.types.map((sensorType) => {
+            chartData.types.map((sensorType, index) => {
               if (sensorType === "DHT22") {
                 return (
                   <>
                     <Line
+                      key={`${sensorType}-right-${index}`}
                       yAxisId="right"
                       dot={false}
                       type="monotone"
@@ -101,6 +102,7 @@ export default class ZoneChart extends PureComponent<ZoneChartProps> {
                       stroke="#2a18c7"
                     />
                     <Line
+                      key={`${sensorType}-left-${index}`}
                       yAxisId="left"
                       dot={false}
                       type="monotone"

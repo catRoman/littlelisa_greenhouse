@@ -184,6 +184,7 @@ export default function PlotRender({
           squareId={squareId}
           global={false}
           controller={false}
+          localZoneId={localZoneId}
         />
       </animated.group>
     );

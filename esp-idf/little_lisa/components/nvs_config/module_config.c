@@ -32,7 +32,6 @@
 #define MAX_TEMP_SENSORS 5 // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
 
-
 // COMPLETED - make state in kconfig to allow for nvs update
 //  check if enable_nvs_update is enabled if it is write config files to nvs by additionally serializing each sensor loc array and adding it to nvs
 //  add sensor arr ot global mmodule info, get and desialize one list at a time if it exists, store to temp **arr loop through getting string length, adding total length to sum, add \0 allocate memorary
@@ -57,9 +56,9 @@ const bool UPDATE_ENV_CNTRL_ARRAY = false;
 #endif
 
 #ifdef CONFIG_RELAY_TOTAL
- int8_t total_relays = CONFIG_RELAY_TOTAL;
+int8_t total_relays = CONFIG_RELAY_TOTAL;
 #else
- int8_t total_relays = 0;
+int8_t total_relays = 0;
 
 #endif
 
@@ -76,31 +75,6 @@ void initiate_config()
         esp_log_level_set(TAG, ESP_LOG_DEBUG);
         // initiate
         nvs_initiate();
-
-        if (UPDATE_ENV_CNTRL_ARRAY)
-        {
-
-                if (create_env_state_from_config(env_state_arr_gt, total_relays) == ESP_OK)
-                {
-
-                        nvs_set_env_state_arr(env_state_arr_gt, total_relays);
-                }
-                else
-                {
-                        ESP_LOGE(TAG, "Failed to set env_state_arr to nvs, config failed");
-                }
-        }
-        else
-        {
-                if (nvs_get_env_state_arr(env_state_arr_gt, &total_relays) == ESP_OK)
-                {
-                        ESP_LOGI(TAG, "state arr recieved from nvs succesfully");
-                }
-                else
-                {
-                        ESP_LOGE(TAG, "Error retrieving env state from nvs");
-                }
-        }
 
         if (UPDATE_NVS)
         {
@@ -610,15 +584,42 @@ void initiate_config()
         vTaskDelay(pdMS_TO_TICKS(500));
         if (strcmp(module_info_gt->type, "controller") == 0)
         {
+
+                if (UPDATE_ENV_CNTRL_ARRAY)
+                {
+
+                        if (create_env_state_from_config(env_state_arr_gt, total_relays) == ESP_OK)
+                        {
+
+                                nvs_set_env_state_arr(env_state_arr_gt, total_relays);
+                        }
+                        else
+                        {
+                                ESP_LOGE(TAG, "Failed to set env_state_arr to nvs, config failed");
+                        }
+                }
+                else
+                {
+                        if (nvs_get_env_state_arr(env_state_arr_gt, &total_relays) == ESP_OK)
+                        {
+                                ESP_LOGI(TAG, "state arr recieved from nvs succesfully");
+                        }
+                        else
+                        {
+                                ESP_LOGE(TAG, "Error retrieving env state from nvs");
+                        }
+                }
+
                 ESP_LOGI(TAG, "Starting Controller only services");
                 // sd and db_init
                 spi_sd_card_init();
                 // vTaskDelay(pdMS_TO_TICKS(100));
                 // spi_sd_card_test();
                 esp_err_t err;
-        if((err= initiate_sensor_queue()) != ESP_OK){
-                ESP_LOGE(TAG, "Error initiating env_cntrl %s", esp_err_to_name(err));
-        }
+                if ((err = initiate_sensor_queue()) != ESP_OK)
+                {
+                        ESP_LOGE(TAG, "Error initiating env_cntrl %s", esp_err_to_name(err));
+                }
                 initiate_env_cntrl();
                 // sd_db_init();
         }
@@ -635,12 +636,9 @@ void initiate_config()
         // common to both node and controller
         ESP_LOGI(TAG, "Starting common services");
 
-
-
-
         esp_now_comm_start();
         vTaskDelay(pdMS_TO_TICKS(10000));
-         initiate_sensor_queue();
+        initiate_sensor_queue();
         ESP_ERROR_CHECK(initiate_sensor_tasks());
         // ESP_LOGW(TAG, "ota upload succesful~");
 }

@@ -62,8 +62,24 @@ export default function NotesSection() {
         setLoading(false);
       }
     };
+    switch (viewState) {
+      case GreenHouseViewState.GreenHouse:
+        if (fetchedGreenhouseData) {
+          fetchNotes();
+        }
+        break;
 
-    fetchNotes();
+      case GreenHouseViewState.Zone:
+        if (fetchedGreenhouseData && selectedZoneNumber) {
+          fetchNotes();
+        }
+        break;
+      case GreenHouseViewState.Plot:
+        if (fetchedGreenhouseData && selectedZoneNumber && selectedPlot) {
+          fetchNotes();
+        }
+        break;
+    }
   }, [
     setNoteList,
     viewState,

@@ -1,8 +1,9 @@
 import { Html } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
 import { SquareId } from "../../../../types/common";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Module } from "../../../../types/common";
+import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 
 type ModuleListRenderProp = {
   nodes: Module[] | null;
@@ -10,6 +11,7 @@ type ModuleListRenderProp = {
   squareId: SquareId;
   global: boolean;
   controller: boolean;
+  localZoneId: number;
 };
 
 export default function ModuleListRender({
@@ -18,9 +20,10 @@ export default function ModuleListRender({
   squareId,
   global,
   controller,
+  localZoneId,
 }: ModuleListRenderProp) {
   const [labelHover, setLabelHover] = useState<boolean>(false);
-
+  const { fetchedGreenhouseData } = useContext(GreenHouseContext);
   function sensorEventHandler(
     event: ThreeEvent<MouseEvent>,
     nodeId: number,
@@ -41,6 +44,7 @@ export default function ModuleListRender({
   }
 
   if (nodes) {
+    console.log(`(${squareId.x},${squareId.y} ) - `, nodes);
     return (
       <>
         {nodes.map((node, index) => {
@@ -57,7 +61,13 @@ export default function ModuleListRender({
           let boxSides = 0.1;
           const nodeId = index + 1;
 
-          const locCheck = node_x === squareId.x && node_y === squareId.y;
+          const locCheck =
+            node_x ===
+              squareId.x +
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point.x &&
+            node_y ===
+              squareId.y +
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point.y;
           const moduleArgs = controller
             ? { color: "white", wireframe: true }
             : { color: "purple", wireframe: true };

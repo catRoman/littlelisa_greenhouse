@@ -9,6 +9,7 @@ import {
   CameraSettings,
   EnvState,
   GreenhouseData,
+  Node,
   Plot,
   Sensor,
   SquareId,
@@ -21,6 +22,8 @@ export interface GreenHouseContextType {
   setEnvCntrlStates: (state: EnvState[]) => void;
   unassignedSensorList: Sensor[];
   addUnassignedSensor: (sensor: Sensor) => void;
+  unassignedNodeList: Node[];
+  addUnassignedNode: (sensor: Node) => void;
   refreshEnvCntrlList: boolean;
   setRefreshEnvCntrlList: (refresh: boolean) => void;
   refreshNoteList: boolean;
@@ -60,6 +63,8 @@ const defaultContextValue: GreenHouseContextType = {
   setEnvCntrlStates: () => {},
   unassignedSensorList: [],
   addUnassignedSensor: () => {},
+  unassignedNodeList: [],
+  addUnassignedNode: () => {},
   refreshEnvCntrlList: false,
   setRefreshEnvCntrlList: () => {},
   refreshNoteList: false,
@@ -98,6 +103,7 @@ export default function GreenHouseContextProvider({
   const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>(
     [],
   );
+  const [unassignedNodeList, setUnassignedNodeList] = useState<Node[]>([]);
   const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
@@ -155,6 +161,11 @@ export default function GreenHouseContextProvider({
     console.log(`unasigned sensor added: `, sensor);
   }, []);
 
+  const addUnassignedNode = useCallback((node: Node) => {
+    setUnassignedNodeList((prevList) => [...prevList, node]);
+    console.log(`unasigned node added: `, node);
+  }, []);
+
   useEffect(() => {
     console.log("data fetched: ", fetchedGreenhouseData);
     if (fetchedGreenhouseData?.zones[0].sensors) {
@@ -168,13 +179,26 @@ export default function GreenHouseContextProvider({
         }
       });
     }
-  }, [fetchedGreenhouseData, addUnassignedSensor]);
+    if (fetchedGreenhouseData?.zones[0].nodes) {
+      fetchedGreenhouseData.zones[0].nodes.forEach((node) => {
+        if (
+          node.zn_rel_pos?.x === -1 &&
+          node.zn_rel_pos?.y === -1 &&
+          node.zn_rel_pos?.z === -1
+        ) {
+          addUnassignedNode(node);
+        }
+      });
+    }
+  }, [fetchedGreenhouseData, addUnassignedSensor, addUnassignedNode]);
 
   return (
     <GreenHouseContext.Provider
       value={{
         envCntrlStates,
         setEnvCntrlStates,
+        unassignedNodeList,
+        addUnassignedNode,
         unassignedSensorList,
         addUnassignedSensor,
         refreshEnvCntrlList,

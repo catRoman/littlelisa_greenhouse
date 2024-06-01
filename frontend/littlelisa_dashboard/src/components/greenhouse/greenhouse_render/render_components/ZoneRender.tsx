@@ -35,6 +35,8 @@ export default function ZoneRender({ zone, localZoneId }: ZoneRenderProps) {
   }
 
   if (fetchedGreenhouseData) {
+    console.log(`zone num - ${zone.zone_number}`);
+
     return (
       <group
         ref={zoneRef}

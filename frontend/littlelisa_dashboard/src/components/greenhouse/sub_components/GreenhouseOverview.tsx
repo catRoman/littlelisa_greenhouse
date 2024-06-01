@@ -5,7 +5,8 @@ import { GreenhouseData } from "../../../../types/common";
 import { GreenHouseViewState } from "../../../../types/enums";
 
 export default function GreenHouseOverview() {
-  const { fetchedGreenhouseData, viewState, envCntrlStates } = useContext(GreenHouseContext);
+  const { fetchedGreenhouseData, viewState, envCntrlStates } =
+    useContext(GreenHouseContext);
 
   if (fetchedGreenhouseData) {
     const { lat, long, style, total, dimensions } =
@@ -63,22 +64,20 @@ export default function GreenHouseOverview() {
               </h3>
             </li>
             <div className="pl-4">
-              {envCntrlStates.map((cntrl)=>{
+              {envCntrlStates.map((cntrl, index) => {
                 return (
-                  <li>
-                  <span className="font-bold">{cntrl.type} </span>
-                  <span>
-                    {cntrl.state  === "on" ? (
-                      <span className="text-green-500">On</span>
-                    ) : (
-                      <span className="text-red-500">Off</span>
-                    )}
-                  </span>
-                </li>
-                )
+                  <li key={`cntrl-${index}`}>
+                    <span className="font-bold">{cntrl.type} </span>
+                    <span>
+                      {cntrl.state === "on" ? (
+                        <span className="text-green-500">On</span>
+                      ) : (
+                        <span className="text-red-500">Off</span>
+                      )}
+                    </span>
+                  </li>
+                );
               })}
-
-
             </div>
           </div>
         </div>

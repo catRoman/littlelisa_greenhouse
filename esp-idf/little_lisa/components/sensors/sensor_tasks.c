@@ -301,6 +301,11 @@ void sensor_prepare_to_send_task(void *pvParameters)
             esp_now_comm_get_config_reciever_mac_addr(queue_packet->mac_addr);
             // trigger_panic();
 
+            // char *log_string = create_sensor_data_json(event->sensor_data);
+            // ESP_LOGE(SENSOR_EVENT_TAG, "before esp_now%s", log_string);
+            // free(log_string);
+            // log_string = NULL;
+
             extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
             if (xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS)
             {

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   GreenHouseViewState,
   UpdateSubMenu,
@@ -6,13 +6,28 @@ import {
 import UpdateListButton from "./updateSubMenu/UpdateListButton";
 import { GreenHouseContext } from "../../../../../context/GreenHouseContextProvider";
 import PlantInfoSubMenu from "./updateSubMenu/plot/PlantInfoSubMenu";
-import Clear from "./updateSubMenu/Clear";
 import ControlPanelClearContextProvider from "../../../../../context/ControlPanelClearContext";
+import Clear from "./updateSubMenu/Clear";
+import NodeSubMenu from "./updateSubMenu/plot/NodeSubMenu";
 
 export default function Update() {
   const { viewState } = useContext(GreenHouseContext);
-  const [isSelectedSubMenu, setSelectedSubMenu] =
-    useState<string>("Plant Info");
+
+  const [isSelectedSubMenu, setSelectedSubMenu] = useState<string>();
+
+  useEffect(() => {
+    switch (viewState) {
+      case GreenHouseViewState.GreenHouse:
+        setSelectedSubMenu("Greenhouse");
+        break;
+      case GreenHouseViewState.Zone:
+        setSelectedSubMenu("Zone");
+        break;
+      case GreenHouseViewState.Plot:
+        setSelectedSubMenu("Plant Info");
+        break;
+    }
+  }, [viewState]);
 
   let subMenu = <></>;
 
@@ -41,7 +56,7 @@ export default function Update() {
       subMenu = <PlantInfoSubMenu />;
       break;
     case UpdateSubMenu.Nodes:
-      subMenu = <div className="pl-4">hello nodes</div>;
+      subMenu = <NodeSubMenu />;
       break;
     case UpdateSubMenu.Sensors:
       subMenu = <div className="pl-4">hello sensors</div>;
