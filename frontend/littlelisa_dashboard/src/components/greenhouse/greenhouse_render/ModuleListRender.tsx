@@ -44,7 +44,6 @@ export default function ModuleListRender({
   }
 
   if (nodes) {
-    console.log(`(${squareId.x},${squareId.y} ) - `, nodes);
     return (
       <>
         {nodes.map((node, index) => {
@@ -52,11 +51,11 @@ export default function ModuleListRender({
           let node_y = -1;
 
           if (node.zn_rel_pos) {
-            node_x = node.zn_rel_pos.x - 1;
-            node_y = node.zn_rel_pos.y - 1;
+            node_x = node.zn_rel_pos.x;
+            node_y = node.zn_rel_pos.y;
           } else if (node.square_pos) {
-            node_x = node.square_pos.x - 1;
-            node_y = node.square_pos.y - 1;
+            node_x = node.square_pos.x;
+            node_y = node.square_pos.y;
           }
           let boxSides = 0.1;
           const nodeId = index + 1;
