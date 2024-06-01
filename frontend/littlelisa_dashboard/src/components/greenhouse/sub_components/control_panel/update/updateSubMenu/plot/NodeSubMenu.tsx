@@ -84,12 +84,22 @@ export default function NodeSubMenu() {
     setErrors(newErrors);
     setUpdateCheck(!updateCheck);
     if (valid) {
+      if (fetchedGreenhouseData && nodeForm.selectedAddNode) {
+        const add_node_mac =
+          fetchedGreenhouseData.zones[selectedZoneNumber].nodes[
+            nodeForm.selectedAddNode
+          ];
+      }
       const nodeData = new FormData();
 
       nodeData.append("add_node_id", nodeForm.selectedAddNode);
       nodeData.append("remove_node_id", nodeForm.selectedRemoveNode);
       nodeData.append("new_tag", nodeForm.newNodeTag);
       nodeData.append("new_tag_id", nodeForm.selectedTagNode);
+
+      if (fetchedGreenhouseData && nodeForm.selectedAddNode !== "") {
+        nodeData.append("add_node_mac");
+      }
 
       console.log(nodeForm);
 
