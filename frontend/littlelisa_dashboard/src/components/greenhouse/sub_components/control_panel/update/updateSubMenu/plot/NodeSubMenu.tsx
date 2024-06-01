@@ -84,12 +84,15 @@ export default function NodeSubMenu() {
     setErrors(newErrors);
     setUpdateCheck(!updateCheck);
     if (valid) {
-      if (fetchedGreenhouseData && nodeForm.selectedAddNode) {
-        const add_node_mac =
-          fetchedGreenhouseData.zones[selectedZoneNumber].nodes[
-            nodeForm.selectedAddNode
-          ];
-      }
+      // if (fetchedGreenhouseData && nodeForm.selectedAddNode) {
+      //   const add_node_mac =
+      //     fetchedGreenhouseData.zones[selectedZoneNumber].nodes[
+      //       nodeForm.selectedAddNode
+      //     ];
+      // }
+
+      //parse serialized data
+
       const nodeData = new FormData();
 
       nodeData.append("add_node_id", nodeForm.selectedAddNode);
@@ -97,16 +100,16 @@ export default function NodeSubMenu() {
       nodeData.append("new_tag", nodeForm.newNodeTag);
       nodeData.append("new_tag_id", nodeForm.selectedTagNode);
 
-      if (fetchedGreenhouseData && nodeForm.selectedAddNode !== "") {
-        nodeData.append("add_node_mac");
-      }
+      // if (fetchedGreenhouseData && nodeForm.selectedAddNode !== "") {
+      //   nodeData.append("add_node_mac");
+      // }
 
       console.log(nodeForm);
 
       const updateSquare = async () => {
         try {
           const response = await fetch(
-            `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot?.square_db_id}/nodeUpdate`,
+            `/api/users/${userId}/greenhouses/${greenhouseId}/zones/${fetchedGreenhouseData?.zones[selectedZoneNumber].zone_id}/squares/${selectedPlot?.square_db_id}/nodeUpdate`,
             {
               method: "PUT",
               body: nodeData,
@@ -130,8 +133,9 @@ export default function NodeSubMenu() {
           });
         }
       };
-
-      updateSquare();
+      if (fetchedGreenhouseData) {
+        updateSquare();
+      }
     } else {
       console.log(errors);
     }
@@ -204,7 +208,7 @@ export default function NodeSubMenu() {
             return (
               <option
                 key={`unassignedNode-option-${index}`}
-                value={`${node.node_id}`}
+                value={`${node.node_id}-${node.module_id}-${selectedPlot?.col}-${selectedPlot?.row}`}
               >
                 {`${node.location} (${node.module_id})`}
               </option>
@@ -233,7 +237,7 @@ export default function NodeSubMenu() {
               return (
                 <option
                   key={`currentNode-option-${index}`}
-                  value={`${node.node_id}`}
+                  value={`${node.node_id}-${node.module_id}-${selectedPlot?.col}-${selectedPlot?.row}`}
                 >
                   {`${node.location} (${node.module_id})`}
                 </option>
@@ -264,7 +268,7 @@ export default function NodeSubMenu() {
               return (
                 <option
                   key={`currentNode-option-${index}`}
-                  value={`${node.node_id}`}
+                  value={`${node.node_id}-${node.module_id}-${selectedPlot?.col}-${selectedPlot?.row}`}
                 >
                   {`${node.location} (${node.module_id})`}
                 </option>
@@ -286,7 +290,8 @@ export default function NodeSubMenu() {
               placeholder={
                 currentNodes?.find(
                   (node) =>
-                    node.node_id === Number(nodeForm.newNodeTag) || "new tag",
+                    node.node_id === Number(nodeForm.selectedTagNode) ||
+                    "new tag",
                 )?.location
               }
             ></input>
