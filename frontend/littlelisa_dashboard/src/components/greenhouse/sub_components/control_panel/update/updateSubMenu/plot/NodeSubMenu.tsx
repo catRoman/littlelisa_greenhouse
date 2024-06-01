@@ -64,8 +64,20 @@ export default function NodeSubMenu() {
     const newErrors = { nodeForm: "" };
 
     let valid = true;
-    if (nodeForm.selectedAddNode === "" && nodeForm.selectedRemoveNode === "") {
+    if (
+      nodeForm.selectedAddNode === "" &&
+      nodeForm.selectedRemoveNode === "" &&
+      nodeForm.newNodeTag === ""
+    ) {
       newErrors.nodeForm = "Must make a change for node to update...";
+      valid = false;
+    }
+    if (nodeForm.selectedTagNode !== "" && nodeForm.newNodeTag === "") {
+      newErrors.nodeForm = "Tag cannot be empty...";
+      valid = false;
+    }
+    if (nodeForm.selectedTagNode === "" && nodeForm.newNodeTag !== "") {
+      newErrors.nodeForm = "Must select node to change tag...";
       valid = false;
     }
 
@@ -73,11 +85,14 @@ export default function NodeSubMenu() {
     setUpdateCheck(!updateCheck);
     if (valid) {
       const nodeData = new FormData();
+
       nodeData.append("add_node_id", nodeForm.selectedAddNode);
       nodeData.append("remove_node_id", nodeForm.selectedRemoveNode);
+      nodeData.append("new_tag", nodeForm.newNodeTag);
+      nodeData.append("new_tag_id", nodeForm.selectedTagNode);
 
-      console.log(nodeForm.selectedAddNode);
-      console.log(unassignedNodeList);
+      console.log(nodeForm);
+
       const updateSquare = async () => {
         try {
           const response = await fetch(
@@ -146,6 +161,9 @@ export default function NodeSubMenu() {
                 Cancel
               </button>
             </div>
+          )}
+          {errors.nodeForm && (
+            <h5 className="  text-xs text-red-300">{errors.nodeForm}</h5>
           )}
           {!errors.nodeForm && !updateCheck && (
             <h5 className="  text-xs text-purple-300">
