@@ -17,5 +17,6 @@ router.get("/:zoneId/sensors/chart", sensorController.getZoneChartData);
 router.get("/:zoneId/eventLog", eventLogController.getAllEventsByParentId);
 router.use("/:zoneId/notes", noteRoutes);
 router.put("/:zoneId/emptyAll", squareController.emptyAll);
+router.use("/:zoneId/squares", squareRoutes);
 
 export default router;
