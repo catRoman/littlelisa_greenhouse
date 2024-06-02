@@ -9,6 +9,8 @@
 #include "esp_ota_ops.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
+#include "esp_http_client.h"
+#include "wifi_ap_sta.h"
 
 // my components
 #include "DHT22.h"
@@ -27,6 +29,7 @@
 #include "helper.h"
 #include "env_cntrl.h"
 #include "cJSON.h"
+#include "mdns.h"
 
 #include "task_common.h"
 
@@ -248,6 +251,30 @@ void register_http_server_handlers(void)
         .handler = env_state_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &env_state_update);
+
+    // enviro cntrl update handler
+    httpd_uri_t proxyNodeUpdate = {
+        .uri = "/api/updateNode",
+        .method = HTTP_PUT,
+        .handler = proxyUpdatehandler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &proxyNodeUpdate);
+
+    // enviro cntrl update handler
+    httpd_uri_t nodeUpdatePos = {
+        .uri = "/api/updateNodePos",
+        .method = HTTP_PUT,
+        .handler = update_node_pos,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &nodeUpdatePos);
+
+    // enviro cntrl update handler
+    httpd_uri_t nodeUpdateTag = {
+        .uri = "/api/updateNodeTag",
+        .method = HTTP_PUT,
+        .handler = update_node_tag,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &nodeUpdateTag);
 }
 // static debug landing page content serve
 
@@ -992,5 +1019,304 @@ esp_err_t env_get_state_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, current_state, HTTPD_RESP_USE_STRLEN);
     free(current_state);
+    return ESP_OK;
+}
+
+esp_err_t proxyUpdatehandler(httpd_req_t *req)
+{
+
+    char end_point[32], mac_addr[32], x_pos[4], y_pos[4], new_tag[32], zone_num[4];
+    char urlBuff[100], host_name_buff[50];
+
+    if (httpd_req_get_hdr_value_str(req, "Node-Mac-Addr", mac_addr, sizeof(mac_addr)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Mac-Addr: %s", mac_addr);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Mac-Addr not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive mac addr from header");
+        return ESP_FAIL;
+    }
+
+    if (httpd_req_get_hdr_value_str(req, "Node-Update-Endpoint", end_point, sizeof(end_point)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Update-Endpoint: %s", end_point);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Update-Endpoint not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive end point from header");
+        return ESP_FAIL;
+    }
+    // query_mdns_services();
+
+    snprintf(host_name_buff, sizeof(host_name_buff), "littlelisa-node-%s", mac_addr);
+    char ip_addr[30];
+    mdns_result_t *results = NULL;
+    esp_err_t mdnsErr = mdns_query_ptr("_http", "_tcp", 500, 10, &results);
+    if (mdnsErr)
+    {
+        ESP_LOGE(HTTP_HANDLER_TAG, "Query failed: %s", esp_err_to_name(mdnsErr));
+        return ESP_FAIL;
+    }
+
+    if (!results)
+    {
+        ESP_LOGW(HTTP_HANDLER_TAG, "No results found!");
+        return ESP_FAIL;
+    }
+
+    mdns_result_t *r = results;
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "count: %d", results->txt_count);
+    int found = false;
+    while (r)
+    {
+        if (r->addr == NULL)
+        {
+
+            ESP_LOGI(HTTP_HANDLER_TAG, "null address issue... could not find node");
+            r = r->next;
+        }
+        else
+        {
+
+            char ip_str[INET_ADDRSTRLEN];
+            inet_ntoa_r(r->addr->addr.u_addr.ip4, ip_str, sizeof(ip_str));
+            ESP_LOGI(HTTP_HANDLER_TAG, "Service: %s, Host: %s, IP: %s, Port: %u",
+                     r->instance_name, r->hostname, ip_str, r->port);
+
+            if (strcmp(r->hostname, host_name_buff) == 0)
+            {
+                ESP_LOGI(HTTP_HANDLER_TAG, "hostname found ip-> %s", ip_str);
+                found = true;
+                strcpy(ip_addr, ip_str);
+                break;
+            }
+            else
+            {
+                r = r->next;
+            }
+        }
+    }
+    if (found == false)
+    {
+        ESP_LOGD(HTTP_HANDLER_TAG, "couldnt find mdns... node may be offline");
+        return ESP_FAIL;
+    }
+    // make url
+    snprintf(urlBuff, sizeof(urlBuff), "http://%s:80/api/%s", ip_addr, end_point);
+    ESP_LOGI(HTTP_HANDLER_TAG, "url created: %s", urlBuff);
+    esp_http_client_config_t config = {
+        .url = urlBuff, // Replace with the actual URL
+        .method = HTTP_METHOD_PUT,
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    if (strcmp(end_point, "updateNodePos") == 0)
+    {
+        if (httpd_req_get_hdr_value_str(req, "Node-Zone-Num", zone_num, sizeof(zone_num)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Zone-Num: %s", zone_num);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Zone-Num not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Zone-Num from header");
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Node-Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X: %s", x_pos);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-X from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Node-Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y: %s", x_pos);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-Y from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        esp_http_client_set_header(client, "Node-Zone-Num", zone_num);
+        esp_http_client_set_header(client, "Node-Pos-Y", y_pos);
+        esp_http_client_set_header(client, "Node-Pos-X", x_pos);
+    }
+    else if (strcmp(end_point, "updateNodeTag") == 0)
+    {
+        if (httpd_req_get_hdr_value_str(req, "Node-New-Tag", new_tag, sizeof(new_tag)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-New-Tag: %s", new_tag);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Node-New-Tag not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-New-Tag from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+
+        // send data to cluient wait for reponse
+
+        esp_http_client_set_header(client, "Node-New-Tag", new_tag);
+    }
+    else
+    {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "unknown end point from header");
+        return ESP_FAIL;
+    }
+
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "HTTP PUT Status = %d",
+                 esp_http_client_get_status_code(client));
+
+        const char *resp = "Proxy request successful";
+        httpd_resp_send(req, resp, strlen(resp));
+    }
+    else
+    {
+        ESP_LOGE(HTTP_HANDLER_TAG, "HTTP PUT request failed: %s", esp_err_to_name(err));
+        httpd_resp_send_500(req);
+        esp_http_client_cleanup(client);
+        return ESP_FAIL;
+    }
+
+    // Clean up
+    esp_http_client_cleanup(client);
+
+    // Send response
+    const char resp[] = "update data  successfully";
+    httpd_resp_send(req, resp, strlen(resp));
+
+    return ESP_OK;
+}
+
+esp_err_t update_node_pos(httpd_req_t *req)
+{
+    char x_pos[4], y_pos[4], zone_num[4];
+
+    if (httpd_req_get_hdr_value_str(req, "Node-Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X: %s", x_pos);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-X from header");
+        return ESP_FAIL;
+    }
+    if (httpd_req_get_hdr_value_str(req, "Node-Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y: %s", y_pos);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-Y from header");
+        return ESP_FAIL;
+    }
+    if (httpd_req_get_hdr_value_str(req, "Node-Zone-Num", zone_num, sizeof(zone_num)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Zone-Num: %s", zone_num);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Zone-Numnot found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Zone-Num from header");
+        return ESP_FAIL;
+    }
+
+    int xPos = atoi(x_pos);
+    int yPos = atoi(y_pos);
+    int zoneNum = atoi(zone_num);
+
+    if (xPos == 0 || yPos == 0)
+    {
+
+        module_info_gt->square_pos[0] = -1;
+        module_info_gt->square_pos[1] = -1;
+        module_info_gt->zn_rel_pos[0] = 0;
+        module_info_gt->zn_rel_pos[1] = 0;
+        module_info_gt->zn_rel_pos[2] = 0;
+        module_info_gt->zone_num = 0;
+    }
+    else
+    {
+        module_info_gt->square_pos[0] = xPos;
+        module_info_gt->square_pos[1] = yPos;
+
+        module_info_gt->zn_rel_pos[0] = -1;
+        module_info_gt->zn_rel_pos[1] = -1;
+        module_info_gt->zn_rel_pos[2] = -1;
+
+        module_info_gt->zone_num = zoneNum;
+    }
+
+    nvs_set_module(
+        module_info_gt->greenhouse_id,
+        module_info_gt->zone_num,
+        module_info_gt->square_pos,
+        module_info_gt->zn_rel_pos,
+        module_info_gt->type,
+        module_info_gt->location,
+        module_info_gt->identity);
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "module location updated from http->nvs updated");
+    const char resp[] = "module location updated from http->nvs updated";
+    httpd_resp_send(req, resp, strlen(resp));
+
+    return ESP_OK;
+}
+
+esp_err_t update_node_tag(httpd_req_t *req)
+{
+    char new_tag[32];
+
+    if (httpd_req_get_hdr_value_str(req, "Node-New-Tag", new_tag, sizeof(new_tag)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-New-Tag: %s", new_tag);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Node-New-Tag not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-New-Tag from header");
+        return ESP_FAIL;
+    }
+
+    free(module_info_gt->location);
+    module_info_gt->location = (char *)malloc(sizeof(char) * (1 + strlen(new_tag)));
+
+    if (module_info_gt->location == NULL)
+    {
+        ESP_LOGD(HTTP_HANDLER_TAG, "Memory allocation failed setting new tag\n");
+        return ESP_ERR_NO_MEM;
+    }
+    strcpy(module_info_gt->location, new_tag);
+
+    nvs_set_module(
+        module_info_gt->greenhouse_id,
+        module_info_gt->zone_num,
+        module_info_gt->square_pos,
+        module_info_gt->zn_rel_pos,
+        module_info_gt->type,
+        module_info_gt->location,
+        module_info_gt->identity);
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "module tag updated from http->nvs updated");
+    const char resp[] = "module tag updated from http->nvs updated";
+    httpd_resp_send(req, resp, strlen(resp));
+
     return ESP_OK;
 }

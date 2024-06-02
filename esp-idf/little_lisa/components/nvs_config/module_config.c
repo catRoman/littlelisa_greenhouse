@@ -638,8 +638,21 @@ void initiate_config()
 
         esp_now_comm_start();
         vTaskDelay(pdMS_TO_TICKS(10000));
-        initiate_sensor_queue();
-        ESP_ERROR_CHECK(initiate_sensor_tasks());
+        total_local_sensors = 0;
+        for (int i = 0; i < SENSOR_LIST_TOTAL; i++)
+        {
+                total_local_sensors += module_info_gt->sensor_arr[i];
+        }
+        if (total_local_sensors > 0)
+        {
+
+                initiate_sensor_queue();
+                initiate_sensor_tasks();
+        }
+        else
+        {
+                ESP_LOGW(TAG, "No sensors Found");
+        }
         // ESP_LOGW(TAG, "ota upload succesful~");
 }
 

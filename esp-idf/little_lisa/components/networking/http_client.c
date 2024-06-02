@@ -189,7 +189,7 @@ void post_sensor_data_backend(const char *sensor_json)
     // printf("%s\n", sensor_json);
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, sensor_json, strlen(sensor_json));
-    int retries = 0;
+    // int retries = 0;
     // do
     //{
     esp_err_t err = esp_http_client_perform(client);

@@ -55,6 +55,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
             esp_wifi_deauth_sta(new_device->aid);
             ESP_LOGI(WIFI_TAG, "station joined to module ap- deauthenticated for ota propgated update");
         }
+        // query_mdns_services();
         break;
 
     case WIFI_EVENT_AP_STADISCONNECTED:
@@ -433,13 +434,41 @@ esp_err_t mdns_start()
     }
 
     char service_instance[50];
-    strcpy(service_instance, mdns_host_name);
-
-    remaining_space = sizeof(service_instance) - strlen(service_instance) - 1;
-    strncat(service_instance, " Debug Web Server", remaining_space);
+    strcpy(service_instance, "littlelisa-api");
 
     mdns_service_instance_name_set("_http", "_tcp", service_instance);
-    ESP_LOGI("mdns", "%s running", service_instance);
+    ESP_LOGI("mdns", " %s running", service_instance);
 
     return ESP_OK;
+}
+void query_mdns_services()
+{
+    ESP_LOGI("mDNS", "Querying mDNS services...");
+
+    mdns_result_t *results = NULL;
+    esp_err_t err = mdns_query_ptr("_http", "_tcp", 1000, 10, &results);
+    if (err)
+    {
+        ESP_LOGE("mDNS", "Query failed: %s", esp_err_to_name(err));
+        return;
+    }
+
+    if (!results)
+    {
+        ESP_LOGW("mDNS", "No results found!");
+        return;
+    }
+
+    mdns_result_t *r = results;
+    while (r)
+    {
+        char ip_str[INET_ADDRSTRLEN];                                  // Buffer to hold the string IP address
+        inet_ntoa_r(r->addr->addr.u_addr.ip4, ip_str, sizeof(ip_str)); // Convert to string
+
+        ESP_LOGI("mDNS", "Service: %s, Host: %s, IP: %s, Port: %u",
+                 r->instance_name, r->hostname, ip_str, r->port);
+        r = r->next;
+    }
+
+    mdns_query_results_free(results);
 }
