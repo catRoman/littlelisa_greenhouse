@@ -1,69 +1,37 @@
 import { json } from "express";
 import nodeRepo from "../repos/nodeRepo.js";
 
-const updateNode = async (
-  selectedAddNode,
-  selectedRemoveNode,
-  selectedTagNode,
-  newNodeTag,
-  zoneId,
-  squareId
-) => {
+function parseForm(formDataString) {
+  console.log(formDataString);
+  const parts = formDataString.split("-");
+
+  if (parts.length !== 4) {
+    throw new Error("Input string does not match the expected format: ");
+  }
+
+  const result = {
+    node_id: parts[0],
+    mac_addr: parts[1].replace(/:/g, "-"),
+    x_pos: parts[2],
+    y_pos: parts[3],
+  };
+  console.log("ok");
+  return result;
+}
+
+const updateNodeTag = async (selectedNode, newNodeTag, zoneId, squareId) => {
   try {
-    //make json
-    const updateData = {};
+    const updateData = parseForm(selectedNode);
 
-    function parseForm(formDataString) {
-      console.log(formDataString);
-      const parts = formDataString.split("-");
-
-      if (parts.length !== 4) {
-        throw new Error("Input string does not match the expected format: ");
-      }
-
-      const result = {
-        node_id: parts[0],
-        mac_addr: parts[1],
-        x_pos: parts[2],
-        y_pos: parts[3],
-      };
-      console.log("ok");
-      return result;
-    }
-
-    if (!selectedAddNode) {
-      updateData["add_node_data"] = 0;
-    } else {
-      console.log("add");
-      const addNodeData = parseForm(selectedAddNode);
-      updateData["add_node_data"] = addNodeData;
-    }
-    if (!selectedRemoveNode) {
-      updateData["remove_node_data"] = 0;
-    } else {
-      const removeNodeData = parseForm(selectedRemoveNode);
-      updateData["remove_node_data"] = removeNodeData;
-    }
-    if (!selectedTagNode) {
-      updateData["tag_node_data"] = 0;
-    } else {
-      console.log("tag");
-      const tagNodeData = parseForm(selectedTagNode);
-      updateData["tag_node_data"] = tagNodeData;
-      updateData["new_node_tag"] = newNodeTag;
-    }
-    updateData["zone_id"] = zoneId;
-
-    console.log(updateData);
-
-    const proxyControllerPut = async () => {
+    const proxyControllerPut = async (updateData) => {
       try {
         const response = await fetch("http://10.0.0.86/api/updateNode", {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
+            "Node-Mac-Addr": updateData.mac_addr,
+            "Node-Update-Endpoint": "updateNodeTag",
+            "Node-New-Tag": newNodeTag,
           },
-          body: JSON.stringify(updateData),
         });
         // Check if the response is ok
         if (!response.ok) {
@@ -73,6 +41,65 @@ const updateNode = async (
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
+        console.log(result);
+        return response;
+      } catch (error) {
+        console.error("Error from modules:", error);
+      }
+    };
+    const proxiedResponse = await proxyControllerPut(updateData);
+
+    if (proxiedResponse.ok) {
+      await nodeRepo.updateNodeTag(tagNodeData.node_id, newNodeTag);
+      await eventLogRepo.addEvent(
+        "Node",
+        "Updated",
+        `node tag changed to ${newNodeTag}`,
+        greenhouseId,
+        zoneId,
+        squareId,
+        tagNodeData.node_id,
+        null,
+        null
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateNodePos = async (type, selectedNode, zoneId, squareId) => {
+  try {
+    //make json
+
+    const nodeData = parseForm(selectedNode);
+    if (type === "remove") {
+      nodeData.x_pos = 0;
+      nodeData.y_pos = 0;
+    }
+    console.log(nodeData);
+
+    const proxyControllerPut = async () => {
+      try {
+        const response = await fetch("http://10.0.0.86/api/updateNode", {
+          method: "PUT",
+
+          headers: {
+            "Node-Mac-Addr": nodeData.mac_addr,
+            "Node-Update-Endpoint": "updateNodePos",
+            "Node-Pos-X": nodeData.x_pos,
+            "Node-Pos-Y": nodeData.y_pos,
+            "Node-Zone-Num": zoneId - 1,
+          },
+        });
+        // Check if the response is ok
+        if (!response.ok) {
+          // Try to read the response as text to get more information about the error
+          const errorText = await response.text();
+          console.error("Error response text:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.text();
         console.log(result);
         return response;
       } catch (error) {
@@ -92,8 +119,8 @@ const updateNode = async (
       // moduleId,
       // sensorId,
       // note_id
-      if (selectedAddNode) {
-        await nodeRepo.updateNodeBySquareId(selectedAddNode, squareId, zoneId);
+      if (type === "add") {
+        await nodeRepo.updateNodeBySquareId(nodeData.node_id, squareId, zoneId);
         await eventLogRepo.addEvent(
           "Node",
           "Updated",
@@ -101,15 +128,14 @@ const updateNode = async (
           greenhouseId,
           zoneId,
           squareId,
-          selectedAddNode,
+          nodeData.node_id,
           null,
           null
         );
-      }
-      if (selectedRemoveNode) {
+      } else if (nodeData === "remove") {
         const emptyPosition = [0, 0, 0];
         //pos,
-        await nodeRepo.updateNodeByZnRelPos(emptyPosition, selectedRemoveNode);
+        await nodeRepo.updateNodeByZnRelPos(emptyPosition, nodeData.node_id);
         await eventLogRepo.addEvent(
           "Node",
           "Removed",
@@ -117,31 +143,20 @@ const updateNode = async (
           greenhouseId,
           zoneId,
           squareId,
-          selectedRemoveNode,
-          null,
-          null
-        );
-      }
-      if (selectedTagNode) {
-        await nodeRepo.updateNodeTag(selectedTagNode, newNodeTag);
-        await eventLogRepo.addEvent(
-          "Node",
-          "Updated",
-          `node tag changed to ${newNodeTag}`,
-          greenhouseId,
-          zoneId,
-          squareId,
-          selectedTagNode,
+          nodeData.node_id,
           null,
           null
         );
       }
     }
+
+    return proxiedResponse;
   } catch (error) {
     console.log(error);
   }
 };
 
 export default {
-  updateNode,
+  updateNodePos,
+  updateNodeTag,
 };
