@@ -9,6 +9,7 @@ import PlantInfoSubMenu from "./updateSubMenu/plot/PlantInfoSubMenu";
 import ControlPanelClearContextProvider from "../../../../../context/ControlPanelClearContext";
 import Clear from "./updateSubMenu/Clear";
 import NodeSubMenu from "./updateSubMenu/plot/NodeSubMenu";
+import SensorSubMenu from "./updateSubMenu/plot/SensorSubMenu";
 
 export default function Update() {
   const { viewState } = useContext(GreenHouseContext);
@@ -59,7 +60,7 @@ export default function Update() {
       subMenu = <NodeSubMenu />;
       break;
     case UpdateSubMenu.Sensors:
-      subMenu = <div className="pl-4">hello sensors</div>;
+      subMenu = <SensorSubMenu />;
       break;
     case UpdateSubMenu.Sprinklers:
       subMenu = <div className="pl-4">hello sprinklers</div>;
