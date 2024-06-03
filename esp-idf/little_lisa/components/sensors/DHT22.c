@@ -101,8 +101,8 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	sensor_data_t *data_packet = (sensor_data_t *)malloc(sizeof(sensor_data_t));
 	if (data_packet != NULL)
 	{
-		data_packet->greenhouse_id = module_info_gt->greenhouse_id;
-		data_packet->zone_num = module_info_gt->zone_num;
+		// data_packet->greenhouse_id = module_info_gt->greenhouse_id;
+		// data_packet->zone_num = module_info_gt->zone_num;
 		data_packet->pin_number = sensor_t->pin_number;
 		data_packet->total_values = 2;
 		data_packet->local_sensor_id = sensor_t->local_sensor_id;

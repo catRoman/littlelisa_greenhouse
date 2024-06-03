@@ -31,7 +31,7 @@ class NodeRepo extends BaseRepo {
   }
   async updateNodeTag(module_id, tag) {
     const query = await this.query(
-      `update modules 
+      `update modules
         set
           location = $1,
           where module_id = $2
@@ -43,25 +43,43 @@ class NodeRepo extends BaseRepo {
   }
 
   async updateNodeByZnRelPos(zn_rel_pos, module_id, zone_id) {
-    connectToDatabase();
     try {
       await db.query("BEGIN");
-
+      console.log(zn_rel_pos[0]);
+      console.log(zn_rel_pos[1]);
+      console.log(zn_rel_pos[2]);
+      console.log(module_id);
+      console.log(zone_id);
       const res1 = await db.query(
         `
-      insert into zn_rel_pos 
-      set x_pos = $1, y_pos = $2, z_pos = $3 
-      returning *`,
-        [zn_rel_pos[0], zn_rel_pos[1], zn_rel_pos[2]]
+        WITH existing_row AS (
+            SELECT zn_rel_pos_id
+            FROM zn_rel_pos
+            WHERE zone_id = $1 AND x_pos = $2 AND y_pos = $3 AND z_pos = $4
+        ),
+        inserted_row AS (
+            INSERT INTO zn_rel_pos(zone_id, x_pos, y_pos, z_pos)
+            SELECT $1, $2, $3, $4
+            WHERE NOT EXISTS (SELECT 1 FROM existing_row)
+            RETURNING zn_rel_pos_id
+        )
+        SELECT zn_rel_pos_id
+        FROM inserted_row
+        UNION ALL
+        SELECT zn_rel_pos_id
+        FROM existing_row;
+      `,
+        [zone_id, zn_rel_pos[0], zn_rel_pos[1], zn_rel_pos[2]]
       );
 
-      const zn_rel_pos_id = res1.rows[0].id;
+      const zn_rel_pos_id = res1.rows[0].zn_rel_pos_id;
+      console.log(`znrel_pos_id: ${zn_rel_pos_id}`);
 
       await db.query(
         `
-      update squares
+      update modules
       set
-        square_pos = null,
+        square_id = null,
         zn_rel_pos_id = $1,
         zone_id = $2
         where module_id = $3
@@ -74,8 +92,6 @@ class NodeRepo extends BaseRepo {
     } catch (error) {
       await db.query("rollback");
       console.error("updated module by zn_rel_pos rolled back:", error);
-    } finally {
-      db.release();
     }
   }
 
@@ -83,7 +99,7 @@ class NodeRepo extends BaseRepo {
     const query = await this.query(
       `update modules
       set
-        zn_rel_pos_id = null,
+        zn_rel_pos_id = NULL,
         square_id = $1,
         zone_id = $2
         where module_id = $3

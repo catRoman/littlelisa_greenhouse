@@ -577,7 +577,7 @@ void initiate_config()
                 module_info_gt = create_module_from_NVS();
         }
         ESP_LOGI(TAG, "{==env state==}\n%s\n", env_state_arr_json(total_relays));
-        ESP_LOGI(TAG, "{==nvs info==}\n%s\n", node_info_get_module_info_json());
+        ESP_LOGI(TAG, "{==nvs info==}\n%s\n", node_info_get_module_info_json(module_info_gt));
         // Start Wifi
         vTaskDelay(pdMS_TO_TICKS(500));
         wifi_start();

@@ -43,7 +43,7 @@ export default function NodeSubMenu() {
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const { name, value } = event.target;
-    console.log(`name: ${name} value:${value}`);
+    //console.log(`name: ${name} value:${value}`);
     setNodeForm({ ...nodeForm, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
@@ -51,7 +51,7 @@ export default function NodeSubMenu() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
-    console.log(`name: ${name} value:${value}`);
+    //console.log(`name: ${name} value:${value}`);
     setNodeForm({ ...nodeForm, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };

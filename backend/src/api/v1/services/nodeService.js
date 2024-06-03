@@ -1,5 +1,6 @@
 import { json } from "express";
 import nodeRepo from "../repos/nodeRepo.js";
+import eventLogRepo from "../repos/eventLogRepo.js";
 
 function parseForm(formDataString) {
   console.log(formDataString);
@@ -19,7 +20,7 @@ function parseForm(formDataString) {
   return result;
 }
 
-const updateNodeTag = async (selectedNode, newNodeTag, zoneId, squareId) => {
+const updateNodeTag = async (selectedNode, newNodeTag) => {
   try {
     const updateData = parseForm(selectedNode);
 
@@ -50,6 +51,7 @@ const updateNodeTag = async (selectedNode, newNodeTag, zoneId, squareId) => {
     const proxiedResponse = await proxyControllerPut(updateData);
 
     if (proxiedResponse.ok) {
+      console.log("event added for update node Tag");
       await nodeRepo.updateNodeTag(tagNodeData.node_id, newNodeTag);
       await eventLogRepo.addEvent(
         "Node",
@@ -68,7 +70,13 @@ const updateNodeTag = async (selectedNode, newNodeTag, zoneId, squareId) => {
   }
 };
 
-const updateNodePos = async (type, selectedNode, zoneId, squareId) => {
+const updateNodePos = async (
+  type,
+  selectedNode,
+  zoneId,
+  squareId,
+  greenhouseId
+) => {
   try {
     //make json
 
@@ -120,6 +128,7 @@ const updateNodePos = async (type, selectedNode, zoneId, squareId) => {
       // sensorId,
       // note_id
       if (type === "add") {
+        console.log("event added for add node");
         await nodeRepo.updateNodeBySquareId(nodeData.node_id, squareId, zoneId);
         await eventLogRepo.addEvent(
           "Node",
@@ -132,10 +141,11 @@ const updateNodePos = async (type, selectedNode, zoneId, squareId) => {
           null,
           null
         );
-      } else if (nodeData === "remove") {
+      } else if (type === "remove") {
+        console.log("event added for node removal");
         const emptyPosition = [0, 0, 0];
         //pos,
-        await nodeRepo.updateNodeByZnRelPos(emptyPosition, nodeData.node_id);
+        await nodeRepo.updateNodeByZnRelPos(emptyPosition, nodeData.node_id, 1);
         await eventLogRepo.addEvent(
           "Node",
           "Removed",

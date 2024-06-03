@@ -98,8 +98,9 @@ export default function Update() {
       <div className="row-start-2 mt-2 h-36 overflow-y-auto ">
         <ul className="ml-4 flex flex-col gap-1 border-r-2 ">
           {Object.values(subMenuMap[viewState as GreenHouseViewState]).map(
-            (item) => (
+            (item, index) => (
               <UpdateListButton
+                key={`updateList-${index}`}
                 isSelectedSubMenu={isSelectedSubMenu}
                 subMenuHandler={subMenuHandler}
               >

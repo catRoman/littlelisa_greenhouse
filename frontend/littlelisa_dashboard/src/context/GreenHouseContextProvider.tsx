@@ -171,9 +171,10 @@ export default function GreenHouseContextProvider({
     if (fetchedGreenhouseData?.zones[0].sensors) {
       fetchedGreenhouseData.zones[0].sensors.forEach((sensor) => {
         if (
-          sensor.zn_rel_pos?.x === -1 &&
-          sensor.zn_rel_pos?.y === -1 &&
-          sensor.zn_rel_pos?.z === -1
+          sensor.zn_rel_pos &&
+          sensor.zn_rel_pos?.x <= 0 &&
+          sensor.zn_rel_pos?.y <= 0 &&
+          sensor.zn_rel_pos?.z <= 0
         ) {
           addUnassignedSensor(sensor);
         }
@@ -182,9 +183,10 @@ export default function GreenHouseContextProvider({
     if (fetchedGreenhouseData?.zones[0].nodes) {
       fetchedGreenhouseData.zones[0].nodes.forEach((node) => {
         if (
-          node.zn_rel_pos?.x === -1 &&
-          node.zn_rel_pos?.y === -1 &&
-          node.zn_rel_pos?.z === -1
+          node.zn_rel_pos &&
+          node.zn_rel_pos?.x <= 0 &&
+          node.zn_rel_pos?.y <= 0 &&
+          node.zn_rel_pos?.z <= 0
         ) {
           addUnassignedNode(node);
         }

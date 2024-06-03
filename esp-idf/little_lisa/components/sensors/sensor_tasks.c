@@ -242,6 +242,16 @@ void sensor_preprocessing_task(void *pvParameters)
             // heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
             // TODO:check values are within range if not send to cleanup
             // sensor_validation();
+
+            // assign dynamicaly changable global values
+            event->sensor_data->greenhouse_id = module_info_gt->greenhouse_id;
+            event->sensor_data->zone_num = module_info_gt->zone_num;
+            event->sensor_data->module_square_pos[0] = module_info_gt->square_pos[0];
+            event->sensor_data->module_square_pos[1] = module_info_gt->square_pos[1];
+            event->sensor_data->module_zn_rel_pos[0] = module_info_gt->zn_rel_pos[0];
+            event->sensor_data->module_zn_rel_pos[1] = module_info_gt->zn_rel_pos[1];
+            event->sensor_data->module_zn_rel_pos[2] = module_info_gt->zn_rel_pos[2];
+
             if (strcmp(module_info_gt->type, "node") == 0)
             {
                 event->nextEventID = SENSOR_PREPARE_TO_SEND;

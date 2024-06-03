@@ -69,11 +69,9 @@ char *node_info_get_controller_sta_list_json(void)
     return json_string;
 }
 
-char *node_info_get_module_info_json(void)
+char *node_info_get_module_info_json(Module_info_t *module)
 {
     // name, type,location, sensor arr, sensor config arr
-
-    extern Module_info_t *module_info_gt;
 
     cJSON *root = cJSON_CreateObject();
     cJSON *module_info = cJSON_CreateObject();
@@ -82,39 +80,39 @@ char *node_info_get_module_info_json(void)
     cJSON *square_pos = cJSON_CreateObject();
     cJSON *zn_rel_pos = cJSON_CreateObject();
 
-    cJSON_AddStringToObject(module_info, "type", module_info_gt->type);
-    cJSON_AddStringToObject(module_info, "location", module_info_gt->location);
-    cJSON_AddStringToObject(module_info, "identifier", module_info_gt->identity);
-    cJSON_AddNumberToObject(module_info, "greenhouse_id", module_info_gt->greenhouse_id);
-    cJSON_AddNumberToObject(module_info, "zone_num", module_info_gt->zone_num);
+    cJSON_AddStringToObject(module_info, "type", module->type);
+    cJSON_AddStringToObject(module_info, "location", module->location);
+    cJSON_AddStringToObject(module_info, "identifier", module->identity);
+    cJSON_AddNumberToObject(module_info, "greenhouse_id", module->greenhouse_id);
+    cJSON_AddNumberToObject(module_info, "zone_num", module->zone_num);
     cJSON_AddItemToObject(module_info, "square_pos", square_pos);
-    cJSON_AddNumberToObject(square_pos, "x", module_info_gt->square_pos[0]);
-    cJSON_AddNumberToObject(square_pos, "y", module_info_gt->square_pos[1]);
+    cJSON_AddNumberToObject(square_pos, "x", module->square_pos[0]);
+    cJSON_AddNumberToObject(square_pos, "y", module->square_pos[1]);
 
     cJSON_AddItemToObject(module_info, "zn_rel_pos", zn_rel_pos);
-    cJSON_AddNumberToObject(zn_rel_pos, "x", module_info_gt->zn_rel_pos[0]);
-    cJSON_AddNumberToObject(zn_rel_pos, "y", module_info_gt->zn_rel_pos[1]);
-    cJSON_AddNumberToObject(zn_rel_pos, "z", module_info_gt->zn_rel_pos[2]);
+    cJSON_AddNumberToObject(zn_rel_pos, "x", module->zn_rel_pos[0]);
+    cJSON_AddNumberToObject(zn_rel_pos, "y", module->zn_rel_pos[1]);
+    cJSON_AddNumberToObject(zn_rel_pos, "z", module->zn_rel_pos[2]);
 
     cJSON_AddItemToObject(root, "module_info", module_info);
 
     for (Sensor_List sensor = DHT22; sensor < SENSOR_LIST_TOTAL; sensor++)
     {
-        cJSON *sensors[module_info_gt->sensor_arr[sensor]];
-        cJSON *square_pos_list[module_info_gt->sensor_arr[sensor]];
-        cJSON *zn_rel_pos_list[module_info_gt->sensor_arr[sensor]];
+        cJSON *sensors[module->sensor_arr[sensor]];
+        cJSON *square_pos_list[module->sensor_arr[sensor]];
+        cJSON *zn_rel_pos_list[module->sensor_arr[sensor]];
         switch (sensor)
         {
         case DHT22:
             cJSON *dht22_sensor_info = cJSON_CreateObject();
             cJSON_AddItemToObject(sensor_list, "DHT22", dht22_sensor_info);
-            cJSON_AddNumberToObject(dht22_sensor_info, "total_sensors", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(dht22_sensor_info, "total_sensors", module->sensor_arr[sensor]);
 
-            if (module_info_gt->sensor_arr[sensor] > 0)
+            if (module->sensor_arr[sensor] > 0)
             {
 
                 //     {
-                for (int i = 0; i < module_info_gt->sensor_arr[sensor]; i++)
+                for (int i = 0; i < module->sensor_arr[sensor]; i++)
                 {
                     sensors[i] = cJSON_CreateObject();
                     square_pos_list[i] = cJSON_CreateObject();
@@ -123,37 +121,37 @@ char *node_info_get_module_info_json(void)
                     snprintf(sensor_name_buff, sizeof(sensor_name_buff), "sensor_%d", (i + 1));
                     cJSON_AddItemToObject(dht22_sensor_info, sensor_name_buff, sensors[i]);
 
-                    cJSON_AddStringToObject(sensors[i], "location", module_info_gt->sensor_config_arr[sensor]->sensor_loc_arr[i + 1]);
-                    cJSON_AddNumberToObject(sensors[i], "pin", module_info_gt->sensor_config_arr[sensor]->sensor_pin_arr[i + 1]);
+                    cJSON_AddStringToObject(sensors[i], "location", module->sensor_config_arr[sensor]->sensor_loc_arr[i + 1]);
+                    cJSON_AddNumberToObject(sensors[i], "pin", module->sensor_config_arr[sensor]->sensor_pin_arr[i + 1]);
 
                     cJSON_AddItemToObject(sensors[i], "square_pos", square_pos_list[i]);
-                    cJSON_AddNumberToObject(square_pos_list[i], "x", module_info_gt->sensor_config_arr[sensor]->square_pos[i + 1][0]);
-                    cJSON_AddNumberToObject(square_pos_list[i], "y", module_info_gt->sensor_config_arr[sensor]->square_pos[i + 1][1]);
+                    cJSON_AddNumberToObject(square_pos_list[i], "x", module->sensor_config_arr[sensor]->square_pos[i + 1][0]);
+                    cJSON_AddNumberToObject(square_pos_list[i], "y", module->sensor_config_arr[sensor]->square_pos[i + 1][1]);
 
                     cJSON_AddItemToObject(sensors[i], "zn_rel_pos", zn_rel_pos_list[i]);
-                    cJSON_AddNumberToObject(zn_rel_pos_list[i], "x", module_info_gt->sensor_config_arr[sensor]->zn_rel_pos[i + 1][0]);
-                    cJSON_AddNumberToObject(zn_rel_pos_list[i], "y", module_info_gt->sensor_config_arr[sensor]->zn_rel_pos[i + 1][1]);
-                    cJSON_AddNumberToObject(zn_rel_pos_list[i], "z", module_info_gt->sensor_config_arr[sensor]->zn_rel_pos[i + 1][2]);
+                    cJSON_AddNumberToObject(zn_rel_pos_list[i], "x", module->sensor_config_arr[sensor]->zn_rel_pos[i + 1][0]);
+                    cJSON_AddNumberToObject(zn_rel_pos_list[i], "y", module->sensor_config_arr[sensor]->zn_rel_pos[i + 1][1]);
+                    cJSON_AddNumberToObject(zn_rel_pos_list[i], "z", module->sensor_config_arr[sensor]->zn_rel_pos[i + 1][2]);
                 }
             }
             break;
         case SOIL_MOISTURE:
-            cJSON_AddNumberToObject(sensor_list, "soil_moisture", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(sensor_list, "soil_moisture", module->sensor_arr[sensor]);
             break;
         case LIGHT:
-            cJSON_AddNumberToObject(sensor_list, "light", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(sensor_list, "light", module->sensor_arr[sensor]);
             break;
         case SOUND:
-            cJSON_AddNumberToObject(sensor_list, "sound", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(sensor_list, "sound", module->sensor_arr[sensor]);
             break;
         case MOVEMENT:
-            cJSON_AddNumberToObject(sensor_list, "movement", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(sensor_list, "movement", module->sensor_arr[sensor]);
             break;
         case CAMERA:
-            cJSON_AddNumberToObject(sensor_list, "cam", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(sensor_list, "cam", module->sensor_arr[sensor]);
             break;
         default:
-            cJSON_AddNumberToObject(sensor_list, "unknown", module_info_gt->sensor_arr[sensor]);
+            cJSON_AddNumberToObject(sensor_list, "unknown", module->sensor_arr[sensor]);
             break;
         }
     }
@@ -166,14 +164,14 @@ char *node_info_get_module_info_json(void)
     // {
     //     // cJSON *sensor_type_list = cJSON_CreateObject();
 
-    //     if (module_info_gt->sensor_arr[sensor] > 0)
+    //     if (module->sensor_arr[sensor] > 0)
     //     {
 
     //         sensor_type_pin_list = cJSON_CreateObject();
-    //         for (int i = 1; i <= module_info_gt->sensor_arr[sensor]; i++)
+    //         for (int i = 1; i <= module->sensor_arr[sensor]; i++)
     //         {
-    //             cJSON_AddNumberToObject(sensor_type_pin_list, module_info_gt->sensor_config_arr[sensor]->sensor_loc_arr[i],
-    //                                     module_info_gt->sensor_config_arr[sensor]->sensor_pin_arr[i]);
+    //             cJSON_AddNumberToObject(sensor_type_pin_list, module->sensor_config_arr[sensor]->sensor_loc_arr[i],
+    //                                     module->sensor_config_arr[sensor]->sensor_pin_arr[i]);
     //         }
 
     //         cJSON_AddItemToObject(root, sensor_type_to_string(sensor), sensor_type_pin_list);

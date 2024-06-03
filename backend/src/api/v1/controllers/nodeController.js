@@ -20,7 +20,8 @@ const updateNode = async (req, res) => {
           "add",
           add_node_id[0],
           req.params.zoneId,
-          req.params.squareId
+          req.params.squareId,
+          req.params.greenhouseId
         )
       );
     }
@@ -30,20 +31,14 @@ const updateNode = async (req, res) => {
           "remove",
           remove_node_id[0],
           req.params.zoneId,
-          req.params.squareId
+          req.params.squareId,
+          req.params.greenhouseId
         )
       );
     }
     //selectedNode, newNodeTag, zoneId, squareId
     if (new_tag_id[0]) {
-      response.push(
-        await nodeService.updateNodePos(
-          new_tag_id[0],
-          new_tag[0],
-          req.params.zoneId,
-          req.params.squareId
-        )
-      );
+      response.push(await nodeService.updateNodeTag(new_tag_id[0], new_tag[0]));
     }
 
     const [addResponse, removeResponse, updateResponse] = await Promise.all(
