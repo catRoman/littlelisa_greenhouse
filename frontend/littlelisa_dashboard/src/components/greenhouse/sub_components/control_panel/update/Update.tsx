@@ -51,7 +51,7 @@ export default function Update() {
       subMenu = <div className="pl-4">hello controller</div>;
       break;
     case UpdateSubMenu.GlobalSensors:
-      subMenu = <div className="pl-4">hello global sensors</div>;
+      subMenu = <SensorSubMenu moduleType={"controller"} />;
       break;
     case UpdateSubMenu.PlantInfo:
       subMenu = <PlantInfoSubMenu />;
@@ -60,7 +60,7 @@ export default function Update() {
       subMenu = <NodeSubMenu />;
       break;
     case UpdateSubMenu.Sensors:
-      subMenu = <SensorSubMenu />;
+      subMenu = <SensorSubMenu moduleType={"node"} />;
       break;
     case UpdateSubMenu.Sprinklers:
       subMenu = <div className="pl-4">hello sprinklers</div>;
@@ -102,7 +102,7 @@ export default function Update() {
             (item, index) => (
               <UpdateListButton
                 key={`updateList-${index}`}
-                isSelectedSubMenu={isSelectedSubMenu}
+                isSelectedSubMenu={isSelectedSubMenu!}
                 subMenuHandler={subMenuHandler}
               >
                 {item}

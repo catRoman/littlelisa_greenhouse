@@ -1,15 +1,18 @@
 import { useContext, useEffect, useState } from "react";
 import { GreenHouseContext } from "../../../../../../../context/GreenHouseContextProvider";
-import { Node, Sensor } from "../../../../../../../../types/common";
+import { Sensor } from "../../../../../../../../types/common";
 
-export default function SensorSubMenu() {
+type SensorSubMenuProps = {
+  moduleType: string;
+};
+
+export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
   const {
     selectedPlot,
     selectedZoneNumber,
     setRefreshGreenhouseData,
     refreshGreenhouseData,
     fetchedGreenhouseData,
-    unassignedNodeList,
     unassignedSensorList,
   } = useContext(GreenHouseContext);
 
@@ -29,6 +32,10 @@ export default function SensorSubMenu() {
     selectedRemoveSensor: "",
     selectedSensorTag: "",
     newSensorTag: "",
+    x_pos: "",
+    y_pos: "",
+    z_pos: "",
+    updateType: "",
   };
 
   const [errors, setErrors] = useState({
@@ -43,16 +50,32 @@ export default function SensorSubMenu() {
     //loop through unassigned sensors
     //if list of zones contains unassigned sensors
     //add to list of currentzoneunassigned sensors
-
-    const zoneNodeList = fetchedGreenhouseData?.zones[
-      selectedZoneNumber
-    ].nodes?.map((node) => node.module_id);
-    setZoneUnassignedSensors(
-      unassignedSensorList.filter((sensor) =>
-        zoneNodeList?.includes(sensor.module_id),
-      ),
-    );
-  }, [unassignedSensorList, selectedZoneNumber, fetchedGreenhouseData]);
+    let zoneNodeList: string[] | undefined = [];
+    if (moduleType === "node") {
+      zoneNodeList = fetchedGreenhouseData?.zones[
+        selectedZoneNumber
+      ].nodes?.map((node) => node.module_id);
+      setZoneUnassignedSensors(
+        unassignedSensorList.filter((sensor) =>
+          zoneNodeList?.includes(sensor.module_id),
+        ),
+      );
+    } else {
+      zoneNodeList = fetchedGreenhouseData?.controllers?.map(
+        (controller) => controller.module_id,
+      );
+      setZoneUnassignedSensors(
+        unassignedSensorList.filter((sensor) =>
+          zoneNodeList?.includes(sensor.module_id),
+        ),
+      );
+    }
+  }, [
+    unassignedSensorList,
+    moduleType,
+    selectedZoneNumber,
+    fetchedGreenhouseData,
+  ]);
 
   useEffect(() => {
     setCurrentSensors(
@@ -87,14 +110,41 @@ export default function SensorSubMenu() {
     event.preventDefault();
 
     const newErrors = { sensorForm: "" };
+    const isOnlyOneSelected = () => {
+      const { selectedAddSensor, selectedRemoveSensor, selectedSensorTag } =
+        sensorForm;
+      const nonEmptyFields = [
+        selectedAddSensor,
+        selectedRemoveSensor,
+        selectedSensorTag,
+      ].filter((field) => field !== "");
+      return nonEmptyFields.length === 1;
+    };
 
     let valid = true;
+
     if (
       sensorForm.selectedAddSensor === "" &&
       sensorForm.selectedRemoveSensor === "" &&
       sensorForm.newSensorTag === ""
     ) {
       newErrors.sensorForm = "Must make a change for sensor to update...";
+      valid = false;
+    }
+    if (
+      moduleType === "controller" &&
+      sensorForm.selectedAddSensor &&
+      (Number(sensorForm.x_pos) < 1 ||
+        Number(sensorForm.y_pos) < 1 ||
+        Number(sensorForm.z_pos) < 1)
+    ) {
+      newErrors.sensorForm = "Coordinate cannot be less than one...";
+      valid = false;
+    }
+
+    if (!isOnlyOneSelected()) {
+      newErrors.sensorForm =
+        "can only update one sensor option at a to update...";
       valid = false;
     }
     if (sensorForm.selectedSensorTag !== "" && sensorForm.newSensorTag === "") {
@@ -118,12 +168,19 @@ export default function SensorSubMenu() {
 
       //parse serialized data
 
+      const selectedSensor = [
+        sensorForm.selectedAddSensor,
+        sensorForm.selectedRemoveSensor,
+        sensorForm.selectedSensorTag,
+      ].filter((field) => field !== "")[0];
       const sensorData = new FormData();
 
-      sensorData.append("add_sensor_id", sensorForm.selectedAddSensor);
-      sensorData.append("remove_sensor_id", sensorForm.selectedRemoveSensor);
+      sensorData.append("sensor_id", selectedSensor);
+      sensorData.append("type", sensorForm.updateType);
       sensorData.append("new_tag", sensorForm.newSensorTag);
-      sensorData.append("new_tag_id", sensorForm.selectedSensorTag);
+      sensorData.append("x_pos", sensorForm.x_pos);
+      sensorData.append("y_pos", sensorForm.y_pos);
+      sensorData.append("z_pos", sensorForm.x_pos);
 
       // if (fetchedGreenhouseData && nodeForm.selectedAddNode !== "") {
       //   nodeData.append("add_node_mac");
@@ -131,15 +188,18 @@ export default function SensorSubMenu() {
 
       console.log(sensorForm);
 
-      const updateSquare = async () => {
+      const updateSquare = async (selectedSensor: string) => {
         try {
-          const response = await fetch(
-            `/api/users/${userId}/greenhouses/${greenhouseId}/zones/${fetchedGreenhouseData?.zones[selectedZoneNumber].zone_id}/squares/${selectedPlot?.square_db_id}/sensorUpdate`,
-            {
-              method: "PUT",
-              body: sensorData,
-            },
-          );
+          let url;
+          if (moduleType === "controller") {
+            url = `/api/users/${userId}/greenhouses/${greenhouseId}/sensors/${selectedSensor}/update`;
+          } else {
+            url = `/api/users/${userId}/greenhouses/${greenhouseId}/zones/${fetchedGreenhouseData?.zones[selectedZoneNumber].zone_id}/squares/${selectedPlot?.square_db_id}/sensors/${selectedSensor}/update`;
+          }
+          const response = await fetch(url, {
+            method: "PUT",
+            body: sensorData,
+          });
 
           if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -160,13 +220,17 @@ export default function SensorSubMenu() {
             selectedRemoveSensor: "",
             selectedSensorTag: "",
             newSensorTag: "",
+            x_pos: "",
+            y_pos: "",
+            z_pos: "",
+            updateType: "",
           });
           isUpdating(false);
         }
       };
       if (fetchedGreenhouseData) {
         isUpdating(true);
-        updateSquare();
+        updateSquare(selectedSensor);
       }
     } else {
       console.log(errors);
@@ -242,13 +306,51 @@ export default function SensorSubMenu() {
             return (
               <option
                 key={`unassignedSensor-option-${index}`}
-                value={`${sensor.sensor_id}-${sensor.module_id}-${selectedPlot?.col}-${selectedPlot?.row}`}
+                value={`${sensor.sensor_id}`}
               >
                 {`${sensor.location} (${sensor.module_id})`}
               </option>
             );
           })}
         </select>
+        {sensorForm.selectedAddSensor && moduleType === "controller" && (
+          <div className="col-span-2 flex">
+            <label id="x_pos">
+              x pos:
+              <input
+                name="x_pos"
+                id="x_pos"
+                value={sensorForm.x_pos}
+                className="mt-1  w-[40%] rounded-md pl-2"
+                onChange={inputSensorChangeHandler}
+                placeholder={"0"}
+              ></input>
+            </label>
+            <label id="y_pos">
+              y pos:
+              <input
+                name="y_pos"
+                id="y_pos"
+                value={sensorForm.y_pos}
+                className="mt-1 w-[40%] rounded-md pl-2"
+                onChange={inputSensorChangeHandler}
+                placeholder={"0"}
+              ></input>
+            </label>
+            <label id="z_pos">
+              z pos:
+              <input
+                name="z_pos"
+                id="z_pos"
+                value={sensorForm.z_pos}
+                className="mt-1 w-[40%] rounded-md pl-2"
+                onChange={inputSensorChangeHandler}
+                placeholder={"0"}
+              ></input>
+            </label>
+          </div>
+        )}
+
         <label htmlFor="removeSensor" id="removeSensor">
           Remove Sensor:
         </label>
@@ -271,7 +373,7 @@ export default function SensorSubMenu() {
               return (
                 <option
                   key={`currentSensor-option-${index}`}
-                  value={`${sensor.sensor_id}-${sensor.module_id}-${selectedPlot?.col}-${selectedPlot?.row}`}
+                  value={`${sensor.sensor_id}`}
                 >
                   {`${sensor.location} (${sensor.module_id})`}
                 </option>
@@ -302,7 +404,7 @@ export default function SensorSubMenu() {
               return (
                 <option
                   key={`currentNode-option-${index}`}
-                  value={`${sensor.sensor_id}-${sensor.module_id}-${selectedPlot?.col}-${selectedPlot?.row}`}
+                  value={`${sensor.sensor_id}`}
                 >
                   {`${sensor.location} (id: ${sensor.module_id})`}
                 </option>
@@ -310,6 +412,7 @@ export default function SensorSubMenu() {
             })
           )}
         </select>
+
         {sensorForm.selectedSensorTag && (
           <>
             <label className="pl-4" id="newSensorTag">
