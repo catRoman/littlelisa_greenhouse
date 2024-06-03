@@ -168,6 +168,7 @@ export default function GreenHouseContextProvider({
 
   useEffect(() => {
     console.log("data fetched: ", fetchedGreenhouseData);
+    setUnassignedNodeList([]);
     if (fetchedGreenhouseData?.zones[0].sensors) {
       fetchedGreenhouseData.zones[0].sensors.forEach((sensor) => {
         if (

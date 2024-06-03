@@ -38,7 +38,15 @@ const updateNode = async (req, res) => {
     }
     //selectedNode, newNodeTag, zoneId, squareId
     if (new_tag_id[0]) {
-      response.push(await nodeService.updateNodeTag(new_tag_id[0], new_tag[0]));
+      response.push(
+        await nodeService.updateNodeTag(
+          new_tag_id[0],
+          new_tag[0],
+          req.params.greenhouseId,
+          req.params.zoneId,
+          req.params.squareId
+        )
+      );
     }
 
     const [addResponse, removeResponse, updateResponse] = await Promise.all(

@@ -33,8 +33,8 @@ class NodeRepo extends BaseRepo {
     const query = await this.query(
       `update modules
         set
-          location = $1,
-          where module_id = $2
+          location = $1
+        where module_id = $2
         returning *`,
       [tag, module_id]
     );
@@ -95,7 +95,7 @@ class NodeRepo extends BaseRepo {
     }
   }
 
-  async updateNodeBySquareId(square_id, zone_id, module_id) {
+  async updateNodeBySquareId(module_id, square_id, zone_id) {
     const query = await this.query(
       `update modules
       set
@@ -106,6 +106,9 @@ class NodeRepo extends BaseRepo {
       returning *`,
       [square_id, zone_id, module_id]
     );
+    console.log(`zone_id: ${zone_id}`);
+    console.log(`square_id: ${square_id}`);
+    console.log(`module_id: ${module_id}`);
 
     return query[0] ? query[0] : null;
   }

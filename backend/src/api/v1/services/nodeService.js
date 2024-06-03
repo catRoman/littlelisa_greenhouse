@@ -20,7 +20,13 @@ function parseForm(formDataString) {
   return result;
 }
 
-const updateNodeTag = async (selectedNode, newNodeTag) => {
+const updateNodeTag = async (
+  selectedNode,
+  newNodeTag,
+  greenhouseId,
+  zoneId,
+  squareId
+) => {
   try {
     const updateData = parseForm(selectedNode);
 
@@ -41,7 +47,7 @@ const updateNodeTag = async (selectedNode, newNodeTag) => {
           console.error("Error response text:", errorText);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const result = await response.json();
+        const result = await response.text();
         console.log(result);
         return response;
       } catch (error) {
@@ -52,15 +58,15 @@ const updateNodeTag = async (selectedNode, newNodeTag) => {
 
     if (proxiedResponse.ok) {
       console.log("event added for update node Tag");
-      await nodeRepo.updateNodeTag(tagNodeData.node_id, newNodeTag);
+      await nodeRepo.updateNodeTag(updateData.node_id, newNodeTag);
       await eventLogRepo.addEvent(
         "Node",
         "Updated",
         `node tag changed to ${newNodeTag}`,
         greenhouseId,
-        zoneId,
-        squareId,
-        tagNodeData.node_id,
+        zoneId ? zoneId : null,
+        squareId ? squareId : null,
+        updateData.node_id,
         null,
         null
       );

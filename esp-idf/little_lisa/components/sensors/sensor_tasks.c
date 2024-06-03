@@ -252,6 +252,16 @@ void sensor_preprocessing_task(void *pvParameters)
             event->sensor_data->module_zn_rel_pos[1] = module_info_gt->zn_rel_pos[1];
             event->sensor_data->module_zn_rel_pos[2] = module_info_gt->zn_rel_pos[2];
 
+            free(event->sensor_data->module_location);
+            event->sensor_data->module_location = (char *)malloc(strlen(module_info_gt->location) + 1);
+            if (event->sensor_data->module_location == NULL)
+            {
+                ESP_LOGE(SENSOR_EVENT_TAG, "Failed to allocate mem for sensor event->sensor_data->location");
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+            }
+            strcpy(event->sensor_data->module_location, module_info_gt->location);
+
             if (strcmp(module_info_gt->type, "node") == 0)
             {
                 event->nextEventID = SENSOR_PREPARE_TO_SEND;
