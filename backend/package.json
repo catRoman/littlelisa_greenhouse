@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "dev:laptop": "NODE_ENV=laptop nodemon index.js",
+    "dev:shop": "NODE_ENV=shop nodemon index.js",
     "migrate": "node-pg-migrate"
   },
   "repository": {

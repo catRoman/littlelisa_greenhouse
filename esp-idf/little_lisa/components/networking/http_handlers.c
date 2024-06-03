@@ -428,6 +428,7 @@ esp_err_t get_dht_sensor_readings_json_handler(httpd_req_t *req)
 esp_err_t get_module_info_json_handler(httpd_req_t *req)
 {
 
+    extern Module_info_t *module_info_gt;
     ESP_LOGD(HTTP_HANDLER_TAG, "moduleInfo.json requested");
 
     // Add CORS headers to the response
@@ -435,7 +436,7 @@ esp_err_t get_module_info_json_handler(httpd_req_t *req)
     httpd_resp_set_hdr(req, "Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Headers", "Content-Type");
 
-    char *module_json_data = node_info_get_module_info_json();
+    char *module_json_data = node_info_get_module_info_json(module_info_gt);
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, module_json_data);
@@ -1238,11 +1239,13 @@ esp_err_t update_node_pos(httpd_req_t *req)
         return ESP_FAIL;
     }
 
+    ESP_LOGI(HTTP_HANDLER_TAG, "x_pos: %s, y_pos: %s", x_pos, y_pos);
     int xPos = atoi(x_pos);
     int yPos = atoi(y_pos);
     int zoneNum = atoi(zone_num);
+    ESP_LOGI(HTTP_HANDLER_TAG, "xPos: %d, yPos: %d", xPos, yPos);
 
-    if (xPos == 0 || yPos == 0)
+    if (xPos <= 0 || yPos <= 0)
     {
 
         module_info_gt->square_pos[0] = -1;

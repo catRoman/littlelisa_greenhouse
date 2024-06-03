@@ -142,9 +142,9 @@ export default function ZoneOverview() {
             </h3>
           </li>
           <div className="pl-4">
-            {envCntrlStates.map((cntrl) => {
+            {envCntrlStates.map((cntrl, index) => {
               return (
-                <li>
+                <li key={`evn-cntrl-btn-${index}}`}>
                   <span className="font-bold">{cntrl.type} </span>
                   <span>
                     {cntrl.state === "on" ? (
