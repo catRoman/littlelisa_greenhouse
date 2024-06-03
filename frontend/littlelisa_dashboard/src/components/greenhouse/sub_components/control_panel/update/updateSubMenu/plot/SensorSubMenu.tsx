@@ -36,6 +36,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     y_pos: "",
     z_pos: "",
     updateType: "",
+    moduleMac: "",
+    localId: "",
   };
 
   const [errors, setErrors] = useState({
@@ -92,7 +94,25 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
   ) => {
     const { name, value } = event.target;
     //console.log(`name: ${name} value:${value}`);
-    setSensorForm({ ...sensorForm, [name]: value });
+    const values = value.split(",");
+    console.log(values);
+    let type = "";
+    if (name === "selectedAddSensor") {
+      type = "add";
+    } else if (name === "selectedRemoveSensor") {
+      type = "remove";
+    } else if (name === "selectedSensorTag") {
+      type = "tag";
+    }
+
+    setSensorForm({
+      ...sensorForm,
+      updateType: type,
+      [name]: values[0],
+      moduleMac: values[1],
+      localId: values[2],
+    });
+
     setErrors({ ...errors, [name]: "" });
   };
   const inputSensorChangeHandler = (
@@ -176,7 +196,10 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
       const sensorData = new FormData();
 
       sensorData.append("sensor_id", selectedSensor);
+      sensorData.append("local_id", sensorForm.localId);
+
       sensorData.append("type", sensorForm.updateType);
+      sensorData.append("module_mac", sensorForm.moduleMac);
       sensorData.append("new_tag", sensorForm.newSensorTag);
       sensorData.append("x_pos", sensorForm.x_pos);
       sensorData.append("y_pos", sensorForm.y_pos);
@@ -224,6 +247,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             y_pos: "",
             z_pos: "",
             updateType: "",
+            moduleMac: "",
+            localId: "",
           });
           isUpdating(false);
         }
@@ -306,7 +331,11 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             return (
               <option
                 key={`unassignedSensor-option-${index}`}
-                value={`${sensor.sensor_id}`}
+                value={[
+                  `${sensor.sensor_id}`,
+                  `${sensor.module_id}`,
+                  `${sensor.local_id}`,
+                ]}
               >
                 {`${sensor.location} (${sensor.module_id})`}
               </option>
@@ -373,7 +402,11 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
               return (
                 <option
                   key={`currentSensor-option-${index}`}
-                  value={`${sensor.sensor_id}`}
+                  value={[
+                    `${sensor.sensor_id}`,
+                    `${sensor.module_id}`,
+                    `${sensor.local_id}`,
+                  ]}
                 >
                   {`${sensor.location} (${sensor.module_id})`}
                 </option>
@@ -404,7 +437,11 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
               return (
                 <option
                   key={`currentNode-option-${index}`}
-                  value={`${sensor.sensor_id}`}
+                  value={[
+                    `${sensor.sensor_id}`,
+                    `${sensor.module_id}`,
+                    `${sensor.local_id}`,
+                  ]}
                 >
                   {`${sensor.location} (id: ${sensor.module_id})`}
                 </option>

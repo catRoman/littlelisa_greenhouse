@@ -1,6 +1,6 @@
 import { handleSensorData } from "../services/pg_db.js";
 import sensorService from "../services/sensorService.js";
-import { parseForm } from "./util/utility.js";
+import utility from "./util/utility.js";
 
 const sensorDataStream = async (req, res) => {
   try {
@@ -91,14 +91,20 @@ const update = async (req, res) => {
 
     console.log(`requested: ${req.originalUrl}`);
     console.log(
-      `greenhouse: ${greenhouseId} - zone: ${zoneId} - square: ${squareId} - sensor: ${sensorId} `
+      `greenhouse: ${greenhouseId} - zone: ${zoneId} - square: ${squareId} - sensor: ${sensorId}`
     );
 
     const { fields } = await utility.parseForm(req);
-    const { sensor_id, x_pos, y_pos, z_pos, new_tag, type } = fields;
+    const { sensor_id, x_pos, y_pos, z_pos, new_tag, type, module_mac } =
+      fields;
 
     if (!type || type[0] === "") {
       return res.status(400).json({ error: "No type submitted" });
+    }
+    if (!module_mac) {
+      return res
+        .status(400)
+        .json({ error: "no corresponding module mac address" });
     }
 
     let zn_rel_pos = null;
@@ -106,30 +112,32 @@ const update = async (req, res) => {
       zn_rel_pos = [x_pos[0], y_pos[0], z_pos[0]];
     }
 
-    console.log(type[0]);
+    console.log(`module_mac: ${module_mac[0]} type: ${type[0]}`);
     let response;
-    //selectedNode, newNodeTag, zoneId, squareId
-    // if (type[0] === "tag") {
-    //   response = await nodeService.updateNodeTag(
-    //     sensor_id[0],
-    //     new_tag[0],
-    //     req.params.greenhouseId,
-    //     req.params.zoneId,
-    //     req.params.squareId
-    //   );
-    // } else {
-    //   response = await sensorService.updatePos(
-    //     type,
-    //     zn_rel_pos,
-    //     sensor_id[0],
-    //     req.params.zoneId,
-    //     req.params.squareId,
-    //     req.params.greenhouseId
-    //   );
-    // }
 
-    res.status(200).json();
-    // res.json(response);
+    if (type[0] === "tag") {
+      response = await nodeService.updateTag(
+        module_mac[0],
+        sensorId,
+        new_tag[0],
+        greenhouseId,
+        zoneId,
+        squareId
+      );
+    } else {
+      response = await sensorService.updatePos(
+        module_mac[0],
+        type,
+        zn_rel_pos,
+        sensor_id,
+        zoneId,
+        squareId,
+        greenhouseId
+      );
+    }
+
+    // res.status(200).json();
+    res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
