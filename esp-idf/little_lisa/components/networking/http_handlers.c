@@ -1055,7 +1055,7 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
     snprintf(host_name_buff, sizeof(host_name_buff), "littlelisa-node-%s", mac_addr);
     char ip_addr[30];
     mdns_result_t *results = NULL;
-    esp_err_t mdnsErr = mdns_query_ptr("_http", "_tcp", 500, 10, &results);
+    esp_err_t mdnsErr = mdns_query_ptr("_http", "_tcp", 1000, 10, &results);
     if (mdnsErr)
     {
         ESP_LOGE(HTTP_HANDLER_TAG, "Query failed: %s", esp_err_to_name(mdnsErr));

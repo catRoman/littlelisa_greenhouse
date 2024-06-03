@@ -16,6 +16,7 @@ export default function NodeSubMenu() {
     fetchedGreenhouseData!;
 
   const [updateCheck, setUpdateCheck] = useState<boolean>(false);
+  const [updating, isUpdating] = useState<boolean>(false);
 
   const defaultNodeForm = {
     selectedAddNode: "",
@@ -124,6 +125,10 @@ export default function NodeSubMenu() {
           console.log(responseData);
         } catch (error) {
           console.log(error);
+          setErrors({
+            nodeForm:
+              "There was an error connecting to node. Please try again... ",
+          });
         } finally {
           setNodeForm({
             selectedAddNode: "",
@@ -131,9 +136,11 @@ export default function NodeSubMenu() {
             selectedTagNode: "",
             newNodeTag: "",
           });
+          isUpdating(false);
         }
       };
       if (fetchedGreenhouseData) {
+        isUpdating(true);
         updateSquare();
       }
     } else {
@@ -179,7 +186,7 @@ export default function NodeSubMenu() {
           {errors.nodeForm && (
             <h5 className="  text-xs text-red-300">{errors.nodeForm}</h5>
           )}
-          {!errors.nodeForm && !updateCheck && (
+          {!errors.nodeForm && !updateCheck && !updating && (
             <h5 className="  text-xs text-purple-300">
               Nodes added to network during set up will automatically become
               available apon data transmittion, node locations can be reassigned
@@ -188,6 +195,9 @@ export default function NodeSubMenu() {
           )}
           {updateCheck && (
             <p className="mt-1 text-sm text-green-500">Are you Sure?</p>
+          )}
+          {updating && (
+            <p className="mt-1 text-sm text-green-500">Updating...</p>
           )}
         </div>
 
