@@ -7,6 +7,7 @@ const router = Router({ mergeParams: true });
 router.param("sensorId", validateParamId("sensors"));
 
 router.get("/:sensorId/chart", sensorController.getChartData);
+router.put("/:sensorId/update", sensorController.update);
 router.get("/chart", sensorController.getGreenhouseChartData);
 router.post("/sensorStream", sensorController.sensorDataStream);
 

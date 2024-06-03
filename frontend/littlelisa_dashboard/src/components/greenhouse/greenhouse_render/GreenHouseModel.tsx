@@ -183,9 +183,11 @@ export default function GreenHouseModel() {
           )}
           {zones!.slice(1).map((zone) => {
             return (
-              <TransformControls key={`zone${zone.zone_number}`}>
-                <ZoneRender zone={zone} localZoneId={zone.zone_number} />
-              </TransformControls>
+              <ZoneRender
+                key={`zone${zone.zone_number}`}
+                zone={zone}
+                localZoneId={zone.zone_number}
+              />
             );
           })}
         </group>
