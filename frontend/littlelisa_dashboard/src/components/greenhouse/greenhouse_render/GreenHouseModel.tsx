@@ -1,6 +1,11 @@
 import { useContext, useEffect, useRef } from "react";
 import * as THREE from "three";
-import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
+import {
+  PresentationControls,
+  PerspectiveCamera,
+  TransformControls,
+} from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
@@ -22,6 +27,8 @@ export default function GreenHouseModel() {
     setCurrentCameraProperties,
     currentCameraProperties,
   } = useContext(GreenHouseContext);
+
+  const scene = useThree((state) => state.scene);
 
   useEffect(() => {
     if (selectedZoneNumber) {
@@ -176,11 +183,9 @@ export default function GreenHouseModel() {
           )}
           {zones!.slice(1).map((zone) => {
             return (
-              <ZoneRender
-                zone={zone}
-                key={`zone${zone.zone_number}`}
-                localZoneId={zone.zone_number}
-              />
+              <TransformControls key={`zone${zone.zone_number}`}>
+                <ZoneRender zone={zone} localZoneId={zone.zone_number} />
+              </TransformControls>
             );
           })}
         </group>

@@ -18,6 +18,8 @@ import { initalCameraProperties } from "../components/greenhouse/greenhouse_rend
 import { GreenHouseViewState } from "../../types/enums";
 export interface GreenHouseContextType {
   //state
+  translateZone: number | null;
+  setTranslateZone: (zone: number | null) => void;
   envCntrlStates: EnvState[];
   setEnvCntrlStates: (state: EnvState[]) => void;
   unassignedSensorList: Sensor[];
@@ -59,6 +61,8 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  translateZone: null,
+  setTranslateZone: () => {},
   envCntrlStates: [],
   setEnvCntrlStates: () => {},
   unassignedSensorList: [],
@@ -103,6 +107,8 @@ export default function GreenHouseContextProvider({
   const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>(
     [],
   );
+
+  const [translateZone, setTranslateZone] = useState<number | null>(null);
   const [unassignedNodeList, setUnassignedNodeList] = useState<Node[]>([]);
   const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
@@ -198,6 +204,8 @@ export default function GreenHouseContextProvider({
   return (
     <GreenHouseContext.Provider
       value={{
+        translateZone,
+        setTranslateZone,
         envCntrlStates,
         setEnvCntrlStates,
         unassignedNodeList,
