@@ -34,7 +34,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     newSensorTag: "",
     x_pos: "",
     y_pos: "",
-    z_pos: "",
+    z_pos: "-1",
     updateType: "",
     moduleMac: "",
     localId: "",
@@ -94,7 +94,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
       fetchedGreenhouseData?.zones[0].sensors?.filter((sensor) => {
         return (
           sensor.zn_rel_pos &&
-          sensor.zn_rel_pos?.x > 0 &&
+          sensor.zn_rel_pos.x > 0 &&
           sensor.zn_rel_pos.y > 0 &&
           sensor.zn_rel_pos.z > 0
         );
@@ -277,7 +277,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             newSensorTag: "",
             x_pos: "",
             y_pos: "",
-            z_pos: "",
+            z_pos: "-1",
             updateType: "",
             moduleMac: "",
             localId: "",
@@ -430,36 +430,12 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
           <option value="" disabled>
             Select sensor
           </option>
-          {moduleType === "node" ? (
-            !currentSensors || currentSensors?.length < 1 ? (
-              <option value="" disabled>
-                No sensors available
-              </option>
-            ) : (
-              currentSensors?.map((sensor, index) => {
-                return (
-                  <option
-                    key={`currentSensor-option-${index}`}
-                    value={[
-                      `${sensor.sensor_id}`,
-                      `${sensor.module_id}`,
-                      `${sensor.local_id}`,
-                      `${sensor.type}`,
-                      `${selectedPlot?.col}`,
-                      `${selectedPlot?.row}`,
-                    ]}
-                  >
-                    {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-                  </option>
-                );
-              })
-            )
-          ) : !currentGlobalSensors || currentGlobalSensors?.length < 1 ? (
+          {!currentSensors || currentSensors?.length < 1 ? (
             <option value="" disabled>
               No sensors available
             </option>
           ) : (
-            currentGlobalSensors?.map((sensor, index) => {
+            currentSensors?.map((sensor, index) => {
               return (
                 <option
                   key={`currentSensor-option-${index}`}
@@ -468,8 +444,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
                     `${sensor.module_id}`,
                     `${sensor.local_id}`,
                     `${sensor.type}`,
-                    `${sensor?.zn_rel_pos?.x}`,
-                    `${sensor?.zn_rel_pos?.y}`,
+                    `-1`,
+                    `-1`,
                   ]}
                 >
                   {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
@@ -492,46 +468,22 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
           <option value="" disabled>
             select sensor
           </option>
-          {moduleType === "node" ? (
-            !currentSensors || currentSensors?.length < 1 ? (
-              <option value="" disabled>
-                No sensors available
-              </option>
-            ) : (
-              currentSensors?.map((sensor, index) => {
-                return (
-                  <option
-                    key={`currentSensor-option-${index}`}
-                    value={[
-                      `${sensor.sensor_id}`,
-                      `${sensor.module_id}`,
-                      `${sensor.local_id}`,
-                      `${sensor.type}`,
-                      `${selectedPlot?.col}`,
-                      `${selectedPlot?.row}`,
-                    ]}
-                  >
-                    {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-                  </option>
-                );
-              })
-            )
-          ) : !currentGlobalSensors || currentGlobalSensors?.length < 1 ? (
+          {!currentSensors || currentSensors?.length < 1 ? (
             <option value="" disabled>
               No sensors available
             </option>
           ) : (
-            currentGlobalSensors?.map((sensor, index) => {
+            currentSensors?.map((sensor, index) => {
               return (
                 <option
-                  key={`currentSensor-option-${index}`}
+                  key={`currentNode-option-${index}`}
                   value={[
                     `${sensor.sensor_id}`,
                     `${sensor.module_id}`,
                     `${sensor.local_id}`,
                     `${sensor.type}`,
-                    `${sensor?.zn_rel_pos?.x}`,
-                    `${sensor?.zn_rel_pos?.y}`,
+                    `${selectedPlot?.col}`,
+                    `${selectedPlot?.row}`,
                   ]}
                 >
                   {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}

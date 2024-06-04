@@ -49,6 +49,7 @@ export default function SensorListRender({
         {sensors.map((sensor, index) => {
           let sensor_x;
           let sensor_y;
+
           if (sensor.zn_rel_pos) {
             sensor_x = sensor.zn_rel_pos.x;
             sensor_y = sensor.zn_rel_pos.y;

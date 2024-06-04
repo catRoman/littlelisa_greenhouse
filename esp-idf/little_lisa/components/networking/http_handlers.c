@@ -1630,7 +1630,7 @@ esp_err_t update_sensor_pos(httpd_req_t *req)
         module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][1] = 0;
         module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][2] = 0;
     }
-    else if (xPos > 0 && yPos > 0 && zPos < 0)
+    else if (xPos > 0 && yPos > 0 && zPos <= 0)
     {
 
         module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][0] = xPos;
