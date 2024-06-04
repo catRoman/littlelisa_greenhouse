@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { GreenHouseContext } from "../../../../../../../context/GreenHouseContextProvider";
 import { Sensor } from "../../../../../../../../types/common";
+import { GreenHouseViewState } from "../../../../../../../../types/enums";
 
 type SensorSubMenuProps = {
   moduleType: string;
@@ -14,6 +15,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     refreshGreenhouseData,
     fetchedGreenhouseData,
     unassignedSensorList,
+    viewState,
   } = useContext(GreenHouseContext);
 
   const { user_id: userId, greenhouse_id: greenhouseId } =
@@ -261,6 +263,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
           }
           const responseData = await response.json();
           setRefreshGreenhouseData(!refreshGreenhouseData);
+
           console.log(responseData);
         } catch (error) {
           console.log(error);
@@ -434,8 +437,26 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             <option value="" disabled>
               No sensors available
             </option>
-          ) : (
+          ) : viewState === GreenHouseViewState.Plot ? (
             currentSensors?.map((sensor, index) => {
+              return (
+                <option
+                  key={`currentSensor-option-${index}`}
+                  value={[
+                    `${sensor.sensor_id}`,
+                    `${sensor.module_id}`,
+                    `${sensor.local_id}`,
+                    `${sensor.type}`,
+                    `-1`,
+                    `-1`,
+                  ]}
+                >
+                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
+                </option>
+              );
+            })
+          ) : (
+            currentGlobalSensors?.map((sensor, index) => {
               return (
                 <option
                   key={`currentSensor-option-${index}`}
