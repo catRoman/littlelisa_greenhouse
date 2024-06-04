@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { GreenHouseContext } from "../../../../../../../context/GreenHouseContextProvider";
 import { Sensor } from "../../../../../../../../types/common";
 import { GreenHouseViewState } from "../../../../../../../../types/enums";
@@ -53,6 +53,12 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
   const [currentGlobalSensors, setCurrentGlobalSensors] = useState<Sensor[]>();
 
   useEffect(() => {
+    if (viewState === GreenHouseViewState.GreenHouse) {
+      setCurrentSensors(currentGlobalSensors);
+    }
+  }, [viewState, currentGlobalSensors, refreshGreenhouseData]);
+
+  useEffect(() => {
     //make list of zones nodes module_id
     //loop through unassigned sensors
     //if list of zones contains unassigned sensors
@@ -81,7 +87,9 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     unassignedSensorList,
     moduleType,
     selectedZoneNumber,
+    refreshGreenhouseData,
     fetchedGreenhouseData,
+    selectedPlot,
   ]);
 
   useEffect(() => {
@@ -103,6 +111,12 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
       }),
     );
   }, [fetchedGreenhouseData, selectedPlot, selectedZoneNumber]);
+
+  useEffect(() => {
+    setSensorForm({
+      ...defaultSensorForm,
+    });
+  }, [selectedPlot]);
 
   const selectSensorChangeHandler = (
     event: React.ChangeEvent<HTMLSelectElement>,
@@ -143,8 +157,6 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     setSensorForm({ ...sensorForm, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
-
-  useEffect(() => {}, [refreshGreenhouseData]);
 
   function sensorFormSubmitHandler(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -352,7 +364,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
         </div>
 
         <label htmlFor="addSensor" id="addSensor">
-          Add Sensor:
+          {moduleType === "controller" ? "Update/Add Sensor:" : "Add Sensor:"}
         </label>
         <select
           name="selectedAddSensor"
