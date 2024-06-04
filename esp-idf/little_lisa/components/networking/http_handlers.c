@@ -275,6 +275,21 @@ void register_http_server_handlers(void)
         .handler = update_node_tag,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server_handle, &nodeUpdateTag);
+
+    // enviro cntrl update handler
+    httpd_uri_t sensorUpdateTag = {
+        .uri = "/api/updateSensorTag",
+        .method = HTTP_PUT,
+        .handler = update_sensor_tag,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &sensorUpdateTag);
+
+    httpd_uri_t sensorUpdatePos = {
+        .uri = "/api/updateSensorPos",
+        .method = HTTP_PUT,
+        .handler = update_sensor_pos,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server_handle, &sensorUpdatePos);
 }
 // static debug landing page content serve
 
@@ -1026,8 +1041,8 @@ esp_err_t env_get_state_handler(httpd_req_t *req)
 esp_err_t proxyUpdatehandler(httpd_req_t *req)
 {
 
-    char end_point[32], mac_addr[32], x_pos[4], y_pos[4], new_tag[32], zone_num[4];
-    char urlBuff[100], host_name_buff[50];
+    char end_point[32], mac_addr[32], x_pos[4], y_pos[4], z_pos[4], new_tag[32], zone_num[4];
+    char urlBuff[100], host_name_buff[50], sensor_type[25], local_id[4];
 
     if (httpd_req_get_hdr_value_str(req, "Node-Mac-Addr", mac_addr, sizeof(mac_addr)) == ESP_OK)
     {
@@ -1040,13 +1055,13 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    if (httpd_req_get_hdr_value_str(req, "Node-Update-Endpoint", end_point, sizeof(end_point)) == ESP_OK)
+    if (httpd_req_get_hdr_value_str(req, "Update-Endpoint", end_point, sizeof(end_point)) == ESP_OK)
     {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Update-Endpoint: %s", end_point);
+        ESP_LOGI(HTTP_HANDLER_TAG, "Update-Endpoint: %s", end_point);
     }
     else
     {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Update-Endpoint not found");
+        ESP_LOGI(HTTP_HANDLER_TAG, "Update-Endpoint not found");
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive end point from header");
         return ESP_FAIL;
     }
@@ -1127,31 +1142,31 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
             httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Zone-Num from header");
             return ESP_FAIL;
         }
-        if (httpd_req_get_hdr_value_str(req, "Node-Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
+        if (httpd_req_get_hdr_value_str(req, "Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
         {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X: %s", x_pos);
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X: %s", x_pos);
         }
         else
         {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X not found");
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-X from header");
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-X from header");
             esp_http_client_cleanup(client);
             return ESP_FAIL;
         }
-        if (httpd_req_get_hdr_value_str(req, "Node-Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
+        if (httpd_req_get_hdr_value_str(req, "Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
         {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y: %s", x_pos);
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y: %s", y_pos);
         }
         else
         {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y not found");
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-Y from header");
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
             esp_http_client_cleanup(client);
             return ESP_FAIL;
         }
         esp_http_client_set_header(client, "Node-Zone-Num", zone_num);
-        esp_http_client_set_header(client, "Node-Pos-Y", y_pos);
-        esp_http_client_set_header(client, "Node-Pos-X", x_pos);
+        esp_http_client_set_header(client, "Pos-Y", y_pos);
+        esp_http_client_set_header(client, "Pos-X", x_pos);
     }
     else if (strcmp(end_point, "updateNodeTag") == 0)
     {
@@ -1170,6 +1185,123 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
         // send data to cluient wait for reponse
 
         esp_http_client_set_header(client, "Node-New-Tag", new_tag);
+
+        //===============================
+        //=================SENSOR UPDATE
+        //==============================
+    }
+    else if (strcmp(end_point, "updateSensorTag") == 0)
+    {
+        if (httpd_req_get_hdr_value_str(req, "Sensor-New-Tag", new_tag, sizeof(new_tag)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag: %s", new_tag);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-New-Tag from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Sensor-Type", sensor_type, sizeof(sensor_type)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type: %s", sensor_type);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Type from header");
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Sensor-Local-Id", local_id, sizeof(local_id)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id: %s", local_id);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Local-Id from header");
+            return ESP_FAIL;
+        }
+        // send data to cluient wait for reponse
+
+        esp_http_client_set_header(client, "Sensor-New-Tag", new_tag);
+        esp_http_client_set_header(client, "Sensor-Local-Id", local_id);
+        esp_http_client_set_header(client, "Sensor-Type", sensor_type);
+    }
+    else if (strcmp(end_point, "updateSensorPos") == 0)
+    {
+
+        if (httpd_req_get_hdr_value_str(req, "Sensor-New-Tag", new_tag, sizeof(new_tag)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag: %s", new_tag);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-New-Tag from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Sensor-Type", sensor_type, sizeof(sensor_type)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type: %s", sensor_type);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Type from header");
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Sensor-Local-Id", local_id, sizeof(local_id)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id: %s", local_id);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Local-Id from header");
+            return ESP_FAIL;
+        }
+
+        if (httpd_req_get_hdr_value_str(req, "Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X: %s", x_pos);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-X from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y: %s", y_pos);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        if (httpd_req_get_hdr_value_str(req, "Pos-Z", z_pos, sizeof(z_pos)) == ESP_OK)
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Z: %s", z_pos);
+        }
+        else
+        {
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
+            esp_http_client_cleanup(client);
+            return ESP_FAIL;
+        }
+        esp_http_client_set_header(client, "Pos-Y", y_pos);
+        esp_http_client_set_header(client, "Pos-X", x_pos);
+        esp_http_client_set_header(client, "Pos-Z", z_pos);
+        esp_http_client_set_header(client, "Sensor-Local-Id", local_id);
+        esp_http_client_set_header(client, "Sensor-Type", sensor_type);
     }
     else
     {
@@ -1208,24 +1340,24 @@ esp_err_t update_node_pos(httpd_req_t *req)
 {
     char x_pos[4], y_pos[4], zone_num[4];
 
-    if (httpd_req_get_hdr_value_str(req, "Node-Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
+    if (httpd_req_get_hdr_value_str(req, "Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
     {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X: %s", x_pos);
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X: %s", x_pos);
     }
     else
     {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-X not found");
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-X from header");
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-X from header");
         return ESP_FAIL;
     }
-    if (httpd_req_get_hdr_value_str(req, "Node-Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
+    if (httpd_req_get_hdr_value_str(req, "Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
     {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y: %s", y_pos);
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y: %s", y_pos);
     }
     else
     {
-        ESP_LOGI(HTTP_HANDLER_TAG, "Node-Pos-Y not found");
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Node-Pos-Y from header");
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
         return ESP_FAIL;
     }
     if (httpd_req_get_hdr_value_str(req, "Node-Zone-Num", zone_num, sizeof(zone_num)) == ESP_OK)
@@ -1319,6 +1451,229 @@ esp_err_t update_node_tag(httpd_req_t *req)
 
     ESP_LOGI(HTTP_HANDLER_TAG, "module tag updated from http->nvs updated");
     const char resp[] = "module tag updated from http->nvs updated";
+    httpd_resp_send(req, resp, strlen(resp));
+
+    return ESP_OK;
+}
+esp_err_t update_sensor_tag(httpd_req_t *req)
+{
+    char new_tag[32], local_id[4], sensor_type[25];
+    Sensor_List sensorType;
+
+    if (httpd_req_get_hdr_value_str(req, "Sensor-New-Tag", new_tag, sizeof(new_tag)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag: %s", new_tag);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive sensor-New-Tag from header");
+        return ESP_FAIL;
+    }
+    if (httpd_req_get_hdr_value_str(req, "Sensor-Local-Id", local_id, sizeof(local_id)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id: %s", local_id);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Local-Id from header");
+        return ESP_FAIL;
+    }
+    if (httpd_req_get_hdr_value_str(req, "Sensor-Type", sensor_type, sizeof(sensor_type)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type: %s", sensor_type);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Type from header");
+        return ESP_FAIL;
+    }
+    if (strcmp(sensor_type, "dht22") == 0)
+    {
+        sensorType = DHT22;
+    }
+    else if (strcmp(sensor_type, "soil_moisture") == 0)
+    {
+        sensorType = SOIL_MOISTURE;
+    }
+    else if (strcmp(sensor_type, "light") == 0)
+    {
+        sensorType = LIGHT;
+    }
+    else if (strcmp(sensor_type, "sound") == 0)
+    {
+        sensorType = SOUND;
+    }
+    else if (strcmp(sensor_type, "movement") == 0)
+    {
+        sensorType = MOVEMENT;
+    }
+    else
+    {
+        sensorType = CAMERA;
+    }
+
+    int8_t localId = (int8_t)atoi(local_id);
+
+    free(module_info_gt->sensor_config_arr[sensorType]->sensor_loc_arr[localId]);
+    module_info_gt->sensor_config_arr[sensorType]->sensor_loc_arr[localId] = (char *)malloc(sizeof(char) * (1 + strlen(new_tag)));
+
+    if (module_info_gt->sensor_config_arr[sensorType]->sensor_loc_arr[localId] == NULL)
+    {
+        ESP_LOGD(HTTP_HANDLER_TAG, "Memory allocation failed setting new sensor tag\n");
+        return ESP_ERR_NO_MEM;
+    }
+    strcpy(module_info_gt->sensor_config_arr[sensorType]->sensor_loc_arr[localId], new_tag);
+
+    extern nvs_handle_t nvs_sensor_loc_arr_handle;
+
+    save_serialized_sensor_loc_arr_to_nvs(
+        serializeModuleSensorConfigArray(
+            module_info_gt->sensor_config_arr,
+            SENSOR_LIST_TOTAL),
+        nvs_sensor_loc_arr_handle,
+        NVS_SENSOR_CONFIG_NAMESPACE,
+        NVS_SENSOR_CONFIG_ARR_INDEX);
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "sensor tag updated from http->nvs updated");
+    const char resp[] = "sensor tag updated from http->nvs updated";
+    httpd_resp_send(req, resp, strlen(resp));
+
+    return ESP_OK;
+}
+esp_err_t update_sensor_pos(httpd_req_t *req)
+{
+    Sensor_List sensorType;
+    char x_pos[4], y_pos[4], z_pos[4], sensor_type[25], local_id[4];
+
+    if (httpd_req_get_hdr_value_str(req, "Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X: %s", x_pos);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-X not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-X from header");
+        return ESP_FAIL;
+    }
+    if (httpd_req_get_hdr_value_str(req, "Pos-Y", y_pos, sizeof(y_pos)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y: %s", y_pos);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
+        return ESP_FAIL;
+    }
+    if (httpd_req_get_hdr_value_str(req, "Pos-Z", z_pos, sizeof(z_pos)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Z: %s", z_pos);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Z not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Z from header");
+        return ESP_FAIL;
+    }
+
+    if (httpd_req_get_hdr_value_str(req, "Sensor-Local-Id", local_id, sizeof(local_id)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id: %s", local_id);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Local-Id from header");
+        return ESP_FAIL;
+    }
+
+    if (httpd_req_get_hdr_value_str(req, "Sensor-Type", sensor_type, sizeof(sensor_type)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type: %s", sensor_type);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Local-Id not found");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-Local-Id from header");
+        return ESP_FAIL;
+    }
+    if (strcmp(sensor_type, "dht22") == 0)
+    {
+        sensorType = DHT22;
+    }
+    else if (strcmp(sensor_type, "soil_moisture") == 0)
+    {
+        sensorType = SOIL_MOISTURE;
+    }
+    else if (strcmp(sensor_type, "light") == 0)
+    {
+        sensorType = LIGHT;
+    }
+    else if (strcmp(sensor_type, "sound") == 0)
+    {
+        sensorType = SOUND;
+    }
+    else if (strcmp(sensor_type, "movement") == 0)
+    {
+        sensorType = MOVEMENT;
+    }
+    else
+    {
+        sensorType = CAMERA;
+    }
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "x_pos: %s, y_pos: %s, z_pos: %s", x_pos, y_pos, z_pos);
+    int8_t xPos = (int8_t)atoi(x_pos);
+    int8_t yPos = (int8_t)atoi(y_pos);
+    int8_t zPos = (int8_t)atoi(z_pos);
+    int8_t localId = (int8_t)atoi(local_id);
+
+    if (xPos <= 0 || yPos <= 0)
+    {
+
+        module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][0] = -1;
+        module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][1] = -1;
+
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][0] = 0;
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][1] = 0;
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][2] = 0;
+    }
+    else if (xPos > 0 && yPos > 0 && zPos < 0)
+    {
+
+        module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][0] = xPos;
+        module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][1] = yPos;
+
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][0] = -1;
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][1] = -1;
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][2] = -1;
+    }
+    else
+    {
+
+        module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][0] = -1;
+        module_info_gt->sensor_config_arr[sensorType]->square_pos[localId][1] = -1;
+
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][0] = xPos;
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][1] = yPos;
+        module_info_gt->sensor_config_arr[sensorType]->zn_rel_pos[localId][2] = zPos;
+    }
+
+    extern nvs_handle_t nvs_sensor_loc_arr_handle;
+
+    save_serialized_sensor_loc_arr_to_nvs(
+        serializeModuleSensorConfigArray(
+            module_info_gt->sensor_config_arr,
+            SENSOR_LIST_TOTAL),
+        nvs_sensor_loc_arr_handle,
+        NVS_SENSOR_CONFIG_NAMESPACE,
+        NVS_SENSOR_CONFIG_ARR_INDEX);
+
+    ESP_LOGI(HTTP_HANDLER_TAG, "module location updated from http->nvs updated");
+    const char resp[] = "module location updated from http->nvs updated";
     httpd_resp_send(req, resp, strlen(resp));
 
     return ESP_OK;

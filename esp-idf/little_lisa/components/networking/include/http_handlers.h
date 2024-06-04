@@ -86,4 +86,6 @@ esp_err_t env_get_state_handler(httpd_req_t *req);
 esp_err_t proxyUpdatehandler(httpd_req_t *req);
 esp_err_t update_node_tag(httpd_req_t *req);
 esp_err_t update_node_pos(httpd_req_t *req);
+esp_err_t update_sensor_tag(httpd_req_t *req);
+esp_err_t update_sensor_pos(httpd_req_t *req);
 #endif

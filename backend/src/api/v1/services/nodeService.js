@@ -35,8 +35,8 @@ const updateNodeTag = async (
         const response = await fetch("http://10.0.0.86/api/updateNode", {
           method: "PUT",
           headers: {
-            "Node-Mac-Addr": updateData.mac_addr,
-            "Node-Update-Endpoint": "updateNodeTag",
+            "Mac-Addr": updateData.mac_addr,
+            "Update-Endpoint": "updateNodeTag",
             "Node-New-Tag": newNodeTag,
           },
         });
@@ -99,10 +99,10 @@ const updateNodePos = async (
           method: "PUT",
 
           headers: {
-            "Node-Mac-Addr": nodeData.mac_addr,
-            "Node-Update-Endpoint": "updateNodePos",
-            "Node-Pos-X": nodeData.x_pos,
-            "Node-Pos-Y": nodeData.y_pos,
+            "Mac-Addr": nodeData.mac_addr,
+            "Update-Endpoint": "updateNodePos",
+            "Pos-X": nodeData.x_pos,
+            "Pos-Y": nodeData.y_pos,
             "Node-Zone-Num": zoneId - 1,
           },
         });

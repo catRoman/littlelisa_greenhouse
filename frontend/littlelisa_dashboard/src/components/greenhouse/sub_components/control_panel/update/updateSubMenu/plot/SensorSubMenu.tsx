@@ -38,6 +38,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     updateType: "",
     moduleMac: "",
     localId: "",
+    sensorType: "",
+    module_type: moduleType,
   };
 
   const [errors, setErrors] = useState({
@@ -95,7 +97,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     const { name, value } = event.target;
     //console.log(`name: ${name} value:${value}`);
     const values = value.split(",");
-    console.log(values);
+    console.log(`values: ${values}`);
     let type = "";
     if (name === "selectedAddSensor") {
       type = "add";
@@ -104,6 +106,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     } else if (name === "selectedSensorTag") {
       type = "tag";
     }
+    console.log(values[3]);
 
     setSensorForm({
       ...sensorForm,
@@ -111,6 +114,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
       [name]: values[0],
       moduleMac: values[1],
       localId: values[2],
+      sensorType: values[3],
     });
 
     setErrors({ ...errors, [name]: "" });
@@ -149,6 +153,18 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
       sensorForm.newSensorTag === ""
     ) {
       newErrors.sensorForm = "Must make a change for sensor to update...";
+      valid = false;
+    }
+
+    if (
+      sensorForm.sensorType !== "DHT22" ||
+      sensorForm.sensorType !== "soil_moisture" ||
+      sensorForm.sensorType !== "light" ||
+      sensorForm.sensorType !== "sound" ||
+      sensorForm.sensorType !== "movement" ||
+      sensorForm.sensorType !== "camera"
+    ) {
+      newErrors.sensorForm = "Invalid sensor type...";
       valid = false;
     }
     if (
@@ -197,6 +213,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
 
       sensorData.append("sensor_id", selectedSensor);
       sensorData.append("local_id", sensorForm.localId);
+      sensorData.append("sensor_type", sensorForm.sensorType);
 
       sensorData.append("type", sensorForm.updateType);
       sensorData.append("module_mac", sensorForm.moduleMac);
@@ -204,6 +221,7 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
       sensorData.append("x_pos", sensorForm.x_pos);
       sensorData.append("y_pos", sensorForm.y_pos);
       sensorData.append("z_pos", sensorForm.x_pos);
+      sensorData.append("module_type", sensorForm.module_type);
 
       // if (fetchedGreenhouseData && nodeForm.selectedAddNode !== "") {
       //   nodeData.append("add_node_mac");
@@ -249,6 +267,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             updateType: "",
             moduleMac: "",
             localId: "",
+            sensorType: "",
+            module_type: moduleType,
           });
           isUpdating(false);
         }
@@ -335,9 +355,10 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
                   `${sensor.sensor_id}`,
                   `${sensor.module_id}`,
                   `${sensor.local_id}`,
+                  `${sensor.type}`,
                 ]}
               >
-                {`${sensor.location} (${sensor.module_id})`}
+                {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
               </option>
             );
           })}
@@ -406,9 +427,10 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
                     `${sensor.sensor_id}`,
                     `${sensor.module_id}`,
                     `${sensor.local_id}`,
+                    `${sensor.type}`,
                   ]}
                 >
-                  {`${sensor.location} (${sensor.module_id})`}
+                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
                 </option>
               );
             })
@@ -441,9 +463,10 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
                     `${sensor.sensor_id}`,
                     `${sensor.module_id}`,
                     `${sensor.local_id}`,
+                    `${sensor.type}`,
                   ]}
                 >
-                  {`${sensor.location} (id: ${sensor.module_id})`}
+                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
                 </option>
               );
             })
