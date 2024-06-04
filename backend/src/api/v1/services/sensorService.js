@@ -114,19 +114,19 @@ const updateTag = async (
     const proxiedResponse = await proxyControllerPut();
 
     if (proxiedResponse.ok) {
-      // console.log("event added for update node Tag");
-      // await sensorRepo.updateTag(sensorId, newTag);
-      // await eventLogRepo.addEvent(
-      //   "Sensor",
-      //   "Updated",
-      //   `sensor tag changed to ${newTag}`,
-      //   greenhouseId,
-      //   zoneId ? zoneId : null,
-      //   squareId ? squareId : null,
-      //   null,
-      //   sensorId,
-      //   null
-      // );
+      console.log("event added for update node Tag");
+      await sensorRepo.updateTag(sensorId, newTag);
+      await eventLogRepo.addEvent(
+        "Sensor",
+        "Updated",
+        `sensor tag changed to ${newTag}`,
+        greenhouseId,
+        zoneId ? zoneId : null,
+        squareId ? squareId : null,
+        null,
+        sensorId,
+        null
+      );
 
       return proxiedResponse;
     }
@@ -271,19 +271,19 @@ const updateControllerTag = async (
     const proxiedResponse = await proxyControllerPut();
 
     if (proxiedResponse.ok) {
-      // console.log("event added for update node Tag");
-      // await sensorRepo.updateTag(sensorId, newTag);
-      // await eventLogRepo.addEvent(
-      //   "Sensor",
-      //   "Updated",
-      //   `controller sensor tag changed to ${newTag}`,
-      //   greenhouseId,
-      //   null,
-      //   null,
-      //   null,
-      //   sensorId,
-      //   null
-      // );
+      console.log("event added for update node Tag");
+      await sensorRepo.updateTag(sensorId, newTag);
+      await eventLogRepo.addEvent(
+        "Sensor",
+        "Updated",
+        `controller sensor tag changed to ${newTag}`,
+        greenhouseId,
+        null,
+        null,
+        null,
+        sensorId,
+        null
+      );
 
       return proxiedResponse;
     }

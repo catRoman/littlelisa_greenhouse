@@ -21,6 +21,7 @@ class SensorRepo extends BaseRepo {
     query[0].count = Number(query[0].count);
     return query[0];
   }
+
   async countForGreenhouse(greenhouseId) {
     const query = `
     select count(s.module_id) as sensors
@@ -213,6 +214,16 @@ class SensorRepo extends BaseRepo {
     //TODO: merge with other queries when i have another sensor hooked up for testing
     //pass back the merged data in one array
     return { types: types, data: data[0] };
+  }
+  async updateTag(sensor_id, tag) {
+    const query = await this.query(
+      `update sensorss
+      set
+        location = $1
+      where sensor_id = $2
+      returning *`,
+      [tag, sensor_id]
+    );
   }
 }
 export default new SensorRepo();
