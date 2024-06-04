@@ -370,8 +370,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
                   `${sensor.module_id}`,
                   `${sensor.local_id}`,
                   `${sensor.type}`,
-                  `${selectedPlot?.col}`,
-                  `${selectedPlot?.row}`,
+                  `${fetchedGreenhouseData && selectedPlot ? selectedPlot.col! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.x! + 1 : 0}`,
+                  `${fetchedGreenhouseData && selectedPlot ? selectedPlot.row! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.y! + 1 : 0}`,
                 ]}
               >
                 {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
@@ -482,8 +482,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
                     `${sensor.module_id}`,
                     `${sensor.local_id}`,
                     `${sensor.type}`,
-                    `${selectedPlot?.col}`,
-                    `${selectedPlot?.row}`,
+                    `${fetchedGreenhouseData && selectedPlot ? selectedPlot.col! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.x! + 1 : 0}`,
+                    `${fetchedGreenhouseData && selectedPlot ? selectedPlot.row! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.y! + 1 : 0}`,
                   ]}
                 >
                   {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
