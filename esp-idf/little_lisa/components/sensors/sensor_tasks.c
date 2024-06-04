@@ -252,15 +252,32 @@ void sensor_preprocessing_task(void *pvParameters)
             event->sensor_data->module_zn_rel_pos[1] = module_info_gt->zn_rel_pos[1];
             event->sensor_data->module_zn_rel_pos[2] = module_info_gt->zn_rel_pos[2];
 
+            event->sensor_data->sensor_square_pos[0] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->square_pos[event->sensor_data->local_sensor_id][0];
+            event->sensor_data->sensor_square_pos[1] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->square_pos[event->sensor_data->local_sensor_id][1];
+
+            event->sensor_data->sensor_zn_rel_pos[0] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->zn_rel_pos[event->sensor_data->local_sensor_id][0];
+            event->sensor_data->sensor_zn_rel_pos[1] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->zn_rel_pos[event->sensor_data->local_sensor_id][1];
+            event->sensor_data->sensor_zn_rel_pos[2] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->zn_rel_pos[event->sensor_data->local_sensor_id][2];
+
             free(event->sensor_data->module_location);
             event->sensor_data->module_location = (char *)malloc(strlen(module_info_gt->location) + 1);
             if (event->sensor_data->module_location == NULL)
+            {
+                ESP_LOGE(SENSOR_EVENT_TAG, "Failed to allocate mem for sensor event->sensor_data->module_location");
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+            }
+            strcpy(event->sensor_data->module_location, module_info_gt->location);
+
+            free(event->sensor_data->location);
+            event->sensor_data->location = (char *)malloc(strlen(module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->sensor_loc_arr[event->sensor_data->local_sensor_id]) + 1);
+            if (event->sensor_data->location == NULL)
             {
                 ESP_LOGE(SENSOR_EVENT_TAG, "Failed to allocate mem for sensor event->sensor_data->location");
                 ESP_LOGE(SENSOR_EVENT_TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
                 ESP_LOGE(SENSOR_EVENT_TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
             }
-            strcpy(event->sensor_data->module_location, module_info_gt->location);
+            strcpy(event->sensor_data->location, module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->sensor_loc_arr[event->sensor_data->local_sensor_id]);
 
             if (strcmp(module_info_gt->type, "node") == 0)
             {

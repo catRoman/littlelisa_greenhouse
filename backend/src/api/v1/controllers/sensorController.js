@@ -125,15 +125,16 @@ const update = async (req, res) => {
     }
 
     console.log(`module_mac: ${module_mac[0]} type: ${type[0]}`);
+
     let response;
     if (module_type[0] === "node") {
       if (type[0] === "tag") {
-        response = await nodeService.updateTag(
+        response = await sensorService.updateTag(
+          new_tag[0],
           module_mac[0],
-          sensor_type[0],
+          sensor_type[0].toLowerCase(),
           local_id[0],
           sensorId,
-          new_tag[0],
           greenhouseId,
           zoneId,
           squareId
@@ -143,7 +144,7 @@ const update = async (req, res) => {
           type,
           pos,
           module_mac[0],
-          sensor_type[0],
+          sensor_type[0].toLowerCase(),
           local_id[0],
           sensor_id,
           zoneId,
@@ -152,6 +153,27 @@ const update = async (req, res) => {
         );
       }
     } else if (module_type[0] === "controller") {
+      if (type[0] === "tag") {
+        response = await sensorService.updateControllerTag(
+          new_tag[0],
+          sensor_type[0].toLowerCase(),
+          local_id[0],
+          sensorId,
+          greenhouseId,
+          zoneId
+        );
+      } else {
+        response = await sensorService.updateControllerPos(
+          type,
+          pos,
+          sensor_type[0].toLowerCase(),
+          local_id[0],
+          sensor_id,
+          zoneId,
+          squareId,
+          greenhouseId
+        );
+      }
     } else {
       return res.status(400).json({ error: "Module Type invalid" });
     }
