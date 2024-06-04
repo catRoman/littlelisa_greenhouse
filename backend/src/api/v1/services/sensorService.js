@@ -356,7 +356,7 @@ const updateControllerPos = async (
       // note_id
       if (type[0] === "add") {
         console.log("event added for add node");
-        await sensorRepo.updateSensorByZnRelPos(pos, sensorId[0], zoneId);
+        await sensorRepo.updateSensorByZnRelPos(pos, sensorId[0], 1);
         await eventLogRepo.addEvent(
           "Sensor",
           "Updated",
@@ -372,11 +372,7 @@ const updateControllerPos = async (
         console.log("event added for sensor removal");
         const emptyPosition = [0, 0, 0];
         //pos,
-        await sensorRepo.updateSensorByZnRelPos(
-          emptyPosition,
-          Number(sensorId[0]),
-          1
-        );
+        await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId[0], 1);
         await eventLogRepo.addEvent(
           "Sensor",
           "Removed",

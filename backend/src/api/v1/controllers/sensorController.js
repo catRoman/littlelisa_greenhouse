@@ -118,7 +118,7 @@ const update = async (req, res) => {
     }
 
     let pos = null;
-    if (z_pos > 0) {
+    if (x_pos > 0) {
       pos = [x_pos[0], y_pos[0], z_pos[0]];
     } else {
       pos = [x_pos[0], y_pos[0], -1];
