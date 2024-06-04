@@ -56,6 +56,24 @@ function validateSensorParams(last, unit, grouped) {
   }
 }
 
+function parseForm(formDataString) {
+  console.log(formDataString);
+  const parts = formDataString.split("-");
+
+  if (parts.length !== 4) {
+    throw new Error("Input string does not match the expected format: ");
+  }
+
+  const result = {
+    node_id: parts[0],
+    mac_addr: parts[1].replace(/:/g, "-"),
+    x_pos: parts[2],
+    y_pos: parts[3],
+  };
+  console.log("ok");
+  return result;
+}
+
 const updateTag = async (
   newNodeTag,
   nodeMac,
@@ -75,7 +93,7 @@ const updateTag = async (
             "Update-Endpoint": "updateSensorTag",
             "Sensor-New-Tag": newNodeTag,
             "Sensor-Type": sensorType,
-            "Node-Mac-Addr": nodeMac,
+            "Node-Mac-Addr": nodeMac.replace(/:/g, "-"),
             "Sensor-Local-Id": localId,
           },
         });
@@ -142,14 +160,13 @@ const updatePos = async (
           method: "PUT",
 
           headers: {
-            "Mac-Addr": nodeMac,
+            "Node-Mac-Addr": nodeMac.replace(/:/g, "-"),
             "Sensor-Local-Id": localId,
             "Update-Endpoint": "updateSensorPos",
             "Sensor-Type": sensorType,
             "Pos-X": pos[0],
             "Pos-Y": pos[1],
             "Pos-Z": pos[2],
-            "Sensor-Zone-Num": zoneId - 1,
           },
         });
         // Check if the response is ok

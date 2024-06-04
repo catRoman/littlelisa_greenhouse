@@ -1232,17 +1232,6 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
     else if (strcmp(end_point, "updateSensorPos") == 0)
     {
 
-        if (httpd_req_get_hdr_value_str(req, "Sensor-New-Tag", new_tag, sizeof(new_tag)) == ESP_OK)
-        {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag: %s", new_tag);
-        }
-        else
-        {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-New-Tag not found");
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Sensor-New-Tag from header");
-            esp_http_client_cleanup(client);
-            return ESP_FAIL;
-        }
         if (httpd_req_get_hdr_value_str(req, "Sensor-Type", sensor_type, sizeof(sensor_type)) == ESP_OK)
         {
             ESP_LOGI(HTTP_HANDLER_TAG, "Sensor-Type: %s", sensor_type);
@@ -1292,8 +1281,8 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
         }
         else
         {
-            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Y not found");
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
+            ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Z not found");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Z from header");
             esp_http_client_cleanup(client);
             return ESP_FAIL;
         }

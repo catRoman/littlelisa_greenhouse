@@ -175,18 +175,20 @@ export default function GreenHouseContextProvider({
   useEffect(() => {
     console.log("data fetched: ", fetchedGreenhouseData);
     setUnassignedNodeList([]);
-    if (fetchedGreenhouseData?.zones[0].sensors) {
-      fetchedGreenhouseData.zones[0].sensors.forEach((sensor) => {
-        if (
-          sensor.zn_rel_pos &&
-          sensor.zn_rel_pos?.x <= 0 &&
-          sensor.zn_rel_pos?.y <= 0 &&
-          sensor.zn_rel_pos?.z <= 0
-        ) {
-          addUnassignedSensor(sensor);
-        }
-      });
-    }
+    fetchedGreenhouseData?.zones.forEach((zone) => {
+      if (zone.sensors) {
+        zone.sensors.forEach((sensor) => {
+          if (
+            sensor.zn_rel_pos &&
+            sensor.zn_rel_pos?.x <= 0 &&
+            sensor.zn_rel_pos?.y <= 0 &&
+            sensor.zn_rel_pos?.z <= 0
+          ) {
+            addUnassignedSensor(sensor);
+          }
+        });
+      }
+    });
     if (fetchedGreenhouseData?.zones[0].nodes) {
       fetchedGreenhouseData.zones[0].nodes.forEach((node) => {
         if (

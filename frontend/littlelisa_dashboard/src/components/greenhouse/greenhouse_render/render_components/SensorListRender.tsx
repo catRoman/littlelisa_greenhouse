@@ -89,6 +89,9 @@ export default function SensorListRender({
                       padding: "0.25rem",
                       fontSize: "0.875rem",
                       color: "#ff0080",
+                      pointerEvents: "none",
+                      whiteSpace: "nowrap",
+                      display: "inline-block",
                     }}
                     // className="rounded-md bg-blue-500 bg-opacity-45 p-1 text-sm text-red-100"
                     center
@@ -96,7 +99,7 @@ export default function SensorListRender({
                     distanceFactor={10}
                     position={[0, 0, sphereRadius * 6]}
                   >
-                    <p>{sensor.type}</p>
+                    <p>{sensor.location}</p>
                   </Html>
                 )}
 
