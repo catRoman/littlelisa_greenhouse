@@ -57,9 +57,11 @@ function validateSensorParams(last, unit, grouped) {
 }
 
 const updateTag = async (
-  nodeMac,
-  sensorId,
   newNodeTag,
+  nodeMac,
+  sensorType,
+  localId,
+  sensorId,
   greenhouseId,
   zoneId,
   squareId
@@ -67,12 +69,14 @@ const updateTag = async (
   try {
     const proxyControllerPut = async () => {
       try {
-        const response = await fetch("http://10.0.0.86/api/updateSensor", {
+        const response = await fetch("http://10.0.0.86/api/updateNode", {
           method: "PUT",
           headers: {
-            "Node-Mac-Addr": updateData.mac_addr,
-            "Node-Update-Endpoint": "updateNodeTag",
-            "Node-New-Tag": newNodeTag,
+            "Update-Endpoint": "updateSensorTag",
+            "Sensor-New-Tag": newNodeTag,
+            "Sensor-Type": sensorType,
+            "Node-Mac-Addr": nodeMac,
+            "Sensor-Local-Id": localId,
           },
         });
         // Check if the response is ok
@@ -89,22 +93,24 @@ const updateTag = async (
         console.error("Error from modules:", error);
       }
     };
-    const proxiedResponse = await proxyControllerPut(updateData);
+    const proxiedResponse = await proxyControllerPut();
 
     if (proxiedResponse.ok) {
-      console.log("event added for update node Tag");
-      await nodeRepo.updateNodeTag(updateData.node_id, newNodeTag);
-      await eventLogRepo.addEvent(
-        "Node",
-        "Updated",
-        `node tag changed to ${newNodeTag}`,
-        greenhouseId,
-        zoneId ? zoneId : null,
-        squareId ? squareId : null,
-        updateData.node_id,
-        null,
-        null
-      );
+      // console.log("event added for update node Tag");
+      // await sensorRepo.updateTag(sensorId, newTag);
+      // await eventLogRepo.addEvent(
+      //   "Sensor",
+      //   "Updated",
+      //   `sensor tag changed to ${newTag}`,
+      //   greenhouseId,
+      //   zoneId ? zoneId : null,
+      //   squareId ? squareId : null,
+      //   null,
+      //   sensorId,
+      //   null
+      // );
+
+      return proxiedResponse;
     }
   } catch (error) {
     console.log(error);
@@ -113,7 +119,11 @@ const updateTag = async (
 
 const updatePos = async (
   type,
-  selectedNode,
+  pos,
+  nodeMac,
+  sensorType,
+  localId,
+  sensorId,
   zoneId,
   squareId,
   greenhouseId
@@ -121,24 +131,25 @@ const updatePos = async (
   try {
     //make json
 
-    const nodeData = parseForm(selectedNode);
     if (type === "remove") {
-      nodeData.x_pos = 0;
-      nodeData.y_pos = 0;
+      pos[0] = -1;
+      pos[1] = -1;
+      pos[2] = -1;
     }
-    console.log(nodeData);
-
     const proxyControllerPut = async () => {
       try {
         const response = await fetch("http://10.0.0.86/api/updateNode", {
           method: "PUT",
 
           headers: {
-            "Node-Mac-Addr": nodeData.mac_addr,
-            "Node-Update-Endpoint": "updateNodePos",
-            "Node-Pos-X": nodeData.x_pos,
-            "Node-Pos-Y": nodeData.y_pos,
-            "Node-Zone-Num": zoneId - 1,
+            "Mac-Addr": nodeMac,
+            "Sensor-Local-Id": localId,
+            "Update-Endpoint": "updateSensorPos",
+            "Sensor-Type": sensorType,
+            "Pos-X": pos[0],
+            "Pos-Y": pos[1],
+            "Pos-Z": pos[2],
+            "Sensor-Zone-Num": zoneId - 1,
           },
         });
         // Check if the response is ok
@@ -168,46 +179,202 @@ const updatePos = async (
       // moduleId,
       // sensorId,
       // note_id
-      if (type === "add") {
-        console.log("event added for add node");
-        await nodeRepo.updateNodeBySquareId(nodeData.node_id, squareId, zoneId);
-        await eventLogRepo.addEvent(
-          "Node",
-          "Updated",
-          "node added to plot",
-          greenhouseId,
-          zoneId,
-          squareId,
-          nodeData.node_id,
-          null,
-          null
-        );
-      } else if (type === "remove") {
-        console.log("event added for node removal");
-        const emptyPosition = [0, 0, 0];
-        //pos,
-        await nodeRepo.updateNodeByZnRelPos(emptyPosition, nodeData.node_id, 1);
-        await eventLogRepo.addEvent(
-          "Node",
-          "Removed",
-          "node unassigned",
-          greenhouseId,
-          zoneId,
-          squareId,
-          nodeData.node_id,
-          null,
-          null
-        );
-      }
-    }
+      // if (type === "add") {
+      //   console.log("event added for add node");
+      //   await sensorRepo.updateSensorBySquareId(sensorId, squareId, zoneId);
+      //   await eventLogRepo.addEvent(
+      //     "Sensor",
+      //     "Updated",
+      //     "sensor added to plot",
+      //     greenhouseId,
+      //     zoneId ? zoneId : null,
+      //     squareId ? squareId : null,
+      //     null,
+      //     sensorId,
+      //     null
+      //   );
+      // } else if (type === "remove") {
+      //   console.log("event added for node removal");
+      //   const emptyPosition = [0, 0, 0];
+      //   //pos,
+      //   await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId, 1);
+      //   await eventLogRepo.addEvent(
+      //     "Sensor",
+      //     "Removed",
+      //     "node unassigned",
+      //     greenhouseId,
+      //     zoneId ? zoneId : null,
+      //     squareId ? squareId : null,
+      //     null,
+      //     sensorId,
+      //     null
+      //   );
+      // }
 
-    return proxiedResponse;
+      return proxiedResponse;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateControllerTag = async (
+  newNodeTag,
+  sensorType,
+  localId,
+  sensorId,
+  greenhouseId,
+  zoneId
+) => {
+  try {
+    const proxyControllerPut = async () => {
+      try {
+        const response = await fetch("http://10.0.0.86/api/updateSensorTag", {
+          method: "PUT",
+          headers: {
+            "Sensor-New-Tag": newNodeTag,
+            "Sensor-Type": sensorType,
+            "Sensor-Local-Id": localId,
+          },
+        });
+        // Check if the response is ok
+        if (!response.ok) {
+          // Try to read the response as text to get more information about the error
+          const errorText = await response.text();
+          console.error("Error response text:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.text();
+        console.log(result);
+        return response;
+      } catch (error) {
+        console.error("Error from modules:", error);
+      }
+    };
+    const proxiedResponse = await proxyControllerPut();
+
+    if (proxiedResponse.ok) {
+      // console.log("event added for update node Tag");
+      // await sensorRepo.updateTag(sensorId, newTag);
+      // await eventLogRepo.addEvent(
+      //   "Sensor",
+      //   "Updated",
+      //   `controller sensor tag changed to ${newTag}`,
+      //   greenhouseId,
+      //   null,
+      //   null,
+      //   null,
+      //   sensorId,
+      //   null
+      // );
+
+      return proxiedResponse;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateControllerPos = async (
+  type,
+  pos,
+  sensorType,
+  localId,
+  sensorId,
+  zoneId,
+  squareId,
+  greenhouseId
+) => {
+  try {
+    //make json
+
+    if (type === "remove") {
+      pos[0] = -1;
+      pos[1] = -1;
+      pos[2] = -1;
+    }
+    const proxyControllerPut = async () => {
+      try {
+        const response = await fetch("http://10.0.0.86/api/updateSensorPos", {
+          method: "PUT",
+
+          headers: {
+            "Sensor-Local-Id": localId,
+            "Sensor-Type": sensorType,
+            "Pos-X": pos[0],
+            "Pos-Y": pos[1],
+            "Pos-Z": pos[2],
+          },
+        });
+        // Check if the response is ok
+        if (!response.ok) {
+          // Try to read the response as text to get more information about the error
+          const errorText = await response.text();
+          console.error("Error response text:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.text();
+        console.log(result);
+        return response;
+      } catch (error) {
+        console.error("Error from modules:", error);
+      }
+    };
+    const proxiedResponse = await proxyControllerPut();
+
+    if (proxiedResponse.ok) {
+      // PARAMS:
+      // eventType,
+      // eventAction,
+      // details,
+      // greenhouseId,
+      // zoneId,
+      // squareId,
+      // moduleId,
+      // sensorId,
+      // note_id
+      // if (type === "add") {
+      //   console.log("event added for add node");
+      //   await sensorRepo.updateSensorBySquareId(sensorId, squareId, zoneId);
+      // await eventLogRepo.addEvent(
+      //   "Sensor",
+      //   "Updated",
+      //   "controller sensor added to global space",
+      //   greenhouseId,
+      //   null,
+      //   null,
+      //   null,
+      //   sensorId,
+      //   null
+      // );
+      // } else if (type === "remove") {
+      //   console.log("event added for sensor removal");
+      //   const emptyPosition = [0, 0, 0];
+      //   //pos,
+      //   await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId, 1);
+      //   await eventLogRepo.addEvent(
+      //     "Sensor",
+      //     "Removed",
+      //     "controller sensor unassigned",
+      //     greenhouseId,
+      //      null,
+      //      null,
+      //     null,
+      //     sensorId,
+      //     null
+      //   );
+      // }
+
+      return proxiedResponse;
+    }
   } catch (error) {
     console.log(error);
   }
 };
 
 export default {
+  updateControllerPos,
+  updateControllerTag,
   updatePos,
   updateTag,
   getZoneChartData,

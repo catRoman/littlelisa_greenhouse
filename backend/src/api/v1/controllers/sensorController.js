@@ -95,8 +95,18 @@ const update = async (req, res) => {
     );
 
     const { fields } = await utility.parseForm(req);
-    const { sensor_id, x_pos, y_pos, z_pos, new_tag, type, module_mac } =
-      fields;
+    const {
+      sensor_id,
+      x_pos,
+      y_pos,
+      z_pos,
+      new_tag,
+      type,
+      module_mac,
+      local_id,
+      sensor_type,
+      module_type,
+    } = fields;
 
     if (!type || type[0] === "") {
       return res.status(400).json({ error: "No type submitted" });
@@ -107,33 +117,43 @@ const update = async (req, res) => {
         .json({ error: "no corresponding module mac address" });
     }
 
-    let zn_rel_pos = null;
+    let pos = null;
     if (x_pos && y_pos && z_pos) {
-      zn_rel_pos = [x_pos[0], y_pos[0], z_pos[0]];
+      pos = [x_pos[0], y_pos[0], z_pos[0]];
+    } else {
+      pos = [x_pos[0], y_pos[0], -1];
     }
 
     console.log(`module_mac: ${module_mac[0]} type: ${type[0]}`);
     let response;
-
-    if (type[0] === "tag") {
-      response = await nodeService.updateTag(
-        module_mac[0],
-        sensorId,
-        new_tag[0],
-        greenhouseId,
-        zoneId,
-        squareId
-      );
+    if (module_type[0] === "node") {
+      if (type[0] === "tag") {
+        response = await nodeService.updateTag(
+          module_mac[0],
+          sensor_type[0],
+          local_id[0],
+          sensorId,
+          new_tag[0],
+          greenhouseId,
+          zoneId,
+          squareId
+        );
+      } else {
+        response = await sensorService.updatePos(
+          type,
+          pos,
+          module_mac[0],
+          sensor_type[0],
+          local_id[0],
+          sensor_id,
+          zoneId,
+          squareId,
+          greenhouseId
+        );
+      }
+    } else if (module_type[0] === "controller") {
     } else {
-      response = await sensorService.updatePos(
-        module_mac[0],
-        type,
-        zn_rel_pos,
-        sensor_id,
-        zoneId,
-        squareId,
-        greenhouseId
-      );
+      return res.status(400).json({ error: "Module Type invalid" });
     }
 
     // res.status(200).json();
