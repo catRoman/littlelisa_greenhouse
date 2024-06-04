@@ -2,6 +2,10 @@ import BaseRepo from "./baseRepo.js";
 import fs from "fs/promises";
 import path from "path";
 import moment from "moment-timezone";
+import {
+  connectToDatabase,
+  db_pool as db,
+} from "../services/init/dbConnect.js";
 
 class SensorRepo extends BaseRepo {
   constructor() {
@@ -217,13 +221,83 @@ class SensorRepo extends BaseRepo {
   }
   async updateTag(sensor_id, tag) {
     const query = await this.query(
-      `update sensorss
+      `update sensors
       set
         location = $1
       where sensor_id = $2
       returning *`,
       [tag, sensor_id]
     );
+  }
+
+  async updateSensorBySquareId(sensor_id, square_id, zone_id) {
+    const query = await this.query(
+      `update sensors
+      set
+        zn_rel_pos_id = NULL,
+        square_id = $1
+        where sensor_id = $2
+      returning *`,
+      [square_id, sensor_id]
+    );
+    console.log(`zone_id: ${zone_id}`);
+    console.log(`square_id: ${square_id}`);
+    console.log(`module_id: ${sensor_id}`);
+
+    return query[0] ? query[0] : null;
+  }
+
+  async updateSensorByZnRelPos(zn_rel_pos, sensor_id, zone_id) {
+    try {
+      await db.query("BEGIN");
+      console.log(zn_rel_pos[0]);
+      console.log(zn_rel_pos[1]);
+      console.log(zn_rel_pos[2]);
+      console.log(sensor_id);
+      console.log(zone_id);
+      const res1 = await db.query(
+        `
+        WITH existing_row AS (
+            SELECT zn_rel_pos_id
+            FROM zn_rel_pos
+            WHERE zone_id = $1 AND x_pos = $2 AND y_pos = $3 AND z_pos = $4
+        ),
+        inserted_row AS (
+            INSERT INTO zn_rel_pos(zone_id, x_pos, y_pos, z_pos)
+            SELECT $1, $2, $3, $4
+            WHERE NOT EXISTS (SELECT 1 FROM existing_row)
+            RETURNING zn_rel_pos_id
+        )
+        SELECT zn_rel_pos_id
+        FROM inserted_row
+        UNION ALL
+        SELECT zn_rel_pos_id
+        FROM existing_row;
+      `,
+        [zone_id, zn_rel_pos[0], zn_rel_pos[1], zn_rel_pos[2]]
+      );
+
+      const zn_rel_pos_id = res1.rows[0].zn_rel_pos_id;
+      console.log(`znrel_pos_id: ${zn_rel_pos_id}`);
+
+      await db.query(
+        `
+      update sensors
+      set
+        square_id = null,
+        zn_rel_pos_id = $1
+
+        where sensor_id = $2
+      returning *
+      `,
+        [zn_rel_pos_id, sensor_id]
+      );
+
+      const res = await db.query("commit");
+    } catch (error) {
+      await db.query("rollback");
+      console.error("updated sensor by zn_rel_pos rolled back:", error);
+    }
   }
 }
 export default new SensorRepo();

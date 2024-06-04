@@ -1,4 +1,6 @@
 import sensorRepo from "../repos/sensorRepo.js";
+import eventLogRepo from "../repos/eventLogRepo.js";
+
 const getChartData = async (sensorId, last, unit, grouped) => {
   validateSensorParams(last, unit, grouped);
   const chartData = await sensorRepo.getChartData(
@@ -75,7 +77,7 @@ function parseForm(formDataString) {
 }
 
 const updateTag = async (
-  newNodeTag,
+  newTag,
   nodeMac,
   sensorType,
   localId,
@@ -91,7 +93,7 @@ const updateTag = async (
           method: "PUT",
           headers: {
             "Update-Endpoint": "updateSensorTag",
-            "Sensor-New-Tag": newNodeTag,
+            "Sensor-New-Tag": newTag,
             "Sensor-Type": sensorType,
             "Node-Mac-Addr": nodeMac.replace(/:/g, "-"),
             "Sensor-Local-Id": localId,
@@ -196,37 +198,39 @@ const updatePos = async (
       // moduleId,
       // sensorId,
       // note_id
-      // if (type === "add") {
-      //   console.log("event added for add node");
-      //   await sensorRepo.updateSensorBySquareId(sensorId, squareId, zoneId);
-      //   await eventLogRepo.addEvent(
-      //     "Sensor",
-      //     "Updated",
-      //     "sensor added to plot",
-      //     greenhouseId,
-      //     zoneId ? zoneId : null,
-      //     squareId ? squareId : null,
-      //     null,
-      //     sensorId,
-      //     null
-      //   );
-      // } else if (type === "remove") {
-      //   console.log("event added for node removal");
-      //   const emptyPosition = [0, 0, 0];
-      //   //pos,
-      //   await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId, 1);
-      //   await eventLogRepo.addEvent(
-      //     "Sensor",
-      //     "Removed",
-      //     "node unassigned",
-      //     greenhouseId,
-      //     zoneId ? zoneId : null,
-      //     squareId ? squareId : null,
-      //     null,
-      //     sensorId,
-      //     null
-      //   );
-      // }
+      console.log("updating db and event");
+      console.log(type);
+      if (type[0] === "add") {
+        console.log("event added for add node");
+        await sensorRepo.updateSensorBySquareId(sensorId, squareId, zoneId);
+        await eventLogRepo.addEvent(
+          "Sensor",
+          "Updated",
+          "sensor added to plot",
+          greenhouseId,
+          zoneId ? zoneId : null,
+          squareId ? squareId : null,
+          null,
+          sensorId,
+          null
+        );
+      } else if (type[0] === "remove") {
+        console.log("event added for node removal");
+        const emptyPosition = [0, 0, 0];
+        //pos,
+        await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId, 1);
+        await eventLogRepo.addEvent(
+          "Sensor",
+          "Removed",
+          "node unassigned",
+          greenhouseId,
+          zoneId ? zoneId : null,
+          squareId ? squareId : null,
+          null,
+          sensorId,
+          null
+        );
+      }
 
       return proxiedResponse;
     }
@@ -236,7 +240,7 @@ const updatePos = async (
 };
 
 const updateControllerTag = async (
-  newNodeTag,
+  newTag,
   sensorType,
   localId,
   sensorId,
@@ -249,7 +253,7 @@ const updateControllerTag = async (
         const response = await fetch("http://10.0.0.86/api/updateSensorTag", {
           method: "PUT",
           headers: {
-            "Sensor-New-Tag": newNodeTag,
+            "Sensor-New-Tag": newTag,
             "Sensor-Type": sensorType,
             "Sensor-Local-Id": localId,
           },
@@ -350,37 +354,37 @@ const updateControllerPos = async (
       // moduleId,
       // sensorId,
       // note_id
-      // if (type === "add") {
-      //   console.log("event added for add node");
-      //   await sensorRepo.updateSensorBySquareId(sensorId, squareId, zoneId);
-      // await eventLogRepo.addEvent(
-      //   "Sensor",
-      //   "Updated",
-      //   "controller sensor added to global space",
-      //   greenhouseId,
-      //   null,
-      //   null,
-      //   null,
-      //   sensorId,
-      //   null
-      // );
-      // } else if (type === "remove") {
-      //   console.log("event added for sensor removal");
-      //   const emptyPosition = [0, 0, 0];
-      //   //pos,
-      //   await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId, 1);
-      //   await eventLogRepo.addEvent(
-      //     "Sensor",
-      //     "Removed",
-      //     "controller sensor unassigned",
-      //     greenhouseId,
-      //      null,
-      //      null,
-      //     null,
-      //     sensorId,
-      //     null
-      //   );
-      // }
+      if (type[0] === "add") {
+        console.log("event added for add node");
+        await sensorRepo.updateSensorByZnRelPos(pos, sensorId, zoneId);
+        await eventLogRepo.addEvent(
+          "Sensor",
+          "Updated",
+          "controller sensor added to global space",
+          greenhouseId,
+          null,
+          null,
+          null,
+          sensorId,
+          null
+        );
+      } else if (type[0] === "remove") {
+        console.log("event added for sensor removal");
+        const emptyPosition = [0, 0, 0];
+        //pos,
+        await sensorRepo.updateSensorByZnRelPos(emptyPosition, sensorId, 1);
+        await eventLogRepo.addEvent(
+          "Sensor",
+          "Removed",
+          "controller sensor unassigned",
+          greenhouseId,
+          null,
+          null,
+          null,
+          sensorId,
+          null
+        );
+      }
 
       return proxiedResponse;
     }
