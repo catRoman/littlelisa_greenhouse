@@ -172,7 +172,122 @@ const updateNodePos = async (
   }
 };
 
+const updateControllerTag = async (newTag, controllerId, greenhouseId) => {
+  try {
+    const proxyControllerPut = async () => {
+      try {
+        const response = await fetch("http://10.0.0.86/api/updateNodeTag", {
+          method: "PUT",
+          headers: {
+            "Node-New-Tag": newTag,
+          },
+        });
+        // Check if the response is ok
+        if (!response.ok) {
+          // Try to read the response as text to get more information about the error
+          const errorText = await response.text();
+          console.error("Error response text:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.text();
+        console.log(result);
+        return response;
+      } catch (error) {
+        console.error("Error from modules:", error);
+      }
+    };
+    const proxiedResponse = await proxyControllerPut();
+
+    if (proxiedResponse.ok) {
+      console.log("event added for update node Tag");
+      await nodeRepo.updateNodeTag(controllerId, newTag);
+      await eventLogRepo.addEvent(
+        "Controller",
+        "Updated",
+        `controller tag changed to ${newTag}`,
+        greenhouseId,
+        null,
+        null,
+        controllerId,
+        null,
+        null
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateControllerPos = async (pos, controllerId, greenhouseId) => {
+  try {
+    //make json
+
+    const proxyControllerPut = async () => {
+      try {
+        const response = await fetch("http://10.0.0.86/api/updateNodePos", {
+          method: "PUT",
+
+          headers: {
+            "Pos-X": pos[0],
+            "Pos-Y": pos[1],
+            "Pos-Z": pos[2],
+            "Node-Zone-Num": 0,
+          },
+        });
+        // Check if the response is ok
+        if (!response.ok) {
+          // Try to read the response as text to get more information about the error
+          const errorText = await response.text();
+          console.error("Error response text:", errorText);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.text();
+        console.log(result);
+        return response;
+      } catch (error) {
+        console.error("Error from modules:", error);
+      }
+    };
+    const proxiedResponse = await proxyControllerPut();
+
+    if (proxiedResponse.ok) {
+      //PARAMS:
+      // eventType,
+      // eventAction,
+      // details,
+      // greenhouseId,
+      // zoneId,
+      // squareId,
+      // moduleId,
+      // sensorId,
+      // note_id
+
+      console.log("event added for node removal");
+      const emptyPosition = [0, 0, 0];
+      //pos,
+      await nodeRepo.updateNodeByZnRelPos(pos, controllerId, 1);
+      await eventLogRepo.addEvent(
+        "Controller",
+        "Updated",
+        "controller position changed",
+        greenhouseId,
+        null,
+        null,
+        controllerId,
+        null,
+        null
+      );
+    }
+
+    return proxiedResponse;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default {
   updateNodePos,
   updateNodeTag,
+  updateControllerPos,
+  updateControllerTag,
 };

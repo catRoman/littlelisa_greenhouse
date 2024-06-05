@@ -66,6 +66,54 @@ const updateNode = async (req, res) => {
   }
 };
 
+const updateController = async (req, res) => {
+  try {
+    console.log(`requested: ${req.originalUrl}`);
+
+    const { fields } = await utility.parseForm(req);
+    const { x_pos, y_pos, z_pos, new_tag } = fields;
+
+    if (!(x_pos && y_pos && z_pos) && !new_tag) {
+      return res.status(400).json({ error: "No fields submitted" });
+    }
+    let response = [];
+    //type, selectedNode, zoneId, squareId
+
+    if (x_pos[0] && y_pos[0] && z_pos[0]) {
+      response.push(
+        await nodeService.updateControllerPos(
+          [x_pos[0], y_pos[0], z_pos[0]],
+          req.params.controllerId,
+          req.params.greenhouseId
+        )
+      );
+    }
+    //selectedNode, newNodeTag, zoneId, squareId
+    if (new_tag[0]) {
+      response.push(
+        await nodeService.updateControllerTag(
+          new_tag[0],
+          req.params.controllerId,
+          req.params.greenhouseId
+        )
+      );
+    }
+
+    const [posResponse, tagResponse] = await Promise.all(response);
+
+    const combinedResponse = {
+      updatedController: posResponse,
+      updatedControllerTag: tagResponse,
+    };
+
+    res.status(200).json(combinedResponse);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   updateNode,
+  updateController,
 };
