@@ -1,5 +1,5 @@
 import greenhouseService from "../services/greenhouseService.js";
-
+import utility from "./util/utility.js";
 const getAllGreenhouses = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -43,8 +43,31 @@ const getFlatGreenhouseData = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const updateInfo = async (req, res) => {
+  try {
+    console.log(`requested: ${req.originalUrl}`);
+    const greenhouseId = req.params.greenhouseId;
+    const { fields } = await utility.parseForm(req);
 
+    if (!fields.lat || !fields.long || !fields.style || !fields.location) {
+      return res
+        .status(400)
+        .json({ message: "Incomplete form data... missing some values" });
+    }
+
+    const updatedInfo = await greenhouseService.updateInfo(
+      fields,
+      req.params.greenhouseId
+    );
+
+    res.json(updatedInfo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log(error.message);
+  }
+};
 export default {
+  updateInfo,
   getAllGreenhouses,
   getGreenhouseById,
   getFlatGreenhouseData,
