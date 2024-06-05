@@ -1,7 +1,6 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GreenHouseContext } from "../../../../../../../context/GreenHouseContextProvider";
 import { Sensor } from "../../../../../../../../types/common";
-import { GreenHouseViewState } from "../../../../../../../../types/enums";
 
 type SensorSubMenuProps = {
   moduleType: string;
@@ -15,7 +14,6 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
     refreshGreenhouseData,
     fetchedGreenhouseData,
     unassignedSensorList,
-    viewState,
   } = useContext(GreenHouseContext);
 
   const { user_id: userId, greenhouse_id: greenhouseId } =
@@ -50,13 +48,6 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
 
   const [sensorForm, setSensorForm] = useState(defaultSensorForm);
   const [currentSensors, setCurrentSensors] = useState<Sensor[]>();
-  const [currentGlobalSensors, setCurrentGlobalSensors] = useState<Sensor[]>();
-
-  useEffect(() => {
-    if (viewState === GreenHouseViewState.GreenHouse) {
-      setCurrentSensors(currentGlobalSensors);
-    }
-  }, [viewState, currentGlobalSensors, refreshGreenhouseData]);
 
   useEffect(() => {
     //make list of zones nodes module_id
@@ -93,24 +84,27 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
   ]);
 
   useEffect(() => {
-    setCurrentSensors(
-      fetchedGreenhouseData?.zones[selectedZoneNumber].sensors?.filter(
-        (sensor) => {
-          return sensor.square_id === selectedPlot?.square_db_id;
-        },
-      ),
-    );
-    setCurrentGlobalSensors(
-      fetchedGreenhouseData?.zones[0].sensors?.filter((sensor) => {
-        return (
-          sensor.zn_rel_pos &&
-          sensor.zn_rel_pos.x > 0 &&
-          sensor.zn_rel_pos.y > 0 &&
-          sensor.zn_rel_pos.z > 0
-        );
-      }),
-    );
-  }, [fetchedGreenhouseData, selectedPlot, selectedZoneNumber]);
+    if (moduleType === "node") {
+      setCurrentSensors(
+        fetchedGreenhouseData?.zones[selectedZoneNumber].sensors?.filter(
+          (sensor) => {
+            return sensor.square_id === selectedPlot?.square_db_id;
+          },
+        ),
+      );
+    } else {
+      setCurrentSensors(
+        fetchedGreenhouseData?.zones[0].sensors?.filter((sensor) => {
+          return (
+            sensor.zn_rel_pos &&
+            sensor.zn_rel_pos.x > 0 &&
+            sensor.zn_rel_pos.y > 0 &&
+            sensor.zn_rel_pos.z > 0
+          );
+        }),
+      );
+    }
+  }, [fetchedGreenhouseData, selectedPlot, moduleType, selectedZoneNumber]);
 
   useEffect(() => {
     setSensorForm({
@@ -299,6 +293,27 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             sensorType: "",
             module_type: moduleType,
           });
+          if (moduleType === "node") {
+            setCurrentSensors(
+              fetchedGreenhouseData?.zones[selectedZoneNumber].sensors?.filter(
+                (sensor) => {
+                  return sensor.square_id === selectedPlot?.square_db_id;
+                },
+              ),
+            );
+          } else {
+            setCurrentSensors(
+              fetchedGreenhouseData?.zones[0].sensors?.filter((sensor) => {
+                return (
+                  sensor.zn_rel_pos &&
+                  sensor.zn_rel_pos.x > 0 &&
+                  sensor.zn_rel_pos.y > 0 &&
+                  sensor.zn_rel_pos.z > 0
+                );
+              }),
+            );
+          }
+
           isUpdating(false);
         }
       };
@@ -449,26 +464,8 @@ export default function SensorSubMenu({ moduleType }: SensorSubMenuProps) {
             <option value="" disabled>
               No sensors available
             </option>
-          ) : viewState === GreenHouseViewState.Plot ? (
-            currentSensors?.map((sensor, index) => {
-              return (
-                <option
-                  key={`currentSensor-option-${index}`}
-                  value={[
-                    `${sensor.sensor_id}`,
-                    `${sensor.module_id}`,
-                    `${sensor.local_id}`,
-                    `${sensor.type}`,
-                    `-1`,
-                    `-1`,
-                  ]}
-                >
-                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-                </option>
-              );
-            })
           ) : (
-            currentGlobalSensors?.map((sensor, index) => {
+            currentSensors?.map((sensor, index) => {
               return (
                 <option
                   key={`currentSensor-option-${index}`}

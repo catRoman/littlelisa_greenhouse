@@ -1327,7 +1327,7 @@ esp_err_t proxyUpdatehandler(httpd_req_t *req)
 
 esp_err_t update_node_pos(httpd_req_t *req)
 {
-    char x_pos[4], y_pos[4], zone_num[4];
+    char x_pos[4], y_pos[4], z_pos[4], zone_num[4];
 
     if (httpd_req_get_hdr_value_str(req, "Pos-X", x_pos, sizeof(x_pos)) == ESP_OK)
     {
@@ -1349,6 +1349,15 @@ esp_err_t update_node_pos(httpd_req_t *req)
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to receive Pos-Y from header");
         return ESP_FAIL;
     }
+    if (httpd_req_get_hdr_value_str(req, "Pos-Z", z_pos, sizeof(z_pos)) == ESP_OK)
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Z: %s", z_pos);
+    }
+    else
+    {
+        ESP_LOGI(HTTP_HANDLER_TAG, "Pos-Z not found, assuming square pos assigning -1");
+        strcpy(z_pos, "-1");
+    }
     if (httpd_req_get_hdr_value_str(req, "Node-Zone-Num", zone_num, sizeof(zone_num)) == ESP_OK)
     {
         ESP_LOGI(HTTP_HANDLER_TAG, "Node-Zone-Num: %s", zone_num);
@@ -1360,11 +1369,12 @@ esp_err_t update_node_pos(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    ESP_LOGI(HTTP_HANDLER_TAG, "x_pos: %s, y_pos: %s", x_pos, y_pos);
+    ESP_LOGI(HTTP_HANDLER_TAG, "x_pos: %s, y_pos: %s, z_pos: %s", x_pos, y_pos, z_pos);
     int xPos = atoi(x_pos);
     int yPos = atoi(y_pos);
+    int zPos = atoi(z_pos);
     int zoneNum = atoi(zone_num);
-    ESP_LOGI(HTTP_HANDLER_TAG, "xPos: %d, yPos: %d", xPos, yPos);
+    ESP_LOGI(HTTP_HANDLER_TAG, "xPos: %d, yPos: %d, zPos: %d", xPos, yPos, zPos);
 
     if (xPos <= 0 || yPos <= 0)
     {
@@ -1376,7 +1386,7 @@ esp_err_t update_node_pos(httpd_req_t *req)
         module_info_gt->zn_rel_pos[2] = 0;
         module_info_gt->zone_num = 0;
     }
-    else
+    else if (xPos > 0 && yPos > 0 && zPos <= 0)
     {
         module_info_gt->square_pos[0] = xPos;
         module_info_gt->square_pos[1] = yPos;
@@ -1384,6 +1394,17 @@ esp_err_t update_node_pos(httpd_req_t *req)
         module_info_gt->zn_rel_pos[0] = -1;
         module_info_gt->zn_rel_pos[1] = -1;
         module_info_gt->zn_rel_pos[2] = -1;
+
+        module_info_gt->zone_num = zoneNum;
+    }
+    else
+    {
+        module_info_gt->square_pos[0] = -1;
+        module_info_gt->square_pos[1] = -1;
+
+        module_info_gt->zn_rel_pos[0] = xPos;
+        module_info_gt->zn_rel_pos[1] = yPos;
+        module_info_gt->zn_rel_pos[2] = zPos;
 
         module_info_gt->zone_num = zoneNum;
     }
