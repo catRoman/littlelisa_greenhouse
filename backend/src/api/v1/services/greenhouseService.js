@@ -35,18 +35,20 @@ const getGreenhouseById = async (userId, greenhouseId) => {
   delete greenhouse.y_length;
   delete greenhouse.z_length;
 
-
   //zn_rel_pos
   controllers = controllers.map((controller) => {
-
-    if(controller.square_id === null){
-      if(!controller.zrp_x_pos  || !controller.zrp_y_pos || !controller.zrp_z_pos  ){
+    if (controller.square_id === null) {
+      if (
+        !controller.zrp_x_pos ||
+        !controller.zrp_y_pos ||
+        !controller.zrp_z_pos
+      ) {
         controller.zrp_x_pos = -1;
         controller.zrp_y_pos = -1;
         controller.zrp_z_pos = -1;
       }
-    }else{
-      if(!controller.s_x_pos || !controller.s_y_pos){
+    } else {
+      if (!controller.s_x_pos || !controller.s_y_pos) {
         controller.square_id = null;
         controller.zrp_x_pos = -1;
         controller.zrp_y_pos = -1;
@@ -124,7 +126,48 @@ const getFlatGreenhouseData = async (userId, greenhouseId) => {
   return { ...greenhouse, zones, squares } || null;
 };
 
+const updateGreenhouse = async (fields, greenhouseId) => {
+  const { lat, long, style, location } = fields;
+
+  //emptied plot
+
+  const updatedGreenhouse = await GreenHousesRepo.updateGreenhouseInfo(
+    lat[0],
+    long[0],
+    location[0],
+    style[0],
+    greenhouseId
+  );
+
+  if (updateGreenhouse) {
+    //PARAMS:
+    // eventType,
+    // eventAction,
+    // details,
+    // greenhouseId,
+    // zoneId,
+    // squareId,
+    // moduleId,
+    // sensorId,
+    // note_id
+    await eventLogRepo.addEvent(
+      "Greenhouse",
+      `Updated`,
+      `greenhouse information updated`,
+      greenhouseId,
+      null,
+      null,
+      null,
+      null,
+      null
+    );
+  }
+
+  return updatedGreenhouse || null;
+};
+
 export default {
+  updateGreenhouse,
   getAllGreenhouses,
   getGreenhouseById,
   getFlatGreenhouseData,

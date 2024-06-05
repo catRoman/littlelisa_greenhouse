@@ -15,7 +15,7 @@ router.param("greenhouseId", validateParamId("greenhouses"));
 
 router.get("/", greenhouseController.getAllGreenhouses);
 router.get("/:greenhouseId", greenhouseController.getGreenhouseById);
-
+router.put("/:greenhouseId/updateInfo", greenhouseController.updateInfo);
 router.get(
   "/:greenhouseId/flatGreenhouseData",
   greenhouseController.getFlatGreenhouseData

@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import ReactDatePicker from "react-datepicker";
 import { GreenHouseContext } from "../../../../../../../context/GreenHouseContextProvider";
 
 export default function GreenhouseInfoSubMenu() {
@@ -54,6 +53,15 @@ export default function GreenhouseInfoSubMenu() {
       newErrors.error = "lat and long must be a number...";
       valid = false;
     }
+    if (
+      !greenhouseInfo.long &&
+      !greenhouseInfo.lat &&
+      !greenhouseInfo.style &&
+      !greenhouseInfo.location
+    ) {
+      newErrors.error = "all info must be updated togeather togeather";
+      valid = false;
+    }
     if (Number(greenhouseInfo.lat) < -90 || Number(greenhouseInfo.lat) > 90) {
       newErrors.error = "latitude must be between -90 and 90...";
       valid = false;
@@ -78,7 +86,7 @@ export default function GreenhouseInfoSubMenu() {
       const updateSquare = async () => {
         try {
           const response = await fetch(
-            `/api/users/${userId}/greenhouses/${greenhouseId}/update`,
+            `/api/users/${userId}/greenhouses/${greenhouseId}/updateInfo`,
             {
               method: "PUT",
               body: greenhouseInfoFormData,
@@ -176,8 +184,6 @@ export default function GreenhouseInfoSubMenu() {
             placeholder={style}
           />
         </label>
-        {/* <div className="align-center mt-1 flex gap-4">
-        </div> */}
 
         <label id="lat">
           Latitude:

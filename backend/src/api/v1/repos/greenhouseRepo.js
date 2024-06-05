@@ -37,6 +37,23 @@ class GreenHousesRepo extends BaseRepo {
     results[0].nodes = Number(results[0].nodes);
     return results[0];
   }
+
+  async updateGreenhouseInfo(lat, long, location, style, greenhouseId) {
+    const query = `
+      update greenhouses
+      location = $1 and style=$2 and  lat = $3 and long = $4
+      where greenhouseId = $5
+      returning *
+      `;
+    const results = await this.query(query, [
+      location,
+      style,
+      lat,
+      long,
+      greenhouseId,
+    ]);
+    return results[0] ? results[0] : null;
+  }
 }
 
 export default new GreenHousesRepo();
