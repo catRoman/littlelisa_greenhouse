@@ -10,6 +10,7 @@ import ControlPanelClearContextProvider from "../../../../../context/ControlPane
 import Clear from "./updateSubMenu/Clear";
 import NodeSubMenu from "./updateSubMenu/plot/NodeSubMenu";
 import SensorSubMenu from "./updateSubMenu/plot/SensorSubMenu";
+import ControllerSubMenu from "./updateSubMenu/plot/ControllerSubMenu";
 
 export default function Update() {
   const { viewState } = useContext(GreenHouseContext);
@@ -48,7 +49,7 @@ export default function Update() {
       subMenu = <div className="pl-4">hello zone</div>;
       break;
     case UpdateSubMenu.Controller:
-      subMenu = <div className="pl-4">hello controller</div>;
+      subMenu = <ControllerSubMenu />;
       break;
     case UpdateSubMenu.GlobalSensors:
       subMenu = <SensorSubMenu moduleType={"controller"} />;

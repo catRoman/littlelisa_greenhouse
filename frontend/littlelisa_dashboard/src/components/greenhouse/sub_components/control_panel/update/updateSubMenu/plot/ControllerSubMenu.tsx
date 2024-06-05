@@ -1,11 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { GreenHouseContext } from "../../../../../../../context/GreenHouseContextProvider";
 
-import { GreenHouseViewState } from "../../../../../../../../types/enums";
-
-type ControllerSubMenuProps = {};
-
-export default function ControllerSubMenu({}: ControllerSubMenuProps) {
+export default function ControllerSubMenu() {
   const {
     setRefreshGreenhouseData,
     refreshGreenhouseData,
@@ -31,7 +27,7 @@ export default function ControllerSubMenu({}: ControllerSubMenuProps) {
 
   const [controllerForm, setControllerForm] = useState(defaultControllerForm);
 
-  const inputSensorChangeHandler = (
+  const inputControllerChangeHandler = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const { name, value } = event.target;
@@ -60,29 +56,33 @@ export default function ControllerSubMenu({}: ControllerSubMenuProps) {
       valid = false;
     }
 
-    if (
-      Number(controllerForm.x_pos) < 1 ||
-      Number(controllerForm.y_pos) < 1 ||
-      Number(controllerForm.z_pos) < 1
-    ) {
-      newErrors.controllerForm = "Coordinate cannot be less than one...";
-      valid = false;
+    if (controllerForm.x_pos && controllerForm.y_pos && controllerForm.z_pos) {
+      if (
+        Number(controllerForm.x_pos) < 1 ||
+        Number(controllerForm.y_pos) < 1 ||
+        Number(controllerForm.z_pos) < 1
+      ) {
+        newErrors.controllerForm = "Coordinate cannot be less than one...";
+        valid = false;
+      }
     }
 
-    if (controllerForm.newTag === "") {
-      newErrors.controllerForm = "Tag cannot be empty...";
-      valid = false;
-    }
+    // if (controllerForm.newTag === "") {
+    //   newErrors.controllerForm = "Tag cannot be empty...";
+    //   valid = false;
+    // }
 
     setErrors(newErrors);
     setUpdateCheck(!updateCheck);
-    if (valid) {
+    if (valid && fetchedGreenhouseData) {
       const controllerData = new FormData();
 
-      const controllerId = fetchedGreenhouseData?.controllers[0].module_id!;
-      controllerData.append("controller_id", controllerId);
+      const controllerId = fetchedGreenhouseData.controllers[0].controller_id!;
+
+      controllerData.append("controller_id", controllerId.toString());
 
       controllerData.append("new_tag", controllerForm.newTag);
+
       controllerData.append("x_pos", controllerForm.x_pos);
       controllerData.append("y_pos", controllerForm.y_pos);
       controllerData.append("z_pos", controllerForm.z_pos);
@@ -117,7 +117,7 @@ export default function ControllerSubMenu({}: ControllerSubMenuProps) {
             newTag: "",
             x_pos: "",
             y_pos: "",
-            z_pos: "-1",
+            z_pos: "",
           });
           isUpdating(false);
         }
@@ -133,7 +133,7 @@ export default function ControllerSubMenu({}: ControllerSubMenuProps) {
 
   return (
     <div className=" py-2 pl-4">
-      <form className="grid grid-cols-2 gap-1 pl-4">
+      <form className="grid grid-cols-2 gap-2 pl-4">
         <div className="col-span-2   justify-between">
           {!updateCheck ? (
             <div className="float-right mb-3 justify-end gap-2">
@@ -171,8 +171,8 @@ export default function ControllerSubMenu({}: ControllerSubMenuProps) {
           )}
           {!errors.controllerForm && !updateCheck && !updating && (
             <h5 className="  text-xs text-purple-300">
-              Sensors will appear as available apon data transmittion, sensor
-              locations can be reassigned here...
+              Controller can be assigned anywhere in the greenhouse using
+              absolute positioning...
             </h5>
           )}
           {updateCheck && (
@@ -182,191 +182,54 @@ export default function ControllerSubMenu({}: ControllerSubMenuProps) {
             <p className="mt-1 text-sm text-green-500">Updating...</p>
           )}
         </div>
-
-        <label htmlFor="addSensor" id="addSensor">
-          {moduleType === "controller" ? "Update/Add Sensor:" : "Add Sensor:"}
-        </label>
-        <select
-          name="selectedAddSensor"
-          id="addSensors"
-          value={sensorForm.selectedAddSensor}
-          className=" rounded-md pl-2"
-          onChange={selectSensorChangeHandler}
-        >
-          <option value="" disabled>
-            available sensors
-          </option>
-          {zoneUnassignedSensors.map((sensor, index) => {
-            return (
-              <option
-                key={`unassignedSensor-option-${index}`}
-                value={[
-                  `${sensor.sensor_id}`,
-                  `${sensor.module_id}`,
-                  `${sensor.local_id}`,
-                  `${sensor.type}`,
-                  `${fetchedGreenhouseData && selectedPlot ? selectedPlot.col! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.x! + 1 : 0}`,
-                  `${fetchedGreenhouseData && selectedPlot ? selectedPlot.row! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.y! + 1 : 0}`,
-                ]}
-              >
-                {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-              </option>
-            );
-          })}
-        </select>
-        {sensorForm.selectedAddSensor && moduleType === "controller" && (
-          <div className="col-span-2 flex">
-            <label id="x_pos">
-              x pos:
-              <input
-                name="x_pos"
-                id="x_pos"
-                value={sensorForm.x_pos}
-                className="mt-1  w-[40%] rounded-md pl-2"
-                onChange={inputSensorChangeHandler}
-                placeholder={"0"}
-              ></input>
-            </label>
-            <label id="y_pos">
-              y pos:
-              <input
-                name="y_pos"
-                id="y_pos"
-                value={sensorForm.y_pos}
-                className="mt-1 w-[40%] rounded-md pl-2"
-                onChange={inputSensorChangeHandler}
-                placeholder={"0"}
-              ></input>
-            </label>
-            <label id="z_pos">
-              z pos:
-              <input
-                name="z_pos"
-                id="z_pos"
-                value={sensorForm.z_pos}
-                className="mt-1 w-[40%] rounded-md pl-2"
-                onChange={inputSensorChangeHandler}
-                placeholder={"0"}
-              ></input>
-            </label>
-          </div>
-        )}
-
-        <label htmlFor="removeSensor" id="removeSensor">
-          Remove Sensor:
-        </label>
-        <select
-          name="selectedRemoveSensor"
-          id="removeSensor"
-          value={sensorForm.selectedRemoveSensor}
-          className="rounded-md pl-2"
-          onChange={selectSensorChangeHandler}
-        >
-          <option value="" disabled>
-            Select sensor
-          </option>
-          {!currentSensors || currentSensors?.length < 1 ? (
-            <option value="" disabled>
-              No sensors available
-            </option>
-          ) : viewState === GreenHouseViewState.Plot ? (
-            currentSensors?.map((sensor, index) => {
-              return (
-                <option
-                  key={`currentSensor-option-${index}`}
-                  value={[
-                    `${sensor.sensor_id}`,
-                    `${sensor.module_id}`,
-                    `${sensor.local_id}`,
-                    `${sensor.type}`,
-                    `-1`,
-                    `-1`,
-                  ]}
-                >
-                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-                </option>
-              );
-            })
-          ) : (
-            currentGlobalSensors?.map((sensor, index) => {
-              return (
-                <option
-                  key={`currentSensor-option-${index}`}
-                  value={[
-                    `${sensor.sensor_id}`,
-                    `${sensor.module_id}`,
-                    `${sensor.local_id}`,
-                    `${sensor.type}`,
-                    `-1`,
-                    `-1`,
-                  ]}
-                >
-                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-                </option>
-              );
-            })
-          )}
-        </select>
-
-        <label htmlFor="selectSensorTag" id="selectSensorTag">
-          Update Sensor Tag:
-        </label>
-        <select
-          name="selectedSensorTag"
-          id="selectSensorTag"
-          value={sensorForm.selectedSensorTag}
-          className="rounded-md pl-2"
-          onChange={selectSensorChangeHandler}
-        >
-          <option value="" disabled>
-            select sensor
-          </option>
-          {!currentSensors || currentSensors?.length < 1 ? (
-            <option value="" disabled>
-              No sensors available
-            </option>
-          ) : (
-            currentSensors?.map((sensor, index) => {
-              return (
-                <option
-                  key={`currentNode-option-${index}`}
-                  value={[
-                    `${sensor.sensor_id}`,
-                    `${sensor.module_id}`,
-                    `${sensor.local_id}`,
-                    `${sensor.type}`,
-                    `${fetchedGreenhouseData && selectedPlot ? selectedPlot.col! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.x! + 1 : 0}`,
-                    `${fetchedGreenhouseData && selectedPlot ? selectedPlot.row! - fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point.y! + 1 : 0}`,
-                  ]}
-                >
-                  {`${sensor.type}: ${sensor.location} (module: ${sensor.module_id})`}
-                </option>
-              );
-            })
-          )}
-        </select>
-
-        {sensorForm.selectedSensorTag && (
-          <>
-            <label className="pl-4" id="newSensorTag">
-              New Tag:
-            </label>
+        <h4 className="">Update controller Position:</h4>
+        <div className=" col-span-2 flex">
+          <label id="x_pos">
+            x pos:
             <input
-              name="newSensorTag"
-              id="newSensorTag"
-              value={sensorForm.newSensorTag}
-              className="rounded-md pl-2"
-              onChange={inputSensorChangeHandler}
-              placeholder={
-                currentSensors?.find(
-                  (sensor) =>
-                    sensor.sensor_id === Number(sensorForm.selectedSensorTag) ||
-                    "new tag",
-                )?.location
-              }
+              name="x_pos"
+              id="x_pos"
+              value={controllerForm.x_pos}
+              className="mt-1  w-[40%] rounded-md pl-2"
+              onChange={inputControllerChangeHandler}
+              placeholder={fetchedGreenhouseData!.controllers[0].zn_rel_pos!.x.toString()}
             ></input>
-          </>
-        )}
+          </label>
+          <label id="y_pos">
+            y pos:
+            <input
+              name="y_pos"
+              id="y_pos"
+              value={controllerForm.y_pos}
+              className="mt-1 w-[40%] rounded-md pl-2"
+              onChange={inputControllerChangeHandler}
+              placeholder={fetchedGreenhouseData!.controllers[0].zn_rel_pos!.y.toString()}
+            ></input>
+          </label>
+          <label id="z_pos">
+            z pos:
+            <input
+              name="z_pos"
+              id="z_pos"
+              value={controllerForm.z_pos}
+              className="mt-1 w-[40%] rounded-md pl-2"
+              onChange={inputControllerChangeHandler}
+              placeholder={fetchedGreenhouseData!.controllers[0].zn_rel_pos!.z.toString()}
+            ></input>
+          </label>
+        </div>
+
+        <label className="col-span-2 mt-2 flex flex-nowrap" id="newTag">
+          New Tag:
+          <input
+            name="newTag"
+            id="newTag"
+            value={controllerForm.newTag}
+            className="ml-2 rounded-md pl-2 "
+            onChange={inputControllerChangeHandler}
+            placeholder={fetchedGreenhouseData?.controllers[0].location}
+          ></input>
+        </label>
       </form>
     </div>
   );
