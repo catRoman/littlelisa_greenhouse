@@ -192,7 +192,7 @@ export default function ControllerSubMenu() {
               value={controllerForm.x_pos}
               className="mt-1  w-[40%] rounded-md pl-2"
               onChange={inputControllerChangeHandler}
-              placeholder={fetchedGreenhouseData!.controllers[0].zn_rel_pos!.x.toString()}
+              placeholder={fetchedGreenhouseData?.controllers[0].zn_rel_pos?.x.toString()}
             ></input>
           </label>
           <label id="y_pos">
@@ -203,7 +203,7 @@ export default function ControllerSubMenu() {
               value={controllerForm.y_pos}
               className="mt-1 w-[40%] rounded-md pl-2"
               onChange={inputControllerChangeHandler}
-              placeholder={fetchedGreenhouseData!.controllers[0].zn_rel_pos!.y.toString()}
+              placeholder={fetchedGreenhouseData?.controllers[0].zn_rel_pos?.y.toString()}
             ></input>
           </label>
           <label id="z_pos">
@@ -214,7 +214,7 @@ export default function ControllerSubMenu() {
               value={controllerForm.z_pos}
               className="mt-1 w-[40%] rounded-md pl-2"
               onChange={inputControllerChangeHandler}
-              placeholder={fetchedGreenhouseData!.controllers[0].zn_rel_pos!.z.toString()}
+              placeholder={fetchedGreenhouseData?.controllers[0].zn_rel_pos?.z.toString()}
             ></input>
           </label>
         </div>

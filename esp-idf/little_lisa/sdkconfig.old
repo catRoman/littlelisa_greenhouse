@@ -373,7 +373,7 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # LittleLisa - Config
 #
-CONFIG_ENABLE_NVS_UPDATE=y
+# CONFIG_ENABLE_NVS_UPDATE is not set
 # end of LittleLisa - Config
 
 #

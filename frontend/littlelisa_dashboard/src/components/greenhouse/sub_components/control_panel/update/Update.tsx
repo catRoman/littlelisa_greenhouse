@@ -10,7 +10,8 @@ import ControlPanelClearContextProvider from "../../../../../context/ControlPane
 import Clear from "./updateSubMenu/Clear";
 import NodeSubMenu from "./updateSubMenu/plot/NodeSubMenu";
 import SensorSubMenu from "./updateSubMenu/plot/SensorSubMenu";
-import ControllerSubMenu from "./updateSubMenu/plot/ControllerSubMenu";
+import ControllerSubMenu from "./updateSubMenu/greenhouse/ControllerSubMenu";
+import GreenhouseInfoSubMenu from "./updateSubMenu/greenhouse/GreenhouseInfoSubMenu";
 
 export default function Update() {
   const { viewState } = useContext(GreenHouseContext);
@@ -43,7 +44,7 @@ export default function Update() {
 
   switch (isSelectedSubMenu as UpdateSubMenu) {
     case UpdateSubMenu.Greenhouse:
-      subMenu = <div className="pl-4">hello greenhouse</div>;
+      subMenu = <GreenhouseInfoSubMenu />;
       break;
     case UpdateSubMenu.Zone:
       subMenu = <div className="pl-4">hello zone</div>;
