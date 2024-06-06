@@ -9,6 +9,7 @@ import noteRoutes from "../routes/noteRoutes.js";
 import squareRoutes from "../routes/squareRoutes.js";
 import squareController from "../controllers/squareController.js";
 import nodeController from "../controllers/nodeController.js";
+import camRoutes from "../../../streaming/camRoutes.js";
 
 const router = Router({ mergeParams: true });
 router.param("greenhouseId", validateParamId("greenhouses"));
@@ -35,5 +36,6 @@ router.use("/:greenhouseId/sensors", sensorRoutes);
 router.use("/:greenhouseId/zones", zoneRoutes);
 router.use("/:greenhouseId/notes", noteRoutes);
 router.use("/:greenhouseId/squares", squareRoutes);
+router.use("/:greenhouseId/cam", camRoutes);
 
 export default router;

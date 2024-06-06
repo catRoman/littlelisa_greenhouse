@@ -1,10 +1,10 @@
-import ScheduleCalendar from "../components/scheduleCalender/ScheduleCalendar";
+import CurrentMonthCalendar from "../components/scheduleCalender/CurrentMonthCalendar";
 
-export default function Scheduling() {
+export default function CalenderPage() {
   return (
     <div>
       <div className="pl-6">
-        <h1 className="text-3xl">Schedule here</h1>
+        <h1 className="text-3xl">Calender here</h1>
         <p>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta enim
           blanditiis, saepe esse vitae aliquid excepturi temporibus natus, porro
@@ -12,8 +12,11 @@ export default function Scheduling() {
           dignissimos.
         </p>
       </div>
-      <div className="p-16">
-        <ScheduleCalendar />
+
+      <div className="grid grid-cols-4">
+        <div className="col-span-2 row-span-2 p-16">
+          <CurrentMonthCalendar />
+        </div>
       </div>
     </div>
   );
