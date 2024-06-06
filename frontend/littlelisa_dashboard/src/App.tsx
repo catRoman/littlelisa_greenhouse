@@ -1,4 +1,3 @@
-import React from "react";
 import "./styles/index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/ErrorPage.tsx";
@@ -10,10 +9,11 @@ import TopNav from "./components/topNav/TopNav.tsx";
 
 import { Outlet } from "react-router-dom";
 import Login from "./pages/Login.tsx";
-import Scheduling from "./pages/Scheduling.tsx";
+
 import Debug from "./pages/Debug.tsx";
 import GreenHouse from "./pages/GreenHouse.tsx";
 import GreenHouseContextProvider from "./context/GreenHouseContextProvider.tsx";
+import CalenderPage from "./pages/CalendarPage.tsx";
 
 export default function App() {
   const Layout = () => {
@@ -45,11 +45,7 @@ export default function App() {
 
       children: [
         {
-          path: "dashboard",
-          element: <DashBoard />,
-        },
-        {
-          path: "greenhouse",
+          path: "overview",
           element: (
             <GreenHouseContextProvider>
               <GreenHouse />
@@ -57,8 +53,8 @@ export default function App() {
           ),
         },
         {
-          path: "schedule",
-          element: <Scheduling />,
+          path: "calender",
+          element: <CalenderPage />,
         },
         {
           path: "sensors",
@@ -77,7 +73,7 @@ export default function App() {
     {
       path: "/login",
       element: <Login />,
-    }
+    },
   ]);
 
   return <RouterProvider router={router} />;

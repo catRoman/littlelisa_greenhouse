@@ -10,6 +10,10 @@ export enum ControlPanelState {
   Reminder = "Reminder",
   Closed = "Closed",
 }
+export enum EventPanelState {
+  Upcoming = "Upcoming",
+  Recent = "Recent",
+}
 
 export enum UpdateSubMenu {
   Greenhouse = "Greenhouse",

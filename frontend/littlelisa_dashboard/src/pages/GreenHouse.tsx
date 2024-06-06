@@ -12,6 +12,8 @@ import NotesSection from "../components/greenhouse/NotesSection";
 import { GreenHouseViewState } from "../../types/enums";
 
 import ControlPanel from "../components/greenhouse/ControlPanel";
+import DashCameraContainer from "../components/dashboard/DashCameraContainer";
+import CamStream from "../components/greenhouse/CamStream";
 
 export default function GreenHouse() {
   const {
@@ -67,35 +69,45 @@ export default function GreenHouse() {
   // }
 
   return (
-    <div className=" mr-4  grid w-full  auto-rows-min  grid-cols-6 gap-6 px-4">
-      <div className="col-span-3  ">
-        <TitleSection />
-      </div>
-      <div className=" row-span-4">
-        <OverviewSection />
-      </div>
-      <div className="col-span-2  row-span-2 ">
-        <EventsSection />
-      </div>
-      <div className="z-1 col-span-3 h-96 cursor-pointer overflow-hidden">
-        {loading ? (
-          <div className="m-auto flex ">Loading...</div>
-        ) : (
-          <Canvas onPointerMissed={zoomOutHandle}>
-            <GreenHouseModel />
-          </Canvas>
-        )}
+    <div className="grid grid-cols-3 gap-2">
+      <div className="col-span-2 mr-4  grid w-full  auto-rows-min  grid-cols-4 gap-6 px-4">
+        <div className="col-span-3  ">
+          <TitleSection />
+        </div>
+        <div className=" row-span-4">
+          <OverviewSection />
+        </div>
+
+        <div className="z-1 col-span-3 row-span-2 h-96 cursor-pointer overflow-hidden">
+          {loading ? (
+            <div className="m-auto flex ">Loading...</div>
+          ) : (
+            <Canvas onPointerMissed={zoomOutHandle}>
+              <GreenHouseModel />
+            </Canvas>
+          )}
+        </div>
+
+        <div className="col-span-3 row-span-2   ">
+          <ControlPanel />
+        </div>
+        <div className="col-span-4  ">
+          <SectionBody />
+        </div>
       </div>
 
-      <div className="col-span-3 row-span-2   ">
-        <ControlPanel />
-      </div>
+      <div className=" flex flex-col gap-6 pr-4">
+        <div className="col-span-2 row-span-2">
+          <DashCameraContainer />
+          {/* <CamStream /> */}
+        </div>
+        <div className=" col-span-2 row-span-1 ">
+          <EventsSection />
+        </div>
 
-      <div className="col-span-2 row-span-3">
-        <NotesSection />
-      </div>
-      <div className="col-span-4  ">
-        <SectionBody />
+        <div className="col-span-2 row-span-3">
+          <NotesSection />
+        </div>
       </div>
     </div>
   );
