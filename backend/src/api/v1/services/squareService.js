@@ -20,7 +20,6 @@ const updateSquare = async (fields, squareId, greenhouseId) => {
       null,
       squareId
     );
-
     if (updateSquare) {
       //PARAMS:
       // eventType,
