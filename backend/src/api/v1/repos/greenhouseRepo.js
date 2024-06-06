@@ -39,10 +39,18 @@ class GreenHousesRepo extends BaseRepo {
   }
 
   async updateGreenhouseInfo(lat, long, location, style, greenhouseId) {
+    console.log(lat);
+    console.log(long);
+    console.log(location);
+    console.log(style);
     const query = `
       update greenhouses
-      location = $1 and style=$2 and  lat = $3 and long = $4
-      where greenhouseId = $5
+      set
+        location = $1,
+        style=$2,
+        lat = $3,
+        long = $4
+      where greenhouse_id = $5
       returning *
       `;
     const results = await this.query(query, [

@@ -39,7 +39,7 @@ export default function DashEnviroCntrl() {
   return (
     <div className="flex h-36 flex-col justify-between pt-4">
       {error ? (
-        <p className="m-auto"> Error fetching data...</p>
+        <p className="m-auto"> Controller Offline...</p>
       ) : loading ? (
         <p className="m-auto"> Loading...</p>
       ) : (

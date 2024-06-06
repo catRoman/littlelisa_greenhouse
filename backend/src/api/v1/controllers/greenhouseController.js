@@ -57,7 +57,7 @@ const updateInfo = async (req, res) => {
 
     const updatedInfo = await greenhouseService.updateInfo(
       fields,
-      req.params.greenhouseId
+      greenhouseId
     );
 
     res.json(updatedInfo);

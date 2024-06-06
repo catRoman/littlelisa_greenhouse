@@ -3,6 +3,7 @@ import ControllersRepo from "../repos/controllerRepo.js";
 import SensorRepo from "../repos/sensorRepo.js";
 import zoneService from "../services/zoneService.js";
 import squareRepo from "../repos/squareRepo.js";
+import eventLogRepo from "../repos/eventLogRepo.js";
 
 const getAllGreenhouses = async (userId) => {
   const greenhouses = await GreenHousesRepo.getAllByParentId(userId);
@@ -126,7 +127,7 @@ const getFlatGreenhouseData = async (userId, greenhouseId) => {
   return { ...greenhouse, zones, squares } || null;
 };
 
-const updateGreenhouse = async (fields, greenhouseId) => {
+const updateInfo = async (fields, greenhouseId) => {
   const { lat, long, style, location } = fields;
 
   //emptied plot
@@ -139,7 +140,7 @@ const updateGreenhouse = async (fields, greenhouseId) => {
     greenhouseId
   );
 
-  if (updateGreenhouse) {
+  if (updatedGreenhouse) {
     //PARAMS:
     // eventType,
     // eventAction,
@@ -167,7 +168,7 @@ const updateGreenhouse = async (fields, greenhouseId) => {
 };
 
 export default {
-  updateGreenhouse,
+  updateInfo,
   getAllGreenhouses,
   getGreenhouseById,
   getFlatGreenhouseData,
