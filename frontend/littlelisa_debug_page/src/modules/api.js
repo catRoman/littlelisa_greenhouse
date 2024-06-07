@@ -1,7 +1,10 @@
-//+++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/deviceInfo.json
-//++++++++++++++++++++++++++++++++++++
-async function fetchDeviceMenuTabInfo() {
+let nodeType = "node";
+
+/**
+ * Fetches esp module info for menu tab .
+ * @returns {Promise<void>} A promise that resolves when info is fetched successfully.
+ */
+export async function fetchDeviceMenuTabInfo() {
   try {
     const response = await fetch("/api/deviceInfo.json");
     if (!response.ok) {
@@ -15,10 +18,11 @@ async function fetchDeviceMenuTabInfo() {
   }
 }
 
-//+++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/wifiApConnectInfo.json
-//++++++++++++++++++++++++++++++++++++
-async function fetchNetworkApMenuTabInfo() {
+/**
+ * Fetches network AP info for menu tab from the esp controller api.
+ * @returns {Promise<void>} A promise that resolves when the esp controllers ap info is fetched successfully.
+ */
+export async function fetchNetworkApMenuTabInfo() {
   try {
     const response = await fetch("/api/wifiApConnectInfo.json");
     if (!response.ok) {
@@ -32,10 +36,11 @@ async function fetchNetworkApMenuTabInfo() {
   }
 }
 
-//+++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/wifiStaConnectInfo.json
-//++++++++++++++++++++++++++++++++++++
-async function fetchNetworkStaMenuTabInfo() {
+/**
+ * Fetches wifi stations for use in menu from esp controller api.
+ * @returns {Promise<void>} A promise that resolves when the wifi station list is fetched successfully.
+ */
+export async function fetchNetworkStaMenuTabInfo() {
   try {
     const response = await fetch("/api/wifiStaConnectInfo.json");
     if (!response.ok) {
@@ -49,11 +54,10 @@ async function fetchNetworkStaMenuTabInfo() {
   }
 }
 
-//+++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/uptimeFunk.json
-//++++++++++++++++++++++++++++++++++++
-
-async function fetchUptimeFunk() {
+/** Fetches uptime from the esp controller api.
+ * @returns {Promise<void>} A promise that resolves when the uptime is fetched successfully.
+ * */
+export async function fetchUptimeFunk() {
   try {
     const response = await fetch("/api/uptimeFunk.json");
     if (!response.ok) {
@@ -66,11 +70,12 @@ async function fetchUptimeFunk() {
   }
 }
 
-//+++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/moduleInfo.json
-//++++++++++++++++++++++++++++++++++++
-
-async function fetchModuleInfo() {
+/** Fetches the esp controllers module info.
+ * initiates sockets for log and sensor data.
+ * @returns {Promise<void>} A promise that resolves when the module info is fetched successfully.
+ * @error {Error} If the network response is not ok.
+ **/
+export async function fetchModuleInfo() {
   try {
     const response = await fetch("/api/moduleInfo.json");
     if (!response.ok) {
@@ -94,11 +99,10 @@ async function fetchModuleInfo() {
   }
 }
 
-//++++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/moduleInfo.json
-//+++++++++++++++++++++++++++++++++++
-
-async function fetchControllerStaList() {
+/** retrieves the wifi station list from the esp controller module
+ * @returns {Promise<void>} A promise that resolves when the wifi station list is fetched successfully.
+ */
+export async function fetchControllerStaList() {
   try {
     const response = await fetch("/api/controllerStaList.json");
     if (!response.ok) {
@@ -111,7 +115,11 @@ async function fetchControllerStaList() {
   } catch (error) {}
 }
 
-function applyNodeInfo(nodeListObj) {
+/**
+ * Applies node information to the UI.
+ * @param {Object} nodeListObj - The object containing the node list.
+ */
+export function applyNodeInfo(nodeListObj) {
   //loop through node list
   //check if node-box  exists for node, if not render sensor-data-node-box
   //loop through node list fetch nodes moduleInfo.json and populate
@@ -121,6 +129,7 @@ function applyNodeInfo(nodeListObj) {
     const validNodeClass = getValidNodeClass(key);
     //ping "key".local/api/moduleInfo.json to get valid resposnse
     //if not its not a node
+    //TODO: check for service of littlelisa-api from mdns
     const applyData = async function () {
       try {
         const response = await fetch(
@@ -145,11 +154,11 @@ function applyNodeInfo(nodeListObj) {
     applyData();
   });
 }
-//++++++++++++++++++++++++++++++++++++
-//+++++++++++++  /api/envState
-//+++++++++++++++++++++++++++++++++++
 
-async function fetchEnvState() {
+/** retrieves the current enviroment control state from the esp controller
+ * @returns {Promise<void>} A promise that resolves when the enviroment control state is fetched successfully.
+ */
+export async function fetchEnvState() {
   try {
     const response = await fetch("/api/envState");
     if (!response.ok) {
@@ -164,7 +173,11 @@ async function fetchEnvState() {
     console.log(error.message);
   }
 }
-async function toggleStateFetch(id) {
+
+/** send the enviromental control state update from the esp controller
+ * @param {string} id - the id of the state to be updated.
+ */
+export async function toggleStateFetch(id) {
   try {
     const response = await fetch("/api/envStateUpdate", {
       method: "PUT",

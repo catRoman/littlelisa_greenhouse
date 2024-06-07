@@ -1,6 +1,11 @@
-//++++++++++sensorRefresh
-
-function sensorRefreshEvent() {
+const sensorSection = document.querySelector(".section-sensor-data");
+const sensorRefreshBtn = document.querySelector(".sensor-refresh");
+const nodeBox = document.querySelector(".sensor-data-node-box");
+/**
+ * Closes the sensor data socket and initiates a new sensor socket after a delay.
+ * @function sensorRefreshEvent
+ */
+export function sensorRefreshEvent() {
   if (sensorDataSocket !== undefined) {
     sensorDataSocket.close();
     setTimeout(() => initiateSensorSocket(moduleData), 3000);
@@ -11,13 +16,14 @@ sensorRefreshBtn.addEventListener("click", (e) => {
 });
 sensorRefreshBtn.addEventListener("touchend", (e) => {
   e.preventDefault();
-  sensorRefreshEv;
-  ent();
+  sensorRefreshEvent();
 });
-//===========================
-//  Node sensor data display
-//===========================
-function addNodeBoxButtonEvent(nodeNameClass) {
+
+/**
+ * Adds a click event listener to a sensor summary element.
+ * @param {string} nodeNameClass - The class name of the parent node.
+ */
+export function addNodeBoxButtonEvent(nodeNameClass) {
   const sensorSummary = document.querySelector(
     `${nodeNameClass} > .sensor-summary`
   );
@@ -32,7 +38,10 @@ function addNodeBoxButtonEvent(nodeNameClass) {
     }
   });
 }
-function getAvgTempReading() {
+/**
+ * Calculates the average temperature reading from sensor data nodes and updates the corresponding elements.
+ */
+export function getAvgTempReading() {
   const nodeBoxes = document.querySelectorAll(".sensor-data-node-box");
   nodeBoxes.forEach((nodeBox) => {
     const sensorTempReadings = nodeBox.querySelectorAll(".temp");
@@ -54,7 +63,13 @@ function getAvgTempReading() {
   });
 }
 
-function updateSensorData(wsSensorData) {
+/**
+ * Updates the sensor data in the UI based on the received WebSocket sensor data.
+ * @param {Object} wsSensorData - The WebSocket sensor data object.
+ * @param {Object} wsSensorData.module_info - The module information object.
+ * @param {Object} wsSensorData.sensor_info - The sensor data object.
+ */
+export function updateSensorData(wsSensorData) {
   const { module_info: moduleInfoObj, sensor_info: sensorDataObj } =
     wsSensorData;
 

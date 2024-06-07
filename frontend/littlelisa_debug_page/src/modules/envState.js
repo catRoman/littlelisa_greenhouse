@@ -1,4 +1,7 @@
-function updateEnvStateView() {
+/**
+ * Updates the environment state view by rendering the on/off status buttons.
+ */
+export function updateEnvStateView() {
   const envContainer = document.querySelector(".env-cntrl");
   envContainer.innerHTML = "";
 
@@ -24,5 +27,3 @@ function updateEnvStateView() {
     });
   });
 }
-
-fetchEnvState();

@@ -1,10 +1,17 @@
-//==============
-// Helpers
-//=============
-function getValidNodeClass(macAddr) {
+/**
+ * Returns a valid node class based on the given MAC address.
+ * @param {string} macAddr - The MAC address of the node.
+ * @returns {string} - The valid node class.
+ */
+export function getValidNodeClass(macAddr) {
   return "node-" + macAddr.replaceAll(":", "-");
 }
-function extractNodeIdToStatus(updateLog) {
+
+/**
+ * Extracts the node ID from the update log and updates the OTA status information.
+ * @param {string} updateLog - The update log string.
+ */
+export function extractNodeIdToStatus(updateLog) {
   const regex = /.*UPDATING_NODE_(\d+).*/;
   const nodeId = updateLog.match(regex);
 
@@ -14,17 +21,13 @@ function extractNodeIdToStatus(updateLog) {
     console.log(`Updating node ${nodeId[1]}...`);
   }
 }
-//================
-//DEBUG help
-//==================
-//display screen demiinsion in console for debug
+
 window.addEventListener("resize", () => {
   console.log(
     `Viewport Width: ${window.innerWidth}, Viewport Height: ${window.innerHeight}`
   );
 });
 
-// Log the initial size
 console.log(
   `Initial Viewport Width: ${window.innerWidth}, Initial Viewport Height: ${window.innerHeight}`
 );

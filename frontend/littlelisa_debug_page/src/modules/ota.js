@@ -1,5 +1,9 @@
-//+++++++++++OTA UPDATE+++++++++++++++
-
+///ota log update
+const otaLogBox = document.querySelector(".ota-log");
+const otaStatusContainer = document.querySelector(".ota-status");
+const otaStatusInfo = document.querySelector(".ota-status-info");
+const otaStatusReset = document.querySelector(".ota-status-reset");
+const fileInput = document.getElementById("fileInput");
 const otaUpdateBtn = document.getElementById("uploadBtn");
 const otaUpdateForm = document.getElementById("uploadForm");
 

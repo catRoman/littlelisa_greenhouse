@@ -1,9 +1,3 @@
-//
-//=================
-//  Nav
-//===================
-
-//nav menu button handler
 //=============nav selectors================
 const openButton = document.querySelector(".icon-open");
 const closeButton = document.querySelector(".icon-close");
@@ -11,16 +5,22 @@ const menu = document.querySelector(".menu");
 const main = document.querySelector("main");
 const navClose = document.querySelector(".nav-btn.close");
 const menuBtns = document.querySelectorAll(".nav-btn");
-//========================================
 
-function toggleInfoTab(navClass) {
+/**
+ * Toggles the visibility of the information tab.
+ * @param {string} navClass - The class selector for the navigation element.
+ */
+export function toggleInfoTab(navClass) {
   console.log(navClass);
   menu.classList.toggle("hidden");
   document.querySelector(navClass).classList.toggle("hidden");
   closeButton.classList.toggle("hidden");
 }
 
-function checkForNodeRemoval() {
+/**
+ * Checks for node removal and removes nodes that are not present in the nodeListObj.
+ */
+export function checkForNodeRemoval() {
   renderedNodeList.forEach((node) => {
     const validNodeClass = getValidNodeClass(node);
 
@@ -38,7 +38,15 @@ function checkForNodeRemoval() {
   });
 }
 
-function updatePageTitle(moduleInfo) {
+/**
+ * Updates the page title with the information from the module.
+ * @param {Object} moduleInfo - The module information.
+ * @param {Object} moduleInfo.module_info - The module information object.
+ * @param {string} moduleInfo.module_info.type - The type of the module.
+ * @param {string} moduleInfo.module_info.location - The location of the module.
+ * @param {string} moduleInfo.module_info.identifier - The identifier of the module.
+ */
+export function updatePageTitle(moduleInfo) {
   const {
     module_info: { type, location, identifier },
   } = moduleInfo;
@@ -50,11 +58,14 @@ function updatePageTitle(moduleInfo) {
   //change sensor-summary self
 }
 
-//==========================
-//Render====================
-//==========================
-
-function renderConnectedDeviceLink(nodeId, moduleInfoObj, rssiValue) {
+/**
+ * Renders a connected device link with the provided information.
+ *
+ * @param {string} nodeId - The ID of the node.
+ * @param {object} moduleInfoObj - The module information object.
+ * @param {number} rssiValue - The RSSI value.
+ */
+export function renderConnectedDeviceLink(nodeId, moduleInfoObj, rssiValue) {
   const {
     module_info: { location, identifier },
   } = moduleInfoObj;
@@ -77,10 +88,6 @@ function renderConnectedDeviceLink(nodeId, moduleInfoObj, rssiValue) {
     >`
   );
 }
-
-//==========================
-//Event Listeners===========
-//==========================
 
 closeButton.addEventListener("click", (e) => {
   closeEvent();
@@ -108,17 +115,19 @@ menuBtns.forEach((el) => {
   });
 });
 
-//==========================
-//Events====================
-//==========================
-
-function openEvent() {
+/**
+ * Toggles the visibility of the openButton, main, and menu elements.
+ */
+export function openEvent() {
   openButton.classList.toggle("hidden");
   main.classList.toggle("hidden");
   menu.classList.toggle("hidden");
 }
 
-function closeEvent() {
+/**
+ * Closes the menu tabs and toggles the info tab for each visible tab.
+ */
+export function closeEvent() {
   const menuTabs = document.querySelector(".menu-select");
   Array.from(menuTabs.children).forEach((el) => {
     if (
@@ -131,7 +140,12 @@ function closeEvent() {
   });
 }
 
-function menuEvent(e, classList) {
+/**
+ * Handles the menu event based on the clicked button's class.
+ * @param {Event} e - The event object.
+ * @param {DOMTokenList} classList - The class list of the clicked button.
+ */
+export function menuEvent(e, classList) {
   e.stopPropagation;
   const classes = [...classList];
   switch (classes[classes.length - 1]) {

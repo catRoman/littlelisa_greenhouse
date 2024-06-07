@@ -1,6 +1,13 @@
-//+++++++++++++++++++++logRefreshEvent
+let sensorRetryCount = 0;
+let logRetryCount = 0;
+let logDataSocket = null;
+let sensorDataSocket = null;
 
-function logRefreshEvent() {
+/**
+ * Closes the logDataSocket if it exists, refreshes the log socket, and updates the logTextArea.
+ * @function logRefreshEvent
+ */
+export function logRefreshEvent() {
   if (logDataSocket !== undefined) {
     logDataSocket.close();
     console.log("refreshing log socket...");
@@ -8,6 +15,7 @@ function logRefreshEvent() {
     setTimeout(() => initiateLogSocket(moduleData), 3000);
   }
 }
+
 logRefreshBtn.addEventListener("click", (e) => {
   logRefreshEvent();
 });
@@ -16,13 +24,14 @@ logRefreshBtn.addEventListener("touchend", (e) => {
   logRefreshEvent();
 });
 
-//++++++++++++++++++++++++++++++++++++
-//+++++++++++++  /ws/sensor
-//+++++++++++++++++++++++++++++++++++
-// Create WebSocket connection.
-let sensorRetryCount = 0;
-
-function initiateSensorSocket(moduleDataObj) {
+/**
+ * Initiates a WebSocket connection for sensor data.
+ * @param {Object} moduleDataObj - The module data object.
+ * @param {Object} moduleDataObj.module_info - The module information object.
+ * @param {string} moduleDataObj.module_info.type - The module type.
+ * @param {string} moduleDataObj.module_info.identifier - The module identifier.
+ */
+export function initiateSensorSocket(moduleDataObj) {
   const {
     module_info: { type, identifier },
   } = moduleDataObj;
@@ -52,11 +61,13 @@ function initiateSensorSocket(moduleDataObj) {
     updateSensorData(JSON.parse(event.data.replace(/\0+$/, "")));
   };
 }
-let logRetryCount = 0;
 
-//------------------------------datalog
-
-function initiateLogSocket(moduleDataObj, logType) {
+/**
+ * Initializes the log socket connection and handles socket events.
+ * @param {Object} moduleDataObj - The module data object.
+ * @param {string} logType - The log type.
+ */
+export function initiateLogSocket(moduleDataObj, logType) {
   const {
     module_info: { type, identifier },
   } = moduleDataObj;
@@ -113,7 +124,13 @@ function initiateLogSocket(moduleDataObj, logType) {
   });
 }
 
-function getExponentialBackoffDelay(retryCount) {
+/**
+ * Calculates the exponential backoff delay based on the retry count.
+ *
+ * @param {number} retryCount - The number of times the operation has been retried.
+ * @returns {number} The calculated delay in milliseconds.
+ */
+export function getExponentialBackoffDelay(retryCount) {
   const baseDelay = 1000; // 1 second
   const maxDelay = 30000; // 30 seconds
   let delay = Math.min(maxDelay, baseDelay * 2 ** retryCount);

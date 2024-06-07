@@ -1,8 +1,11 @@
-//+++++++++++++++++++++++++++++++++++++++++
-//++++++fetch for connected nodes moduleinfo
-//++++++++++++++++++++++++++++++++++++++
-
-function renderModuleInfo(nodeId, moduleInfo) {
+import { addNodeBoxButtonEvent, updateNetworkInfoList } from "./networking.js";
+/**
+ * Renders the module information in the DOM.
+ *
+ * @param {string} nodeId - The ID of the node.
+ * @param {object} moduleInfo - The module information object.
+ */
+export function renderModuleInfo(nodeId, moduleInfo) {
   const {
     module_info: { type, location, identifier },
     sensor_list: sensorList,
@@ -104,8 +107,15 @@ function renderModuleInfo(nodeId, moduleInfo) {
   //insert sensor templates for each sensor in
 }
 
-//Wifi info
-function renderWifiApInfo(wifiApInfoObj) {
+/**
+ * Renders the esp module Wi-Fi Access Point information on the page.
+ * @param {Object} wifiApInfoObj - The object containing the Wi-Fi Access Point information.
+ * @param {string} wifiApInfoObj.ap_ssid - The SSID of the Access Point.
+ * @param {number} wifiApInfoObj.ap_channel - The channel of the Access Point.
+ * @param {string} wifiApInfoObj.ap_pass - The password of the Access Point.
+ * @param {number} wifiApInfoObj.ap_max_connect - The maximum number of connections allowed by the Access Point.
+ */
+export function renderWifiApInfo(wifiApInfoObj) {
   const { ap_ssid, ap_channel, ap_pass, ap_max_connect } = wifiApInfoObj;
   const apSection = document.querySelector(".network-info > ul");
 
@@ -128,7 +138,22 @@ function renderWifiApInfo(wifiApInfoObj) {
   );
   updateNetworkInfoList();
 }
-function updateMenuDeviceInfoTab(deviceInfo) {
+/**
+ * Updates the menu device info tab with the provided modules information.
+ * @param {Object} deviceInfo - The device information object.
+ * @param {Object} deviceInfo.chip_info - The chip information object.
+ * @param {number} deviceInfo.chip_info.num_cores - The number of cores.
+ * @param {string} deviceInfo.chip_info.chip_type - The chip type.
+ * @param {Object} deviceInfo.app_info - The app information object.
+ * @param {string} deviceInfo.app_info.secure_ver - The secure version.
+ * @param {string} deviceInfo.app_info.app_ver - The app version.
+ * @param {string} deviceInfo.app_info.proj_name - The project name.
+ * @param {Object} deviceInfo.app_info.compile_info - The compile information object.
+ * @param {string} deviceInfo.app_info.compile_info.time - The compile time.
+ * @param {string} deviceInfo.app_info.compile_info.date - The compile date.
+ * @param {string} deviceInfo.app_info.compile_info.idf_ver - The IDF version.
+ */
+export function updateMenuDeviceInfoTab(deviceInfo) {
   const {
     chip_info: { num_cores, chip_type },
     app_info: {
@@ -149,7 +174,11 @@ function updateMenuDeviceInfoTab(deviceInfo) {
   document.querySelector(".device-info .idf-ver").textContent = idf_ver;
 }
 
-function updateWifiStaInfo(networkStaObj) {
+/**
+ * Updates the Wi-Fi station information in the submenu.
+ * @param {Object} networkStaObj - The network station object containing IP, netmask, gateway, access point, and RSSI.
+ */
+export function updateWifiStaInfo(networkStaObj) {
   const { ip, netmask, gw, ap, rssi } = networkStaObj;
 
   document.querySelector(".network-info .sta-ssid").textContent = ap;
@@ -159,7 +188,13 @@ function updateWifiStaInfo(networkStaObj) {
   document.querySelector(".network-info .gateway").textContent = gw;
 }
 
-function updateUptime({ uptime }) {
+/**
+ * Updates the uptime display with the given uptime value.
+ *
+ * @param {Object} options - The options object.
+ * @param {number} options.uptime - The uptime value in milliseconds.
+ */
+export function updateUptime({ uptime }) {
   const timeParts = [
     Math.floor(uptime / 86400000), // Days
     Math.floor((uptime % 86400000) / 3600000), // Hours
@@ -171,7 +206,12 @@ function updateUptime({ uptime }) {
     ".uptime"
   ).textContent = `${timeParts[0]} : ${timeParts[1]} : ${timeParts[2]} : ${timeParts[3]}`;
 }
-function updateRssi(nodeId, value) {
+/**
+ * Updates the RSSI (Received Signal Strength Indicator) value and visual representation for a given node.
+ * @param {string} nodeId - The ID of the node.
+ * @param {number} value - The RSSI value to update.
+ */
+export function updateRssi(nodeId, value) {
   const rssiBox = document.querySelector(`.${nodeId}-btn .rssi`);
   const rssiValue = document.querySelector(`.${nodeId}-btn .rssi-value`);
   if (value > -50) {
