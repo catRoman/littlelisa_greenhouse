@@ -21,3 +21,31 @@ function renderConnectedDeviceLink(nodeId, moduleInfoObj, rssiValue) {
           >`
   );
 }
+function checkForNodeRemoval() {
+  renderedNodeList.forEach((node) => {
+    const validNodeClass = getValidNodeClass(node);
+
+    if (
+      !nodeListObj.includes(node) &&
+      document.querySelector(`.${validNodeClass}`) !== null
+    ) {
+      document.querySelector(`.${validNodeClass}`).remove();
+      document.querySelector(`.${validNodeClass}-btn`).remove();
+
+      renderedNodeList.delete(node);
+
+      console.log(`removed ${validNodeClass}`);
+    }
+  });
+}
+function updatePageTitle(moduleInfo) {
+  const {
+    module_info: { type, location, identifier },
+  } = moduleInfo;
+
+  //change title
+  document.querySelector(".type").textContent = type;
+  document.querySelector(".module_id").textContent = identifier;
+  document.querySelector(".title-location").textContent = location;
+  //change sensor-summary self
+}

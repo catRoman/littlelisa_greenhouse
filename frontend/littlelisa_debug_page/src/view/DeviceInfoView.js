@@ -124,3 +124,60 @@ function renderWifiApInfo(wifiApInfoObj) {
   );
   updateNetworkInfoList();
 }
+function updateMenuDeviceInfoTab(deviceInfo) {
+  const {
+    chip_info: { num_cores, chip_type },
+    app_info: {
+      secure_ver,
+      app_ver,
+      proj_name,
+      compile_info: { time: compileTime, date: compileDate, idf_ver },
+    },
+  } = deviceInfo;
+
+  document.querySelector(".device-info .proj-name").textContent = proj_name;
+  document.querySelector(".device-info .app-ver").textContent = app_ver;
+  document.querySelector(".device-info .sec-ver").textContent = secure_ver;
+  document.querySelector(".device-info .cores").textContent = num_cores;
+  document.querySelector(".device-info .chip").textContent = chip_type;
+  document.querySelector(".device-info .time").textContent = compileTime;
+  document.querySelector(".device-info .date").textContent = compileDate;
+  document.querySelector(".device-info .idf-ver").textContent = idf_ver;
+}
+
+function updateWifiStaInfo(networkStaObj) {
+  const { ip, netmask, gw, ap, rssi } = networkStaObj;
+
+  document.querySelector(".network-info .sta-ssid").textContent = ap;
+  document.querySelector(".network-info .rssi").textContent = rssi;
+  document.querySelector(".network-info .ip").textContent = ip;
+  document.querySelector(".network-info .netmask").textContent = netmask;
+  document.querySelector(".network-info .gateway").textContent = gw;
+}
+
+function updateUptime({ uptime }) {
+  const timeParts = [
+    Math.floor(uptime / 86400000), // Days
+    Math.floor((uptime % 86400000) / 3600000), // Hours
+    Math.floor((uptime % 3600000) / 60000), // Minutes
+    Math.floor((uptime % 60000) / 1000), // Seconds
+  ].map((part) => part.toString().padStart(2, "0"));
+
+  document.querySelector(
+    ".uptime"
+  ).textContent = `${timeParts[0]} : ${timeParts[1]} : ${timeParts[2]} : ${timeParts[3]}`;
+}
+function updateRssi(nodeId, value) {
+  const rssiBox = document.querySelector(`.${nodeId}-btn .rssi`);
+  const rssiValue = document.querySelector(`.${nodeId}-btn .rssi-value`);
+  if (value > -50) {
+    rssiBox.style.backgroundColor = "green";
+  } else if (value < -50 && value > -70) {
+    rssiBox.style.backgroundColor = "yellow";
+  } else if (value < -70) {
+    rssiBox.style.backgroundColor = "red";
+  } else if (value < -100) {
+    rssiBox.style.backgroundColor = "grey";
+  }
+  rssiValue.textContent = `${value}`;
+}
