@@ -93,7 +93,7 @@ export default function PlantInfoSubMenu() {
       const updateSquare = async () => {
         try {
           const response = await fetch(
-            `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot?.square_db_id}`,
+            `/api/users/${userId}/greenhouses/${greenhouseId}/squares/${selectedPlot?.square_db_id}/updateInfo`,
             {
               method: "PUT",
               body: plantInfoFormData,

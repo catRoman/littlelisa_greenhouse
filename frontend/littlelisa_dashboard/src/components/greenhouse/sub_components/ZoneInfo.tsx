@@ -15,7 +15,7 @@ export default function ZoneInfo({ zone }: ZoneInfoProps) {
       <div className="mb-2 flex gap-4">
         <h3 className="text-sm  font-bold text-orange-500">
           <span className="text-blue-300"> {zone.name} </span>
-          &rarr; Cumulative Senosr Avg. &#8628;
+          &rarr; Cumulative Senr Avg. &#8628;
         </h3>
       </div>
       <div className=" col-auto grid  grid-cols-6 rounded-md bg-zinc-800 p-2">
@@ -39,7 +39,7 @@ export default function ZoneInfo({ zone }: ZoneInfoProps) {
           </div>
           <div className=" flex h-28 flex-col  text-sm">
             <p className="font-bold text-orange-500">Sensors:</p>
-            <ul className="hide-scrollbar mt-1 overflow-scroll pl-4">
+            <ul className="hide-scrollbar mt-1 overflow-y-scroll pl-4">
               {zone.sensors ? (
                 zone.sensors.map((sensor, index) => {
                   return (
