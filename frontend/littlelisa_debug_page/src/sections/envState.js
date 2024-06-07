@@ -52,6 +52,7 @@ function updateEnvStateView() {
         </li>`
     );
   });
+
   const buttons = envContainer.querySelectorAll(".env-status");
   buttons.forEach((button) => {
     button.addEventListener("click", function (event) {
@@ -62,4 +63,5 @@ function updateEnvStateView() {
     });
   });
 }
+
 fetchEnvState();
