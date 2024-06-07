@@ -1,5 +1,5 @@
 import DashAvgChart from "../components/dashboard/GreenhouseAvgChart";
-import DashCameraContainer from "../components/dashboard/DashCameraContainer";
+import DashCameraContainer from "../components/greenhouse/CameraContainer";
 
 import DashSchedule from "../components/dashboard/DashSchedule";
 import Title from "../components/dashboard/Title";
@@ -18,9 +18,7 @@ function DashBoard() {
           <Calendar />
         </div>
       </div>
-      <div className="col-span-2 row-start-2 ">
-        {/* <DashSchedule /> */}
-      </div>
+      <div className="col-span-2 row-start-2 ">{/* <DashSchedule /> */}</div>
       <div className="col-span-3 flex flex-col gap-4">
         <DashCameraContainer />
       </div>

@@ -4,6 +4,7 @@ import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { useContext, useEffect, useState } from "react";
 import SensorInfo from "./sub_components/SensorInfo";
+import GreenhouseAvgChart from "./sub_components/charts/GreenhouseAvgChart";
 
 export default function SectionBody() {
   const {
@@ -28,7 +29,7 @@ export default function SectionBody() {
           `/wikiApi/api.php?action=query&prop=extracts&format=json&exintro&explaintext&titles=${selectedPlant}/wikiApi/api.php?action=query&prop=extracts|pageimages&format=json&exintro&explaintext&titles=${selectedPlant}&pithumbsize=300`,
         );
         const jsonData = await data.json();
-        if (jsonData.error) {
+        if (jsonData.error || !jsonData) {
           setSelectedPlant("unknown");
           throw new Error(jsonData.error.info);
         }
@@ -54,14 +55,16 @@ export default function SectionBody() {
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
       body = (
-        <div className="mb-10 flex flex-col gap-3">
-          {fetchedGreenhouseData?.zones.map((zone, index) => {
-            return (
-              <div key={`zone_info_${index}`}>
-                <ZoneInfo zone={zone} zoneId={index + 1} />
-              </div>
-            );
-          })}
+        <div className="h-40">
+          <div className="mb-10 flex flex-col gap-6">
+            {fetchedGreenhouseData?.zones.map((zone, index) => {
+              return (
+                <div key={`zone_info_${index}`}>
+                  <ZoneInfo zone={zone} zoneId={index + 1} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       );
       break;

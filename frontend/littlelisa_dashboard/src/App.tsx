@@ -1,7 +1,6 @@
 import "./styles/index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/ErrorPage.tsx";
-import DashBoard from "./pages/DashBoard.tsx";
 import Sensors from "./pages/Sensors.tsx";
 import Settings from "./pages/Settings.tsx";
 import SideNave from "./components/sideNav/SideNav.tsx";
@@ -45,7 +44,7 @@ export default function App() {
 
       children: [
         {
-          path: "overview",
+          index: true,
           element: (
             <GreenHouseContextProvider>
               <GreenHouse />

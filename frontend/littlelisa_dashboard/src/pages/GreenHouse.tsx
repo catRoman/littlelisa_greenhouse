@@ -12,8 +12,8 @@ import NotesSection from "../components/greenhouse/NotesSection";
 import { GreenHouseViewState } from "../../types/enums";
 
 import ControlPanel from "../components/greenhouse/ControlPanel";
-import DashCameraContainer from "../components/dashboard/DashCameraContainer";
-import CamStream from "../components/greenhouse/CamStream";
+import CameraContainer from "../components/greenhouse/CameraContainer";
+import { useLocation } from "react-router-dom";
 
 export default function GreenHouse() {
   const {
@@ -68,6 +68,13 @@ export default function GreenHouse() {
   //   return
   // }
 
+  const location = useLocation();
+
+  useEffect(() => {
+    // Force the component to update each time the location changes
+    // This can help in reinitializing the component when you navigate back to it
+  }, [location]);
+
   return (
     <div className="grid grid-cols-3 gap-2">
       <div className="col-span-2 mr-4  grid w-full  auto-rows-min  grid-cols-4 gap-6 px-4">
@@ -98,7 +105,7 @@ export default function GreenHouse() {
 
       <div className=" flex flex-col gap-6 pr-4">
         <div className="col-span-2 row-span-2">
-          <DashCameraContainer />
+          <CameraContainer src={"/api/users/1/greenhouses/1/cam/mainStream"} />
           {/* <CamStream /> */}
         </div>
         <div className=" col-span-2 row-span-1 ">
