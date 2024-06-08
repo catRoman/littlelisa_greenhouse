@@ -1,3 +1,6 @@
+import { fetchControllerStaList } from "./api.js";
+import { state_gt } from "../main.js";
+import { checkForNodeRemoval } from "./menu.js";
 /**
  * Updates the connected devices show by fetching the controller STA list,
  * updating the network info list, and checking for node removal.
@@ -16,7 +19,7 @@ export function updateNetworkInfoList() {
   );
   let tempStr = "";
 
-  nodeListObj.forEach((obj) => {
+  state_gt.nodeListObj.forEach((obj) => {
     tempStr += obj + "\n";
   });
   if (connectedDeviceBox) connectedDeviceBox.value = tempStr;

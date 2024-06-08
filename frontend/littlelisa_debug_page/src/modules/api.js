@@ -1,6 +1,17 @@
-let nodeType = "node";
-
+import { state_gt } from "../main.js";
+import {
+  updateUptime,
+  updateWifiStaInfo,
+  updateMenuDeviceInfoTab,
+} from "./deviceInfo.js";
+import { updateEnvStateView } from "./envState.js";
+import { updatePageTitle } from "./menu.js";
+import { renderModuleInfo, renderWifiApInfo } from "./deviceInfo.js";
+import { getValidNodeClass } from "../helpers/Utils.js";
+import { initiateLogSocket, initiateSensorSocket } from "./sockets.js";
+import { updateConnectedDevicesShow } from "./networking.js";
 /**
+ *
  * Fetches esp module info for menu tab .
  * @returns {Promise<void>} A promise that resolves when info is fetched successfully.
  */
@@ -82,15 +93,15 @@ export async function fetchModuleInfo() {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    nodeType = data.module_info.type;
-    console.log(nodeType);
-    moduleData = data;
+    state_gt.nodeType = data.module_info.type;
+    console.log(state_gt.nodeType);
+    state_gt.moduleData = data;
     updatePageTitle(data);
     renderModuleInfo(getValidNodeClass(data.module_info.identifier), data);
 
     initiateLogSocket(data);
     initiateSensorSocket(data);
-    if (nodeType === "controller") {
+    if (state_gt.nodeType === "controller") {
       updateConnectedDevicesShow();
       fetchNetworkApMenuTabInfo();
     }
@@ -166,7 +177,7 @@ export async function fetchEnvState() {
     }
     const data = await response.json();
     //apply to global
-    envStateArr = Object.values(data);
+    state_gt.envStateArr = Object.values(data);
 
     updateEnvStateView();
   } catch (error) {

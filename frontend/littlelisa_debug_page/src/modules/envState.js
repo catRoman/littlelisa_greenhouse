@@ -5,7 +5,7 @@ export function updateEnvStateView() {
   const envContainer = document.querySelector(".env-cntrl");
   envContainer.innerHTML = "";
 
-  envStateArr.forEach((relay) => {
+  state_gt.envStateArr.forEach((relay) => {
     envContainer.insertAdjacentHTML(
       "beforeend",
       ` <li class="env-li" >

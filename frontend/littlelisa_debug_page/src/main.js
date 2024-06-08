@@ -1,13 +1,5 @@
 "use strict";
 
-//sensor-data elements
-
-//current node list
-let nodeListObj = [];
-let envStateArr = {};
-const renderedNodeList = new Set(null);
-let moduleData;
-
 import "./css/general.css";
 import "./css/index.css";
 import {
@@ -20,6 +12,14 @@ import {
 import { updateConnectedDevicesShow } from "./modules/networking.js";
 import { getAvgTempReading } from "./modules/sensors.js";
 
+export const state_gt = {
+  nodeListObj: [],
+  envStateArr: {},
+  nodeType: "node",
+  renderedNodeList: new Set(null),
+  moduleData: "",
+};
+
 document.addEventListener("DOMContentLoaded", async () => {
   fetchEnvState();
   fetchModuleInfo();
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   fetchUptimeFunk();
 
   setInterval(() => {
-    if (nodeType === "controller") {
+    if (state_gt.nodeType === "controller") {
       updateConnectedDevicesShow();
     }
   }, 5000);

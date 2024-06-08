@@ -1,4 +1,5 @@
-import { addNodeBoxButtonEvent, updateNetworkInfoList } from "./networking.js";
+import { addNodeBoxButtonEvent } from "./sensors";
+
 /**
  * Renders the module information in the DOM.
  *

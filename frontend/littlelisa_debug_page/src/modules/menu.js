@@ -1,3 +1,4 @@
+import { state_gt } from "../main";
 //=============nav selectors================
 const openButton = document.querySelector(".icon-open");
 const closeButton = document.querySelector(".icon-close");
@@ -21,7 +22,7 @@ export function toggleInfoTab(navClass) {
  * Checks for node removal and removes nodes that are not present in the nodeListObj.
  */
 export function checkForNodeRemoval() {
-  renderedNodeList.forEach((node) => {
+  state_gt.renderedNodeList.forEach((node) => {
     const validNodeClass = getValidNodeClass(node);
 
     if (
@@ -31,7 +32,7 @@ export function checkForNodeRemoval() {
       document.querySelector(`.${validNodeClass}`).remove();
       document.querySelector(`.${validNodeClass}-btn`).remove();
 
-      renderedNodeList.delete(node);
+      state_gt.renderedNodeList.delete(node);
 
       console.log(`removed ${validNodeClass}`);
     }

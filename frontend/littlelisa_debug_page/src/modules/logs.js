@@ -5,7 +5,6 @@
 
 //esp-log elements
 const logTextArea = document.querySelector(".log-output");
-const logRefreshBtn = document.querySelector(".log-refresh");
 
 /**
  * Updates the data log with the provided log string and log class name.

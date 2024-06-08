@@ -1,8 +1,14 @@
+import { getValidNodeClass } from "../helpers/Utils.js";
+import { updateSensorData } from "./sensors.js";
+import { updateDataLog } from "./logs.js";
+
 let sensorRetryCount = 0;
 let logRetryCount = 0;
 let logDataSocket = null;
 let sensorDataSocket = null;
 
+const logRefreshBtn = document.querySelector(".log-refresh");
+const otaStatusContainer = document.querySelector(".ota-status");
 /**
  * Closes the logDataSocket if it exists, refreshes the log socket, and updates the logTextArea.
  * @function logRefreshEvent
