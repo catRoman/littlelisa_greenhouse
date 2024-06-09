@@ -1,8 +1,6 @@
-import React from "react";
 import "./styles/index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/ErrorPage.tsx";
-import DashBoard from "./pages/DashBoard.tsx";
 import Sensors from "./pages/Sensors.tsx";
 import Settings from "./pages/Settings.tsx";
 import SideNave from "./components/sideNav/SideNav.tsx";
@@ -10,10 +8,11 @@ import TopNav from "./components/topNav/TopNav.tsx";
 
 import { Outlet } from "react-router-dom";
 import Login from "./pages/Login.tsx";
-import Scheduling from "./pages/Scheduling.tsx";
+
 import Debug from "./pages/Debug.tsx";
 import GreenHouse from "./pages/GreenHouse.tsx";
 import GreenHouseContextProvider from "./context/GreenHouseContextProvider.tsx";
+import CalenderPage from "./pages/CalendarPage.tsx";
 
 export default function App() {
   const Layout = () => {
@@ -45,24 +44,16 @@ export default function App() {
 
       children: [
         {
-          path: "dashboard",
-          element: (
-            <React.Suspense fallback="Loading...">
-              <DashBoard />
-            </React.Suspense>
-          ),
-        },
-        {
-          path: "greenhouse",
+          index: true,
           element: (
             <GreenHouseContextProvider>
-              <GreenHouse />,
+              <GreenHouse />
             </GreenHouseContextProvider>
           ),
         },
         {
-          path: "schedule",
-          element: <Scheduling />,
+          path: "calender",
+          element: <CalenderPage />,
         },
         {
           path: "sensors",

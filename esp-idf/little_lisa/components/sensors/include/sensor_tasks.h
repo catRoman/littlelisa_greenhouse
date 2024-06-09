@@ -14,6 +14,7 @@
 #include "freertos/FreeRTOS.h"
 #include "esp_system.h"
 #include "esp_err.h"
+#include "esp_http_client.h"
 #include <time.h>
 
 typedef enum Sensor_List
@@ -29,6 +30,8 @@ typedef enum Sensor_List
 
 typedef struct sensor_data_t
 {
+    int8_t greenhouse_id;
+    int8_t zone_num;
     int8_t pin_number;
     Sensor_List sensor_type;
     float *value;
@@ -37,6 +40,12 @@ typedef struct sensor_data_t
     int8_t local_sensor_id;
     char *module_id;
     time_t timestamp;
+    char *module_type;
+    char *module_location;
+    int8_t sensor_square_pos[2];
+    int8_t sensor_zn_rel_pos[3];
+    int8_t module_square_pos[2];
+    int8_t module_zn_rel_pos[3];
 
 } sensor_data_t;
 
@@ -72,5 +81,6 @@ void sensor_send_to_sd_db_task(void *pvParameters);
 void sensor_send_to_server_db_task(void *pvParameters);
 void sensor_queue_mem_cleanup_task(void *pvParameters);
 void sensor_send_to_websocket_server_task(void *pvParameters);
+esp_http_client_handle_t initialize_http_client(void);
 
 #endif

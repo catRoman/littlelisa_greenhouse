@@ -1,5 +1,2 @@
 build/
 .vscode/
-sdkconfig
-sdkconfig.defaults
-sdkconfig.old

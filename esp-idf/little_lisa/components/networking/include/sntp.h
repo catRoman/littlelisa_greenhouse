@@ -3,7 +3,7 @@
  *
  * Created on: 2024-02-02
  * Author: Catlin Roman
-*/
+ */
 
 #ifndef NETWORKING_SNTP_H_
 #define NETWORKING_SNTP_H_
@@ -21,4 +21,5 @@ void sntp_system_test_task(void *vpParameter);
 
 void sntp_server_connection_check(void);
 void sntp_server_connection_check_task(void *vpParameter);
+void update_sntp_cb(struct timeval *tv);
 #endif

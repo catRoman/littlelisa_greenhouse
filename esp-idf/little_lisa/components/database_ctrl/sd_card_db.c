@@ -1,15 +1,15 @@
 /* ESP-IDF 5 SD_MMC Example
-  *
-  * This example opens Sqlite3 databases from SD Card and retrieves data from them.
-  * Before running please copy following files to SD Card:
-  * data/mdr512.db
-  * data/chinook.db
-  *
-  * I could not open with ESP32 the file census2000names.db from the original example, so I search a SQLite3 sample.
-  *
-  * This is adaptation from siara-cc examples (https://github.com/siara-cc/esp32-idf-sqlite3-examples)
-  * for it to work on ESP-IDF v5.X.X
-*/
+ *
+ * This example opens Sqlite3 databases from SD Card and retrieves data from them.
+ * Before running please copy following files to SD Card:
+ * data/mdr512.db
+ * data/chinook.db
+ *
+ * I could not open with ESP32 the file census2000names.db from the original example, so I search a SQLite3 sample.
+ *
+ * This is adaptation from siara-cc examples (https://github.com/siara-cc/esp32-idf-sqlite3-examples)
+ * for it to work on ESP-IDF v5.X.X
+ */
 #include <stdio.h>
 #include <string.h>
 #include <sys/unistd.h>
@@ -24,11 +24,11 @@
 #include "sqlite3.h"
 #include "sdmmc_cmd.h"
 
-//componenets
+// componenets
 #include "spi_sd_card.h"
 
 static const char *TAG = "sqlite3_sdspi";
-const char* data = "Callback function called";
+const char *data = "Callback function called";
 
 sqlite3 *db1;
 sqlite3 *db2;
@@ -36,31 +36,33 @@ int rc;
 char *zErrMsg = 0;
 
 /**
-  * @brief  SQLite Callback Function
-  *
-  * This function is a callback used with SQLite queries to process the results. It prints the
-  * values of the result set columns, including their names and data, and an optional custom message.
-  *
-  * @param data - A pointer to optional custom data (can be NULL).
-  * @param argc - The number of columns in the result set.
-  * @param argv - An array of strings containing the values of the result set's columns.
-  * @param azColName - An array of strings containing the names of the columns in the result set.
-  *
-  * @return
-  * - 0 to indicate success.
-  *
-  * @note
-  * - The `data` parameter can be used to pass an optional custom message or data.
-  * - This function is typically used as a callback for SQLite query execution.
-*/
-static int callback(void *data, int argc, char **argv, char **azColName) {
+ * @brief  SQLite Callback Function
+ *
+ * This function is a callback used with SQLite queries to process the results. It prints the
+ * values of the result set columns, including their names and data, and an optional custom message.
+ *
+ * @param data - A pointer to optional custom data (can be NULL).
+ * @param argc - The number of columns in the result set.
+ * @param argv - An array of strings containing the values of the result set's columns.
+ * @param azColName - An array of strings containing the names of the columns in the result set.
+ *
+ * @return
+ * - 0 to indicate success.
+ *
+ * @note
+ * - The `data` parameter can be used to pass an optional custom message or data.
+ * - This function is typically used as a callback for SQLite query execution.
+ */
+static int callback(void *data, int argc, char **argv, char **azColName)
+{
     int i;
 
     // Print the custom message
-    printf("%s: \n", (const char*)data);
+    printf("%s: \n", (const char *)data);
 
     // Loop through the result set columns and print their names and values
-    for (i = 0; i<argc; i++){
+    for (i = 0; i < argc; i++)
+    {
         printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
 
@@ -89,12 +91,16 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
  *
  * @see sqlite3_open
  */
-int openDb(const char *filename, sqlite3 **db) {
+int openDb(const char *filename, sqlite3 **db)
+{
     int rc = sqlite3_open(filename, db);
-    if (rc) {
+    if (rc)
+    {
         printf("Can't open database: %s\n", sqlite3_errmsg(*db));
         return rc;
-    } else {
+    }
+    else
+    {
         printf("Opened database successfully\n");
     }
     return rc;
@@ -120,23 +126,26 @@ int openDb(const char *filename, sqlite3 **db) {
  * - The provided `sql` parameter should be a well-formed SQL statement.
  * - The `callback` function, if specified, processes the results of the SQL query.
  */
-int db_exec(sqlite3 *db, const char *sql) {
+int db_exec(sqlite3 *db, const char *sql)
+{
     printf("%s\n", sql);
     int64_t start = esp_timer_get_time();
-    int rc = sqlite3_exec(db, sql, callback, (void*)data, &zErrMsg);
-    if (rc != SQLITE_OK) {
+    int rc = sqlite3_exec(db, sql, callback, (void *)data, &zErrMsg);
+    if (rc != SQLITE_OK)
+    {
         // Print SQL error message
         printf("SQL error: %s\n", zErrMsg);
         // Free the error message string
         sqlite3_free(zErrMsg);
-    } else {
+    }
+    else
+    {
         printf("Operation done successfully\n");
     }
     // Print execution time
-    printf("Time taken: %lld\n", esp_timer_get_time()-start);
+    printf("Time taken: %lld\n", esp_timer_get_time() - start);
     return rc;
 }
-
 
 /**
  * @brief Select Data from both Databases
@@ -148,41 +157,48 @@ int db_exec(sqlite3 *db, const char *sql) {
  * - If an error occurs during data retrieval, both database connections are closed, and
  *   the function returns without completing the second SELECT operation.
  */
-void select_data(){
+void select_data()
+{
     rc = db_exec(db1, "Select * from albums where AlbumId < '10'");
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_close(db1);
-        //sqlite3_close(db2);
+        // sqlite3_close(db2);
         return;
     }
 
     rc = db_exec(db2, "Select * from domain_rank where domain = 'zoho.com'");
-    if (rc != SQLITE_OK) {
+    if (rc != SQLITE_OK)
+    {
         sqlite3_close(db1);
         sqlite3_close(db2);
         return;
     }
 }
 
-void sd_db_task(void *vpParam){
+void sd_db_task(void *vpParam)
+{
 
     ESP_LOGI(TAG, "Initializing SD card");
 
-
-
     struct stat st;
-    if(stat("/sdcard/chinook.db", &st) == 0){
+    if (stat("/sdcard/chinook.db", &st) == 0)
+    {
         printf("/sdcard/chinook.db exists\n");
-    }else{
+    }
+    else
+    {
         printf("/sdcard/chinook.db does not exists\n");
     }
 
-    if(stat("/sdcard/mdr512.db", &st) == 0){
+    if (stat("/sdcard/mdr512.db", &st) == 0)
+    {
         printf("/sdcard/mdr512.db exists\n");
-    }else{
+    }
+    else
+    {
         printf("/sdcard/mdr512.db does not exists\n");
     }
-
 
     sqlite3_initialize();
 
@@ -193,9 +209,9 @@ void sd_db_task(void *vpParam){
     if (openDb("/sdcard/chinook.db", &db1))
         return;
     // // Open database 2
-     ESP_LOGI(TAG, "Opening db mdr512");
-     if (openDb("/sdcard/mdr512.db", &db2))
-         return;
+    ESP_LOGI(TAG, "Opening db mdr512");
+    if (openDb("/sdcard/mdr512.db", &db2))
+        return;
 
     // Selecting data
     select_data();
@@ -207,18 +223,24 @@ void sd_db_task(void *vpParam){
     // All done, unmount partition and disable SDMMC or SPI peripheral
     esp_vfs_fat_sdcard_unmount("/sd", card);
     ESP_LOGI(TAG, "Card unmounted");
-   //while(1);
+    // while(1);
 
-   vTaskDelete(NULL);
+    vTaskDelete(NULL);
 }
-void sd_db_init(){
-    xTaskCreatePinnedToCore(
+void sd_db_init()
+{
+    BaseType_t task_code;
+    task_code = xTaskCreatePinnedToCore(
         sd_db_task,
         "sd_db_test",
         8192,
         NULL,
         5,
         NULL,
-        1
-    );
+        1);
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
 }

@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "express webserver, serial communication and postgresql database integration for esp32 enabled automated greenhouse webapp",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "mocha tests/*.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "dev:laptop": "NODE_ENV=laptop nodemon index.js",
+    "dev:shop": "NODE_ENV=shop nodemon index.js",
+    "migrate": "node-pg-migrate"
   },
   "repository": {
     "type": "git",
@@ -16,7 +19,6 @@
     "webapp",
     "greenhouse"
   ],
-  "type": "module",
   "author": "cat Roman",
   "license": "MIT",
   "bugs": {
@@ -24,14 +26,14 @@
   },
   "homepage": "https://www.littlelisagreenhouse.com",
   "dependencies": {
+    "config": "^3.3.11",
+    "date-fns": "^3.6.0",
     "express": "^4.18.2",
-    "highcharts": "^11.3.0",
-    "mjpeg-proxy": "^0.3.0",
+    "formidable": "^3.5.1",
+    "helmet": "^7.1.0",
+    "moment-timezone": "^0.5.45",
     "node-fetch": "^3.3.2",
-    "pg": "^8.11.5",
-    "serialport": "^12.0.0"
-  },
-  "devDependencies": {
-    "date-fns": "^3.6.0"
+    "node-pg-migrate": "^7.3.2",
+    "pg": "^8.11.5"
   }
 }

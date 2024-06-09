@@ -1,16 +1,23 @@
 import ZoneInfo from "./sub_components/ZoneInfo";
-import { greenhouse_data } from "../../data/static_info";
+
 import { GreenHouseViewState } from "../../../types/enums";
 import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
 import { useContext, useEffect, useState } from "react";
 import SensorInfo from "./sub_components/SensorInfo";
+import GreenhouseAvgChart from "./sub_components/charts/GreenhouseAvgChart";
 
 export default function SectionBody() {
-  const { viewState, selectedZoneId, selectedPlant, setSelectedPlant } =
-    useContext(GreenHouseContext);
+  const {
+    viewState,
+    selectedZoneNumber,
+    selectedPlant,
+    setSelectedPlant,
+    fetchedGreenhouseData,
+  } = useContext(GreenHouseContext);
 
   const [plantInfo, setPlantInfo] = useState<string>(null!);
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (selectedPlant === "") {
@@ -22,7 +29,7 @@ export default function SectionBody() {
           `/wikiApi/api.php?action=query&prop=extracts&format=json&exintro&explaintext&titles=${selectedPlant}/wikiApi/api.php?action=query&prop=extracts|pageimages&format=json&exintro&explaintext&titles=${selectedPlant}&pithumbsize=300`,
         );
         const jsonData = await data.json();
-        if (jsonData.error) {
+        if (jsonData.error || !jsonData) {
           setSelectedPlant("unknown");
           throw new Error(jsonData.error.info);
         }
@@ -37,6 +44,8 @@ export default function SectionBody() {
         }
       } catch (error) {
         console.log("whoopsie: ", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPlantPage();
@@ -46,31 +55,33 @@ export default function SectionBody() {
   switch (viewState) {
     case GreenHouseViewState.GreenHouse:
       body = (
-        <div className="flex flex-col gap-3">
-          {greenhouse_data.zones.map((zone, index) => {
-            return (
-              <div key={`zone_info_${index}`}>
-                <ZoneInfo zone={zone} zoneId={index + 1} />
-              </div>
-            );
-          })}
+        <div className="h-40">
+          <div className="mb-10 flex flex-col gap-6">
+            {fetchedGreenhouseData?.zones.map((zone, index) => {
+              return (
+                <div key={`zone_info_${index}`}>
+                  <ZoneInfo zone={zone} zoneId={index + 1} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       );
       break;
 
     case GreenHouseViewState.Zone:
       body = (
-        <div className="flex flex-col gap-3">
+        <div className="mb-10 flex flex-col gap-3">
           <ZoneInfo
-            zone={greenhouse_data.zones[selectedZoneId - 1]}
-            zoneId={selectedZoneId}
+            zone={fetchedGreenhouseData!.zones[selectedZoneNumber]}
+            zoneId={selectedZoneNumber}
           />
-          {greenhouse_data.zones[selectedZoneId - 1].sensors &&
-            greenhouse_data.zones[selectedZoneId - 1].sensors?.map(
+          {fetchedGreenhouseData?.zones[selectedZoneNumber].sensors &&
+            fetchedGreenhouseData?.zones[selectedZoneNumber].sensors?.map(
               (sensor, index) => {
                 return (
                   <div key={`sensor_info_${index}`}>
-                    <SensorInfo sensor={sensor} sensorId={index + 1} />
+                    <SensorInfo sensor={sensor} sensorId={sensor.local_id} />
                   </div>
                 );
               },
@@ -85,27 +96,32 @@ export default function SectionBody() {
       } else if (selectedPlant === "unknown") {
         body = <p> Couldnt find an entry on this particluar plant</p>;
       } else {
-        body = (
-          <div>
-            <h3 className="text-md font-bold text-orange-500">
-              Plant Information
-            </h3>
-            <div className="prose max-w-none border-r-4 border-zinc-500 pr-4">
-              {mainImage ? (
-                <img
-                  className="rounded-mdinline float-left mb-4 mr-4 h-48 w-48 object-cover"
-                  src={mainImage}
-                />
-              ) : (
-                ""
-              )}
-              <p>{plantInfo}</p>
+        if (loading) {
+          body = <div>Loading...</div>;
+        } else {
+          body = (
+            <div>
+              <h3 className="text-md mb-10 font-bold text-orange-500">
+                Plant Information
+              </h3>
+              <div className="prose max-w-none border-r-4 border-zinc-500 pr-4">
+                {mainImage ? (
+                  <img
+                    className="rounded-mdinline float-left mb-4 mr-4 h-48 w-48 object-cover"
+                    src={mainImage}
+                  />
+                ) : (
+                  ""
+                )}
+                <p>{plantInfo}</p>
+              </div>
             </div>
-          </div>
-        );
+          );
+        }
       }
 
       break;
   }
+
   return <div>{body}</div>;
 }

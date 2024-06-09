@@ -1,44 +1,46 @@
 import { useContext, useEffect, useRef } from "react";
 import * as THREE from "three";
-import { PresentationControls, PerspectiveCamera } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
+import {
+  PresentationControls,
+  PerspectiveCamera,
+  TransformControls,
+} from "@react-three/drei";
 import ZoneRender from "./render_components/ZoneRender";
 import GreenHouseRender from "./render_components/GreenHouseRender";
-import { GreenhouseData } from "../../../../types/common";
 import { GreenHouseContext } from "../../../context/GreenHouseContextProvider";
 import { zoneCameraViews } from "./render_components/data/zoneCameras";
 import { useSpring, animated } from "@react-spring/three";
+import SensorListRender from "./render_components/SensorListRender";
+import ModuleListRender from "./ModuleListRender";
 
-type GreenHouseModelProps = {
-  model_info: GreenhouseData;
-};
-
-export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
+export default function GreenHouseModel() {
   const sceneRef = useRef<THREE.Group>(null!);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const greenhouseData = useContext(GreenHouseContext);
+  const { fetchedGreenhouseData } = greenhouseData;
 
   const {
-    greenhouse: { dimensions },
-  } = model_info;
-
-  const {
-    selectedZoneId,
+    selectedZoneNumber,
     enableControls,
     previousCameraProperties,
     setCurrentCameraProperties,
     currentCameraProperties,
   } = useContext(GreenHouseContext);
 
+  const scene = useThree((state) => state.scene);
+
   useEffect(() => {
-    if (selectedZoneId) {
+    if (selectedZoneNumber) {
       const newPosition = new THREE.Vector3(
-        zoneCameraViews[selectedZoneId - 1].posX,
-        zoneCameraViews[selectedZoneId - 1].posY,
-        zoneCameraViews[selectedZoneId - 1].posZ,
+        zoneCameraViews[selectedZoneNumber - 1].posX,
+        zoneCameraViews[selectedZoneNumber - 1].posY,
+        zoneCameraViews[selectedZoneNumber - 1].posZ,
       );
       const newRotation = new THREE.Euler(
-        zoneCameraViews[selectedZoneId - 1].rotX,
-        zoneCameraViews[selectedZoneId - 1].rotY,
-        zoneCameraViews[selectedZoneId - 1].rotZ,
+        zoneCameraViews[selectedZoneNumber - 1].rotX,
+        zoneCameraViews[selectedZoneNumber - 1].rotY,
+        zoneCameraViews[selectedZoneNumber - 1].rotZ,
       );
 
       setCurrentCameraProperties({
@@ -49,10 +51,10 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
         rotation: newRotation,
         position: newPosition,
       });
-      // console.log(`zone clicked: ${selectedZoneId}`);
+      // console.log(`zone clicked: ${selectedZoneNumber}`);
       enableControls.current = false;
     }
-  }, [selectedZoneId, enableControls, setCurrentCameraProperties]);
+  }, [selectedZoneNumber, enableControls, setCurrentCameraProperties]);
 
   const { pos, rot } = useSpring({
     to: {
@@ -66,6 +68,8 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
     reset: false,
     config: { mass: 1, tension: 1, friction: 1, duration: 1000 },
   });
+
+  const { dimensions, zones } = fetchedGreenhouseData!;
 
   return (
     <>
@@ -96,14 +100,93 @@ export default function GreenHouseModel({ model_info }: GreenHouseModelProps) {
         >
           <GreenHouseRender dimensions={dimensions} />
 
-          {model_info.zones.map((zone, index) => {
-            const localZoneId = index + 1;
-
+          {/* skip global zone */}
+          {fetchedGreenhouseData && (
+            <>
+              {/* greenhouse global sensors */}
+              {fetchedGreenhouseData.zones[0]?.sensors &&
+                fetchedGreenhouseData.zones[0].sensors?.map((sensor) => {
+                  if (sensor.square_id) {
+                    return (
+                      <SensorListRender
+                        key={`${sensor.square_pos?.x}-${sensor.square_pos?.y}`}
+                        sensors={fetchedGreenhouseData.zones[0].sensors}
+                        localZoneId={0}
+                        plot_height={0}
+                        squareId={{
+                          x: sensor.square_pos!.x - 0.5,
+                          y: sensor.square_pos!.y - 0.5,
+                        }}
+                        global={true}
+                      />
+                    );
+                  } else if (
+                    sensor.zn_rel_pos?.x !== -1 &&
+                    sensor.zn_rel_pos?.y !== -1 &&
+                    sensor.zn_rel_pos?.z !== -1
+                  ) {
+                    return (
+                      <SensorListRender
+                        key={`${sensor.zn_rel_pos?.x}-${sensor.zn_rel_pos?.y}-${sensor.zn_rel_pos?.z}`}
+                        sensors={fetchedGreenhouseData.zones[0].sensors}
+                        localZoneId={0}
+                        plot_height={sensor.zn_rel_pos!.z}
+                        squareId={{
+                          x: sensor.zn_rel_pos!.x - 0.5,
+                          y: sensor.zn_rel_pos!.y - 0.5,
+                        }}
+                        global={true}
+                      />
+                    );
+                  }
+                })}
+              {/* greenhouse global controllers */}
+              {fetchedGreenhouseData.controllers?.map((controller) => {
+                if (controller.square_id) {
+                  return (
+                    <ModuleListRender
+                      key={`${controller.square_pos?.x}-${controller.square_pos?.y}}`}
+                      nodes={fetchedGreenhouseData.controllers}
+                      plot_height={
+                        fetchedGreenhouseData.zones[
+                          fetchedGreenhouseData.squares[controller.square_id]
+                            .zone_number
+                        ].dimensions.z
+                      }
+                      squareId={{
+                        x: controller.square_pos!.x - 0.5,
+                        y: controller.square_pos!.y - 0.5,
+                      }}
+                      global={true}
+                      controller={true}
+                      localZoneId={0}
+                    />
+                  );
+                } else {
+                  return (
+                    <ModuleListRender
+                      key={`${controller.zn_rel_pos?.x}-${controller.zn_rel_pos?.y}-${controller.zn_rel_pos?.z}`}
+                      nodes={fetchedGreenhouseData.controllers}
+                      plot_height={controller.zn_rel_pos!.z}
+                      squareId={{
+                        x: controller.zn_rel_pos!.x - 0.5,
+                        y: controller.zn_rel_pos!.y - 0.5,
+                      }}
+                      global={true}
+                      controller={true}
+                      localZoneId={0}
+                    />
+                  );
+                }
+              })}
+            </>
+          )}
+          {zones!.slice(1).map((zone) => {
             return (
               <ZoneRender
+                key={`zone${zone.zone_number}`}
                 zone={zone}
-                key={`zone${index + 1}`}
-                localZoneId={localZoneId}
+                localZoneId={zone.zone_number}
               />
             );
           })}

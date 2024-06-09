@@ -1,18 +1,49 @@
-import React, { createContext, useEffect, useRef, useState } from "react";
-import { CameraSettings, Plot, SquareId } from "../../types/common";
+import React, {
+  createContext,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  CameraSettings,
+  EnvState,
+  GreenhouseData,
+  Node,
+  Plot,
+  Sensor,
+  SquareId,
+} from "../../types/common";
 import { initalCameraProperties } from "../components/greenhouse/greenhouse_render/render_components/data/zoneCameras";
 import { GreenHouseViewState } from "../../types/enums";
-import { square_data } from "../data/mock_json/square_data";
 export interface GreenHouseContextType {
   //state
+  translateZone: number | null;
+  setTranslateZone: (zone: number | null) => void;
+  envCntrlStates: EnvState[];
+  setEnvCntrlStates: (state: EnvState[]) => void;
+  unassignedSensorList: Sensor[];
+  addUnassignedSensor: (sensor: Sensor) => void;
+  unassignedNodeList: Node[];
+  addUnassignedNode: (sensor: Node) => void;
+  refreshEnvCntrlList: boolean;
+  setRefreshEnvCntrlList: (refresh: boolean) => void;
+  refreshNoteList: boolean;
+  setRefreshNoteList: (refresh: boolean) => void;
+  setRefreshGreenhouseData: (refresh: boolean) => void;
+  refreshGreenhouseData: boolean;
+  fetchedGreenhouseData: GreenhouseData | undefined;
+  setFetchedGreenhouseData: (
+    fetchedGreenHouseData: GreenhouseData | undefined,
+  ) => void;
   currentCameraProperties: CameraSettings;
   setCurrentCameraProperties: (currentSettings: CameraSettings) => void;
   setSelectedPlant: (plant: string) => void;
   selectedPlant: string;
   selectedSquareId: SquareId | null;
   setSelectedSquareId: (position: SquareId | null) => void;
-  selectedZoneId: number;
-  setSelectedZoneId: (value: number) => void;
+  selectedZoneNumber: number;
+  setSelectedZoneNumber: (value: number) => void;
   selectedPlot: Plot | undefined;
   setSelectedPlot: (plot: Plot | undefined) => void;
   //ref
@@ -30,6 +61,22 @@ type GreenHouseContextProviderProps = {
 
 const defaultContextValue: GreenHouseContextType = {
   //state
+  translateZone: null,
+  setTranslateZone: () => {},
+  envCntrlStates: [],
+  setEnvCntrlStates: () => {},
+  unassignedSensorList: [],
+  addUnassignedSensor: () => {},
+  unassignedNodeList: [],
+  addUnassignedNode: () => {},
+  refreshEnvCntrlList: false,
+  setRefreshEnvCntrlList: () => {},
+  refreshNoteList: false,
+  setRefreshNoteList: () => {},
+  refreshGreenhouseData: false,
+  setRefreshGreenhouseData: () => {},
+  fetchedGreenhouseData: undefined,
+  setFetchedGreenhouseData: () => {},
   selectedSquareId: null,
   setSelectedSquareId: () => {},
   setCurrentCameraProperties: () => {},
@@ -43,8 +90,8 @@ const defaultContextValue: GreenHouseContextType = {
 
   //refs
   previousCameraProperties: { current: initalCameraProperties },
-  setSelectedZoneId: () => {},
-  selectedZoneId: 0,
+  setSelectedZoneNumber: () => {},
+  selectedZoneNumber: 0,
   enableControls: { current: true },
   inZone: { current: false },
   zoneSquareSelected: { current: false },
@@ -56,9 +103,21 @@ export const GreenHouseContext =
 export default function GreenHouseContextProvider({
   children,
 }: GreenHouseContextProviderProps) {
+  const [envCntrlStates, setEnvCntrlStates] = useState<EnvState[]>([]);
+  const [unassignedSensorList, setUnassignedSensorList] = useState<Sensor[]>(
+    [],
+  );
+
+  const [translateZone, setTranslateZone] = useState<number | null>(null);
+  const [unassignedNodeList, setUnassignedNodeList] = useState<Node[]>([]);
+  const [refreshNoteList, setRefreshNoteList] = useState<boolean>(true);
   const [currentCameraProperties, setCurrentCameraProperties] =
     useState<CameraSettings>(initalCameraProperties);
 
+  const [refreshGreenhouseData, setRefreshGreenhouseData] =
+    useState<boolean>(false);
+  const [refreshEnvCntrlList, setRefreshEnvCntrlList] =
+    useState<boolean>(false);
   const [selectedSquareId, setSelectedSquareId] = useState<SquareId | null>(
     null,
   );
@@ -68,40 +127,107 @@ export default function GreenHouseContextProvider({
   const enableControls = useRef<boolean>(true);
   const inZone = useRef<boolean>(false);
   const zoneSquareSelected = useRef<boolean>(false);
-  const [selectedZoneId, setSelectedZoneId] = useState<number>(0);
+  const [selectedZoneNumber, setSelectedZoneNumber] = useState<number>(0);
   const [viewState, setViewState] = useState<GreenHouseViewState>(
     GreenHouseViewState.GreenHouse,
   );
   const [selectedPlant, setSelectedPlant] = useState<string>("");
   const [selectedPlot, setSelectedPlot] = useState<Plot>();
+  const [fetchedGreenhouseData, setFetchedGreenhouseData] =
+    useState<GreenhouseData>();
   useEffect(() => {
-    setSelectedPlot(
-      square_data.find((plot) => {
-        if (
-          plot.zone_id === selectedZoneId &&
-          plot.row - 1 === selectedSquareId?.y &&
-          plot.column - 1 === selectedSquareId?.x
-        ) {
-          if (plot.plant_type !== undefined && !plot.is_empty) {
-            setSelectedPlant(plot.plant_type);
-          } else {
-            setSelectedPlant("");
+    if (fetchedGreenhouseData && selectedSquareId) {
+      setSelectedPlot(
+        fetchedGreenhouseData.squares.find((plot) => {
+          if (
+            plot.zone_number === selectedZoneNumber &&
+            plot.row ===
+              selectedSquareId.y +
+                fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point
+                  .y &&
+            plot.col ===
+              selectedSquareId.x +
+                fetchedGreenhouseData.zones[selectedZoneNumber].zone_start_point
+                  .x
+          ) {
+            if (plot.plant_type !== null && !plot.is_empty) {
+              plot.plant_type && setSelectedPlant(plot.plant_type);
+            } else {
+              setSelectedPlant("");
+            }
+            return plot;
           }
-          return plot;
+        }),
+      );
+    }
+  }, [selectedSquareId, selectedZoneNumber, fetchedGreenhouseData]);
+
+  const addUnassignedSensor = useCallback((sensor: Sensor) => {
+    setUnassignedSensorList((prevList) => [...prevList, sensor]);
+    console.log(`unasigned sensor added: `, sensor);
+  }, []);
+
+  const addUnassignedNode = useCallback((node: Node) => {
+    setUnassignedNodeList((prevList) => [...prevList, node]);
+    console.log(`unasigned node added: `, node);
+  }, []);
+
+  useEffect(() => {
+    console.log("data fetched: ", fetchedGreenhouseData);
+    setUnassignedNodeList([]);
+    fetchedGreenhouseData?.zones.forEach((zone) => {
+      if (zone.sensors) {
+        zone.sensors.forEach((sensor) => {
+          if (
+            sensor.zn_rel_pos &&
+            sensor.zn_rel_pos?.x <= 0 &&
+            sensor.zn_rel_pos?.y <= 0 &&
+            sensor.zn_rel_pos?.z <= 0
+          ) {
+            addUnassignedSensor(sensor);
+          }
+        });
+      }
+    });
+    if (fetchedGreenhouseData?.zones[0].nodes) {
+      fetchedGreenhouseData.zones[0].nodes.forEach((node) => {
+        if (
+          node.zn_rel_pos &&
+          node.zn_rel_pos?.x <= 0 &&
+          node.zn_rel_pos?.y <= 0 &&
+          node.zn_rel_pos?.z <= 0
+        ) {
+          addUnassignedNode(node);
         }
-      }),
-    );
-  }, [selectedSquareId, selectedZoneId]);
+      });
+    }
+  }, [fetchedGreenhouseData, addUnassignedSensor, addUnassignedNode]);
 
   return (
     <GreenHouseContext.Provider
       value={{
+        translateZone,
+        setTranslateZone,
+        envCntrlStates,
+        setEnvCntrlStates,
+        unassignedNodeList,
+        addUnassignedNode,
+        unassignedSensorList,
+        addUnassignedSensor,
+        refreshEnvCntrlList,
+        setRefreshEnvCntrlList,
+        refreshNoteList,
+        setRefreshNoteList,
+        setRefreshGreenhouseData,
+        refreshGreenhouseData,
+        fetchedGreenhouseData,
+        setFetchedGreenhouseData,
         selectedPlot,
         setSelectedPlot,
         viewState,
         setViewState,
-        selectedZoneId,
-        setSelectedZoneId,
+        selectedZoneNumber,
+        setSelectedZoneNumber,
         previousCameraProperties,
         currentCameraProperties,
         setCurrentCameraProperties,

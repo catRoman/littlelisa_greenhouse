@@ -101,11 +101,28 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 	sensor_data_t *data_packet = (sensor_data_t *)malloc(sizeof(sensor_data_t));
 	if (data_packet != NULL)
 	{
-
+		// data_packet->greenhouse_id = module_info_gt->greenhouse_id;
+		// data_packet->zone_num = module_info_gt->zone_num;
 		data_packet->pin_number = sensor_t->pin_number;
 		data_packet->total_values = 2;
 		data_packet->local_sensor_id = sensor_t->local_sensor_id;
 		data_packet->module_id = (char *)malloc(strlen(sensor_t->module_id) + 1);
+
+		// sensor_square_pos
+		data_packet->sensor_square_pos[0] = sensor_t->sensor_square_pos[0];
+		data_packet->sensor_square_pos[1] = sensor_t->sensor_square_pos[1];
+		// sensor_sn_rel_pos
+		data_packet->sensor_zn_rel_pos[0] = sensor_t->sensor_zn_rel_pos[0];
+		data_packet->sensor_zn_rel_pos[1] = sensor_t->sensor_zn_rel_pos[1];
+		data_packet->sensor_zn_rel_pos[2] = sensor_t->sensor_zn_rel_pos[2];
+		// module_square_pos
+		data_packet->module_square_pos[0] = sensor_t->module_square_pos[0];
+		data_packet->module_square_pos[1] = sensor_t->module_square_pos[1];
+		// module_zn_rel_pos
+		data_packet->module_zn_rel_pos[0] = sensor_t->module_zn_rel_pos[0];
+		data_packet->module_zn_rel_pos[1] = sensor_t->module_zn_rel_pos[1];
+		data_packet->module_zn_rel_pos[2] = sensor_t->module_zn_rel_pos[2];
+
 		if (data_packet->module_id == NULL)
 		{
 			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_id");
@@ -148,6 +165,44 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 		}
 		strcpy(data_packet->location, sensor_t->location);
 
+		data_packet->module_location = (char *)malloc(strlen(sensor_t->module_location) + 1);
+		if (data_packet->module_location == NULL)
+		{
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_location");
+			free(data_packet->location);
+			data_packet->location = NULL;
+			free(data_packet->module_id);
+			data_packet->module_id = NULL;
+			free(data_packet->value);
+			data_packet->value = NULL;
+			free(data_packet);
+			data_packet = NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+			return;
+		}
+		strcpy(data_packet->module_location, sensor_t->module_location);
+
+		data_packet->module_type = (char *)malloc(strlen(sensor_t->module_type) + 1);
+		if (data_packet->module_type == NULL)
+		{
+			ESP_LOGE(TAG, "Failed to allocate mem for sensor data->module_type");
+			free(data_packet->module_location);
+			data_packet->module_location = NULL;
+			free(data_packet->location);
+			data_packet->location = NULL;
+			free(data_packet->module_id);
+			data_packet->module_id = NULL;
+			free(data_packet->value);
+			data_packet->value = NULL;
+			free(data_packet);
+			data_packet = NULL;
+			ESP_LOGE(TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+			ESP_LOGE(TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+			return;
+		}
+		strcpy(data_packet->module_type, sensor_t->module_type);
+
 		data_packet->sensor_type = DHT22;
 		data_packet->value[HUMIDITY] = get_humidity(sensor_t);
 		data_packet->value[TEMP] = get_temperature(sensor_t);
@@ -178,6 +233,11 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 			else
 			{
 				ESP_LOGE(TAG, "%s recieved from internal sensor failed to transfer to sensor que, cleaning up...", logMsg);
+				free(data_packet->module_type);
+				data_packet->module_type = NULL;
+				free(data_packet->module_location);
+				data_packet->module_location = NULL;
+
 				free(data_packet->module_id);
 				data_packet->module_id = NULL;
 				free(data_packet->value);
@@ -191,6 +251,11 @@ void dht22_sensor_send_to_sensor_queue(sensor_data_t *sensor_t, int sensor_choic
 		else
 		{
 			ESP_LOGE(TAG, "Failed to allocate mem for queue packet");
+			free(data_packet->module_type);
+			data_packet->module_type = NULL;
+			free(data_packet->module_location);
+			data_packet->module_location = NULL;
+
 			free(data_packet->module_id);
 			data_packet->module_id = NULL;
 			free(data_packet->value);
@@ -463,6 +528,7 @@ void DHT22_task(void *vpParameter)
 		// Wait at least 2 seconds before reading again (as suggested by driver author)
 		// The interval of the whole process must be more than 2 seconds
 		taskYIELD();
-		vTaskDelay(5000 / portTICK_PERIOD_MS);
+
+		vTaskDelay(15000 / portTICK_PERIOD_MS);
 	}
 }

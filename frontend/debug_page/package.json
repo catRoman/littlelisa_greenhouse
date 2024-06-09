@@ -1,0 +1,15 @@
+{
+  "name": "debug_page",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0",
+    "vite-plugin-html": "^3.2.2"
+  }
+}

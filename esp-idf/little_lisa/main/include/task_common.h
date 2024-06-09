@@ -12,8 +12,11 @@
 #define MAIN_TASKS_COMMON_H_
 
 // NETWORK PROCESSES
+// laptop wsl
+// #define BACKEND_URL "http://172.30.58.251:3000/api/sensorStream"
+// garage ethernet address
 #define BACKEND_URL "http://10.0.0.53:3000/api/sensorStream"
-// WiFi application task
+//  WiFi application task
 #define SNTP_TASK_STACK_SIZE 4096
 #define SNTP_TASK_PRIORITY 5 // 0 is lowest priority in freeRTOS
 #define SNTP_TASK_CORE_ID 0
@@ -117,5 +120,13 @@
 #define OTA_PROP_STACK_SIZE 8192
 #define OTA_PROP_TASK_PRIORITY 19
 #define OTA_PROP_TASK_CORE_ID 1
+
+// env cntrl Task
+#define ENV_CNTRL_STACK_SIZE 3000
+#define ENV_CNTRL_TASK_PRIORITY 7
+#define ENV_CNTRL_TASK_CORE_ID 1
+
+void pauseSensorPipelineTasks(void);
+void resumeSensorPipelineTasks(void);
 
 #endif /* MAIN_TASKS_COMMON_H_*/
