@@ -50,7 +50,7 @@ static esp_err_t client_event_post_handler(esp_http_client_event_handle_t evt)
     return ESP_OK;
 }
 
-// Example function to send a file in chunks
+// post for use inm progating updates
 void post_file_in_chunks(const char *url, const char *file_path)
 {
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
@@ -69,12 +69,11 @@ void post_file_in_chunks(const char *url, const char *file_path)
     // Rewind to the beginning of the file
     fseek(file, 0, SEEK_SET);
 
-    // Initialize the HTTP client
     esp_http_client_config_t config = {
         .url = url,
         .method = HTTP_METHOD_POST,
         .event_handler = client_event_post_handler,
-        .timeout_ms = 100000,
+        .timeout_ms = 5000,
         .keep_alive_enable = true,
         .skip_cert_common_name_check = true,
         .cert_pem = NULL,
@@ -92,7 +91,7 @@ void post_file_in_chunks(const char *url, const char *file_path)
     // esp_http_client_set_header(client, "Transfer-Encoding", "chunked");
 
     // Read and send the file in chunks
-    char buffer[2048]; // Adjust the buffer size according to available memory
+    char buffer[2048];
     int read_len;
     int total = 0;
 
@@ -108,7 +107,8 @@ void post_file_in_chunks(const char *url, const char *file_path)
         if (esp_http_client_write(client, buffer, read_len) < 0)
         {
             ESP_LOGE("HTTP_CLIENT", "Failed to send data chunk");
-            break; // Exit loop on failure
+
+            break;
         }
         total += read_len;
         ESP_LOGI("OTA_NODE_SEND", "%d bytes", total);
@@ -129,7 +129,6 @@ void post_file_in_chunks(const char *url, const char *file_path)
         ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
     }
 
-    // Clean up
     esp_http_client_cleanup(client);
     fclose(file);
 }
@@ -167,14 +166,18 @@ void http_client_get_test(char *url)
         esp_http_client_cleanup(client);
     }
 }
-
+// TODO: not using this in pipeline remove?
+#define MAX_RETRIES 3
 void post_sensor_data_backend(const char *sensor_json)
 {
     // esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
-
+    esp_log_level_set("HTTP_CLIENT", ESP_LOG_INFO);
     esp_http_client_config_t config = {
         .url = BACKEND_URL,
         .method = HTTP_METHOD_POST,
+        .keep_alive_enable = true,
+        .timeout_ms = 300,
+        .keep_alive_interval = 30
 
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
@@ -186,6 +189,9 @@ void post_sensor_data_backend(const char *sensor_json)
     // printf("%s\n", sensor_json);
     esp_http_client_set_header(client, "Content-Type", "application/json");
     esp_http_client_set_post_field(client, sensor_json, strlen(sensor_json));
+    // int retries = 0;
+    // do
+    //{
     esp_err_t err = esp_http_client_perform(client);
     if (err == ESP_OK)
     {
@@ -195,11 +201,48 @@ void post_sensor_data_backend(const char *sensor_json)
     }
     else
     {
-        ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
+        ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed here: %s", esp_err_to_name(err));
+        //      vTaskDelay((1 << retries) * 1000 / portTICK_PERIOD_MS);
+        //    ESP_LOGE("HTTP_CLIENT", "retring post: retry: %d", retries);
     }
+    //} while (++retries < MAX_RETRIES);
 
     free(sensor_json);
     // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);
     sensor_json = NULL;
     esp_http_client_cleanup(client);
+}
+
+void send_ota_restart(char *node_addr_url)
+{
+    esp_log_level_set("HTTP_CLIENT", ESP_LOG_DEBUG);
+    esp_http_client_config_t config = {
+        .url = node_addr_url,
+        .method = HTTP_METHOD_GET,
+    };
+
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+
+    if (client == NULL)
+    {
+        ESP_LOGE("HTTP_CLIENT", "Failed to initialise HTTP connection");
+    }
+    else
+    {
+        // Perform HTTP request as needed...
+        esp_err_t err = esp_http_client_perform(client);
+        if (err == ESP_OK)
+        {
+            ESP_LOGI("HTTP_CLIENT", "HTTP GET Status = %d, content_length = %d",
+                     (int)esp_http_client_get_status_code(client),
+                     (int)esp_http_client_get_content_length(client));
+        }
+        else
+        {
+            ESP_LOGE("HTTP_CLIENT", "HTTP GET request failed: %s", esp_err_to_name(err));
+        }
+
+        // Cleanup
+        esp_http_client_cleanup(client);
+    }
 }

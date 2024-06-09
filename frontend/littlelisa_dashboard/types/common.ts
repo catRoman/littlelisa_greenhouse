@@ -1,59 +1,70 @@
 import { Euler, Vector3 } from "three";
 
-export type Coordinate = {
+export type Dimensions = {
   x: number;
   y: number;
-  z: number; // Optional property
+  z: number;
 };
-export type SpaceCoordinate = {
+export type SquarePos = {
   x: number;
   y: number;
 };
 
 export type Sensor = {
-  node: string;
+  sensor_id: number;
+  module_id: string;
+  local_id: number;
+  location: string;
   type: string;
-  loc_coord: SpaceCoordinate;
+  square_id: number | null;
+  zn_rel_pos: Dimensions | undefined;
+  square_pos: SquarePos | undefined;
 };
 
 export type ZoneData = {
-  dimensions: Coordinate;
+  zone_id: number;
+  greenhouse_id: number;
   name: string;
   description: string;
-  loc_coord: Coordinate;
-  sensorsAvailable: boolean;
-  nodes: Module[] | null;
+  zone_start_point: SquarePos;
+  zone_number: number;
+  dimensions: Dimensions;
+};
+export type ZoneDataFull = ZoneData & {
+  sensorAvailable: boolean;
+  nodes: Node[] | null;
   sensors: Sensor[] | null;
-  lightAvailable: boolean;
-  sprinklersAvailable: boolean;
-  sprinklers: SpaceCoordinate[] | null;
-  lastest_enviro: {
-    water: string;
-    fert: string;
-    light_period: {
-      period: string;
-      on: string;
-      off: string;
-    } | null;
-  };
 };
 export type Module = {
-  moduleId: string;
-  loc_coord: { x: number; y: number };
+  module_id: string;
+  location: string;
+  zone_number: number;
+  square_id: number | undefined;
+  zn_rel_pos: Dimensions | undefined;
+  square_pos: SquarePos | undefined;
+};
+export type Controllers = Module & {
+  controller_id: number;
 };
 
 export type GreenhouseData = {
-  greenhouse: {
-    lat: number;
-    long: number;
-    greenhouse_id: number;
-    greenhouse_location_str: string;
-    dimensions: { x: number; y: number };
-    total_zones: number;
-    total_controllers: number;
-    controllers: Module[];
+  greenhouse_id: number;
+  name: string;
+  location: string;
+  user_id: number;
+  style: string;
+  lat: number;
+  long: number;
+  dimensions: Dimensions;
+  total: {
+    zones: number;
+    controllers: number;
+    nodes: number;
+    sensors: number;
   };
-  zones: ZoneData[];
+  controllers: Controllers[];
+  zones: ZoneDataFull[];
+  squares: Plot[];
 };
 export type CameraSettings = {
   fov: number;
@@ -77,17 +88,56 @@ export type cntrlDataType = {
 export type Plot = {
   square_db_id: number;
   zone_id: number;
+  zone_number: number;
   row: number;
-  column: number;
-  plant_type?: string;
-  date_planted?: string;
-  date_expected_harvest?: string;
-  notes?: Note[];
-  is_transplanted?: boolean;
+  col: number;
+  plant_type: string | undefined;
+  date_planted: string | undefined;
+  date_expected_harvest: string | undefined;
+  // notes: Note[] | undefined;
+  is_transplant: boolean;
   is_empty: boolean;
 };
 
-export type Note = {
-  date: string;
-  note: string;
+export type Node = Module & {
+  node_id: number;
 };
+export type ChartData = {
+  period: Date;
+  sensorType: string;
+};
+export type DHT22ChartData = ChartData & {
+  avgTemp: number;
+  avgHumidity: number;
+};
+export type Note = {
+  note_id: number;
+  note: string;
+  greenhouse_id: number | null;
+  zone_id: number | null;
+  square_id: number | null;
+  user_id: number;
+  title: string;
+  created_at: string;
+};
+export type EnvState = {
+  id: number;
+  pin: number,
+  type: string;
+  pwr_src: string;
+  state: string;
+}
+export type EventLog = {
+
+    event_id: number,
+    created_at: string,
+    type: string,
+    action: string,
+    details: string | null
+    greenhouse_id: number,
+    zone_id: number | null,
+    square_id: number | null,
+    module_id: number | null,
+    sensor_id: number | null,
+    note_id: number | null
+}

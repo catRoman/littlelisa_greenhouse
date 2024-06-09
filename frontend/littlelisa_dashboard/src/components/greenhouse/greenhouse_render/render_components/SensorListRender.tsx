@@ -1,13 +1,15 @@
 import { Html } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
 import { Sensor, SquareId } from "../../../../../types/common";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
 
 type SensorListRenderProp = {
   sensors: Sensor[] | null;
   plot_height: number;
   localZoneId: number;
   squareId: SquareId;
+  global: boolean;
 };
 
 export default function SensorListRender({
@@ -15,12 +17,24 @@ export default function SensorListRender({
   localZoneId,
   plot_height,
   squareId,
+  global,
 }: SensorListRenderProp) {
   const [labelHover, setLabelHover] = useState<boolean>(false);
+  const { fetchedGreenhouseData } = useContext(GreenHouseContext);
 
+  let posX = 0;
+  let posY = 0;
+  if (global) {
+    posX = squareId.x;
+    posY = squareId.y;
+  }
   function sensorEventHandler(event: ThreeEvent<MouseEvent>, sensorId: number) {
     event.stopPropagation();
-    console.log(`zone ${localZoneId} sensor ${sensorId} clicked`);
+    if (global) {
+      console.log(`Global sensor ${sensorId} clicked`);
+    } else {
+      console.log(`zone ${localZoneId} sensor ${sensorId} clicked`);
+    }
   }
   function sensorLabelEnterHandler() {
     setLabelHover(true);
@@ -33,20 +47,39 @@ export default function SensorListRender({
     return (
       <>
         {sensors.map((sensor, index) => {
-          const {
-            loc_coord: { x: sensor_x, y: sensor_y },
-          } = sensor;
+          let sensor_x;
+          let sensor_y;
+
+          if (sensor.zn_rel_pos) {
+            sensor_x = sensor.zn_rel_pos.x;
+            sensor_y = sensor.zn_rel_pos.y;
+          }
+
+          if (sensor.square_id) {
+            if (sensor.square_pos) {
+              sensor_x = sensor.square_pos.x;
+              sensor_y = sensor.square_pos.y;
+            }
+          }
+
           const sphereRadius = 0.1;
           const sensorId = index + 1;
+          const locCheck =
+            sensor_x ===
+              squareId.x +
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point.x &&
+            sensor_y ===
+              squareId.y +
+                fetchedGreenhouseData!.zones[localZoneId].zone_start_point.y;
+
           return (
-            sensor_x === squareId.x &&
-            sensor_y === squareId.y && (
+            (global || locCheck) && (
               <group
                 key={index + 1}
                 onClick={(event) => sensorEventHandler(event, sensorId)}
                 onPointerEnter={sensorLabelEnterHandler}
                 onPointerLeave={sensorLabelExitHandler}
-                position={[0, 0, plot_height / 2 + sphereRadius]}
+                position={[posX, posY, plot_height / 2 + sphereRadius]}
               >
                 {labelHover && (
                   <Html
@@ -57,6 +90,9 @@ export default function SensorListRender({
                       padding: "0.25rem",
                       fontSize: "0.875rem",
                       color: "#ff0080",
+                      pointerEvents: "none",
+                      whiteSpace: "nowrap",
+                      display: "inline-block",
                     }}
                     // className="rounded-md bg-blue-500 bg-opacity-45 p-1 text-sm text-red-100"
                     center
@@ -64,7 +100,7 @@ export default function SensorListRender({
                     distanceFactor={10}
                     position={[0, 0, sphereRadius * 6]}
                   >
-                    <p>{sensor.type}</p>
+                    <p>{sensor.location}</p>
                   </Html>
                 )}
 

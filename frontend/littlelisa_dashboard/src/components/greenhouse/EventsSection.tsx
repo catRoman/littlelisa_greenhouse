@@ -1,66 +1,54 @@
-import { useContext } from "react";
-import { GreenHouseViewState } from "../../../types/enums";
-import { GreenHouseContext } from "../../context/GreenHouseContextProvider";
-import {
-  upcoming_event_data,
-  recent_event_data,
-} from "../../data/mock_json/event_data";
-import EventLog from "./sub_components/EventLog";
+import UpcomingEvents from "./eventPanel/UpcomingEvents";
+import RecentEvents from "./eventPanel/RecentEvents";
+import { useState } from "react";
+import { EventPanelState } from "../../../types/enums";
 
 export default function EventsSection() {
-  const { viewState, selectedZoneId } = useContext(GreenHouseContext);
+  const [panelState, setPanelState] = useState<EventPanelState>(
+    EventPanelState.Recent,
+  );
+  const [isSelected, setSelected] = useState<string>("Recent");
 
-  const upcoming: JSX.Element[] = [];
-  const recent: JSX.Element[] = [];
+  function panelSelectHandler(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    const buttonId = (event.target as HTMLButtonElement).id;
 
-  switch (viewState) {
-    case GreenHouseViewState.GreenHouse:
-      upcoming_event_data.map((event) => {
-        upcoming.push(<EventLog event={event} />);
-      });
-      recent_event_data.map((event) => {
-        recent.push(<EventLog event={event} />);
-      });
+    setPanelState(buttonId as EventPanelState);
+    setSelected(buttonId);
+  }
+
+  let eventPanel = <></>;
+  switch (panelState) {
+    case EventPanelState.Upcoming:
+      eventPanel = <UpcomingEvents />;
+
       break;
-    case GreenHouseViewState.Zone:
-      upcoming_event_data.map((event) => {
-        if (event.zone === selectedZoneId.toString()) {
-          upcoming.push(<EventLog event={event} />);
-        }
-      });
-      recent_event_data.map((event) => {
-        if (event.zone === selectedZoneId.toString()) {
-          recent.push(<EventLog event={event} />);
-        }
-      });
-      break;
-    case GreenHouseViewState.Plot:
-      upcoming_event_data.map((event) => {
-        if (event.zone === selectedZoneId.toString()) {
-          upcoming.push(<EventLog event={event} />);
-        }
-      });
-      recent_event_data.map((event) => {
-        if (event.zone === selectedZoneId.toString()) {
-          recent.push(<EventLog event={event} />);
-        }
-      });
+    case EventPanelState.Recent:
+      eventPanel = <RecentEvents />;
       break;
   }
 
   return (
-    <div>
-      <div>
-        <h2 className="text-md  font-bold text-orange-500">Upcoming Events:</h2>
-        <ul className="hide-scrollbar mt-1 h-40 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
-          {upcoming?.map((event) => event)}
-        </ul>
+    <div className="">
+      <h3 className="text-md font-bold text-orange-500">Events</h3>
+      <div className="flex gap-2  pt-2">
+        <button
+          id="Upcoming"
+          onClick={panelSelectHandler}
+          className={`rounded-tl-md rounded-tr-md border p-2 ${isSelected === "Upcoming" ? "bg-zinc-500" : "bg-zinc-700  hover:bg-zinc-200 hover:font-bold hover:text-red-900"}`}
+        >
+          Upcoming
+        </button>
+        <button
+          id="Recent"
+          onClick={panelSelectHandler}
+          className={`rounded-tl-md rounded-tr-md border p-2 ${isSelected === "Recent" ? "bg-zinc-500" : "bg-zinc-700  hover:bg-zinc-200 hover:font-bold hover:text-red-900"}`}
+        >
+          Recent
+        </button>
       </div>
-      <div className="my-2">
-        <h2 className=" text-md font-bold text-orange-500">Recent Events:</h2>
-        <ul className="hide-scrollbar mt-1 h-40 overflow-scroll rounded-md bg-zinc-800 px-4 py-2">
-          {recent?.map((event) => event)}
-        </ul>
+      <div className="flex h-52 flex-col overflow-y-scroll rounded-bl-md rounded-br-md  bg-zinc-800 py-2">
+        {eventPanel}
       </div>
     </div>
   );

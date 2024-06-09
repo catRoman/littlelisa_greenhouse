@@ -3,11 +3,11 @@ import { useContext, useState } from "react";
 import { useSpring, animated } from "@react-spring/three";
 import * as THREE from "three";
 import { GreenHouseContext } from "../../../../context/GreenHouseContextProvider";
-import { Module, Plot, Sensor, SquareId } from "../../../../../types/common";
+import { Module, Sensor, SquareId } from "../../../../../types/common";
 import SensorListRender from "./SensorListRender";
 import { GreenHouseViewState } from "../../../../../types/enums";
-import { square_data } from "../../../../data/mock_json/square_data";
-import NodeListRender from "../NodeListRender";
+
+import ModuleListRender from "../ModuleListRender";
 
 type PlotRenderProps = {
   args: [x: number, y: number, z: number];
@@ -30,7 +30,7 @@ export default function PlotRender({
 
   const {
     inZone,
-    selectedZoneId,
+    selectedZoneNumber,
     setSelectedSquareId,
     selectedSquareId,
     previousCameraProperties,
@@ -38,13 +38,18 @@ export default function PlotRender({
     setCurrentCameraProperties,
     currentCameraProperties,
     setSelectedPlant,
+    fetchedGreenhouseData,
   } = useContext(GreenHouseContext);
 
-  const plotInfo: Plot | undefined = square_data.find((plot) => {
+  const plotInfo = fetchedGreenhouseData?.squares.find((plot) => {
     if (
-      plot.row - 1 === squareId.y &&
-      plot.column - 1 === squareId.x &&
-      plot.zone_id === localZoneId
+      plot.row ===
+        squareId.y +
+          fetchedGreenhouseData.zones[localZoneId].zone_start_point.y &&
+      plot.col ===
+        squareId.x +
+          fetchedGreenhouseData.zones[localZoneId].zone_start_point.x &&
+      plot.zone_number === localZoneId
     ) {
       return plot;
     }
@@ -56,25 +61,25 @@ export default function PlotRender({
     color:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId) ||
-      (localZoneId === selectedZoneId && hovering) ||
-      (selectedZoneId === 0 && hovering)
+        localZoneId === selectedZoneNumber) ||
+      (localZoneId === selectedZoneNumber && hovering) ||
+      (selectedZoneNumber === 0 && hovering)
         ? "orange"
         : color,
     wireframe:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId) ||
-      (localZoneId === selectedZoneId && hovering) ||
-      (selectedZoneId === 0 && hovering)
+        localZoneId === selectedZoneNumber) ||
+      (localZoneId === selectedZoneNumber && hovering) ||
+      (selectedZoneNumber === 0 && hovering)
         ? false
         : true,
     position:
       (selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId) ||
-      (localZoneId === selectedZoneId && hovering) ||
-      (selectedZoneId === 0 && hovering)
+        localZoneId === selectedZoneNumber) ||
+      (localZoneId === selectedZoneNumber && hovering) ||
+      (selectedZoneNumber === 0 && hovering)
         ? [position[0], position[1], position[2] + 0.5]
         : position,
     config: {
@@ -94,7 +99,7 @@ export default function PlotRender({
   }
   function squareClickedHandler(event: ThreeEvent<MouseEvent>) {
     if (inZone.current) event.stopPropagation();
-    if (localZoneId === selectedZoneId) {
+    if (localZoneId === selectedZoneNumber) {
       setSelectedSquareId(squareId);
       setViewState(GreenHouseViewState.Plot);
       previousCameraProperties.current = currentCameraProperties;
@@ -117,11 +122,13 @@ export default function PlotRender({
       });
 
       if (
+        plotInfo !== undefined &&
         selectedSquareId?.x === squareId.x &&
         selectedSquareId?.y === squareId.y &&
-        localZoneId === selectedZoneId &&
+        localZoneId === selectedZoneNumber &&
         !plotInfo?.is_empty &&
-        plotInfo?.plant_type !== undefined
+        plotInfo?.plant_type !== undefined &&
+        plotInfo.plant_type !== null
       ) {
         setSelectedPlant(plotInfo.plant_type);
       } else {
@@ -142,34 +149,46 @@ export default function PlotRender({
   //     setCurrentCameraProperties();
   //   }
   // }
-  return (
-    <animated.group
-      // onPointerMissed={squareMissedHandler}
-      position={spring.position.to((x: number, y: number, z: number) => [
-        x,
-        y,
-        z,
-      ])}
-    >
-      <animated.mesh
-        onClick={squareClickedHandler}
-        onPointerEnter={pointerEnterEventHandler}
-        onPointerLeave={pointerLeaveEventHandler}
+  if (fetchedGreenhouseData !== undefined) {
+    return (
+      <animated.group
+        // onPointerMissed={squareMissedHandler}
+        position={spring.position.to((x: number, y: number, z: number) => [
+          x,
+          y,
+          z,
+        ])}
       >
-        <boxGeometry args={args} />
-        <animated.meshBasicMaterial
-          color={spring.color}
-          wireframe={spring.wireframe}
+        <animated.mesh
+          onClick={squareClickedHandler}
+          onPointerEnter={pointerEnterEventHandler}
+          onPointerLeave={pointerLeaveEventHandler}
+        >
+          <boxGeometry args={args} />
+          <animated.meshBasicMaterial
+            color={spring.color}
+            wireframe={spring.wireframe}
+          />
+        </animated.mesh>
+        <SensorListRender
+          sensors={sensors}
+          plot_height={args[2]}
+          localZoneId={localZoneId}
+          squareId={squareId}
+          global={false}
         />
-      </animated.mesh>
-      <SensorListRender
-        sensors={sensors}
-        plot_height={args[2]}
-        localZoneId={localZoneId}
-        squareId={squareId}
-      />
 
-      <NodeListRender nodes={nodes} plot_height={args[2]} squareId={squareId} />
-    </animated.group>
-  );
+        <ModuleListRender
+          nodes={nodes}
+          plot_height={args[2]}
+          squareId={squareId}
+          global={false}
+          controller={false}
+          localZoneId={localZoneId}
+        />
+      </animated.group>
+    );
+  } else {
+    return <h1>loading</h1>;
+  }
 }

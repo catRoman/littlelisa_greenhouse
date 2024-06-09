@@ -11,6 +11,16 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/wikiApi/, "/w"), // Ensure this rewrite matches the expected API path
       },
+      // "/api": {
+      //   target: "http://172.30.58.251:3000", // Make sure this is correct
+      //   changeOrigin: true,
+      //   rewrite: (path) => path.replace(/^\/api/, "/api"), // Ensure this rewrite matches the expected API path
+      // },
+      "/api": {
+        target: "http://10.0.0.53:3000", // Make sure this is correct
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, "/api"), // Ensure this rewrite matches the expected API path
+      },
     },
   },
 });

@@ -208,9 +208,12 @@ export const phoney_sensor_avgd = [
   },
 ];
 
-export const cntrlData: cntrlDataType[] = [
+
+
+export const cntrlDataList: cntrlDataType[] = [
   {
-    cntrl: "fans",
+
+    cntrl: "fan",
     currList: [
       {
         zone: 1,
@@ -233,7 +236,7 @@ export const cntrlData: cntrlDataType[] = [
     iconPath: "../../../public/assets/control icons/fans.svg",
   },
   {
-    cntrl: "lights",
+    cntrl: "light",
     currList: [
       {
         zone: 1,

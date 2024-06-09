@@ -242,6 +242,43 @@ void sensor_preprocessing_task(void *pvParameters)
             // heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
             // TODO:check values are within range if not send to cleanup
             // sensor_validation();
+
+            // assign dynamicaly changable global values
+            event->sensor_data->greenhouse_id = module_info_gt->greenhouse_id;
+            event->sensor_data->zone_num = module_info_gt->zone_num;
+            event->sensor_data->module_square_pos[0] = module_info_gt->square_pos[0];
+            event->sensor_data->module_square_pos[1] = module_info_gt->square_pos[1];
+            event->sensor_data->module_zn_rel_pos[0] = module_info_gt->zn_rel_pos[0];
+            event->sensor_data->module_zn_rel_pos[1] = module_info_gt->zn_rel_pos[1];
+            event->sensor_data->module_zn_rel_pos[2] = module_info_gt->zn_rel_pos[2];
+
+            event->sensor_data->sensor_square_pos[0] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->square_pos[event->sensor_data->local_sensor_id][0];
+            event->sensor_data->sensor_square_pos[1] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->square_pos[event->sensor_data->local_sensor_id][1];
+
+            event->sensor_data->sensor_zn_rel_pos[0] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->zn_rel_pos[event->sensor_data->local_sensor_id][0];
+            event->sensor_data->sensor_zn_rel_pos[1] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->zn_rel_pos[event->sensor_data->local_sensor_id][1];
+            event->sensor_data->sensor_zn_rel_pos[2] = module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->zn_rel_pos[event->sensor_data->local_sensor_id][2];
+
+            free(event->sensor_data->module_location);
+            event->sensor_data->module_location = (char *)malloc(strlen(module_info_gt->location) + 1);
+            if (event->sensor_data->module_location == NULL)
+            {
+                ESP_LOGE(SENSOR_EVENT_TAG, "Failed to allocate mem for sensor event->sensor_data->module_location");
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+            }
+            strcpy(event->sensor_data->module_location, module_info_gt->location);
+
+            free(event->sensor_data->location);
+            event->sensor_data->location = (char *)malloc(strlen(module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->sensor_loc_arr[event->sensor_data->local_sensor_id]) + 1);
+            if (event->sensor_data->location == NULL)
+            {
+                ESP_LOGE(SENSOR_EVENT_TAG, "Failed to allocate mem for sensor event->sensor_data->location");
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum stack free for this task: %u words", uxTaskGetStackHighWaterMark(NULL));
+                ESP_LOGE(SENSOR_EVENT_TAG, "Minimum heap free: %lu bytes\n", esp_get_free_heap_size());
+            }
+            strcpy(event->sensor_data->location, module_info_gt->sensor_config_arr[event->sensor_data->sensor_type]->sensor_loc_arr[event->sensor_data->local_sensor_id]);
+
             if (strcmp(module_info_gt->type, "node") == 0)
             {
                 event->nextEventID = SENSOR_PREPARE_TO_SEND;
@@ -300,6 +337,11 @@ void sensor_prepare_to_send_task(void *pvParameters)
             queue_packet->data = serialize_sensor_data(event->sensor_data, &queue_packet->len);
             esp_now_comm_get_config_reciever_mac_addr(queue_packet->mac_addr);
             // trigger_panic();
+
+            // char *log_string = create_sensor_data_json(event->sensor_data);
+            // ESP_LOGE(SENSOR_EVENT_TAG, "before esp_now%s", log_string);
+            // free(log_string);
+            // log_string = NULL;
 
             extern QueueHandle_t esp_now_comm_outgoing_data_queue_handle;
             if (xQueueSend(esp_now_comm_outgoing_data_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS)
@@ -366,6 +408,12 @@ void sensor_post_processing_task(void *pvParameters)
             time_t currentTime;
             time(&currentTime);
             event->sensor_data->timestamp = currentTime;
+
+            // debug senor data to console
+            char *log_string = create_sensor_data_json(event->sensor_data);
+            ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
+            free(log_string);
+            log_string = NULL;
 
             // prepare to send to multiple tasks for furter proccessing
 
@@ -482,26 +530,56 @@ void sensor_send_to_sd_db_task(void *pvParameters)
         }
     }
 }
-
-void sensor_send_to_server_task(void *pvParameters)
+esp_http_client_handle_t initialize_http_client()
 {
-    sensor_queue_wrapper_t *event;
-
+    char *url = BACKEND_URL;
     //====================================
     esp_http_client_config_t config = {
-        .url = BACKEND_URL,
+        .url = url,
         .method = HTTP_METHOD_POST,
-        .keep_alive_enable = true,
-        .keep_alive_interval = 35000};
-
+        .keep_alive_enable = false,
+        .timeout_ms = 5000,
+        //.event_handler = client_event_post_handler
+    };
+    //=====================
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (client == NULL)
     {
         ESP_LOGE("HTTP_CLIENT", "Failed to initialize HTTP client");
     }
-    esp_http_client_set_header(client, "Content-Type", "application/json");
-    //=====================
+    else
+    {
 
+        esp_http_client_set_header(client, "Content-Type", "application/json");
+    }
+    return client;
+}
+
+static SemaphoreHandle_t client_mutex = NULL;
+void sensor_send_to_server_task(void *pvParameters)
+{
+    if (!client_mutex)
+    {
+        client_mutex = xSemaphoreCreateMutex();
+    }
+    sensor_queue_wrapper_t *event;
+    // char *url = BACKEND_URL;
+    // //====================================
+    // esp_http_client_config_t config = {
+    //     .url = url,
+    //     .method = HTTP_METHOD_POST,
+    //     .keep_alive_enable = false,
+    //     .timeout_ms = 5000,
+    //     //.event_handler = client_event_post_handler
+    // };
+    // //=====================
+    // esp_http_client_handle_t client = esp_http_client_init(&config);
+    // if (client == NULL)
+    // {
+    //     ESP_LOGE("HTTP_CLIENT", "Failed to initialize HTTP client");
+    // }
+    // esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_http_client_handle_t client = initialize_http_client();
     for (;;)
     {
         if (xQueueReceive(sensor_send_to_server_handle, &event, portMAX_DELAY) == pdTRUE)
@@ -521,27 +599,45 @@ void sensor_send_to_server_task(void *pvParameters)
                 // ESP_LOGW("send-server-mem", "allocated at %p", sensor_data_json);
                 if (sensor_data_json != NULL)
                 {
-                    //===============================================
-
-                    esp_http_client_set_post_field(client, sensor_data_json, strlen(sensor_data_json));
-                    esp_err_t err = esp_http_client_perform(client);
-                    if (err == ESP_OK)
+                    if (xSemaphoreTake(client_mutex, portMAX_DELAY) == pdTRUE)
                     {
-                        ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
-                                 esp_http_client_get_status_code(client),
-                                 esp_http_client_get_content_length(client));
+                        //===============================================
+                        // ESP_LOGE("HTTP_CLIENT", "mutex taken by module->%s-id:%d-%s->send_id:%d", event->sensor_data->module_id,
+                        //          event->sensor_data->local_sensor_id,
+                        //          sensor_type_to_string(event->sensor_data->sensor_type),
+                        //          event->current_send_id);
+                        esp_http_client_set_post_field(client, sensor_data_json, strlen(sensor_data_json));
+                        esp_err_t err = esp_http_client_perform(client);
+                        if (err == ESP_OK)
+                        {
+                            ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
+                                     esp_http_client_get_status_code(client),
+                                     esp_http_client_get_content_length(client));
+                        }
+                        else
+                        {
+                            ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed here: %s", esp_err_to_name(err));
+
+                            esp_http_client_cleanup(client);
+                            // // retry_count++;
+                            ESP_LOGI("http_TAG", "Retrying... ");
+                            vTaskDelay(pdMS_TO_TICKS(1000)); // wait for 1 second before retrying
+                            client = initialize_http_client();
+                            // esp_http_client_set_header(client, "Content-Type", "application/json");
+                        }
+
+                        free(sensor_data_json);
+                        // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);
+                        sensor_data_json = NULL;
+
+                        //============================================
+                        xSemaphoreGive(client_mutex);
+                        // ESP_LOGE("HTTP_CLIENT", "mutex gievn");
                     }
                     else
                     {
-                        ESP_LOGE("HTTP_CLIENT", "HTTP POST request failed: %s", esp_err_to_name(err));
+                        ESP_LOGE("HTTP_CLIENT", "mutex error");
                     }
-
-                    free(sensor_data_json);
-                    // ESP_LOGW("http-client-mem", "freed at %p", sensor_json);
-                    sensor_data_json = NULL;
-
-                    //============================================
-
                     // post_sensor_data_backend(sensor_data_json);
                     ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d sensor data sent posting to servers",
                              event->sensor_data->module_id,
@@ -553,15 +649,17 @@ void sensor_send_to_server_task(void *pvParameters)
                     //     free(sensor_data_json);
                     // }
                     // ESP_LOGW("send-to-server-after-post", "free min size:%lu", esp_get_free_heap_size());
+                    // esp_http_client_cleanup(client);
+                    vTaskDelay(pdMS_TO_TICKS(500));
                 }
             }
 
             xSemaphoreGive(all_tasks_complete_semaphore);
 
             // ESP_LOGW("send-to-server-end", "free min size:%lu", esp_get_free_heap_size());
-
             taskYIELD();
         }
+
         // esp_http_client_cleanup(client);
     }
 }
@@ -595,6 +693,20 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             event->sensor_data->value = NULL;
             free(event->sensor_data->location);
             event->sensor_data->location = NULL;
+            free(event->sensor_data->module_location);
+            event->sensor_data->module_location = NULL;
+
+            //  free(event->sensor_data->sensor_square_pos);
+            // event->sensor_data->sensor_square_pos = NULL;
+            // free(event->sensor_data->sensor_zn_rel_pos);
+            // event->sensor_data->sensor_zn_rel_pos = NULL;
+            // free(event->sensor_data->module_square_pos);
+            //    event->sensor_data->module_square_pos = NULL;
+            // free(event->sensor_data->module_zn_rel_pos);
+            //   event->sensor_data->module_location = NULL;
+
+            free(event->sensor_data->module_type);
+            event->sensor_data->module_type = NULL;
             free(event->sensor_data->module_id);
             event->sensor_data->module_id = NULL;
             free(event->sensor_data);
@@ -602,11 +714,6 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             free(event);
             event = NULL;
 
-            ESP_LOGD(SENSOR_EVENT_TAG, "module->%s-id:%d-%s->send_id:%d Memory cleaned up successfully",
-                     module_id,
-                     sensor_id,
-                     sensor_type,
-                     curr_send_id);
             // }
             // else
             // {
@@ -618,7 +725,18 @@ void sensor_queue_mem_cleanup_task(void *pvParameters)
             //          curr_send_id);
             // }
 
-            ESP_LOGW("mem-cleanup", "free min size:%lu", esp_get_free_heap_size());
+            // ESP_LOGW(SENSOR_EVENT_TAG, "\n===================================\n"
+            //                            "module->%s\n\tid:%d-%s->send_id:%d\nMemory cleaned up successfully\n"
+            //                            "mem-cleanup:-> \n\tfree heap size: %lu\n\tfree internal: %d\n"
+            //                            "===================================",
+            //          module_id,
+            //          sensor_id,
+            //          sensor_type,
+            //          curr_send_id,
+            //          esp_get_free_heap_size(),
+            //          heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+            // ESP_LOGW("mem-cleanup", "free min total size:%lu", esp_get_free_heap_size());
+            // ESP_LOGW("mem-cleanup", "free min internal size:%d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
             taskYIELD();
         }
     }
@@ -737,8 +855,8 @@ esp_err_t initiate_sensor_queue()
     sensor_send_to_server_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_queue_mem_cleanup_handle = xQueueCreate(10, sizeof(sensor_queue_wrapper_t));
     sensor_send_to_websocket_server_handle = xQueueCreate(20, sizeof(sensor_queue_wrapper_t));
-
-    xTaskCreatePinnedToCore(
+    BaseType_t task_code;
+    task_code = xTaskCreatePinnedToCore(
         sensor_queue_monitor_task,
         "sq_monitor",
         SENSOR_QUEUE_STACK_SIZE,
@@ -746,8 +864,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_QUEUE_PRIORITY,
         &sensor_queue_task_handle,
         SENSOR_QUEUE_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_preprocessing_task,
         "s_prepocess",
         SENSOR_PREPROCESSING_STACK_SIZE,
@@ -755,8 +877,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_PREPROCESSING_PRIORITY,
         &sensor_preprocessing_task_handle,
         SENSOR_PREPROCESSING_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_prepare_to_send_task,
         "s_prep_send",
         SENSOR_PREPARE_TO_SEND_STACK_SIZE,
@@ -764,8 +890,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_PREPARE_TO_SEND_PRIORITY,
         &sensor_prepare_to_send_task_handle,
         SENSOR_PREPARE_TO_SEND_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_post_processing_task,
         "s_post_process",
         SENSOR_POSTPROCESSING_STACK_SIZE,
@@ -773,8 +903,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_POSTPROCESSING_PRIORITY,
         &sensor_post_processing_task_handle,
         SENSOR_POSTPROCESSING_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_ram_task,
         "s_snd_ram",
         SENSOR_SEND_TO_RAM_STACK_SIZE,
@@ -782,8 +916,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_SEND_TO_RAM_PRIORITY,
         &sensor_send_to_ram_task_handle,
         SENSOR_SEND_TO_RAM_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_sd_db_task,
         "s_snd_sd_db",
         SENSOR_SEND_TO_SD_DB_STACK_SIZE,
@@ -791,8 +929,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_SEND_TO_SD_DB_PRIORITY,
         &sensor_send_to_sd_db_task_handle,
         SENSOR_SEND_TO_SD_DB_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_server_task,
         "s_snd_serv",
         SENSOR_SEND_TO_SERVER_STACK_SIZE,
@@ -801,7 +943,7 @@ esp_err_t initiate_sensor_queue()
         &sensor_send_to_server_task_handle,
         SENSOR_SEND_TO_SERVER_CORE_ID);
 
-    xTaskCreatePinnedToCore(
+    task_code = xTaskCreatePinnedToCore(
         sensor_queue_mem_cleanup_task,
         "s_q_memclean",
         SENSOR_QUEUE_MEM_CLEANUP_STACK_SIZE,
@@ -809,8 +951,12 @@ esp_err_t initiate_sensor_queue()
         SENSOR_QUEUE_MEM_CLEANUP_PRIORITY,
         &sensor_queue_mem_cleanup_task_handle,
         SENSOR_QUEUE_MEM_CLEANUP_CORE_ID);
-
-    xTaskCreatePinnedToCore(
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
+    task_code = xTaskCreatePinnedToCore(
         sensor_send_to_websocket_server_task,
         "s_snd_ws",
         SENSOR_SEND_TO_WEBSOCKET_SERVER_STACK_SIZE,
@@ -818,7 +964,11 @@ esp_err_t initiate_sensor_queue()
         SENSOR_SEND_TO_WEBSOCKET_SERVER_PRIORITY,
         &sensor_send_to_websocket_server_task_handle,
         SENSOR_SEND_TO_WEBSOCKET_SERVER_CORE_ID);
-
+    if (task_code != pdPASS)
+    {
+        ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+        ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+    }
     return ESP_OK;
 }
 

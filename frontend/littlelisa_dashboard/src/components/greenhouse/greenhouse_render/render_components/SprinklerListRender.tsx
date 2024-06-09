@@ -1,9 +1,9 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { SpaceCoordinate } from "../../../../../types/common";
+import { SquarePos } from "../../../../../types/common";
 
 type SprinklerListRender = {
   zoneId: number;
-  sprinklers: SpaceCoordinate[] | null;
+  sprinklers: SquarePos[] | null;
   zone_dim: { x: number; y: number; z: number };
 };
 

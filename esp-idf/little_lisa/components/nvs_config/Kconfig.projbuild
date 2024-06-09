@@ -1,23 +1,1101 @@
 
 
-menu "NVS Module Info"
 
-    choice
-        prompt "Select Module Type"
 
-        config MODULE_TYPE_NODE
-            bool "node"
+        menu "Environmental State Config"
 
-        config MODULE_TYPE_CONTROLLER
-            bool "controller"
+            config ENABLE_ENV_CNTRL_STATE_UPDATE
+                bool "Enable nvs enviroment control relay state update"
+                default n
+                    help
+                        allows for updateing nvs stored eniromental control state array
 
-    endchoice
 
-    config MODULE_LOCATION
-        string "Module Location"
-        default "UNKNOWN"
-        help
-            Module location information
+            config RELAY_TOTAL
+                depends on ENABLE_ENV_CNTRL_STATE_UPDATE
+                int "Number of Relays"
+                default 0
+                range 0 12
+
+            menu "Relay 1"
+
+                config ENV_CNTRL_PIN_1
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 1
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 1
+                    default OPTION_UNKNOWN_1
+
+                    config OPTION_UNKNOWN_1
+                        bool "unknown"
+
+                    config OPTION_LIGHT_1
+                        bool "Light"
+
+                    config OPTION_WATER_1
+                        bool "Water"
+
+                    config OPTION_FAN_1
+                        bool "Fan"
+
+                    config OPTION_HEATER_1
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_1
+                    int
+                    default 0 if OPTION_UNKNOWN_1
+                    default 1 if OPTION_LIGHT_1
+                    default 2 if OPTION_WATER_1
+                    default 3 if OPTION_FAN_1
+                    default 4 if OPTION_HEATER_1
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_1
+                    depends on RELAY_TOTAL >= 1
+
+                    config POWER_INTERNAL_1
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_1
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_1
+                    int
+                    default 1 if POWER_EXTERNAL_1
+                    default 0 if POWER_INTERNAL_1
+                    depends on RELAY_TOTAL >= 1
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_1
+                    depends on RELAY_TOTAL >= 1
+
+                    config STATE_OFF_1
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_1
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_1
+                    int
+                    default 1 if STATE_ON_1
+                    default 0 if STATE_OFF_1
+                    depends on RELAY_TOTAL >= 1
+
+            endmenu
+
+            menu "Relay 2"
+
+                config ENV_CNTRL_PIN_2
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 2
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 2
+                    default OPTION_UNKNOWN_2
+
+                    config OPTION_UNKNOWN_2
+                        bool "unknown"
+
+                    config OPTION_LIGHT_2
+                        bool "Light"
+
+                    config OPTION_WATER_2
+                        bool "Water"
+
+                    config OPTION_FAN_2
+                        bool "Fan"
+
+                    config OPTION_HEATER_2
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_2
+                    int
+                    default 0 if OPTION_UNKNOWN_2
+                    default 1 if OPTION_LIGHT_2
+                    default 2 if OPTION_WATER_2
+                    default 3 if OPTION_FAN_2
+                    default 4 if OPTION_HEATER_2
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_2
+                    depends on RELAY_TOTAL >= 2
+
+                    config POWER_INTERNAL_2
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_2
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_2
+                    int
+                    default 1 if POWER_EXTERNAL_2
+                    default 0 if POWER_INTERNAL_2
+                    depends on RELAY_TOTAL >= 2
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_2
+                    depends on RELAY_TOTAL >= 2
+
+                    config STATE_OFF_2
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_2
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_2
+                    int
+                    default 1 if STATE_ON_2
+                    default 0 if STATE_OFF_2
+                    depends on RELAY_TOTAL >= 2
+
+            endmenu
+
+            menu "Relay 3"
+
+                config ENV_CNTRL_PIN_3
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 3
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 3
+                    default OPTION_UNKNOWN_3
+
+                    config OPTION_UNKNOWN_3
+                        bool "unknown"
+
+                    config OPTION_LIGHT_3
+                        bool "Light"
+
+                    config OPTION_WATER_3
+                        bool "Water"
+
+                    config OPTION_FAN_3
+                        bool "Fan"
+
+                    config OPTION_HEATER_3
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_3
+                    int
+                    default 0 if OPTION_UNKNOWN_3
+                    default 1 if OPTION_LIGHT_3
+                    default 2 if OPTION_WATER_3
+                    default 3 if OPTION_FAN_3
+                    default 4 if OPTION_HEATER_3
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_3
+                    depends on RELAY_TOTAL >= 3
+
+                    config POWER_INTERNAL_3
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_3
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_3
+                    int
+                    default 1 if POWER_EXTERNAL_3
+                    default 0 if POWER_INTERNAL_3
+                    depends on RELAY_TOTAL >= 3
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_3
+                    depends on RELAY_TOTAL >= 3
+
+                    config STATE_OFF_3
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_3
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_3
+                    int
+                    default 1 if STATE_ON_3
+                    default 0 if STATE_OFF_3
+                    depends on RELAY_TOTAL >= 3
+
+            endmenu
+
+            menu "Relay 4"
+
+                config ENV_CNTRL_PIN_4
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 4
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 4
+                    default OPTION_UNKNOWN_4
+
+                    config OPTION_UNKNOWN_4
+                        bool "unknown"
+
+                    config OPTION_LIGHT_4
+                        bool "Light"
+
+                    config OPTION_WATER_4
+                        bool "Water"
+
+                    config OPTION_FAN_4
+                        bool "Fan"
+
+                    config OPTION_HEATER_4
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_4
+                    int
+                    default 0 if OPTION_UNKNOWN
+                    default 1 if OPTION_LIGHT_4
+                    default 2 if OPTION_WATER_4
+                    default 3 if OPTION_FAN_4
+                    default 4 if OPTION_HEATER_4
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_4
+                    depends on RELAY_TOTAL >= 4
+
+                    config POWER_INTERNAL_4
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_4
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_4
+                    int
+                    default 1 if POWER_EXTERNAL
+                    default 0 if POWER_INTERNAL
+                    depends on RELAY_TOTAL >= 4
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_4
+                    depends on RELAY_TOTAL >= 4
+
+                    config STATE_OFF_4
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_4
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_4
+                    int
+                    default 1 if STATE_ON_4
+                    default 0 if STATE_OFF_4
+                    depends on RELAY_TOTAL >= 4
+
+            endmenu
+
+            menu "Relay 5"
+
+                config ENV_CNTRL_PIN_5
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 5
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 5
+                    default OPTION_UNKNOWN_5
+
+                    config OPTION_UNKNOWN_5
+                        bool "unknown"
+
+                    config OPTION_LIGHT_5
+                        bool "Light"
+
+                    config OPTION_WATER_5
+                        bool "Water"
+
+                    config OPTION_FAN_5
+                        bool "Fan"
+
+                    config OPTION_HEATER_5
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_5
+                    int
+                    default 0 if OPTION_UNKNOWN_5
+                    default 1 if OPTION_LIGHT_5
+                    default 2 if OPTION_WATER_5
+                    default 3 if OPTION_FAN_5
+                    default 4 if OPTION_HEATER_5
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_5
+                    depends on RELAY_TOTAL >= 5
+
+                    config POWER_INTERNAL_5
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_5
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_5
+                    int
+                    default 1 if POWER_EXTERNAL_5
+                    default 0 if POWER_INTERNAL_5
+                    depends on RELAY_TOTAL >= 5
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_5
+                    depends on RELAY_TOTAL >= 5
+
+                    config STATE_OFF_5
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_5
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_5
+                    int
+                    default 1 if STATE_ON_5
+                    default 0 if STATE_OFF_5
+                    depends on RELAY_TOTAL >= 5
+
+            endmenu
+
+            menu "Relay 6"
+
+                config ENV_CNTRL_PIN_6
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 6
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 6
+                    default OPTION_UNKNOWN_6
+
+                    config OPTION_UNKNOWN_6
+                        bool "unknown"
+
+                    config OPTION_LIGHT_6
+                        bool "Light"
+
+                    config OPTION_WATER_6
+                        bool "Water"
+
+                    config OPTION_FAN_6
+                        bool "Fan"
+
+                    config OPTION_HEATER_6
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_6
+                    int
+                    default 0 if OPTION_UNKNOWN_6
+                    default 1 if OPTION_LIGHT_6
+                    default 2 if OPTION_WATER_6
+                    default 3 if OPTION_FAN_6
+                    default 4 if OPTION_HEATER_6
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_6
+                    depends on RELAY_TOTAL >= 6
+
+                    config POWER_INTERNAL_6
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_6
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_6
+                    int
+                    default 1 if POWER_EXTERNAL_6
+                    default 0 if POWER_INTERNAL_6
+                    depends on RELAY_TOTAL >= 6
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_6
+                    depends on RELAY_TOTAL >= 6
+
+                    config STATE_OFF_6
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_6
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_6
+                    int
+                    default 1 if STATE_ON_6
+                    default 0 if STATE_OFF_6
+                    depends on RELAY_TOTAL >= 6
+
+            endmenu
+
+            menu "Relay 7"
+
+                config ENV_CNTRL_PIN_7
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 7
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 7
+                    default OPTION_UNKNOWN_7
+
+                    config OPTION_UNKNOWN_7
+                        bool "unknown"
+
+                    config OPTION_LIGHT_7
+                        bool "Light"
+
+                    config OPTION_WATER_7
+                        bool "Water"
+
+                    config OPTION_FAN_7
+                        bool "Fan"
+
+                    config OPTION_HEATER_7
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_7
+                    int
+                    default 0 if OPTION_UNKNOWN_7
+                    default 1 if OPTION_LIGHT_7
+                    default 2 if OPTION_WATER_7
+                    default 3 if OPTION_FAN_7
+                    default 4 if OPTION_HEATER_7
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_7
+                    depends on RELAY_TOTAL >= 7
+
+                    config POWER_INTERNAL_7
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_7
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_7
+                    int
+                    default 1 if POWER_EXTERNAL_7
+                    default 0 if POWER_INTERNAL_7
+                    depends on RELAY_TOTAL >= 7
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_7
+                    depends on RELAY_TOTAL >= 7
+
+                    config STATE_OFF_7
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_7
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_7
+                    int
+                    default 1 if STATE_ON_7
+                    default 0 if STATE_OFF_7
+                    depends on RELAY_TOTAL >= 7
+
+            endmenu
+
+            menu "Relay 8"
+
+                config ENV_CNTRL_PIN_8
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 8
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 8
+                    default OPTION_UNKNOWN_8
+
+                    config OPTION_UNKNOWN_8
+                        bool "unknown"
+
+                    config OPTION_LIGHT_8
+                        bool "Light"
+
+                    config OPTION_WATER_8
+                        bool "Water"
+
+                    config OPTION_FAN_8
+                        bool "Fan"
+
+                    config OPTION_HEATER_8
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_8
+                    int
+                    default 0 if OPTION_UNKNOWN_8
+                    default 1 if OPTION_LIGHT_8
+                    default 2 if OPTION_WATER_8
+                    default 3 if OPTION_FAN_8
+                    default 4 if OPTION_HEATER_8
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_8
+                    depends on RELAY_TOTAL >= 8
+
+                    config POWER_INTERNAL_8
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_8
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_8
+                    int
+                    default 1 if POWER_EXTERNAL_8
+                    default 0 if POWER_INTERNAL_8
+                    depends on RELAY_TOTAL >= 8
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_8
+                    depends on RELAY_TOTAL >= 8
+
+                    config STATE_OFF_8
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_8
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_8
+                    int
+                    default 1 if STATE_ON_8
+                    default 0 if STATE_OFF_8
+                    depends on RELAY_TOTAL >= 8
+
+            endmenu
+
+            menu "Relay 9"
+
+                config ENV_CNTRL_PIN_9
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 9
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 9
+                    default OPTION_UNKNOWN_9
+
+                    config OPTION_UNKNOWN_9
+                        bool "unknown"
+
+                    config OPTION_LIGHT_9
+                        bool "Light"
+
+                    config OPTION_WATER_9
+                        bool "Water"
+
+                    config OPTION_FAN_9
+                        bool "Fan"
+
+                    config OPTION_HEATER_9
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_9
+                    int
+                    default 0 if OPTION_UNKNOWN_9
+                    default 1 if OPTION_LIGHT_9
+                    default 2 if OPTION_WATER_9
+                    default 3 if OPTION_FAN_9
+                    default 4 if OPTION_HEATER_9
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_9
+                    depends on RELAY_TOTAL >= 9
+
+                    config POWER_INTERNAL_9
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_9
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_9
+                    int
+                    default 1 if POWER_EXTERNAL_9
+                    default 0 if POWER_INTERNAL_9
+                    depends on RELAY_TOTAL >= 9
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_9
+                    depends on RELAY_TOTAL >= 9
+
+                    config STATE_OFF_9
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_9
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_9
+                    int
+                    default 1 if STATE_ON_9
+                    default 0 if STATE_OFF_9
+                    depends on RELAY_TOTAL >= 9
+
+            endmenu
+
+            menu "Relay 10"
+
+                config ENV_CNTRL_PIN_10
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 10
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 10
+                    default OPTION_UNKNOWN_10
+
+                    config OPTION_UNKNOWN_10
+                        bool "unknown"
+
+                    config OPTION_LIGHT_10
+                        bool "Light"
+
+                    config OPTION_WATER_10
+                        bool "Water"
+
+                    config OPTION_FAN_10
+                        bool "Fan"
+
+                    config OPTION_HEATER_10
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_10
+                    int
+                    default 0 if OPTION_UNKNOWN_10
+                    default 1 if OPTION_LIGHT_10
+                    default 2 if OPTION_WATER_10
+                    default 3 if OPTION_FAN_10
+                    default 4 if OPTION_HEATER_10
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_10
+                    depends on RELAY_TOTAL >= 10
+
+                    config POWER_INTERNAL_10
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_10
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_10
+                    int
+                    default 1 if POWER_EXTERNAL_10
+                    default 0 if POWER_INTERNAL_10
+                    depends on RELAY_TOTAL >= 10
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_10
+                    depends on RELAY_TOTAL >= 10
+
+                    config STATE_OFF_10
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_10
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_10
+                    int
+                    default 1 if STATE_ON_10
+                    default 0 if STATE_OFF_10
+                    depends on RELAY_TOTAL >= 10
+
+            endmenu
+
+            menu "Relay 11"
+
+                config ENV_CNTRL_PIN_11
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 11
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 11
+                    default OPTION_UNKNOWN_11
+
+                    config OPTION_UNKNOWN_11
+                        bool "unknown"
+
+                    config OPTION_LIGHT_11
+                        bool "Light"
+
+                    config OPTION_WATER_11
+                        bool "Water"
+
+                    config OPTION_FAN_11
+                        bool "Fan"
+
+                    config OPTION_HEATER_11
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_11
+                    int
+                    default 0 if OPTION_UNKNOWN_11
+                    default 1 if OPTION_LIGHT_11
+                    default 2 if OPTION_WATER_11
+                    default 3 if OPTION_FAN_11
+                    default 4 if OPTION_HEATER_11
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_11
+                    depends on RELAY_TOTAL >= 11
+
+                    config POWER_INTERNAL_11
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_11
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_11
+                    int
+                    default 1 if POWER_EXTERNAL_11
+                    default 0 if POWER_INTERNAL_11
+                    depends on RELAY_TOTAL >= 11
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_11
+                    depends on RELAY_TOTAL >= 11
+
+                    config STATE_OFF_11
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_11
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_11
+                    int
+                    default 1 if STATE_ON_11
+                    default 0 if STATE_OFF_11
+                    depends on RELAY_TOTAL >= 11
+
+            endmenu
+
+            menu "Relay 12"
+
+                config ENV_CNTRL_PIN_12
+                    int "Pin"
+                    default 0
+                    depends on RELAY_TOTAL >= 12
+
+
+
+                choice
+                    prompt "Select Control Type"
+                    depends on RELAY_TOTAL >= 12
+                    default OPTION_UNKNOWN_12
+
+                    config OPTION_UNKNOWN_12
+                        bool "unknown"
+
+                    config OPTION_LIGHT_12
+                        bool "Light"
+
+                    config OPTION_WATER_12
+                        bool "Water"
+
+                    config OPTION_FAN_12
+                        bool "Fan"
+
+                    config OPTION_HEATER_12
+                        bool "Heater"
+                endchoice
+
+                config ENV_CNTRL_TYPE_12
+                    int
+                    default 0 if OPTION_UNKNOWN_12
+                    default 1 if OPTION_LIGHT_12
+                    default 2 if OPTION_WATER_12
+                    default 3 if OPTION_FAN_12
+                    default 4 if OPTION_HEATER_12
+
+                choice
+                    prompt "Select Power Source"
+                    default POWER_INTERNAL_12
+                    depends on RELAY_TOTAL >= 12
+
+                    config POWER_INTERNAL_12
+                        bool "Internal"
+                        help
+                            Select this if power is from ESP.
+
+                    config POWER_EXTERNAL_12
+                        bool "External"
+                        help
+                            Select this if power is external using JVCC.
+                endchoice
+
+                config ENV_CNTRL_EXT_PWR_12
+                    int
+                    default 1 if POWER_EXTERNAL
+                    default 0 if POWER_INTERNAL
+                    depends on RELAY_TOTAL >= 12
+
+                choice
+                    prompt "Select initial state"
+                    default STATE_OFF_12
+                    depends on RELAY_TOTAL >= 12
+
+                    config STATE_OFF_12
+                        bool "Off"
+                        help
+                            Select this if control is off.
+
+                    config STATE_ON_12
+                        bool "On"
+                        help
+                            Select this if control is on.
+                endchoice
+
+                config ENV_CNTRL_STATE_12
+                    int
+                    default 1 if STATE_ON_12
+                    default 0 if STATE_OFF_12
+                    depends on RELAY_TOTAL >= 12
+
+            endmenu
+
+
+
+        endmenu
+
+        menu "NVS Module Info"
+
+            choice
+                prompt "Select Module Type"
+
+                config MODULE_TYPE_NODE
+                    bool "node"
+
+                config MODULE_TYPE_CONTROLLER
+                    bool "controller"
+
+            endchoice
+
+            config MODULE_LOCATION
+                string "Module Location"
+                default "UNKNOWN"
+                help
+                    Module location description
+
+            config GREENHOUSE_ID
+                int "Greenhouse id"
+                default 1
+
+
+            config ZONE_NUM
+                int "zone num"
+                default 1
+
+
+            choice
+                prompt "select location type"
+
+                config SQUARE_POS
+                    bool "square id"
+                    depends on ZONE_NUM > 0
+
+                config ZN_REL_POS
+                    bool "zone relative"
+
+                help
+                    select square id
+            endchoice
+
+            config SQUARE_POS_Y
+                depends on SQUARE_POS
+                int "square Y"
+                default 1
+
+            config SQUARE_POS_X
+                depends on SQUARE_POS
+                int "square X"
+                default 1
+
+
+            config ZN_REL_POS_X
+                int "x coordinate"
+                default 0
+                depends on ZN_REL_POS
+            config ZN_REL_POS_Y
+                int "y coordinate"
+                default 0
+                depends on ZN_REL_POS
+            config ZN_REL_POS_Z
+                int "z coordinate"
+                default 0
+                depends on ZN_REL_POS
+
 
     menu "Sensor List"
 
@@ -26,8 +1104,34 @@ menu "NVS Module Info"
             default 0
             range 0 5
 
-            menu "DHT22 Sensor Locations"
+            config SENSOR_SOIL_MOISTURE
+                int "Soil Moisture"
+                default 0
+                range 0 5
 
+                config SENSOR_LIGHT
+                    int "Light"
+                    default 0
+                    range 0 5
+
+                    config SENSOR_SOUND
+                        int "Sound"
+                        default 0
+                        range 0 5
+
+
+         config SENSOR_MOVEMENT
+            int "Movement"
+            default 0
+            range 0 5
+
+            config SENSOR_CAMERA
+                int "Camera"
+                default 0
+                range 0 5
+
+            menu "DHT22 Sensor Info"
+                menu "sensor 1"
                 config SENSOR_DHT22_1_LOCATION
                     string "Location of Temp Sensor 1"
                     default "Unknown"
@@ -36,20 +1140,115 @@ menu "NVS Module Info"
                     config SENSOR_DHT22_1_PIN
                         int "Pin Number of Temp Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 1
 
+                        choice
+                            prompt "select location type for sensor 1"
+                            depends on SENSOR_DHT22 >= 1
+                            config SQUARE_POS_DHT22_1
+                                bool "square id"
+                                depends on ZONE_NUM > 0
 
-                config SENSOR_DHT22_2_LOCATION
-                    string "Location of Temp Sensor 2"
-                    default "Unknown"
-                    depends on SENSOR_DHT22 >= 2
+                            config ZN_REL_POS_DHT22_1
+                                bool "zone relative"
 
-                    config SENSOR_DHT22_2_PIN
-                        int "Pin Number of Temp Sensor 2"
-                        default 0
-                        range 0 35
-                        depends on SENSOR_DHT22 >= 2
+
+                            help
+                                select square id
+                        endchoice
+
+                        config SQUARE_POS_Y_DHT22_1
+                            depends on SQUARE_POS_DHT22_1
+                            int "sensor 1 square Y"
+                            default 1
+
+                        config SQUARE_POS_X_DHT22_1
+                            depends on SQUARE_POS_DHT22_1
+                            int "sensor 1 square X"
+                            default 1
+
+
+                        config ZN_REL_POS_X_DHT22_1
+                            int "sensor 1 x coordinate"
+                            default 0
+                            depends on ZN_REL_POS_DHT22_1
+                        config ZN_REL_POS_Y_DHT22_1
+                            int "sensor 1 y coordinate"
+                            default 0
+                            depends on ZN_REL_POS_DHT22_1
+                        config ZN_REL_POS_Z_DHT22_1
+                            int "sensor 1 z coordinate"
+                            default 0
+                            depends on ZN_REL_POS_DHT22_1
+
+
+                    endmenu
+
+
+                    menu "sensor 2"
+                        config SENSOR_DHT22_2_LOCATION
+                            string "Location of Temp Sensor 2"
+                            default "Unknown"
+                            depends on SENSOR_DHT22 >= 2
+
+                            config SENSOR_DHT22_2_PIN
+                                int "Pin Number of Temp Sensor 2"
+                                default 0
+                                range 0 40
+                                depends on SENSOR_DHT22 >= 2
+
+
+                                    choice
+                                        prompt "select location type for sensor 2"
+                                        depends on SENSOR_DHT22 >= 2
+                                        config SQUARE_POS_DHT22_2
+                                            bool "square id"
+                                            depends on ZONE_NUM > 0
+
+                                        config ZN_REL_POS_DHT22_2
+                                            bool "zone relative"
+
+
+                                        help
+                                            select square id
+                                    endchoice
+
+                                    config SQUARE_POS_Y_DHT22_2
+                                        depends on SQUARE_POS_DHT22_2
+                                        int "sensor 2 square Y"
+                                        default 1
+
+                                    config SQUARE_POS_X_DHT22_2
+                                        depends on SQUARE_POS_DHT22_2
+                                        int "sensor 2 square X"
+                                        default 1
+
+
+                                    config ZN_REL_POS_X_DHT22_2
+                                        int "sensor 2 x coordinate"
+                                        default 0
+                                        depends on ZN_REL_POS_DHT22_2
+                                    config ZN_REL_POS_Y_DHT22_2
+                                        int "sensor 2 y coordinate"
+                                        default 0
+                                        depends on ZN_REL_POS_DHT22_2
+                                    config ZN_REL_POS_Z_DHT22_2
+                                        int "sensor 2 z coordinate"
+                                        default 0
+                                        depends on ZN_REL_POS_DHT22_2
+
+
+                                endmenu
+
+
+
+
+
+
+
+
+                                menu "sensor 3"
 
                 config SENSOR_DHT22_3_LOCATION
                     string "Location of Temp Sensor 3"
@@ -59,9 +1258,65 @@ menu "NVS Module Info"
                     config SENSOR_DHT22_3_PIN
                         int "Pin Number of Temp Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 3
 
+
+
+
+                                        choice
+                                            prompt "select location type for sensor 3"
+                                            depends on SENSOR_DHT22 >= 3
+                                            config SQUARE_POS_DHT22_3
+                                                bool "square id"
+                                                depends on ZONE_NUM > 0
+
+                                            config ZN_REL_POS_DHT22_3
+                                                bool "zone relative"
+
+
+                                            help
+                                                select square id
+                                        endchoice
+
+                                        config SQUARE_POS_Y_DHT22_3
+                                            depends on SQUARE_POS_DHT22_3
+                                            int "sensor 3 square Y"
+                                            default 1
+
+                                        config SQUARE_POS_X_DHT22_3
+                                            depends on SQUARE_POS_DHT22_3
+                                            int "sensor 3 square X"
+                                            default 1
+
+
+                                        config ZN_REL_POS_X_DHT22_3
+                                            int "sensor 3 x coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_3
+                                        config ZN_REL_POS_Y_DHT22_3
+                                            int "sensor 3 y coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_3
+                                        config ZN_REL_POS_Z_DHT22_3
+                                            int "sensor 3 z coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_3
+
+
+                                    endmenu
+
+
+
+
+
+
+
+
+
+
+
+                                    menu "sensor 4"
                 config SENSOR_DHT22_4_LOCATION
                     string "Location of Temp Sensor 4"
                     default "Unknown"
@@ -70,8 +1325,61 @@ menu "NVS Module Info"
                     config SENSOR_DHT22_4_PIN
                         int "Pin Number of Temp Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 4
+
+
+
+
+
+
+                                        choice
+                                            prompt "select location type for sensor 4"
+                                            depends on SENSOR_DHT22 >= 4
+                                            config SQUARE_POS_DHT22_4
+                                                bool "square id"
+                                                depends on ZONE_NUM > 0
+
+                                            config ZN_REL_POS_DHT22_4
+                                                bool "zone relative"
+
+
+                                            help
+                                                select square id
+                                        endchoice
+
+                                        config SQUARE_POS_Y_DHT22_4
+                                            depends on SQUARE_POS_DHT22_4
+                                            int "sensor 4 square Y"
+                                            default 1
+
+                                        config SQUARE_POS_X_DHT22_4
+                                            depends on SQUARE_POS_DHT22_4
+                                            int "sensor 4 square X"
+                                            default 1
+
+
+                                        config ZN_REL_POS_X_DHT22_4
+                                            int "sensor 4 x coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_4
+                                        config ZN_REL_POS_Y_DHT22_4
+                                            int "sensor 4 y coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_4
+                                        config ZN_REL_POS_Z_DHT22_4
+                                            int "sensor 4 z coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_4
+
+
+                                    endmenu
+
+
+
+
+
+                                    menu "sensor 5"
 
                 config SENSOR_DHT22_5_LOCATION
                     string "Location of Temp Sensor 5"
@@ -81,15 +1389,63 @@ menu "NVS Module Info"
                     config SENSOR_DHT22_5_PIN
                         int "Pin Number of Temp Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_DHT22 >= 5
+
+
+
+
+
+
+                                        choice
+                                            prompt "select location type for sensor 5"
+                                            depends on SENSOR_DHT22 >= 5
+                                            config SQUARE_POS_DHT22_5
+                                                bool "square id"
+                                                depends on ZONE_NUM > 0
+
+                                            config ZN_REL_POS_DHT22_5
+                                                bool "zone relative"
+
+
+                                            help
+                                                select square id
+                                        endchoice
+
+                                        config SQUARE_POS_Y_DHT22_5
+                                            depends on SQUARE_POS_DHT22_5
+                                            int "sensor 5 square Y"
+                                            default 1
+
+                                        config SQUARE_POS_X_DHT22_5
+                                            depends on SQUARE_POS_DHT22_5
+                                            int "sensor 5 square X"
+                                            default 1
+
+
+                                        config ZN_REL_POS_X_DHT22_5
+                                            int "sensor 5 x coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_5
+                                        config ZN_REL_POS_Y_DHT22_5
+                                            int "sensor 5 y coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_5
+                                        config ZN_REL_POS_Z_DHT22_5
+                                            int "sensor 5 z coordinate"
+                                            default 0
+                                            depends on ZN_REL_POS_DHT22_5
+
+
+                                    endmenu
+
+
+
+
+
 
             endmenu
 
-        config SENSOR_SOIL_MOISTURE
-            int "Soil Moisture"
-            default 0
-            range 0 5
 
             menu "Soil Moisture Sensor Locations"
 
@@ -101,7 +1457,7 @@ menu "NVS Module Info"
                     config SENSOR_SOIL_MOISTURE_1_PIN
                         int "Pin Number of Soil Moisture Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 1
 
                 config SENSOR_SOIL_MOISTURE_2_LOCATION
@@ -112,7 +1468,7 @@ menu "NVS Module Info"
                     config SENSOR_SOIL_MOISTURE_2_PIN
                         int "Pin Number of Soil Moisture Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 2
 
                 config SENSOR_SOIL_MOISTURE_3_LOCATION
@@ -123,7 +1479,7 @@ menu "NVS Module Info"
                     config SENSOR_SOIL_MOISTURE_3_PIN
                         int "Pin Number of Soil Moisture Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 3
 
                 config SENSOR_SOIL_MOISTURE_4_LOCATION
@@ -134,7 +1490,7 @@ menu "NVS Module Info"
                     config SENSOR_SOIL_MOISTURE_4_PIN
                         int "Pin Number of Soil Moisture Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 4
 
                 config SENSOR_SOIL_MOISTURE_5_LOCATION
@@ -145,15 +1501,11 @@ menu "NVS Module Info"
                     config SENSOR_SOIL_MOISTURE_5_PIN
                         int "Pin Number of Soil Moisture Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOIL_MOISTURE >= 5
 
             endmenu
 
-        config SENSOR_LIGHT
-            int "Light"
-            default 0
-            range 0 5
 
             menu "Light Sensor Locations"
 
@@ -165,7 +1517,7 @@ menu "NVS Module Info"
                     config SENSOR_LIGHT_1_PIN
                         int "Pin Number of LIGHT Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 1
 
                 config SENSOR_LIGHT_2_LOCATION
@@ -176,7 +1528,7 @@ menu "NVS Module Info"
                      config SENSOR_LIGHT_2_PIN
                         int "Pin Number of LIGHT Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 2
 
                 config SENSOR_LIGHT_3_LOCATION
@@ -187,7 +1539,7 @@ menu "NVS Module Info"
                      config SENSOR_LIGHT_3_PIN
                         int "Pin Number of LIGHT Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 3
 
                 config SENSOR_LIGHT_4_LOCATION
@@ -198,7 +1550,7 @@ menu "NVS Module Info"
                      config SENSOR_LIGHT_4_PIN
                         int "Pin Number of LIGHT Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 4
 
                 config SENSOR_LIGHT_5_LOCATION
@@ -209,15 +1561,12 @@ menu "NVS Module Info"
                      config SENSOR_LIGHT_5_PIN
                         int "Pin Number of LIGHT Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_LIGHT >= 5
 
             endmenu
 
-        config SENSOR_SOUND
-            int "Sound"
-            default 0
-            range 0 5
+
 
             menu "Sound Sensor Locations"
 
@@ -229,7 +1578,7 @@ menu "NVS Module Info"
                      config SENSOR_SOUND_1_PIN
                         int "Pin Number of Sound Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 1
 
                 config SENSOR_SOUND_2_LOCATION
@@ -240,7 +1589,7 @@ menu "NVS Module Info"
                     config SENSOR_SOUND_2_PIN
                         int "Pin Number of Sound Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 2
 
                 config SENSOR_SOUND_3_LOCATION
@@ -251,7 +1600,7 @@ menu "NVS Module Info"
                     config SENSOR_SOUND_3_PIN
                         int "Pin Number of Sound Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 3
 
                 config SENSOR_SOUND_4_LOCATION
@@ -262,7 +1611,7 @@ menu "NVS Module Info"
                     config SENSOR_SOUND_4_PIN
                         int "Pin Number of Sound Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 4
 
                 config SENSOR_SOUND_5_LOCATION
@@ -273,15 +1622,11 @@ menu "NVS Module Info"
                     config SENSOR_SOUND_5_PIN
                         int "Pin Number of Sound Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_SOUND >= 5
 
             endmenu
 
-        config SENSOR_MOVEMENT
-            int "Movement"
-            default 0
-            range 0 5
 
             menu "Movement Sensor Locations"
 
@@ -293,7 +1638,7 @@ menu "NVS Module Info"
                     config SENSOR_MOVEMENT_1_PIN
                         int "Pin Number of Movement Sensor 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 1
 
                 config SENSOR_MOVEMENT_2_LOCATION
@@ -304,7 +1649,7 @@ menu "NVS Module Info"
                     config SENSOR_MOVEMENT_2_PIN
                         int "Pin Number of Movement Sensor 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 2
 
                 config SENSOR_MOVEMENT_3_LOCATION
@@ -315,7 +1660,7 @@ menu "NVS Module Info"
                     config SENSOR_MOVEMENT_3_PIN
                         int "Pin Number of Movement Sensor 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 3
 
                 config SENSOR_MOVEMENT_4_LOCATION
@@ -326,7 +1671,7 @@ menu "NVS Module Info"
                     config SENSOR_MOVEMENT_4_PIN
                         int "Pin Number of Movement Sensor 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 4
 
                 config SENSOR_MOVEMENT_5_LOCATION
@@ -337,15 +1682,12 @@ menu "NVS Module Info"
                     config SENSOR_MOVEMENT_5_PIN
                         int "Pin Number of Movement Sensor 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_MOVEMENT >= 5
 
             endmenu
 
-        config SENSOR_CAMERA
-            int "Camera"
-            default 0
-            range 0 5
+
 
             menu "Camera Locations"
 
@@ -357,7 +1699,7 @@ menu "NVS Module Info"
                     config SENSOR_CAMERA_1_PIN
                         int "Pin Number of Camera 1"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 1
 
                 config SENSOR_CAMERA_2_LOCATION
@@ -368,7 +1710,7 @@ menu "NVS Module Info"
                     config SENSOR_CAMERA_2_PIN
                         int "Pin Number of Camera 2"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 2
 
                 config SENSOR_CAMERA_3_LOCATION
@@ -379,7 +1721,7 @@ menu "NVS Module Info"
                     config SENSOR_CAMERA_3_PIN
                         int "Pin Number of Camera 3"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 3
 
                 config SENSOR_CAMERA_4_LOCATION
@@ -390,7 +1732,7 @@ menu "NVS Module Info"
                     config SENSOR_CAMERA_4_PIN
                         int "Pin Number of Camera 4"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 4
 
                 config SENSOR_CAMERA_5_LOCATION
@@ -401,7 +1743,7 @@ menu "NVS Module Info"
                     config SENSOR_CAMERA_5_PIN
                         int "Pin Number of Camera 5"
                         default 0
-                        range 0 35
+                        range 0 40
                         depends on SENSOR_CAMERA >= 5
 
             endmenu

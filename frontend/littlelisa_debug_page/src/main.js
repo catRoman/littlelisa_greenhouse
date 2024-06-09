@@ -28,6 +28,7 @@ const fileInput = document.getElementById("fileInput");
 
 //current node list
 let nodeListObj = [];
+let envStateArr = {};
 const renderedNodeList = new Set(null);
 
 // module type
@@ -97,21 +98,36 @@ otaUpdateForm.addEventListener("submit", async (event) => {
     otaUpdateBtn.disabled = false;
   }
 });
-
-logRefreshBtn.addEventListener("touchend", (e) => {
+//+++++++++++++++++++++logRefreshEvent
+function logRefreshEvent() {
   if (logDataSocket !== undefined) {
     logDataSocket.close();
     console.log("refreshing log socket...");
     logTextArea.value = "Refreshing esp log stream...";
     setTimeout(() => initiateLogSocket(moduleData), 3000);
   }
+}
+logRefreshBtn.addEventListener("click", (e) => {
+  logRefreshEvent();
 });
-
-sensorRefreshBtn.addEventListener("touchend", (e) => {
+logRefreshBtn.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  logRefreshEvent();
+});
+//++++++++++sensorRefresh
+function sensorRefreshEvent() {
   if (sensorDataSocket !== undefined) {
     sensorDataSocket.close();
     setTimeout(() => initiateSensorSocket(moduleData), 3000);
   }
+}
+sensorRefreshBtn.addEventListener("click", (e) => {
+  sensorRefreshEvent();
+});
+sensorRefreshBtn.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  sensorRefreshEv;
+  ent();
 });
 //=============nav selectors================
 const openButton = document.querySelector(".icon-open");
@@ -121,52 +137,69 @@ const main = document.querySelector("main");
 const navClose = document.querySelector(".nav-btn.close");
 const menuBtns = document.querySelectorAll(".nav-btn");
 //========================================
+
+function menuEvent(e, classList) {
+  e.stopPropagation;
+  const classes = [...classList];
+  switch (classes[classes.length - 1]) {
+    case "dev_btn":
+      toggleInfoTab(".device-info");
+
+      break;
+    case "net_btn":
+      toggleInfoTab(".network-info");
+      break;
+    case "db_btn":
+      toggleInfoTab(".sd-db-info");
+      break;
+    case "sys_btn":
+      toggleInfoTab(".system-health");
+      break;
+    case "ota_btn":
+      if (moduleData.module_info.type == "controller") {
+        toggleInfoTab(".ota-update");
+      } else {
+        console.log(
+          "Disabled for nodes. TODO: only render button for controller"
+        );
+      }
+      break;
+    case "close":
+      openButton.classList.toggle("hidden");
+      main.classList.toggle("hidden");
+      menu.classList.toggle("hidden");
+      main.style.pointerEvents = "none";
+
+      setTimeout(() => {
+        main.style.pointerEvents = "auto";
+      }, 100);
+      break;
+    default:
+  }
+}
 menuBtns.forEach((el) => {
-  el.addEventListener("touchend", function (e) {
-    e.stopPropagation;
-    const classes = [...this.classList];
-    switch (classes[classes.length - 1]) {
-      case "dev_btn":
-        toggleInfoTab(".device-info");
-
-        break;
-      case "net_btn":
-        toggleInfoTab(".network-info");
-        break;
-      case "db_btn":
-        toggleInfoTab(".sd-db-info");
-        break;
-      case "sys_btn":
-        toggleInfoTab(".system-health");
-        break;
-      case "ota_btn":
-        if (moduleData.module_info.type == "controller") {
-          toggleInfoTab(".ota-update");
-        } else {
-          console.log(
-            "Disabled for nodes. TODO: only render button for controller"
-          );
-        }
-        break;
-      case "close":
-        openButton.classList.toggle("hidden");
-        main.classList.toggle("hidden");
-        menu.classList.toggle("hidden");
-        main.style.pointerEvents = "none";
-
-        setTimeout(() => {
-          main.style.pointerEvents = "auto";
-        }, 100);
-        break;
-      default:
-    }
+  el.addEventListener("click", function (e) {
+    menuEvent(e, this.classList);
   });
 });
-
-openButton.addEventListener("touchend", () => {
+menuBtns.forEach((el) => {
+  el.addEventListener("touchend", function (e) {
+    e.preventDefault();
+    menuEvent(e, this.classList);
+  });
+});
+//+++++++++++++++openEvent
+function openEvent() {
   openButton.classList.toggle("hidden");
   main.classList.toggle("hidden");
   menu.classList.toggle("hidden");
+}
+openButton.addEventListener("click", (e) => {
+  openEvent();
+});
+openButton.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  openEvent();
 });
 function toggleInfoTab(navClass) {
   console.log(navClass);
@@ -174,7 +207,9 @@ function toggleInfoTab(navClass) {
   document.querySelector(navClass).classList.toggle("hidden");
   closeButton.classList.toggle("hidden");
 }
-closeButton.addEventListener("touchend", () => {
+
+//+++++++++closeEvent
+function closeEvent() {
   const menuTabs = document.querySelector(".menu-select");
   Array.from(menuTabs.children).forEach((el) => {
     if (
@@ -185,6 +220,13 @@ closeButton.addEventListener("touchend", () => {
       toggleInfoTab(`.${el.classList[0]}`);
     }
   });
+}
+closeButton.addEventListener("click", (e) => {
+  closeEvent();
+});
+closeButton.addEventListener("touchend", (e) => {
+  e.preventDefault();
+  closeEvent();
 });
 
 function toggleNavMenu() {}
@@ -211,6 +253,75 @@ function addNodeBoxButtonEvent(nodeNameClass) {
 // api - fetchin`
 //==========================
 
+//++++++++++++++++++++++++++++++++++++
+//+++++++++++++  /api/envState
+//+++++++++++++++++++++++++++++++++++
+
+async function fetchEnvState() {
+  try {
+    const response = await fetch("/api/envState");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    //apply to global
+    envStateArr = Object.values(data);
+
+     updateEnvStateView();
+  } catch (error) {console.log(error.message)}
+}
+async function toggleStateFetch(id) {
+  try {
+    const response = await fetch("/api/envStateUpdate", {
+      method: 'PUT',
+      body: id
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+     const newState = await response.json();
+
+    //apply to global
+
+      fetchEnvState();
+
+
+
+  } catch (error) {console.log(error.message)}
+
+}
+
+ function updateEnvStateView(){
+  const envContainer = document.querySelector(".env-cntrl");
+ envContainer.innerHTML = '';
+
+  envStateArr.forEach((relay)=>{
+
+    envContainer.insertAdjacentHTML(
+      'beforeend',
+      ` <li class="env-li" >
+      <p>Id:${relay.id} &harr; P:${relay.pin} &harr; ${relay.type} &rarr;</p>
+      <button data-id="${relay.id}" class="env-status ${relay.state === 'on' ? 'env-status-on' : 'env-status-off'}">${relay.state}</button>
+      </li>`
+    );
+
+  });
+  const buttons = envContainer.querySelectorAll('.env-status');
+  buttons.forEach(button => {
+    button.addEventListener('click',  function(event) {
+      const id = this.getAttribute('data-id');
+      event.preventDefault();
+      event.stopPropagation();
+       toggleStateFetch(id);
+
+
+    });
+  });
+}
+fetchEnvState();
+
+
 //+++++++++++++++++++++++++++++++++++
 //+++++++++++++  /api/deviceInfo.json
 //++++++++++++++++++++++++++++++++++++
@@ -227,6 +338,7 @@ async function fetchDeviceMenuTabInfo() {
     console.log(error);
   }
 }
+
 
 //+++++++++++++++++++++++++++++++++++
 //+++++++++++++  /api/wifiApConnectInfo.json
@@ -595,7 +707,7 @@ function updateUptime({ uptime }) {
 }
 
 function updateSensorData(wsSensorData) {
-  const { module_info: moduleInfoObj, sensor_data: sensorDataObj } =
+  const { module_info: moduleInfoObj, sensor_info: sensorDataObj } =
     wsSensorData;
 
   //locate sensor box using module_id
@@ -603,7 +715,7 @@ function updateSensorData(wsSensorData) {
   //locate sensor type using sensor type
   //change text content
   //adjust box for variable values
-  const validNodeClass = getValidNodeClass(moduleInfoObj.module_id);
+  const validNodeClass = getValidNodeClass(moduleInfoObj.identifier);
 
   const nodeSensorData = document.querySelector(`.${validNodeClass}`);
 
@@ -612,7 +724,7 @@ function updateSensorData(wsSensorData) {
   );
 
   const sensorToUpdate = sensorType?.querySelector(
-    `.local-sensor-${moduleInfoObj.local_sensor_id}`
+    `.local-sensor-${sensorDataObj.local_sensor_id}`
   );
   if (sensorToUpdate != undefined) {
     sensorToUpdate.querySelector(".timestamp").textContent =
@@ -620,13 +732,13 @@ function updateSensorData(wsSensorData) {
     sensorToUpdate.querySelector(".sensor-location").textContent =
       sensorDataObj.location;
     sensorToUpdate.querySelector(".sensor-pin").textContent =
-      sensorDataObj.module_pin;
+      sensorDataObj.sensor_pin;
     sensorToUpdate.querySelector(
       ".temp"
-    ).textContent = `${sensorDataObj.sensor_data.temp.toFixed(2)}`;
+    ).textContent = `${sensorDataObj.data.temperature.toFixed(2)}`;
     sensorToUpdate.querySelector(
       ".hum"
-    ).textContent = `${sensorDataObj.sensor_data.humidity.toFixed(2)}`;
+    ).textContent = `${sensorDataObj.data.humidity.toFixed(2)}`;
   }
 }
 
@@ -872,3 +984,4 @@ setInterval(() => {
 
 setInterval(getAvgTempReading, 5000);
 setInterval(fetchUptimeFunk, 5000);
+setInterval(fetchEnvState, 30000);
