@@ -39,17 +39,17 @@ export default function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Layout />,
+      element: (
+        <GreenHouseContextProvider>
+          <Layout />,
+        </GreenHouseContextProvider>
+      ),
       errorElement: <ErrorPage />,
 
       children: [
         {
           index: true,
-          element: (
-            <GreenHouseContextProvider>
-              <GreenHouse />
-            </GreenHouseContextProvider>
-          ),
+          element: <GreenHouse />,
         },
         {
           path: "calender",

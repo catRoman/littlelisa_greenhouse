@@ -26,3 +26,10 @@ export enum UpdateSubMenu {
   Sprinklers = "Sprinklers",
   Clear = "Clear",
 }
+export enum DebugPanelState {
+  Device = "Device",
+  Network = "Network",
+  System = "System",
+  DB = "DB",
+  OTA = "OTA",
+}
