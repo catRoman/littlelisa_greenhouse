@@ -20,6 +20,7 @@
 #include "wifi_ap_sta.h"
 #include "DHT22.h"
 #include "http_handlers.h"
+#include "led.h"
 
 // wifi connect status
 int g_wifi_connect_status = NONE;
@@ -95,6 +96,7 @@ static httpd_handle_t http_server_configuration(void)
     // start the httpd server
     if (httpd_start(&http_server_handle, &config) == ESP_OK)
     {
+        led_http_server_started();
         register_http_server_handlers();
         return http_server_handle;
     }

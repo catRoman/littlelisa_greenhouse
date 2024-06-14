@@ -72,6 +72,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     case WIFI_EVENT_STA_DISCONNECTED:
 
         ESP_LOGW(WIFI_TAG, "connection lost attempting reconnect....");
+        led_wifi_disconnected_as_sta();
         esp_wifi_connect();
 
         break;
@@ -80,6 +81,12 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         ESP_LOGI(WIFI_TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
+        break;
+
+    case WIFI_EVENT_STA_CONNECTED:
+        ESP_LOGI(WIFI_TAG, "module connected to ap as sta");
+        led_wifi_connected_as_sta();
+        break;
 
     default:
         break;
@@ -304,7 +311,7 @@ void wifi_start(void)
         ESP_ERROR_CHECK(esp_wifi_start());
 
         esp_netif_set_default_netif(esp_netif_sta);
-        led_wifi_app_started();
+
         log_mac_address(ESP_MAC_WIFI_SOFTAP);
         log_mac_address(ESP_MAC_WIFI_STA);
 
@@ -328,7 +335,6 @@ void wifi_start(void)
         ESP_ERROR_CHECK(esp_wifi_start());
 
         esp_netif_set_default_netif(esp_netif_sta);
-        led_wifi_app_started();
         log_mac_address(ESP_MAC_WIFI_STA);
 
         mdns_start();
@@ -337,7 +343,7 @@ void wifi_start(void)
         // start http and sntp server
         // sntp_service_init();
         http_server_start();
-        led_http_server_started();
+
         websocket_server_start();
 
         // vTaskDelay(pdMS_TO_TICKS(5000));
