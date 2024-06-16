@@ -321,7 +321,6 @@ void wifi_start(void)
         sntp_service_init();
         http_server_start();
         websocket_server_start();
-        led_http_server_started();
     }
     else
     {

@@ -10,12 +10,14 @@ idf_component_register(
         driver
 
 
+
         PRIV_REQUIRES
         fatfs
         app_update
 
 
+
         INCLUDE_DIRS "include"
 
         )
-        set_property(TARGET ${nvs_config} APPEND PROPERTY LINK_INTERFACE_MULTIPLICITY 3)
+      #  set_property(TARGET ${nvs_config} APPEND PROPERTY LINK_INTERFACE_MULTIPLICITY 3)

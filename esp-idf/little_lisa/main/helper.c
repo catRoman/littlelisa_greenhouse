@@ -5,63 +5,82 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+#include "driver/gpio.h"
 #include "helper.h"
 
 #define INITIAL_CAPACITY 10
 
-char * binary_string( uint8_t decNum )
+char *binary_string(uint8_t decNum)
 {
-    char * binaryString = malloc(sizeof(char)*11);
-    char * bitString= malloc(sizeof(char)*9);
+    char *binaryString = malloc(sizeof(char) * 11);
+    char *bitString = malloc(sizeof(char) * 9);
 
     int k = 8;
-    for(unsigned int i = 0; i <=8; i++){
+    for (unsigned int i = 0; i <= 8; i++)
+    {
         bitString[--k] = (((decNum >> i) & 1) ? '1' : '0');
     }
-    bitString[8]='\0';
+    bitString[8] = '\0';
     binaryString[0] = '0';
-    binaryString[1]='b';
-    binaryString[2]='\0';
+    binaryString[1] = 'b';
+    binaryString[2] = '\0';
 
     strcat(binaryString, bitString);
 
-
     return binaryString;
 }
-
-void trigger_panic() {
-    // Access an invalid memory address
-    volatile int *ptr = (volatile int *)0xdeadbeef;
-    *ptr = 0x12345678;  // This will cause a segmentation fault and trigger a panic
+void shiftOut595N(uint8_t data, int8_t ser_pin, int8_t srclk_pin, int8_t rclk_pin)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        // Set data pin to the value of the most significant bit
+        uint8_t bit_val = (data & (1 << (7 - i))) >> (7 - i);
+        // ESP_LOGI("shiftOut", "Bit %d: %d", i, bit_val);
+        gpio_set_level(ser_pin, bit_val);
+        // Pulse the clock pin
+        gpio_set_level(srclk_pin, 1);
+        vTaskDelay(1); // Short delay
+        gpio_set_level(srclk_pin, 0);
+    }
+    // Update the latches to reflect the new data
+    gpio_set_level(rclk_pin, 1);
+    vTaskDelay(1); // Short delay
+    gpio_set_level(rclk_pin, 0);
+    gpio_set_level(ser_pin, 0);
 }
 
-void find_and_replace(char *str, char find, char replace) {
-    while (*str) {
-        if (*str == find) {
+void trigger_panic()
+{
+    // Access an invalid memory address
+    volatile int *ptr = (volatile int *)0xdeadbeef;
+    *ptr = 0x12345678; // This will cause a segmentation fault and trigger a panic
+}
+
+void find_and_replace(char *str, char find, char replace)
+{
+    while (*str)
+    {
+        if (*str == find)
+        {
             *str = replace;
         }
         str++;
     }
 }
 
-
-
-
-
-
-
-
 // Function to initialize a new list
-List *list_create() {
+List *list_create()
+{
     List *list = (List *)malloc(sizeof(List));
-    if (list == NULL) {
+    if (list == NULL)
+    {
         return NULL; // Memory allocation failed
     }
     list->items = (int *)malloc(sizeof(int) * INITIAL_CAPACITY);
-    if (list->items == NULL) {
+    if (list->items == NULL)
+    {
         free(list);
-        list=NULL;
+        list = NULL;
         return NULL; // Memory allocation failed
     }
     list->size = 0;
@@ -70,12 +89,15 @@ List *list_create() {
 }
 
 // Function to append an item to the list
-void list_append(List *list, int item) {
-    if (list->size >= list->capacity) {
+void list_append(List *list, int item)
+{
+    if (list->size >= list->capacity)
+    {
         // Resize the list
         list->capacity *= 2;
         list->items = (int *)realloc(list->items, sizeof(int) * list->capacity);
-        if (list->items == NULL) {
+        if (list->items == NULL)
+        {
             // Memory reallocation failed
             fprintf(stderr, "Memory reallocation failed\n");
             exit(EXIT_FAILURE);
@@ -85,9 +107,12 @@ void list_append(List *list, int item) {
 }
 
 // Function to search for an item in the list
-int list_search(List *list, int target) {
-    for (int i = 0; i < list->size; i++) {
-        if (list->items[i] == target) {
+int list_search(List *list, int target)
+{
+    for (int i = 0; i < list->size; i++)
+    {
+        if (list->items[i] == target)
+        {
             return i; // Item found, return its index
         }
     }
@@ -95,24 +120,28 @@ int list_search(List *list, int target) {
 }
 
 // Function to remove an item from the list
-void list_remove(List *list, int index) {
-    if (index < 0 || index >= list->size) {
+void list_remove(List *list, int index)
+{
+    if (index < 0 || index >= list->size)
+    {
         fprintf(stderr, "Invalid index for removal\n");
         return;
     }
     // Shift items after the removed item to the left
-    for (int i = index; i < list->size - 1; i++) {
+    for (int i = index; i < list->size - 1; i++)
+    {
         list->items[i] = list->items[i + 1];
     }
     list->size--;
 }
 
 // Function to free the memory allocated for the list
-void list_destroy(List *list) {
+void list_destroy(List *list)
+{
     free(list->items);
-    list->items=NULL;
+    list->items = NULL;
     free(list);
-    list=NULL;
+    list = NULL;
 }
 //  // This example demonstrates how a human readable table of run time stats
 //  // information is generated from raw data provided by uxTaskGetSystemState().

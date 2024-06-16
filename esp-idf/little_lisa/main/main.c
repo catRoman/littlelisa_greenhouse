@@ -18,24 +18,24 @@
 #include "module_config.h"
 
 //---OTA TODOs-----
-//TODO: ota firmwar update
+// TODO: ota firmwar update
 
 //---ESP_NOW TODO----
-//TODO: esp-now feature
-//TODO: heartbeat mechanism for esp-now connected nodes (along with active ping?)
-//TODO: ACK mechanism for espnow data transmission
-//TODO: watchdog timer for nodes transmitting data
+// TODO: esp-now feature
+// TODO: heartbeat mechanism for esp-now connected nodes (along with active ping?)
+// TODO: ACK mechanism for espnow data transmission
+// TODO: watchdog timer for nodes transmitting data
 
 //---DATABASE TODO----
-//TODO: create database - send sensor data to db, and ram --> 02/22
-//TODO: db health check for recovery attempts if needed
-//TODO: database erro alert -email/led light etc
-//TODO: update landing page to retrieve data from db or ram if db down
+// TODO: create database - send sensor data to db, and ram --> 02/22
+// TODO: db health check for recovery attempts if needed
+// TODO: database erro alert -email/led light etc
+// TODO: update landing page to retrieve data from db or ram if db down
 
 //--OTHER TODO----
-//TODO: add device and system information to debug page to monitor device health
-//TODO dynamicly add link to all available node landing pages based on connected nodes
-//TODO check for time sync between nodes and controller on boot and periodically, updating as neccary ?
+// TODO: add device and system information to debug page to monitor device health
+// TODO dynamicly add link to all available node landing pages based on connected nodes
+// TODO check for time sync between nodes and controller on boot and periodically, updating as neccary ?
 
 /*  Device Information:
         Model: The specific model of the ESP device (e.g., ESP8266, ESP32).
@@ -87,9 +87,6 @@
         Power Source: The current source of power (USB, battery, external).
 */
 
-
-
-
 //==============================
 //  GLOBAL MUTEXS AND SEMAPHORES
 //==============================
@@ -97,20 +94,18 @@ SemaphoreHandle_t send_id_mutex;
 
 /**
  * freeRTOS function invocation
-*/
+ */
 void app_main(void)
 {
     static char TAG[] = "main_app";
 
     send_id_mutex = xSemaphoreCreateMutex();
-     if (send_id_mutex == NULL) {
+    if (send_id_mutex == NULL)
+    {
         // Handle error: Failed to create the mutex
         ESP_LOGE(TAG, "-------------------Failed to create send_id mutex!----------------");
         return;
-     }
+    }
     initiate_config();
-    //enviroment controls?
-
-
-
+    // enviroment controls?
 }

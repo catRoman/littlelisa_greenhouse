@@ -10,6 +10,7 @@
 
 #ifndef MAIN_TASKS_COMMON_H_
 #define MAIN_TASKS_COMMON_H_
+#include "module_config.h"
 
 // NETWORK PROCESSES
 // laptop wsl
