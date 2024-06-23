@@ -1,52 +1,204 @@
-*{
-  padding:0;
-  margin:0;
+* {
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
 }
-html{
+a {
+  color: black;
+  font-weight: 500;
+}
+a:hover {
+  text-decoration: none;
+}
+html {
   font-size: 62.5%;
   background-color: black;
 }
-body{
+body {
   font-family: "Space Grotesk", sans-serif;
   font-size: 1.6rem;
 }
-.first-sight{
+.first-sight {
   height: 100vh;
 }
+
 .nav-logo,
 .nav-links,
 .nav-socialLogin,
-.nav-socialLogin .social,
-
-nav{
-  display:flex;
+.nav-socialLogin,
+.social,
+.top-nav {
+  display: flex;
   align-items: center;
   grid-column-start: 1;
   grid-column-end: 3;
-  
+}
+.top-nav {
+  display: flex;
+  padding: 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-links {
+  gap: 2rem;
+}
+.nav-links a {
+  text-decoration: none;
+}
+.nav-links > a:hover {
+  text-decoration: underline;
+}
+.nav-socialLogin {
+  gap: 1.4rem;
+}
+.hero-btn {
+  padding: 0 0 0 2.4rem;
+  border-radius: 2.5rem;
+  border: none;
+  color: #ffffff;
+
+  border: solid 2px #000;
+  font-size: 1.6rem;
+  background-color: #000;
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+  font-family: "Space Grotesk", sans-serif;
+}
+.hero-btn-inverse {
+  padding: 0 0 0 2.4rem;
+  border-radius: 2.5rem;
+  border: ;
+  color: #000;
+  border: solid 2px #000;
+  font-weight: 600;
+  font-size: 1.6rem;
+  background-color: #fc7d1d;
+  font-family: "Space Grotesk", sans-serif;
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+.hero-btn:hover {
+  background-color: #fc7d1d;
+  color: #000;
+  font-weight: 600;
+}
+.hero-btn:hover .btn-arrow {
+  background-color: #000;
+  color: #fc7d1d;
+}
+.hero-btn-inverse:hover {
+  background-color: #000;
+  color: #fc7d1d;
+}
+
+.hero-btn-inverse:hover .btn-arrow-inverse {
+  background-color: #fc7d1d;
+  color: #000;
+}
+.btn-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 3.4rem;
+  margin: 0.5rem;
+  color: #000;
+  background-color: #fc7d1d;
+  text-align: center;
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+.btn-arrow-inverse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 3.4rem;
+  margin: 0.5rem;
+  color: #fc7d1d;
+  background-color: #000;
+  text-align: center;
+  border-radius: 50%;
+  width: 4rem;
+  height: 4rem;
+  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+
+.inner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .hero {
-  display:grid;
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 5fr 10fr 80fr 5fr;
-  height:90%;
-
-  margin: 1rem;
-  background-color:brown;
-  border-radius: 2rem;
-  padding: 1rem;
-  
+  grid-template-rows: 10fr 90fr;
+  position: relative;
+  height: 90%;
 }
-.bottom-border{
+.hero-img{
+  justify-self: center;
+  align-self: center;
+}
+.hero-title {
+  font-size: 8.4rem;
+  font-weight: 500;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+}
+.title-btn {
+  margin-top: -3.5rem;
+}
+.bottom-border {
+  display: flex;
   grid-column-start: 1;
   grid-column-end: 3;
-
-  background-image: url("../javascript.svg");
+  margin-bottom:-1rem;
+  background-image: url("../../public/leaf.png");
   background-repeat: repeat-x;
   background-size: contain;
-  align-items: end;
- height:50px;
+  position:absolute;
+  z-index: 10;
+ bottom:0;
+ left:0;
+ right:0;
+  height: 40px;
 }
+.try-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.section-container {
+  margin: 1rem;
+  background-color: #fc7d1d;
+  border-radius: 2rem;
+  padding: 1rem;
+}
+.title-box {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  gap: 3rem;
+}
+.hero-btns{
+  display: flex;
+  gap: 2rem;
 
+}
+.title-intro{
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin-right:4rem;
+  color: #000;
+}
+.
