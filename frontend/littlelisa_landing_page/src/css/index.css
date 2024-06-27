@@ -142,7 +142,9 @@ body {
   position: relative;
   height: 90%;
 }
-.hero-img{
+.hero-img {
+  height: 400px;
+  width: 400px;
   justify-self: center;
   align-self: center;
 }
@@ -160,15 +162,15 @@ body {
   display: flex;
   grid-column-start: 1;
   grid-column-end: 3;
-  margin-bottom:-1rem;
+  margin-bottom: -1rem;
   background-image: url("../../public/leaf.png");
   background-repeat: repeat-x;
   background-size: contain;
-  position:absolute;
+  position: absolute;
   z-index: 10;
- bottom:0;
- left:0;
- right:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   height: 40px;
 }
 .try-demo {
@@ -190,15 +192,46 @@ body {
   justify-content: center;
   gap: 3rem;
 }
-.hero-btns{
+.hero-btns {
   display: flex;
   gap: 2rem;
-
 }
-.title-intro{
+.title-intro {
   font-size: 2.2rem;
   font-weight: 500;
-  margin-right:4rem;
+  margin-right: 4rem;
   color: #000;
 }
-.
+//hero-img animation
+line {
+  transform-origin: top;
+  transform-box: fill-box;
+}
+
+#line1 {
+  animation: scaleUpDown 15s infinite;
+}
+
+#line2 {
+  animation: scaleUpDown 10s infinite 5s;
+}
+
+#line3 {
+  animation: scaleUpDown 15s infinite 2s;
+}
+
+#line4 {
+  animation: scaleUpDown 10s infinite 10s;
+}
+
+@keyframes scaleUpDown {
+  0% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.5);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
