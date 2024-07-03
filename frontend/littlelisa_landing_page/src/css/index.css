@@ -409,7 +409,7 @@ h2 {
   border: solid 1px #232323;
   padding: 2rem;
 }
-.process {
+.sensor {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -420,7 +420,41 @@ h2 {
 
   padding: 8rem 20rem;
 }
-.process-info {
+.sensor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: left;
+}
+.history {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10rem;
+  border-radius: 2rem;
+  height: 100vh;
+  color: #ffffff;
+
+  padding: 8rem 20rem;
+}
+.history-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: left;
+}
+.debug {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10rem;
+  border-radius: 2rem;
+  height: 100vh;
+  color: #ffffff;
+
+  padding: 8rem 20rem;
+}
+.debug-info {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -436,4 +470,21 @@ h2 {
   to {
     stroke-dashoffset: -20; /* Adjust this value based on dasharray */
   }
+}
+.enviromental-control {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10rem;
+  border-radius: 2rem;
+  height: 100vh;
+  color: #ffffff;
+
+  padding: 8rem 20rem;
+}
+.enviromental-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: left;
 }
