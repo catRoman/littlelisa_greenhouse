@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-export default function Debug() {
-  return (
-    <div className="pr-6">
-      <h1>Debug page</h1>
-    </div>
-=======
 import { ChangeEvent, useContext, useState } from "react";
 import { DebugPanelState } from "../../types/enums";
 import DeviceInfo from "../components/debug/DeviceInfo";
@@ -161,6 +154,5 @@ export default function Debug() {
         </div>
       </div>
     </main>
->>>>>>> landing_page
   );
 }

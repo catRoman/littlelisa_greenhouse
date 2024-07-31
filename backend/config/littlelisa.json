@@ -1,0 +1,16 @@
+{
+  "web": {
+    "port": 3000,
+    "serverIp": "10.0.0.204"
+  },
+  "db": {
+    "host": "10.0.0.204",
+    "port": 5432,
+    "database": "little_lisa_proto_v2",
+    "user": "little_lisa",
+    "password": "littleLisa"
+  },
+  "esp_cam": {
+    "main_stream": "http://10.0.0.249/camStream"
+  }
+}
