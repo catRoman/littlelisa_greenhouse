@@ -14,7 +14,10 @@ typedef struct Module_sensor_config_t
 
     int8_t total_sensor;
 } Module_sensor_config_t;
+<<<<<<< HEAD
 
+=======
+>>>>>>> landing_page
 typedef struct Module_info_t
 {
     char *type;
@@ -28,7 +31,10 @@ typedef struct Module_info_t
     Module_sensor_config_t **sensor_config_arr;
 
 } Module_info_t;
+<<<<<<< HEAD
 
+=======
+>>>>>>> landing_page
 esp_err_t initiate_sensor_tasks(void);
 
 void initiate_config(void);

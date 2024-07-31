@@ -17,6 +17,10 @@
 #include "env_cntrl.h"
 #include "task_common.h"
 #include "nvs_service.h"
+<<<<<<< HEAD
+=======
+#include "helper.h"
+>>>>>>> landing_page
 
 SemaphoreHandle_t xStateChangeSemaphore;
 
@@ -26,6 +30,10 @@ QueueHandle_t env_cntrl_queue_handle = NULL;
 TaskHandle_t env_cntrl_task_handle = NULL;
 extern int8_t total_relays;
 extern Env_state_t env_state_arr_gt[MAX_RELAYS];
+<<<<<<< HEAD
+=======
+uint8_t relay_bitmask = 0x00;
+>>>>>>> landing_page
 
 esp_err_t create_env_state_from_config(Env_state_t *env_cntrl_arr, int8_t total_relays)
 {
@@ -338,6 +346,7 @@ void env_cntrl_task(void *vpParameter)
             char *relay_power = relay_pwr_src_to_string(env_state_arr_gt[state_event.id].pwr_src);
             char *current_state = cntrl_state_to_string(env_state_arr_gt[state_event.id].state);
             ESP_LOGW(TAG, "env_cntrl state change recieved");
+<<<<<<< HEAD
             ESP_LOGW(TAG, "current state ->id:%d-pin:%d-type:%s-pwr_src:%s--->state:%s",
                      env_state_arr_gt[state_event.id].id,
                      env_state_arr_gt[state_event.id].pin,
@@ -353,6 +362,39 @@ void env_cntrl_task(void *vpParameter)
                      env_state_arr_gt[state_event.id].id,
                      env_state_arr_gt[state_event.id].pin,
                      state_type, relay_power, new_state);
+=======
+
+            if (env_state_arr_gt[state_event.id].pin <= 7)
+            {
+                ESP_LOGW(TAG, "current state ->id:%d-pin:%d-type:%s-pwr_src:%s--->state:%s",
+                         env_state_arr_gt[state_event.id].id,
+                         env_state_arr_gt[state_event.id].pin,
+                         state_type, relay_power, current_state);
+                env_state_arr_gt[state_event.id].state = !env_state_arr_gt[state_event.id].state;
+                char *new_state = cntrl_state_to_string(env_state_arr_gt[state_event.id].state);
+                ESP_LOGE(TAG, "old bitmask-> %s", binary_string(relay_bitmask));
+                relay_bitmask ^= (1 << env_state_arr_gt[state_event.id].pin);
+                ESP_LOGE(TAG, "new bitmask-> %s", binary_string(relay_bitmask));
+                shiftOut595N(relay_bitmask, ENV_CNTRL_SER, ENV_CNTRL_SRCLK, ENV_CNTRL_RCLK);
+                ESP_LOGW(TAG, "new state -> id:%d-pin:%d-type:%s-pwr_src:%s--->state: %s",
+                         env_state_arr_gt[state_event.id].id,
+                         env_state_arr_gt[state_event.id].pin,
+                         state_type, relay_power, new_state);
+                free(new_state);
+            }
+            else
+            {
+                ESP_LOGE(TAG, "relay pin out of range");
+                ESP_LOGW(TAG, "current state ->id:%d-pin:%d-type:%s-pwr_src:%s--->state:%s",
+                         env_state_arr_gt[state_event.id].id,
+                         env_state_arr_gt[state_event.id].pin,
+                         state_type, relay_power, current_state);
+            }
+
+            //---------------------original code
+            //            gpio_set_level(env_state_arr_gt[state_event.id].pin, env_state_arr_gt[state_event.id].state);
+            //---------------------
+>>>>>>> landing_page
             // i th8ink thhis is unesecarily reducing the life of flash
             //   ESP_LOGW(TAG, "updating nvs");
             //  nvs_set_env_state_arr(env_state_arr_gt, total_relays);
@@ -361,12 +403,70 @@ void env_cntrl_task(void *vpParameter)
             free(current_state);
             free(state_type);
             free(relay_power);
+<<<<<<< HEAD
             free(new_state);
+=======
+>>>>>>> landing_page
             taskYIELD();
         }
     }
 }
 
+<<<<<<< HEAD
+=======
+// esp_err_t initiate_env_cntrl()
+// {
+
+//     ESP_LOGI(TAG, "env_cntrl queue init started");
+//     esp_log_level_set(TAG, ESP_LOG_INFO);
+
+//     env_cntrl_queue_handle = xQueueCreate(5, sizeof(State_event_t));
+//     if (env_cntrl_queue_handle == NULL)
+//     {
+//         ESP_LOGE(TAG, "queue not created");
+//         return ESP_ERR_NO_MEM;
+//     }
+//     xStateChangeSemaphore = xSemaphoreCreateBinary();
+//     if (xStateChangeSemaphore == NULL)
+//     {
+//         ESP_LOGE(TAG, "Event Change semaphore not created");
+//         return ESP_ERR_NO_MEM;
+//     }
+
+//     ESP_LOGI(TAG, "initializing relay pins for enviromental state control to nvs set state");
+
+//     gpio_config_t io_conf[total_relays];
+//     for (int i = 0; i < total_relays; i++)
+//     {
+
+//         io_conf[i].intr_type = GPIO_INTR_DISABLE;
+//         io_conf[i].mode = GPIO_MODE_OUTPUT;
+//         io_conf[i].pin_bit_mask = (1ULL << (gpio_num_t)(env_state_arr_gt[i].pin));
+//         io_conf[i].pull_up_en = 0;
+//         io_conf[i].pull_down_en = 1;
+//         gpio_config(&io_conf[i]);
+
+//         gpio_set_level(env_state_arr_gt[i].pin, env_state_arr_gt[i].state);
+//     }
+
+//     BaseType_t task_code;
+//     task_code = xTaskCreatePinnedToCore(
+//         env_cntrl_task,
+//         "evn_state_m",
+//         ENV_CNTRL_STACK_SIZE,
+//         NULL,
+//         ENV_CNTRL_TASK_PRIORITY,
+//         &env_cntrl_task_handle,
+//         ENV_CNTRL_TASK_CORE_ID);
+//     if (task_code != pdPASS)
+//     {
+//         ESP_LOGD("Free Memory", "Available internal heap for task creation: %d", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+//         ESP_LOGE("Task Create Failed", "Unable to create task, returned: %d", task_code);
+//         return ESP_ERR_NO_MEM;
+//     }
+//     return ESP_OK;
+// }
+>>>>>>> landing_page
 esp_err_t initiate_env_cntrl()
 {
 
@@ -388,6 +488,7 @@ esp_err_t initiate_env_cntrl()
 
     ESP_LOGI(TAG, "initializing relay pins for enviromental state control to nvs set state");
 
+<<<<<<< HEAD
     gpio_config_t io_conf[total_relays];
     for (int i = 0; i < total_relays; i++)
     {
@@ -401,6 +502,33 @@ esp_err_t initiate_env_cntrl()
 
         gpio_set_level(env_state_arr_gt[i].pin, env_state_arr_gt[i].state);
     }
+=======
+    gpio_config_t io_conf;
+
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    // io_conf[i].pin_bit_mask = (1ULL << (gpio_num_t)(env_state_arr_gt[i].pin));
+    io_conf.pin_bit_mask = ((1ULL << (gpio_num_t)(ENV_CNTRL_SER)) |
+                            (1ULL << (gpio_num_t)(ENV_CNTRL_SRCLK)) |
+                            (1ULL << (gpio_num_t)(ENV_CNTRL_RCLK)));
+    io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+    io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
+    gpio_config(&io_conf);
+
+    // gpio_set_level(env_state_arr_gt[i].pin, env_state_arr_gt[i].state);
+    gpio_set_level(ENV_CNTRL_SER, 0);
+    gpio_set_level(ENV_CNTRL_SRCLK, 0);
+    gpio_set_level(ENV_CNTRL_RCLK, 0);
+
+    relay_bitmask = 0xFF;
+    shiftOut595N(relay_bitmask, ENV_CNTRL_SER, ENV_CNTRL_SRCLK, ENV_CNTRL_RCLK);
+
+    for (int i = 0; i < 8; i++)
+    {
+        env_state_arr_gt[i].state = ENV_CNTRL_OFF;
+    }
+    ESP_LOGI(TAG, "All relays initial state-off - bitmask: %s", binary_string(relay_bitmask));
+>>>>>>> landing_page
 
     BaseType_t task_code;
     task_code = xTaskCreatePinnedToCore(
@@ -419,3 +547,25 @@ esp_err_t initiate_env_cntrl()
     }
     return ESP_OK;
 }
+<<<<<<< HEAD
+=======
+
+// {
+//     for (int i = 0; i < 8; i++)
+//     {
+//         // Set data pin to the value of the most significant bit
+//         uint8_t bit_val = (data & (1 << (7 - i))) >> (7 - i);
+//         ESP_LOGI("shiftOut", "Bit %d: %d", i, bit_val);
+//         gpio_set_level(ENV_CNTRL_SER, bit_val);
+//         // Pulse the clock pin
+//         gpio_set_level(ENV_CNTRL_SRCLK, 1);
+//         vTaskDelay(1); // Short delay
+//         gpio_set_level(ENV_CNTRL_SRCLK, 0);
+//     }
+//     // Update the latches to reflect the new data
+//     gpio_set_level(ENV_CNTRL_RCLK, 1);
+//     vTaskDelay(1); // Short delay
+//     gpio_set_level(ENV_CNTRL_RCLK, 0);
+//     gpio_set_level(ENV_CNTRL_SER, 0);
+// }
+>>>>>>> landing_page

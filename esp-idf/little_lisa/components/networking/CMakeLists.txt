@@ -21,7 +21,11 @@ idf_component_register(
     PRIV_REQUIRES
         nvs_config
         networking
+<<<<<<< HEAD
         periphials
+=======
+        peripherals
+>>>>>>> landing_page
         esp_wifi
         nvs_flash
         esp_http_server

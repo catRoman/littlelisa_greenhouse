@@ -28,6 +28,10 @@
 #include "wifi_ap_sta.h"
 #include "task_common.h"
 #include "env_cntrl.h"
+<<<<<<< HEAD
+=======
+#include "led.h"
+>>>>>>> landing_page
 
 #define MAX_TEMP_SENSORS 5 // Assuming 10 is the maximum you support
 #define SQL_ID_SYNC_VAL 1
@@ -580,8 +584,12 @@ void initiate_config()
         ESP_LOGI(TAG, "{==nvs info==}\n%s\n", node_info_get_module_info_json(module_info_gt));
         // Start Wifi
         vTaskDelay(pdMS_TO_TICKS(500));
+<<<<<<< HEAD
         wifi_start();
         vTaskDelay(pdMS_TO_TICKS(500));
+=======
+
+>>>>>>> landing_page
         if (strcmp(module_info_gt->type, "controller") == 0)
         {
 
@@ -611,6 +619,12 @@ void initiate_config()
                 }
 
                 ESP_LOGI(TAG, "Starting Controller only services");
+<<<<<<< HEAD
+=======
+                cntrl_led_init();
+                wifi_start();
+                vTaskDelay(pdMS_TO_TICKS(500));
+>>>>>>> landing_page
                 // sd and db_init
                 spi_sd_card_init();
                 // vTaskDelay(pdMS_TO_TICKS(100));
@@ -627,6 +641,12 @@ void initiate_config()
         {
                 ESP_LOGI(TAG, "Starting Node only services");
                 // node only;
+<<<<<<< HEAD
+=======
+                node_led_init();
+                wifi_start();
+                vTaskDelay(pdMS_TO_TICKS(500));
+>>>>>>> landing_page
         }
         else
         {

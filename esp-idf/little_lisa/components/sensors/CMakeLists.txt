@@ -16,6 +16,7 @@ idf_component_register(
         json
         esp_http_server
         esp_http_client
+        peripherals
 
 )
 

@@ -26,6 +26,7 @@
 #include "helper.h"
 #include "sensor_helpers.h"
 #include "http_client.h"
+#include "led.h"
 
 // COMPLETED -make queue wrapper for passing genic sensor struct with state to que
 // COMNPLETED-     -->alocate memory at sensor source for sensor_struct_t and queue wrapper
@@ -410,10 +411,17 @@ void sensor_post_processing_task(void *pvParameters)
             event->sensor_data->timestamp = currentTime;
 
             // debug senor data to console
+<<<<<<< HEAD
             char *log_string = create_sensor_data_json(event->sensor_data);
             ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
             free(log_string);
             log_string = NULL;
+=======
+            // char *log_string = create_sensor_data_json(event->sensor_data);
+            // ESP_LOGE(SENSOR_EVENT_TAG, "%s", log_string);
+            // free(log_string);
+            // log_string = NULL;
+>>>>>>> landing_page
 
             // prepare to send to multiple tasks for furter proccessing
 
@@ -613,6 +621,10 @@ void sensor_send_to_server_task(void *pvParameters)
                             ESP_LOGI("HTTP_CLIENT", "HTTP POST Status = %d, content_length = %" PRId64,
                                      esp_http_client_get_status_code(client),
                                      esp_http_client_get_content_length(client));
+<<<<<<< HEAD
+=======
+                            led_db_transmission();
+>>>>>>> landing_page
                         }
                         else
                         {

@@ -12,6 +12,10 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
+<<<<<<< HEAD
+=======
+#include "led.h"
+>>>>>>> landing_page
 
 #include "esp_now_comm.h"
 #include "task_common.h"
@@ -65,6 +69,10 @@ void esp_now_comm_outgoing_data_task(void *pvParameters)
             }
             else
             {
+<<<<<<< HEAD
+=======
+                led_sensor_transmission();
+>>>>>>> landing_page
                 ESP_LOGI(ESP_NOW_COMM_TAG, "outgoing data packet sent to : %x:%x:%x:%x:%x:%x",
                          queue_packet->mac_addr[0], queue_packet->mac_addr[1], queue_packet->mac_addr[2],
                          queue_packet->mac_addr[3], queue_packet->mac_addr[4], queue_packet->mac_addr[5]);
@@ -173,6 +181,10 @@ void esp_now_comm_incoming_data_task(void *pvParameters)
                         extern QueueHandle_t sensor_queue_handle;
                         if (xQueueSend(sensor_queue_handle, &queue_packet, portMAX_DELAY) == pdPASS)
                         {
+<<<<<<< HEAD
+=======
+                            led_sensor_transmission();
+>>>>>>> landing_page
                             ESP_LOGI(ESP_NOW_COMM_TAG, "incoming data packet recieved from : %x:%x:%x:%x:%x:%x",
                                      espnow_queue_packet->mac_addr[0], espnow_queue_packet->mac_addr[1], espnow_queue_packet->mac_addr[2],
                                      espnow_queue_packet->mac_addr[3], espnow_queue_packet->mac_addr[4], espnow_queue_packet->mac_addr[5]);

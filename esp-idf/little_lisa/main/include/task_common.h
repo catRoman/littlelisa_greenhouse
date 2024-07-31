@@ -10,6 +10,10 @@
 
 #ifndef MAIN_TASKS_COMMON_H_
 #define MAIN_TASKS_COMMON_H_
+<<<<<<< HEAD
+=======
+#include "module_config.h"
+>>>>>>> landing_page
 
 // NETWORK PROCESSES
 // laptop wsl
