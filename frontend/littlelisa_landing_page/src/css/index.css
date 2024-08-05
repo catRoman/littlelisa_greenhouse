@@ -527,75 +527,79 @@ footer {
 }
 
 /* OLD WEBFORM */
-
-.webform button {
-  padding: 2rem;
-}
-.webform {
-  width: 100%;
+.form-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  box-shadow: 0 2.4rem 4.8rem rgba(0, 0, 0, 0, 0.15);
-  border-radius: 11px;
-  background-image: linear-gradient(to right top, #160729, #120621);
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  padding: 2rem;
+}
+.form-container-left {
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+}
 
-  padding: 2.4rem;
-  font-size: 3.2rem;
+.webform {
+  width: 100%;
+
+  color: #ffffff;
+
+  border-radius: 11px;
+
   line-height: 1.8;
 }
-.webform-img-box {
-  background-image: linear-gradient(to right bottom, #ffb57525, #120621),
-    url("../content/img/order-form.jpg");
-  background-size: cover;
-  background-position: center;
+.webform input {
+  background-color: #232323;
+  border-radius: 11px;
+  color: #ffffff;
+  padding: 1rem;
+  box-shadow: none;
 }
-.webform-text-box {
-  padding: 4.8rem 6.4rem 6.4rem 6.4rem;
-}
-textarea {
-  width: 100%;
-}
-fieldset {
-  margin: 2.4rem;
-  padding: 1.6rem;
-  border-color: #1d3b6c;
 
+fieldset {
+  padding: 1.6rem;
+  color: #000000;
+  font-size: 2.4rem;
+  border-color: #000000;
+  border-radius: 11px;
   display: flex;
   flex-direction: column;
 }
-.radio {
-  display: inline;
-  border: none;
-  margin: 0;
-  padding: 0;
+.section-container-form {
+  margin: 1rem;
+  background-color: #fc7d1d;
+  border-radius: 2rem;
+  padding: 8rem;
 }
-
-.comp-config {
-  grid-column-start: 2;
-}
-.warranty {
-  grid-row: 2;
-  grid-column-start: 1;
-  grid-column-end: 3;
-}
-.text-field {
-  grid-column-start: 1;
-  grid-column-end: 3;
-  grid-row: 3;
-}
-.form-btns {
+.form-btn-container {
   display: flex;
   justify-content: center;
-  grid-row: 4;
-  grid-column-start: 1;
-  grid-column-end: 3;
   align-items: center;
-  gap: 1rem;
-  margin: 2rem 0;
+  gap: 2rem;
 }
+.section-container-form h3 {
+  color: #000000;
+  font-size: 3rem;
+  margin: 0;
+}
+.countdown {
+  color: red;
+  font-size: 3rem;
+  text-shadow: 1px 1px 1px #000000;
+}
+form p {
+  color: #000000;
+  font-size: 2rem;
+}
+.drop-cap {
+  color: #000000;
+  float: left;
 
-.webform-heading {
-  margin: 2.4rem;
-  grid-column-start: 1;
-  grid-column-end: 3;
+  font-size: 75px;
+  line-height: 60px;
+  padding-top: 4px;
+  padding-right: 8px;
+  padding-left: 3px;
 }

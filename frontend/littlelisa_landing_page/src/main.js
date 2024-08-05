@@ -114,6 +114,52 @@ window.addEventListener("scroll", () => {
     scrollContainer.style.position = "absolute";
     scrollContainer.style.width = "100vw";
     scrollContainer.style.top = endOfStickyContainer + "px";
-    console.log("should stop");
+    // console.log("should stop");
   }
 });
+
+/**
+ * form buttons and validation
+ */
+
+const formSubmitBtn = document.querySelector(".form-submit");
+
+formSubmitBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  console.log("submit button clicked");
+});
+
+/**
+ * countdown clock for beta testing sign up
+ */
+const betaTestAppExpiry = new Date("Aug 9, 2024 12:00").getTime();
+
+function updateCountdown() {
+  const now = new Date().getTime();
+  const timeLeft = betaTestAppExpiry - now;
+
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+  const hours =
+    Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) +
+    days * 24;
+
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  const paddedHours = String(hours).padStart(2, "0");
+  const paddedMinutes = String(minutes).padStart(2, "0");
+  const paddedSeconds = String(seconds).padStart(2, "0");
+
+  document.querySelector(
+    ".countdown"
+  ).innerHTML = `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+
+  if (timeLeft < 0) {
+    clearInterval(countdownInterval);
+    document.querySelector(".countdown").innerHTML = "00:00:00:00";
+  }
+}
+
+const countdownInterval = setInterval(updateCountdown, 1000);
+
+updateCountdown();
