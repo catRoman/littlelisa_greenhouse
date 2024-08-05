@@ -414,15 +414,20 @@ h2 {
   transition: position 0.3s ease;
   height: 100vh;
   overflow: hidden;
+  top: 0;
 }
+footer {
+  height: 200vh;
+}
+.scroll-spacer {
+  height: 100vh;
+}
+
 .active-content {
   opacity: 1;
 }
 .inactive-content {
   opacity: 0;
-}
-.spacer {
-  height: 50vh;
 }
 
 .sensor {
@@ -434,7 +439,7 @@ h2 {
   height: 100vh;
   color: #ffffff;
 
-  padding: 8rem 20rem;
+  /* padding: 8rem 20rem; */
 }
 .sensor-info {
   display: flex;

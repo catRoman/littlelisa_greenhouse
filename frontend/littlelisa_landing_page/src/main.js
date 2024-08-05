@@ -1,46 +1,56 @@
 import "./css/index.css";
 import javascriptLogo from "./javascript.svg";
-document.addEventListener("scroll", () => {
-  const scrollPosition = window.scrollY;
-  const windowHeight = window.innerHeight;
 
-  const scrollContainer = document.querySelector(".scroll-container");
-  const content1 = document.querySelector(".sensor");
-  const content2 = document.querySelector(".enviromental-control");
-  const content3 = document.querySelector(".history");
-  const content4 = document.querySelector(".debug");
+/**
+ * sticky scroll fade in/out
+ */
 
-  // Apply sticky class when the scroll position reaches the container's top
-  if (scrollPosition > scrollContainer.offsetTop) {
-    scrollContainer.classList.add("sticky");
-  } else {
-    scrollContainer.classList.remove("sticky");
-  }
+const scrollContainer = document.querySelector(".scroll-container");
 
-  const threshold1 = windowHeight * 0.5;
-  const threshold2 = windowHeight * 1.5;
-  const threshold3 = windowHeight * 2.5;
-  const threshold4 = windowHeight * 3.5;
+const startOfStickyContainer = document
+  .querySelector(".scroll-container")
+  .getBoundingClientRect().top;
 
-  if (scrollPosition < threshold1) {
-    content1.style.opacity = 1;
-    content2.style.opacity = 0;
-    content3.style.opacity = 0;
-    content4.style.opacity = 0;
-  } else if (scrollPosition < threshold2) {
-    content1.style.opacity = 0;
-    content2.style.opacity = 1;
-    content3.style.opacity = 0;
-    content4.style.opacity = 0;
-  } else if (scrollPosition < threshold3) {
-    content1.style.opacity = 0;
-    content2.style.opacity = 0;
-    content3.style.opacity = 1;
-    content4.style.opacity = 0;
-  } else if (scrollPosition < threshold4) {
-    content1.style.opacity = 0;
-    content2.style.opacity = 0;
-    content3.style.opacity = 0;
-    content4.style.opacity = 1;
+const endOfStickyContainer = startOfStickyContainer + window.innerHeight * 3;
+
+console.log(window.innerHeight);
+console.log(endOfStickyContainer);
+
+document.querySelector(".scroll-spacer").style.height =
+  window.innerHeight * 4 + "px";
+
+window.addEventListener("scroll", () => {
+  if (
+    window.scrollY > startOfStickyContainer &&
+    window.scrollY <= endOfStickyContainer
+  ) {
+    console.log(window.scrollY);
+
+    if (
+      //scene 1
+      window.scrollY > startOfStickyContainer &&
+      window.scrollY < startOfStickyContainer + window.innerHeight
+    ) {
+      console.log("scene 1");
+    } else if (
+      //scene 2
+      window.scrollY > startOfStickyContainer + window.innerHeight &&
+      window.scrollY < startOfStickyContainer + window.innerHeight * 2
+    ) {
+      console.log("scene 2");
+    } else if (
+      //scene 3
+      window.scrollY > startOfStickyContainer + window.innerHeight * 2 &&
+      window.scrollY < startOfStickyContainer + window.innerHeight * 3
+    ) {
+      console.log("scene 3");
+    }
+    scrollContainer.style.position = "sticky";
+    scrollContainer.style.top = "0px";
+  } else if (window.scrollY > endOfStickyContainer) {
+    scrollContainer.style.position = "absolute";
+    scrollContainer.style.width = "100vw";
+    scrollContainer.style.top = endOfStickyContainer + "px";
+    console.log("should stop");
   }
 });
