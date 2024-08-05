@@ -409,6 +409,22 @@ h2 {
   border: solid 1px #232323;
   padding: 2rem;
 }
+.scroll-container {
+  position: sticky;
+  transition: position 0.3s ease;
+  height: 100vh;
+  overflow: hidden;
+}
+.active-content {
+  opacity: 1;
+}
+.inactive-content {
+  opacity: 0;
+}
+.spacer {
+  height: 50vh;
+}
+
 .sensor {
   display: flex;
   justify-content: center;
@@ -461,14 +477,14 @@ h2 {
   align-items: left;
 }
 .dashed-path {
-  stroke-dasharray: 5, 5; /* Adjust the length of dashes and gaps */
+  stroke-dasharray: 5, 5;
   stroke-width: 2;
   animation: dash 2s linear infinite;
 }
 
 @keyframes dash {
   to {
-    stroke-dashoffset: -20; /* Adjust this value based on dasharray */
+    stroke-dashoffset: -20;
   }
 }
 .enviromental-control {
