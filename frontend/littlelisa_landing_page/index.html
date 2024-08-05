@@ -585,7 +585,8 @@
     <!-- Fade in and out in sticky container-->
 
     <section class="scroll-container section-container-c">
-      <div class="sensor">
+      <div class="overlay-container">
+      <div class="scene sensor">
         <div class="sensor-info">
           <h3>02/Sensors</h3>
           <h2><span class="highlight">Simple</span> Wireless Sensor Data</h2>
@@ -1225,7 +1226,7 @@
           </svg>
         </div>
       </div>
-      <div class="enviromental-control">
+      <div class="scene enviromental-control">
         <div class="enviromental-info">
           <h3>03/Control</h3>
           <h2><span class="highlight">Complete</span> Enviromental Control</h2>
@@ -1872,9 +1873,9 @@
           </svg>
         </div>
       </div>
-      <div class="history">
+      <div class="scene history">
         <div class="history-info">
-          <h3>03/History</h3>
+          <h3>04/History</h3>
           <h2><span class="highlight">Graphical</span> Data Histories</h2>
           <p>
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus,
@@ -2519,7 +2520,7 @@
           </svg>
         </div>
       </div>
-      <div class="debug">
+      <div class="scene debug">
         <div class="debug-info">
           <h3>04/Module Debugging</h3>
           <h2><span class="highlight">Local</span> Module Debugging</h2>
@@ -3166,8 +3167,148 @@
           </svg>
         </div>
       </div>
+      </div>
+      </section>
     </section>
     <div class="scroll-spacer"></div>
+    <section class="section--webform">
+
+      <h2 class="heading--secondary webform-heading">
+        Build Your Computer
+      </h2>
+      <div>
+        <form
+          name="cOrder"
+          class="webform"
+          method="POST"
+          action="http://www.mill_computers.com/order/process.cgi"
+        >
+          <fieldset class="contact-info">
+            <legend>Contact Information</legend>
+            <label for="fName">First Name *</label>
+            <input type="text" id="fName" name="fName" required />
+            <label for="lName">Last Name *</label>
+            <input type="text" id="lName" name="lName" required />
+            <label for="street">Street Address *</label>
+            <input type="text" id="street" name="street" required />
+            <label for="city">City *</label>
+            <input type="text" id="city" name="city" required />
+            <label for="province">Province *</label>
+            <input type="text" id="province" name="province" required />
+            <label for="poscode">Postal Code *</label>
+            <input
+              type="text"
+              id="poscode"
+              name="poscode"
+              pattern="^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$"
+              title="Example. P7J1B9"
+              required
+            />
+            <label for="phone *">Phone Number:</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              pattern="^\(\d{3}\)\d{3}-\d{4}$"
+              title="Example. (123)456-7890 "
+              required
+            />
+          </fieldset>
+          <fieldset class="comp-config">
+            <legend>Computer Configuration</legend>
+            <label for="pSpeed">Processor Speed:</label>
+            <select id="pSpeed" name="pSpeed">
+              <option value="3.1 GHz">3.1 GHz</option>
+              <option value="3.5 GHz">3.5 GHz</option>
+              <option value="4.0 GHz">4.0 GHz</option>
+            </select>
+            <label for="mem">Memory:</label>
+            <select id="mem" name="mem">
+              <option value="8 GB">8 GB</option>
+              <option value="16 GB">16 GB</option>
+              <option value="32 GB">32 GB</option>
+            </select>
+            <label for="monitor">Monitor Size:</label>
+            <select id="monitor" name="monitor">
+              <option value="24 inches">24 inches</option>
+              <option value="27 inches">27 inches</option>
+              <option value="32 inches">32 inches</option>
+            </select>
+            <label for="hd">Hard Drive Size:</label>
+            <select id="hd" name="hd">
+              <option value="500 GB">500 GB</option>
+              <option value="1 TB">1 TB</option>
+              <option value="2 TB">2 TB</option>
+            </select>
+            <fieldset class="radio">
+              <label> DVD Burner </label>
+              <label for="dvd">
+                <input type="radio" name="dvd" value="Yes" />
+
+                Yes</label
+              >
+              <label for="dvd">
+                <input type="radio" name="dvd" value="No" />
+                No</label
+              >
+            </fieldset>
+
+            <fieldset class="radio">
+              <label> Tuner Card </label>
+              <label for="tuner">
+                <input type="radio" name="tuner" value="Yes" />
+
+                Yes</label
+              >
+              <label for="tuner">
+                <input type="radio" name="tuner" value="No" />
+                No</label
+              >
+            </fieldset>
+
+            <fieldset class="radio">
+              <label> Media Card Reader </label>
+              <label for="mCard">
+                <input type="radio" name="mCard" value="Yes" />
+
+                Yes</label
+              >
+              <label for="mCard">
+                <input type="radio" name="mCard" value="No" />
+                No</label
+              >
+            </fieldset>
+          </fieldset>
+          <div class="warranty">
+            <input type="checkbox" id="warranty" name="warranty" />
+            <label for="warranty">24-month Extended Warranty</label>
+          </div>
+          <div class="text-field">
+            <label for="additionalInfo"
+              >Any Special requests on your order?</label
+            >
+            <textarea
+              id="additionalInfo"
+              name="additionalInfo"
+              rows="4"
+            ></textarea>
+          </div>
+          <div class="form-btns">
+            <button type="submit">Send Order</button>
+            <button type="reset">Cancel Order</button>
+            <button
+              type="contact"
+              onclick="alert('Reach us at (608)555-8441')"
+            >
+              Contact Me
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="webform-img-box"></div>
+  </section>
     <footer class="footer section-container">
       <div>
         <p>drop cap here</p>
