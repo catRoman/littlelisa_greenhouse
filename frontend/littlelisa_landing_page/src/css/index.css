@@ -484,21 +484,22 @@ h2 {
   font-size: 2rem;
 }
 .graph-icon {
-  width: 100px;
+  width: 150px;
   height: auto;
+}
+.graph-icon-container {
+  display: flex;
+  gap: 4rem;
+  justify-content: space-around;
 }
 .history-info h3 {
   color: #ffffff;
 }
 .debug {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  margin: 20rem;
   gap: 10rem;
   border-radius: 2rem;
-  height: 100vh;
-  color: #ffffff;
-  opacity: 0;
 
   /* padding: 8rem 20rem; */
 }
@@ -531,6 +532,7 @@ h2 {
 
   /* padding: 8rem 20rem; */
 }
+
 .enviromental-info {
   display: flex;
   flex-direction: column;
@@ -675,4 +677,8 @@ footer {
   padding: 6rem 6rem;
   width: 50%;
   height: 100vh;
+}
+.end-line {
+  text-align: center;
+  margin: 20rem;
 }
