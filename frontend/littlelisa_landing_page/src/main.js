@@ -132,7 +132,7 @@ formSubmitBtn.addEventListener("click", (e) => {
 /**
  * countdown clock for beta testing sign up
  */
-const betaTestAppExpiry = new Date("Aug 9, 2024 12:00").getTime();
+const betaTestAppExpiry = new Date("Aug 7, 2024 23:20").getTime();
 
 function updateCountdown() {
   const now = new Date().getTime();
