@@ -606,3 +606,16 @@ form p {
 footer {
   color: #ffffff;
 }
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 4rem;
+  padding: 2rem;
+}
+.external-links {
+  display: flex;
+  gap: 2rem;
+}
+.header {
+}
