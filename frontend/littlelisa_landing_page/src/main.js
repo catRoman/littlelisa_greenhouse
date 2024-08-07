@@ -36,25 +36,20 @@ window.addEventListener("scroll", () => {
     ) {
       if (window.scrollY > startOfStickyContainer + window.innerHeight * 0.66) {
         console.log("fade out scene 1");
-        //linear interpolation for transitions
-        // const fadeStart = startOfStickyContainer + window.innerHeight * 0.66;
-        // const fadeEnd = startOfStickyContainer + window.innerHeight;
+        //linear interpolation for transition
+        const fadeStart = startOfStickyContainer + window.innerHeight * 0.66;
+        const fadeEnd = startOfStickyContainer + window.innerHeight;
 
-        // // Calculate normalized scroll position within the fade range
-        // const normalizedScroll =
-        //   (window.scrollY - fadeStart) / (fadeEnd - fadeStart);
+        const normalizedScroll =
+          (window.scrollY - fadeStart) / (fadeEnd - fadeStart);
 
-        // // Calculate opacity based on normalized scroll position
-        // const opacity = Math.max(1 - normalizedScroll, 0); // Ensures opacity does not go below 0
+        const opacity = Math.max(1 - normalizedScroll, 0);
 
-        // // Apply calculated opacity
-        // sensorScene.style.opacity = opacity;
+        sensorScene.style.opacity = opacity;
       } else {
         console.log("scene 1");
         sensorScene.style.opacity = 1;
         enviroScene.style.opacity = 0;
-        historyScene.style.opacity = 0;
-        debugScene.style.opacity = 0;
       }
     }
     // Scene 2
@@ -70,17 +65,14 @@ window.addEventListener("scroll", () => {
         console.log("scene 2");
         sensorScene.style.opacity = 0;
         enviroScene.style.opacity = 1;
-        historyScene.style.opacity = 0;
-        debugScene.style.opacity = 0;
       }
     }
-    // Scene 3
 
     scrollContainer.style.position = "sticky";
     scrollContainer.style.top = "0px";
   } else if (window.scrollY > endOfStickyContainer) {
     scrollContainer.style.position = "absolute";
-    scrollContainer.style.width = "100vw";
+    // scrollContainer.style.width = "100vw";
     scrollContainer.style.top = endOfStickyContainer + "px";
     // console.log("should stop");
   }
@@ -94,7 +86,8 @@ const formSubmitBtn = document.querySelector(".form-submit");
 
 formSubmitBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  console.log("submit button clicked");
+
+  alert("Thanks!");
 });
 
 /**
