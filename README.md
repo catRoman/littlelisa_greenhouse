@@ -48,8 +48,7 @@ OTA firmware update -- started jan 11
     updated:
         -http_server.c --> added ota functionality
         -http_server.h
-    add:
-        updates/udemy_esp32_app-update.bin
+   
 
     finished jan 11
 
