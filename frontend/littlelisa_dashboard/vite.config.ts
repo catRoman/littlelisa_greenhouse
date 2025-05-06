@@ -17,7 +17,7 @@ export default defineConfig({
       //   rewrite: (path) => path.replace(/^\/api/, "/api"), // Ensure this rewrite matches the expected API path
       // },
       "/api": {
-        target: "http://10.0.0.204:3000", // Make sure this is correct
+        target: "http://10.0.0.87:3000", // Make sure this is correct
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, "/api"), // Ensure this rewrite matches the expected API path
       },

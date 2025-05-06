@@ -15,7 +15,7 @@ export function startWebServer() {
   app.use(urlencoded({ extended: true }));
   app.use(express.text());
 
-  app.use("/", express.static("../frontend/littlelisa_dashboard/index.html"));
+  app.use("/", express.static("../frontend/littlelisa_dashboard/"));
   // app.use("/", express.static("public"));
   app.use("/api/cam", camRoutes);
 
