@@ -1,10 +1,10 @@
 {
   "web": {
     "port": 3000,
-    "serverIp": "10.0.0.204"
+    "serverIp": "10.0.0.87"
   },
   "db": {
-    "host": "10.0.0.204",
+    "host": "10.0.0.87",
     "port": 5432,
     "database": "little_lisa_proto_v2",
     "user": "little_lisa",
