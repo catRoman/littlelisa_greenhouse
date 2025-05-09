@@ -18,8 +18,8 @@ export const weatherIcons: WeatherIcon[] = [
       night: "clear",
     },
     icon: {
-      day: "../../public/assets/weather_icons/day_sunny.svg",
-      night: "../../public/assets/weather_icons/night_clear.svg",
+      day: "../../assets/weather_icons/day_sunny.svg",
+      night: "../../assets/weather_icons/night_clear.svg",
     },
   },
   {
@@ -29,8 +29,8 @@ export const weatherIcons: WeatherIcon[] = [
       night: "partly cloudy",
     },
     icon: {
-      day: "../../public/assets/weather_icons/day_partly_cloudy.svg",
-      night: "../../public/assets/weather_icons/night_partly_cloudy.svg",
+      day: "../../assets/weather_icons/day_partly_cloudy.svg",
+      night: "../../assets/weather_icons/night_partly_cloudy.svg",
     },
   },
   {
@@ -40,8 +40,8 @@ export const weatherIcons: WeatherIcon[] = [
       night: "cloudy",
     },
     icon: {
-      day: "../../public/assets/weather_icons/cloudy.svg",
-      night: "../../public/assets/weather_icons/cloudy.svg",
+      day: "../../assets/weather_icons/cloudy.svg",
+      night: "../../assets/weather_icons/cloudy.svg",
     },
   },
   {
@@ -51,8 +51,8 @@ export const weatherIcons: WeatherIcon[] = [
       night: "rain",
     },
     icon: {
-      day: "../../public/assets/weather_icons/day_rain.svg",
-      night: "../../public/assets/weather_icons/night_rain.svg",
+      day: "../../assets/weather_icons/day_rain.svg",
+      night: "../../assets/weather_icons/night_rain.svg",
     },
   },
   {
@@ -62,8 +62,8 @@ export const weatherIcons: WeatherIcon[] = [
       night: "snow",
     },
     icon: {
-      day: "../../public/assets/weather_icons/snow.svg",
-      night: "../../public/assets/weather_icons/snow.svg",
+      day: "../../assets/weather_icons/snow.svg",
+      night: "../../assets/weather_icons/snow.svg",
     },
   },
 ];

@@ -4,6 +4,6 @@ export type User = {
 };
 
 export const currentUser: User = {
-  picPath: "../../public/assets/profile_pics/profilePic-moustache.svg",
+  picPath: "../../assets/profile_pics/profilePic-moustache.svg",
   name: "John",
 };

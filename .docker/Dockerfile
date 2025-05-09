@@ -24,7 +24,6 @@ RUN dnf -y update && \
 	python3 \
 	python3-pip \
         python3-devel \
-    && npm install --global expo-cli eas-cli typescript \
     && dnf clean all && rm -rf /var/cache/dnf
 
 # Step 5: Download, Build, and Install Watchman from Source Tarball
@@ -97,6 +96,7 @@ USER ${USERNAME}
 ENV PATH="/home/${USERNAME}/.npm-global/bin:${PATH}"
 RUN mkdir -p /home/${USERNAME}/.npm-global && npm config set prefix /home/${USERNAME}/.npm-global
 
+RUN npm install --global expo-cli eas-cli typescript
 # Step 5: Set Working Directory
 WORKDIR /littlelisa
 

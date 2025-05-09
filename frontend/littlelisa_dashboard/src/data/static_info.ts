@@ -208,11 +208,8 @@ export const phoney_sensor_avgd = [
   },
 ];
 
-
-
 export const cntrlDataList: cntrlDataType[] = [
   {
-
     cntrl: "fan",
     currList: [
       {
@@ -233,7 +230,7 @@ export const cntrlDataList: cntrlDataType[] = [
       },
     ],
 
-    iconPath: "../../../public/assets/control icons/fans.svg",
+    iconPath: "../../../assets/control icons/fans.svg",
   },
   {
     cntrl: "light",
@@ -247,7 +244,7 @@ export const cntrlDataList: cntrlDataType[] = [
         isActive: false,
       },
     ],
-    iconPath: "../../../public/assets/control icons/lights.svg",
+    iconPath: "../../../assets/control icons/lights.svg",
   },
   {
     cntrl: "water",
@@ -261,7 +258,7 @@ export const cntrlDataList: cntrlDataType[] = [
         isActive: false,
       },
     ],
-    iconPath: "../../../public/assets/control icons/water.svg",
+    iconPath: "../../../assets/control icons/water.svg",
   },
   {
     cntrl: "fertilizer",
@@ -275,7 +272,7 @@ export const cntrlDataList: cntrlDataType[] = [
         isActive: false,
       },
     ],
-    iconPath: "../../../public/assets/control icons/fertilizer.png",
+    iconPath: "../../../assets/control icons/fertilizer.png",
   },
   {
     cntrl: "ventilation",
@@ -289,6 +286,6 @@ export const cntrlDataList: cntrlDataType[] = [
         isActive: false,
       },
     ],
-    iconPath: "../../../public/assets/control icons/vent.svg",
+    iconPath: "../../../assets/control icons/vent.svg",
   },
 ];
