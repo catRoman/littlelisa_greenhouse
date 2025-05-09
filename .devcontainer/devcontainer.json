@@ -15,7 +15,7 @@
     8081   // Metro Bundler (alternative/fallback)
   ],
 
-  "postCreateCommand": "if ! command -v expo-cli &> /dev/null; then sudo npm install --global expo-cli; fi && npm install",
+  // "postCreateCommand": "if ! command -v expo-cli &> /dev/null; then sudo npm install --global expo-cli; fi && npm install",
 
   // VS Code customizations for the container.
   "customizations": {

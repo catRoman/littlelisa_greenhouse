@@ -24,6 +24,7 @@ RUN dnf -y update && \
 	python3 \
 	python3-pip \
         python3-devel \
+    && npm install --global expo-cli eas-cli typescript \
     && dnf clean all && rm -rf /var/cache/dnf
 
 # Step 5: Download, Build, and Install Watchman from Source Tarball
@@ -66,6 +67,16 @@ RUN echo "Installing Watchman version ${WATCHMAN_VERSION_TAG}..." && \
     echo "Verifying watchman installation..." && \
     watchman version || (echo "Watchman verification failed!" && exit 1)
 
+#android_sdk setup
+ENV ANDROID_SDK_ROOT="/opt/android-sdk"
+RUN mkdir -p ${ANDROID_SDK_ROOT} && \
+    cd /tmp && \
+    wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip && \
+    sudo unzip platform-tools-latest-linux.zip -d ${ANDROID_SDK_ROOT} && \
+    sudo rm platform-tools-latest-linux.zip && \
+    echo "export PATH=\${PATH}:${ANDROID_SDK_ROOT}/platform-tools" | sudo tee /etc/profile.d/android-sdk-path.sh && \
+    sudo chmod +x /etc/profile.d/android-sdk-path.sh && \
+    sudo dnf clean all
 
 # Step 4: Create a Non-Root User (Good Practice)
 ARG USERNAME=dev
