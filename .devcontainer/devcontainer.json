@@ -1,0 +1,51 @@
+{
+  "name": "LittleLisa in Docker",
+  "image": "docker.io/catroman/littlelisa_env:1.0",
+  
+
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  // "mounts": [
+  //   "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached"
+  // ],
+
+  "forwardPorts": [
+    19000, // Expo Metro Bundler
+    19001, // Expo Metro Bundler (Inspector Proxy)
+    19002, // Expo Metro Bundler (DevTools)
+    8081   // Metro Bundler (alternative/fallback)
+  ],
+
+  "postCreateCommand": "if ! command -v expo-cli &> /dev/null; then sudo npm install --global expo-cli; fi && npm install",
+
+  // VS Code customizations for the container.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",       // For JavaScript/TypeScript linting
+        "esbenp.prettier-vscode",       // For code formatting
+        "msjsdiag.vscode-react-native", // React Native tools
+        "expo.vscode-expo-tools"        // Official Expo tools for VS Code (recommended)
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+   "remoteUser": "dev", // Or your non-root user in the Docker image.
+  // If you need to run Docker commands from inside the container (Docker-from-Docker),
+  // you might need additional configuration like mounting the Docker socket.
+  // "mounts": [
+  //  "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  // ],
+
+
+  // Environment variables for the container.
+  "remoteEnv": {
+    // This helps the Metro bundler (running in the container)
+    // advertise an IP address that your emulator (on Windows) can reach.
+    // 'host.docker.internal' should resolve to the host's IP from within the container.
+    // If it doesn't work, you might need to find your WSL2 VM's IP and use that.
+    "REACT_NATIVE_PACKAGER_HOSTNAME": "host.docker.internal"
+  }
+}
