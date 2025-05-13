@@ -24,6 +24,15 @@ RUN dnf -y update && \
 	python3 \
 	python3-pip \
         python3-devel \
+	iproute \
+	net-tools \
+	ping \
+	traceroute \
+	telnet \
+	ss \
+	wireshark-cli \
+	netcat \
+	dnsutils \
     && dnf clean all && rm -rf /var/cache/dnf
 
 # Step 5: Download, Build, and Install Watchman from Source Tarball
